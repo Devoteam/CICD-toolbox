@@ -1,0 +1,13 @@
+!./gitea/data/.gitignore
+./gitea/data/
+!./jenkins/data/.gitignore
+./jenkins/data/
+!./jenkins/config/.gitignore
+./jenkins/config/
+!./jenkins/docker/.gitignore
+./jenkins/docker/
+./jenkins/sock*
+!./nexus/data/.gitignore
+./nexus/data/
+!./postgres/data/.gitignore
+./postgres/data/
