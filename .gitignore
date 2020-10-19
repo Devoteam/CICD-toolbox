@@ -12,3 +12,8 @@ nexus/data/
 !postgres/data/.gitignore
 postgres/data/
 mytoken
+.env
+git_jenkins_token
+netcicd_token
+jenkins/data/.gitignore
+
