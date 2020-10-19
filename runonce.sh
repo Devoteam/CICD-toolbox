@@ -11,7 +11,7 @@ sudo rm -rf jenkins/config/*
 sudo rm -rf jenkins/docker/*
 sudo rm -rf jenkins/sock*
 sudo rm -rf nexus/data/*
-sudo chown -r $USER:$USER postgres/data
+sudo chown $USER:$USER postgres/data
 sudo rm -rf postgres/data/*
 echo " " 
 echo "***********************************"
