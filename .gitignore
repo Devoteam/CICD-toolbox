@@ -16,4 +16,4 @@ mytoken
 git_jenkins_token
 netcicd_token
 jenkins/data/.gitignore
-
+NetCICD/

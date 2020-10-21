@@ -38,15 +38,65 @@ echo " "
 echo "**********************************"
 echo "Create gituser"
 echo "**********************************"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin create-user --username netcicd --password netcicd --admin --email netcicd@netcicd.nl --access-token'" > netcicd_token 
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin create-user --username git-jenkins --password netcicd --admin --email git-jenkins@netcicd.nl --access-token'" > git_jenkins_token 
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin create-user --username $USER --password $USER --admin --email netcicd@netcicd.nl --access-token --must-change-password=false'" > ${USER}_token 
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin create-user --username git-jenkins --password netcicd --admin --email git-jenkins@netcicd.nl --access-token --must-change-password=false'" > git_jenkins_token 
 
-token1=`cat netcicd_token | awk '/Access token was successfully created... /{print $NF}' netcicd_token`
-echo "netcicd_token is: " $token1
+token1=`cat ${USER}_token  | awk '/Access token was successfully created... /{print $NF}' ${USER}_token `
+echo "${USER}_token  is: " $token1
 
 token2=`cat git_jenkins_token | awk '/Access token was successfully created... /{print $NF}' git_jenkins_token`
 echo "git_jenkins_token is: " $token2
+echo " "
+echo "***********************************"
 
-curl --user netcicd:netcicd -X POST "http://localhost:3000/api/v1/repos/migrate" -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"auth_password\": \"string\",  \"auth_token\": \"string\",  \"auth_username\": \"string\",  \"clone_addr\": \"https://github.com/Devoteam/NetCICD.git\",  \"description\": \"string\",  \"issues\": true,  \"labels\": true,  \"milestones\": true,  \"mirror\": true,  \"private\": true,  \"pull_requests\": true,  \"releases\": true,  \"repo_name\": \"netcicd\",  \"repo_owner\": \"netcicd\",  \"service\": \"git\",  \"uid\": 0,  \"wiki\": true}"
-curl --user netcicd:netcicd -X POST "http://localhost:3000/api/v1/repos/netcicd/netcicd/branches" -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"new_branch_name\": \"develop\"}"
-curl --user netcicd:netcicd -X PUT "http://localhost:3000/api/v1/repos/netcicd/netcicd/collaborators/git-jenkins" -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"permission\": \"write\"}"
+if [ ! -d "NetCICD" ] 
+then
+    echo "NetCICD repo does not exist. Creating..." 
+    git init NetCICD
+    git config user.name $USER
+    cd NetCICD
+    git pull https://github.com/Devoteam/NetCICD.git
+else
+    echo "NetCICD repo exists..."
+fi
+echo " "
+echo "***********************************"
+echo " Creating repo in Gitea "
+echo "***********************************"
+echo " "
+
+curl -X POST http://localhost:3000/api/v1/user/repos --user $USER:$USER \
+     -H  "accept: application/json" \
+     -H  "Content-Type: application/json" \
+     -d "{  \"auto_init\": false,  \
+            \"default_branch\": \"master\",  \
+            \"description\": \"The NetCICD version 2 repo\",  \
+            \"gitignores\": \"\",  \
+            \"issue_labels\": \"\",  \
+            \"license\": \"Mozilla\",  \
+            \"name\": \"NetCICD\",  \
+            \"private\": true,  \
+            \"readme\": \"\",  \
+            \"template\": true,  \
+            \"trust_model\": \"default\"}" > /dev/null
+
+echo " "
+echo "***********************************"
+echo "Push NetCICD repo to Gitea "
+echo "***********************************"
+echo " "
+
+git push http://$USER:$USER@localhost:3000/${USER}/NetCICD.git --all
+cd ..
+
+echo " "
+echo "***********************************"
+echo "Create Develop branch "
+echo "***********************************"
+curl -X POST "http://localhost:3000/api/v1/repos/${USER}/NetCICD/branches" --user $USER:$USER -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"new_branch_name\": \"develop\"}"
+echo " "
+echo "***********************************"
+echo "Add git-jenkins user to repo "
+echo "***********************************"
+curl -X PUT "http://localhost:3000/api/v1/repos/${USER}/NetCICD/collaborators/git-jenkins" --user git-jenkins:netcicd -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"permission\": \"write\"}"
+echo " "
