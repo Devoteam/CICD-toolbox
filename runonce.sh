@@ -24,7 +24,7 @@ echo "Use docker-compose up -d next time"
 echo "***********************************"
 echo " " 
 echo "***********************************"
-echo "Now go to http://localhost:3000 and"
+echo "Now go to http://172.16.11.3:3000 and"
 echo " "
 echo "Press install... you may need to " 
 echo " "
@@ -65,7 +65,7 @@ echo " Creating repo in Gitea "
 echo "***********************************"
 echo " "
 
-curl -X POST http://localhost:3000/api/v1/user/repos --user $USER:$USER \
+curl -X POST http://172.16.11.3:3000/api/v1/user/repos --user $USER:$USER \
      -H  "accept: application/json" \
      -H  "Content-Type: application/json" \
      -d "{  \"auto_init\": false,  \
@@ -86,17 +86,33 @@ echo "Push NetCICD repo to Gitea "
 echo "***********************************"
 echo " "
 
-git push http://$USER:$USER@localhost:3000/${USER}/NetCICD.git --all
+git push http://$USER:$USER@172.16.11.3:3000/${USER}/NetCICD.git --all
 cd ..
 
 echo " "
 echo "***********************************"
 echo "Create Develop branch "
 echo "***********************************"
-curl -X POST "http://localhost:3000/api/v1/repos/${USER}/NetCICD/branches" --user $USER:$USER -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"new_branch_name\": \"develop\"}"
+curl -X POST "http://172.16.11.3:3000/api/v1/repos/${USER}/NetCICD/branches" --user $USER:$USER -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"new_branch_name\": \"develop\"}"
 echo " "
 echo "***********************************"
 echo "Add git-jenkins user to repo "
 echo "***********************************"
-curl -X PUT "http://localhost:3000/api/v1/repos/${USER}/NetCICD/collaborators/git-jenkins" --user git-jenkins:netcicd -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"permission\": \"write\"}"
+curl -X PUT "http://172.16.11.3:3000/api/v1/repos/${USER}/NetCICD/collaborators/git-jenkins" --user git-jenkins:netcicd -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"permission\": \"write\"}"
 echo " "
+echo "***********************************"
+echo "NetCICD Toolkit install done "
+echo " "
+echo "You can reach the servers on:"
+echo " "
+echo " Gitea:       http://172.16.11.3:3000"
+echo " Jenkins:     http://172.16.11.8:8080"
+echo " Nexus:       http://172.16.11.9:8081"
+echo " Argos:       http://172.16.11.10"
+echo " "
+echo "In case you want to have the services"
+echo "local to your laptop, uncomment the "
+echo "port settings in the"
+echo "docker-compose file."
+echo " "
+echo "***********************************"

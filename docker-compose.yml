@@ -105,13 +105,13 @@ services:
 # Argos
   argos:
     container_name: argos
-    image: argosnotary/argosnotary
+    image: argosnotary/argosnotary:1.0.0
     volumes:
       - ./argos/data:/data/db
       - ./argos/config:/data/configdb
-      networks:
-        tooling:
-          ipv4_address: 172.16.11.10    
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.10    
   #    ports:
   #      - 1080:80
   #      - 8090:8080
