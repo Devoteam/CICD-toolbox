@@ -1,10 +1,7 @@
-gitea/data/
-jenkins/data/
-jenkins/config/
-jenkins/docker/
-jenkins/sock*
-nexus/data/
-postgres/data/
-*token
-NetCICD/
-
+/gitea/data/
+/jenkins/data/
+/nexus/data/
+/postgres/data/
+/*token
+/NetCICD/
+/jenkins/data/.gitignore
