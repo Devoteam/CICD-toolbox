@@ -6,7 +6,12 @@ networks:
     ipam:
       config:
         - subnet: 172.16.11.0/24
-
+  jumphosts:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.111.0/24
+      
 services:
   # Git server. We need a small one in order to run on a single machine. Can be replaced with any.
   gitea: 
@@ -121,3 +126,11 @@ services:
   
 # Conjur
 
+#devmachine
+  devmachine:
+    container_name: devver
+    build: ./devmachine
+    privileged: true
+    user: root
+    networks:
+      - jumphosts
