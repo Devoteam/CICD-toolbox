@@ -127,10 +127,3 @@ services:
 # Conjur
 
 #devmachine
-  devmachine:
-    container_name: devver
-    build: ./devmachine
-    privileged: true
-    user: root
-    networks:
-      - jumphosts
