@@ -38,8 +38,8 @@ echo " "
 echo "**********************************"
 echo "Create gituser"
 echo "**********************************"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin create-user --username $USER --password $USER --admin --email netcicd@netcicd.nl --access-token --must-change-password=false'" > ${USER}_token 
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin create-user --username git-jenkins --password netcicd --admin --email git-jenkins@netcicd.nl --access-token --must-change-password=false'" > git_jenkins_token 
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username $USER --password $USER --admin --email netcicd@netcicd.nl --access-token --must-change-password=false'" > ${USER}_token 
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-jenkins --password netcicd --admin --email git-jenkins@netcicd.nl --access-token --must-change-password=false'" > git_jenkins_token 
 
 token1=`cat ${USER}_token  | awk '/Access token was successfully created... /{print $NF}' ${USER}_token `
 echo "${USER}_token  is: " $token1

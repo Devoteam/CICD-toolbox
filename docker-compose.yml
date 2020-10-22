@@ -16,6 +16,8 @@ services:
     environment:
       - USER_UID=1000
       - USER_GID=1000
+      - DOMAIN=172.16.11.3
+      - SSH_DOMAIN=172.16.11.3
       - DB_TYPE=postgres
       - DB_HOST=db:5432
       - DB_NAME=gitea

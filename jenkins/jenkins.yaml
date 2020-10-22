@@ -16,11 +16,11 @@ credentials:
           username: "jenkins_agent"
       - usernamePassword:
           description: "Credential to be used to log in to CML to start a simulation\
-            \ (i.e. the user as whom the simulation is run)"
+          \ (i.e. the user as whom the simulation is run)"
           id: "CML-SIM-CRED"
-          password: "{AQAAABAAAAAQ49jKC7fbCtJ6okgUDvRp4zbopwgzLkqT3YxiBTA7sW4=}"
+          password: "{AQAAABAAAAAQG9DXuXyGI+DFdpacRedbPJ3Vkg9i0ewHJvMF4qeRWbo=}"
           scope: GLOBAL
-          username: "cml-sim-user"
+          username: "guest"
       - string:
           description: "URL of the CML server "
           id: "CML-URL"
