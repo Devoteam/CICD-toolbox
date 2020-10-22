@@ -89,7 +89,6 @@ throttle-concurrents:latest
 timestamper:latest
 token-macro:latest
 trilead-api:latest
-windows-slaves:latest
 workflow-aggregator:latest
 workflow-api:latest
 workflow-basic-steps:latest
