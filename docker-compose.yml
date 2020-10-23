@@ -39,9 +39,9 @@ services:
 #      - 3000:3000
 #      - 322:22
     depends_on:
-      - db
+      - gitea-db
 
-  db:
+  gitea-db:
     container_name: gitea_db
     image: postgres
     restart: always
@@ -126,4 +126,46 @@ services:
   
 # Conjur
 
+#Keycloak
+  keycloak-db:
+    image: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+  
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: password
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: Pa55w0rd
+      # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
+      #JDBC_PARAMS: "ssl=true"
+    ports:
+      - 8080:8080
+    depends_on:
+      - keycloak-db
+
 #devmachine
+  vscode:
+    container_name: vscode
+    build: devmachine
+    restart: "no"
+    network_mode: host
+    privileged: false
+    cap_add:
+      - SYS_ADMIN
+    environment:
+      - DISPLAY
+    volumes:
+      - "${HOME}:/home/vscode"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/tmp/.X11-unix:/tmp/.X11-unix" 
