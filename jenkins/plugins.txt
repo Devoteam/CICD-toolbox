@@ -46,6 +46,7 @@ jquery-detached:latest
 jquery3-api:latest
 jsch:latest
 junit:latest
+keycloak:latest
 ldap:latest
 lockable-resources:latest
 mailer:latest
