@@ -134,6 +134,9 @@ services:
     container_name: keycloak-db
     volumes:
       - ./keycloak/db:/var/lib/postgresql/data
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.11   
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
@@ -152,7 +155,10 @@ services:
       KEYCLOAK_PASSWORD: Pa55w0rd
       # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
       #JDBC_PARAMS: "ssl=true"
-    ports:
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.11   
+      ports:
       - 8080:8080
     depends_on:
       - keycloak-db
