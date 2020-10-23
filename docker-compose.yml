@@ -42,7 +42,7 @@ services:
       - gitea-db
 
   gitea-db:
-    container_name: gitea_db
+    container_name: gitea-db
     image: postgres
     restart: always
     environment:
@@ -53,7 +53,7 @@ services:
       tooling:
         ipv4_address: 172.16.11.4     
     volumes:
-      - ./postgres/data:/var/lib/postgresql/data
+      - ./gitea/db:/var/lib/postgresql/data
 
 # NetCICD Toolbox, containing TACACS, RADIUS,syslog, SNMP
   toolbox:
@@ -131,8 +131,9 @@ services:
 # Keycloak
   keycloak-db:
     image: postgres
+    container_name: keycloak-db
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./keycloak/db:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
@@ -161,7 +162,8 @@ services:
     container_name: vscode
     build: devmachine
     restart: "no"
-    network_mode: host
+    networks:
+      - jumphosts
     privileged: false
     cap_add:
       - SYS_ADMIN

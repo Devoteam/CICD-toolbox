@@ -11,8 +11,10 @@ sudo rm -rf jenkins/config/*
 sudo rm -rf jenkins/docker/*
 sudo rm -rf jenkins/sock*
 sudo rm -rf nexus/data/*
-sudo chown $USER:$USER postgres/data
-sudo rm -rf postgres/data/*
+sudo chown $USER:$USER gitea/db
+sudo rm -rf gitea/db/*
+sudo chown $USER:$USER keycloak/db
+sudo rm -rf keycloak/db/*
 echo " " 
 echo "***********************************"
 echo "Create containers"
