@@ -40,12 +40,12 @@ echo " "
 echo "**********************************"
 echo "Create gitusers"
 echo "**********************************"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin create-user --username netcicd --password netcicd --admin --email networkautomationdocker@devoteam.nl --access-token'" > netcicd_token
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username netcicd --password netcicd --admin --email networkautomationdocker@devoteam.nl --access-token'" > netcicd_token
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username $USER --password $USER --admin --email netcicd@netcicd.nl --access-token --must-change-password=false'" > ${USER}_token 
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-jenkins --password netcicd --email git-jenkins@netcicd.nl --access-token --must-change-password=false'" > git_jenkins_token 
 
 token0=`cat ${USER}_token  | awk '/Access token was successfully created... /{print $NF}' netcicd_token `
-echo "${USER}_token  is: " $token0
+echo "netcicd_token  is: " $token0
 
 token1=`cat ${USER}_token  | awk '/Access token was successfully created... /{print $NF}' ${USER}_token `
 echo "${USER}_token  is: " $token1
@@ -57,9 +57,7 @@ echo "***********************************"
 echo " Creating repo in Gitea "
 echo "***********************************"
 echo " "
-
-curl --user netcicd:netcicd -X POST "http://localhost:3000/api/v1/repos/migrate" -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"auth_password\": \"string\",  \"auth_token\": \"string\",  \"auth_username\": \"string\",  \"clone_addr\": \"https://github.com/Devoteam/NetCICD.git\",  \"description\": \"string\",  \"issues\": true,  \"labels\": true,  \"milestones\": true,  \"mirror\": true,  \"private\": true,  \"pull_requests\": true,  \"releases\": true,  \"repo_name\": \"NetCICD\",  \"repo_owner\": \"netcicd\",  \"service\": \"git\",  \"uid\": 0,  \"wiki\": true}"
-
+curl --user netcicd:netcicd -X POST "http://172.16.11.3:3000/api/v1/repos/migrate" -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"auth_password\": \"string\",  \"auth_token\": \"string\",  \"auth_username\": \"string\",  \"clone_addr\": \"https://github.com/Devoteam/NetCICD.git\",  \"description\": \"string\",  \"issues\": true,  \"labels\": true,  \"milestones\": true,  \"mirror\": true,  \"private\": true,  \"pull_requests\": true,  \"releases\": true,  \"repo_name\": \"NetCICD\",  \"repo_owner\": \"netcicd\",  \"service\": \"git\",  \"uid\": 0,  \"wiki\": true}"
 echo " "
 echo "***********************************"
 echo "Create Develop branch "
@@ -70,8 +68,6 @@ echo "***********************************"
 echo "Add $USER user to repo "
 echo "***********************************"
 curl -X PUT "http://172.16.11.3:3000/api/v1/repos/netcicd/NetCICD/collaborators/${USER}" --user netcicd:netcicd -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"permission\": \"write\"}"
-echo " "
-echo "***********************************"
 echo " "
 echo "***********************************"
 echo "Add git-jenkins user to repo "
