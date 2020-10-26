@@ -1,20 +1,17 @@
-#!/bin/bash
+#!/bin/bash 
 echo "***********************************"
 echo "Start clean" 
 echo "***********************************"
-docker-compose down
+docker-compose down --remove-orphans
 
+sudo rm -rf argos/config/*
+sudo rm -rf argos/data/*
 sudo rm -rf gitea/data/*
-sudo rm -rf jenkins/data/*
-sudo rm -rf jenkins/data/.*
-sudo rm -rf jenkins/config/*
-sudo rm -rf jenkins/docker/*
-sudo rm -rf jenkins/sock*
+sudo rm -rf jenkins/jenkins_home/*
+sudo rm -rf jenkins/jenkins_home/.*
 sudo rm -rf nexus/data/*
-sudo chown $USER:$USER gitea/db
-sudo rm -rf gitea/db/*
-sudo chown $USER:$USER keycloak/db
-sudo rm -rf keycloak/db/*
+sudo chown $USER:$USER netcicd-db/db
+sudo rm -rf netcicd-db/db/*
 echo " " 
 echo "***********************************"
 echo "Create containers"

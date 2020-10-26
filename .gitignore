@@ -1,7 +1,7 @@
 /gitea/data/
-/jenkins/data/
+/jenkins/jenkins_home/
 /nexus/data/
 /postgres/data/
 /*token
 /NetCICD/
-/jenkins/data/.gitignore
+/jenkins/jenkins_home/.gitignore
