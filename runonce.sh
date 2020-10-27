@@ -3,18 +3,37 @@ echo "***********************************"
 echo "Start clean" 
 echo "***********************************"
 docker-compose down --remove-orphans
-
+echo " " 
+echo "***********************************"
+echo " Cleaning Argos" 
+echo "***********************************"
 sudo rm -rf argos/config/*
 sudo rm -rf argos/data/*
+echo " " 
+echo "***********************************"
+echo " Cleaning Gitea" 
+echo "***********************************"
 sudo rm -rf gitea/data/*
+echo " " 
+echo "***********************************"
+echo " Cleaning Jenkins" 
+echo "***********************************"
 sudo rm -rf jenkins/jenkins_home/*
 sudo rm -rf jenkins/jenkins_home/.*
+echo " " 
+echo "***********************************"
+echo " Cleaning Nexus" 
+echo "***********************************"
 sudo rm -rf nexus/data/*
+echo " " 
+echo "***********************************"
+echo " Cleaning Databases" 
+echo "***********************************"
 sudo chown $USER:$USER netcicd-db/db
 sudo rm -rf netcicd-db/db/*
 echo " " 
 echo "***********************************"
-echo "Create containers"
+echo "Creating containers"
 echo "***********************************"
 docker-compose up -d --build
 echo " " 
@@ -22,6 +41,9 @@ echo "***********************************"
 echo "Use docker-compose up -d next time"
 echo "***********************************"
 echo " " 
+#First step is to see if keycloak is running.
+
+
 echo "***********************************"
 echo "Now go to http://172.16.11.3:3000 and"
 echo " "
@@ -30,9 +52,7 @@ echo " "
 echo " login to see install" 
 echo " "
 echo "***********************************"
-
 read -p "Press any key to continue... " -n1 -s
-
 echo " " 
 echo "**********************************"
 echo "Create gitusers"

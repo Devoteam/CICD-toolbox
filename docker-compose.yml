@@ -57,6 +57,7 @@ services:
 #      - 322:22
     depends_on:
       - netcicd-db
+      - keycloak
 
  # NetCICD Toolbox, containing TACACS, RADIUS,syslog, SNMP
   toolbox:
@@ -108,6 +109,7 @@ services:
       - CASC_JENKINS_CONFIG=/var/jenkins_conf
     depends_on:
       - jenkins-node
+      - keycloak
 
 # Nexus
   nexus:
@@ -136,7 +138,9 @@ services:
   #      - 1080:80
   #      - 8090:8080
   #      - 8087:8087
-  
+    depends_on:
+      - keycloak
+
 # Conjur
 # AWX
 
