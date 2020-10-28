@@ -106,7 +106,8 @@ services:
       - ./jenkins/jenkins_home:/var/jenkins_home
       - ./jenkins/config:/var/jenkins_conf
     environment:
-      - CASC_JENKINS_CONFIG=/var/jenkins_conf
+      - JENKINS_ADMIN_ID=netcicd
+      - JENKINS_ADMIN_PASSWORD=netcicd
     depends_on:
       - jenkins-node
       - keycloak
