@@ -148,7 +148,8 @@ services:
 # Keycloak
   keycloak:
     container_name: keycloak
-    image: quay.io/keycloak/keycloak:latest
+#    image: quay.io/keycloak/keycloak:latest
+    build: keycloak
     environment:
       DB_VENDOR: POSTGRES
       DB_ADDR: netcicd-db
@@ -168,23 +169,6 @@ services:
       - 8080:8080
     depends_on:
       - netcicd-db
-
-  keycloak-config-cli:
-    container_name: keycloak-config-cli
-    image: adorsys/keycloak-config-cli:latest
-    depends_on:
-      - keycloak
-    networks:
-      - keycloak
-    volumes:
-      - ./keycloak/config:/config
-    environment:
-      - keycloak.url=http://keycloak:8080
-      - keycloak.user=admin
-      - keycloak.password=Pa55w0rd
-      - keycloak.availability-check.enabled=true
-      - spring.profiles.active=dev
-      - import.force=false
     
 #devmachine
   vscode:
