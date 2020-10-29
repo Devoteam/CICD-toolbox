@@ -55,7 +55,6 @@ RUN chown jenkins:jenkins /home/jenkins/.ansible.cfg
 RUN chown -R jenkins:jenkins /home/jenkins
 
 COPY agent.jar /root/
-COPY connect_jenkins.sh /etc/profile.d/connect_jenkins.sh
 RUN echo "[defaults]" > /root/.ansible.cfg
 RUN echo "host_key_checking = False" >> /root/.ansible.cfg
 RUN ln -s /usr/bin/python3 /usr/bin/python
