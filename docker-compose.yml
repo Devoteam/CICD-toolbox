@@ -102,11 +102,8 @@ services:
 #      - 822:22/udp
 #      - 8081:8080
 #      - 50000:50000
-    volumes:
-      - ./jenkins/jenkins_home:/var/jenkins_home
-      - ./jenkins/config:/var/jenkins_conf
     environment:
-      - JENKINS_ADMIN_ID=netcicd
+      - JENKINS_ADMIN_ID=admin
       - JENKINS_ADMIN_PASSWORD=netcicd
     depends_on:
       - jenkins-node

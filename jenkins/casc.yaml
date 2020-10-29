@@ -4,7 +4,7 @@ jenkins:
       allowsSignup: false
       users:
         - id: ${JENKINS_ADMIN_ID}
-        password: ${JENKINS_ADMIN_PASSWORD}
+          password: ${JENKINS_ADMIN_PASSWORD}
   authorizationStrategy:
     globalMatrix:
       permissions:
@@ -12,12 +12,96 @@ jenkins:
         - "Overall/Read:authenticated"
   remotingSecurity:
     enabled: true
+  authorizationStrategy:
+    roleBased:
+      roles:
+        global:
+        - assignments:
+          - "admin"
+          - "jenkins_admin"
+          name: "admin"
+          pattern: ".*"
+          permissions:
+          - "Job/Move"
+          - "Job/Build"
+          - "Lockable Resources/View"
+          - "Credentials/Delete"
+          - "Credentials/ManageDomains"
+          - "Lockable Resources/Unlock"
+          - "View/Create"
+          - "Agent/Configure"
+          - "Job/Read"
+          - "Credentials/Update"
+          - "Agent/Create"
+          - "Job/Delete"
+          - "Agent/Build"
+          - "View/Configure"
+          - "Lockable Resources/Reserve"
+          - "Agent/Provision"
+          - "SCM/Tag"
+          - "Job/Create"
+          - "Job/Discover"
+          - "Credentials/View"
+          - "Agent/Connect"
+          - "Agent/Delete"
+          - "Run/Replay"
+          - "Agent/Disconnect"
+          - "Run/Delete"
+          - "Job/Cancel"
+          - "Overall/Read"
+          - "Run/Update"
+          - "Credentials/Create"
+          - "Overall/Administer"
+          - "View/Delete"
+          - "Job/Configure"
+          - "Job/Workspace"
+          - "View/Read"
+          - "Job/ViewStatus"
+        - assignments:
+          - "anonymous"
+          - "jenkins_readonly"
+          name: "read_only"
+          pattern: ".*"
+          permissions:
+          - "Overall/Read"
+          - "Agent/Connect"
+          - "Agent/Disconnect"
+  nodes:
+  - permanent:
+      launcher:
+        jnlp:
+          workDirSettings:
+            disabled: false
+            failIfWorkDirIsMissing: false
+            internalDir: "remoting"
+      name: "jenkins_node"
+      nodeDescription: "Jenkins Worker node"
+      remoteFS: "/root/jenkins_slave"
+      retentionStrategy: "always"
+  numExecutors: 0
+#  securityRealm: "keycloak"
 security:
   queueItemAuthenticator:
     authenticators:
     - global:
         strategy: triggeringUsersAuthorizationStrategy
-
 unclassified:
   location:
-    url: http://172.16.11.3:8080/
+    url: http://172.16.11.8:8080/
+  giteaServers:
+    servers:
+    - displayName: "Gitea"
+      manageHooks: false
+      serverUrl: "http://172.16.11.3:3000"
+  keycloakSecurityRealm:
+    keycloakJson: |-
+      {
+        "realm": "netcicd",
+        "auth-server-url": "https://172.16.11.11:8443/auth/",
+        "ssl-required": "external",
+        "resource": "Jenkins",
+        "public-client": true,
+        "confidential-port": 0
+      }
+    keycloakRespectAccessTokenTimeout: true
+    keycloakValidate: false
