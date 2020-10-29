@@ -107,11 +107,6 @@ docker exec -it keycloak sh -c "/opt/jboss/keycloak/bin/create-realm.sh"  > keyc
 cat keycloak_create.log
 echo " "
 echo "***********************************"
-echo " Connect Jenkins Node"
-echo "***********************************"
-#docker exec -it jenkins_node sh -c "java -jar /root/agent.jar -jnlpUrl http://172.16.11.8:8080/computer/jenkins_node/slave-agent.jnlp -workDir \"/root/jenkins_slave\" &"
-echo " "
-echo "***********************************"
 echo "NetCICD Toolkit install done "
 echo " "
 echo "You can reach the servers on:"

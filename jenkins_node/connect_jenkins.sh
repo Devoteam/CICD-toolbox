@@ -1,1 +1,0 @@
-java -jar /root/agent.jar -jnlpUrl http://172.16.11.8:8080/computer/jenkins_node/slave-agent.jnlp -workDir \"/root/jenkins_slave\" &
