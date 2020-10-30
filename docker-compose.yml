@@ -123,23 +123,23 @@ services:
 #      - 8082:8081
 
 # Argos
-  argos:
-    container_name: argos
-    image: argosnotary/argosnotary:1.0.0
-    volumes:
-      - ./argos/data:/data/db
-      - ./argos/config:/data/configdb
-    networks:
-      tooling:
-        ipv4_address: 172.16.11.10    
+#  argos:
+#    container_name: argos
+#    image: argosnotary/argosnotary:1.0.0
+#    volumes:
+#      - ./argos/data:/data/db
+#      - ./argos/config:/data/configdb
+#    networks:
+#      tooling:
+#        ipv4_address: 172.16.11.10    
   #    ports:
   #      - 1080:80
   #      - 8090:8080
   #      - 8087:8087
     depends_on:
-      - keycloak
+#      - keycloak
 
-# Conjur
+
 # AWX
 
 
@@ -169,18 +169,18 @@ services:
       - netcicd-db
     
 #devmachine
-  vscode:
-    container_name: vscode
-    build: devmachine
-    restart: "no"
-    networks:
-      - jumphosts
-    privileged: false
-    cap_add:
-      - SYS_ADMIN
-    environment:
-      - DISPLAY
-    volumes:
-      - "${HOME}:/home/vscode"
-      - "/var/run/docker.sock:/var/run/docker.sock"
-      - "/tmp/.X11-unix:/tmp/.X11-unix" 
+#  vscode:
+#    container_name: vscode
+#    build: devmachine
+#    restart: "no"
+#    networks:
+#      - jumphosts
+#    privileged: false
+#    cap_add:
+#      - SYS_ADMIN
+#    environment:
+#      - DISPLAY
+#    volumes:
+#      - "${HOME}:/home/vscode"
+#      - "/var/run/docker.sock:/var/run/docker.sock"
+#      - "/tmp/.X11-unix:/tmp/.X11-unix" 

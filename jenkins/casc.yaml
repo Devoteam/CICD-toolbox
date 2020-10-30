@@ -1,3 +1,13 @@
+credentials:
+  system:
+    domainCredentials:
+    - credentials:
+      - usernamePassword:
+          description: "Credentials to start simulation in VIRL/CML"
+          id: "CML-SIM-CRED"
+          password: "{AQAAABAAAAAQ4zejeUBbfP/tn98P2oWoEgahlyq2rYpZRN74JhbAOds=}"
+          scope: GLOBAL
+          username: "guest"
 jenkins:
   securityRealm:
     local:
@@ -79,6 +89,11 @@ jenkins:
       remoteFS: "/root/jenkins_slave"
       retentionStrategy: "always"
   numExecutors: 0
+  globalNodeProperties:
+    - envVars:
+        env:
+        - key: "CML_URL"
+          value: "http://192.168.32.148:19399"
 #  securityRealm: "keycloak"
 security:
   queueItemAuthenticator:
