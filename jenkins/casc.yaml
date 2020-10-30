@@ -15,6 +15,25 @@ credentials:
           password: "{AQAAABAAAAAwHAKNiY+P3qv2EI6Ovv0YvkyJ5QYvb7NbYUFa7S0D49WP4bLuQgvgFYTqjmWKkdF4WBotXYgbwOB+brC+dkQBVw==}"
           scope: GLOBAL
           username: "admin"
+      - usernamePassword:
+          description: "Credentials to be used to log into Gitea from Jenkins to retrieve\
+            \ the NetCICD repo."
+          id: "git-jenkins"
+          password: "{AQAAABAAAAAQeJ9+PEYZ0w9Fa2lf0qjpUoesxZVi8B+2WELPK3oKPh8=}"
+          scope: GLOBAL
+          username: "git-jenkins"
+      - usernamePassword:
+          description: "Credentials to be used to log into Nexus from Jenkins"
+          id: "nexus-jenkins"
+          password: "{AQAAABAAAAAQ3h7IEdId+2fUCuZ0AcGRkfNG33KLaWN6xU8SGLh8zMI=}"
+          scope: GLOBAL
+          username: "nexus-jenkins"
+      - usernamePassword:
+          description: "Credentials to be used to log into Argos from Jenkins"
+          id: "argos-jenkins"
+          password: "{AQAAABAAAAAQ0YSlxPDQ8CA47ycVgXTjESJ25sKczW74SrdpZIJA/PM=}"
+          scope: GLOBAL
+          username: "argos-jenkins"
 jenkins:
   securityRealm:
     local:
