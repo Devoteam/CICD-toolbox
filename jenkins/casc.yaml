@@ -8,6 +8,13 @@ credentials:
           password: "{AQAAABAAAAAQ4zejeUBbfP/tn98P2oWoEgahlyq2rYpZRN74JhbAOds=}"
           scope: GLOBAL
           username: "guest"
+      - usernamePassword:
+          description: "Credentials to be used to log into Jenkins and create agents.\
+            \ Username is admin, password is ADMIN TOKEN!"
+          id: "JENKINS_CRED"
+          password: "{AQAAABAAAAAwHAKNiY+P3qv2EI6Ovv0YvkyJ5QYvb7NbYUFa7S0D49WP4bLuQgvgFYTqjmWKkdF4WBotXYgbwOB+brC+dkQBVw==}"
+          scope: GLOBAL
+          username: "admin"
 jenkins:
   securityRealm:
     local:
@@ -15,6 +22,22 @@ jenkins:
       users:
         - id: ${JENKINS_ADMIN_ID}
           password: ${JENKINS_ADMIN_PASSWORD}
+        properties:
+        - "apiToken"
+        - "mailer"
+        - "myView"
+        - preferredProvider:
+            providerId: "default"
+        - "timezone"
+      - description: "The NetCICD user that is used to log into Jenkins"
+        id: "netcicd"
+        name: "netcicd"
+        properties:
+        - "apiToken"
+        - mailer:
+            emailAddress: "netcicd@example.com"
+        - preferredProvider:
+            providerId: "default"
   authorizationStrategy:
     globalMatrix:
       permissions:
@@ -29,6 +52,7 @@ jenkins:
         - assignments:
           - "admin"
           - "jenkins_admin"
+          - "netcicd"
           name: "admin"
           pattern: ".*"
           permissions:

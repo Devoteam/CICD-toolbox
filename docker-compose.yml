@@ -136,7 +136,7 @@ services:
   #      - 1080:80
   #      - 8090:8080
   #      - 8087:8087
-    depends_on:
+#    depends_on:
 #      - keycloak
 
 
