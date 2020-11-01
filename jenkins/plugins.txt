@@ -15,7 +15,6 @@ command-launcher:latest
 conditional-buildstep:latest
 config-file-provider:latest
 configuration-as-code:latest
-conjur-credentials:latest
 copyartifact:latest
 credentials:latest
 credentials-binding:latest
@@ -41,6 +40,7 @@ jackson2-api:latest
 javadoc:latest
 jdk-tool:latest
 jenkins-multijob-plugin:latest
+job-dsl:latest
 jquery:latest
 jquery-detached:latest
 jquery3-api:latest
@@ -72,6 +72,7 @@ pipeline-rest-api:latest
 pipeline-stage-step:latest
 pipeline-stage-tags-metadata:latest
 pipeline-stage-view:latest
+pipeline-utility-steps:latest
 plain-credentials:latest
 plugin-util-api:latest
 popper-api:latest

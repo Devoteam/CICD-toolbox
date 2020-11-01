@@ -5,33 +5,33 @@ credentials:
       - usernamePassword:
           description: "Credentials to start simulation in VIRL/CML"
           id: "CML-SIM-CRED"
-          password: "{AQAAABAAAAAQ4zejeUBbfP/tn98P2oWoEgahlyq2rYpZRN74JhbAOds=}"
+          password: ${CML_PASSWORD}
           scope: GLOBAL
-          username: "guest"
+          username: ${CML_USER}
       - usernamePassword:
           description: "Credentials to be used to log into Jenkins and create agents.\
-            \ Username is admin, password is ADMIN TOKEN!"
-          id: "JENKINS_CRED"
-          password: "{AQAAABAAAAAwHAKNiY+P3qv2EI6Ovv0YvkyJ5QYvb7NbYUFa7S0D49WP4bLuQgvgFYTqjmWKkdF4WBotXYgbwOB+brC+dkQBVw==}"
+            \ Username is netcicd, password is ADMIN TOKEN!"
+          id: "Jenkins-SIM"
+          password: ${JENKINS_AGENT_CREATOR_KEY}
           scope: GLOBAL
-          username: "admin"
+          username: ${JENKINS_AGENT_CREATOR}
       - usernamePassword:
           description: "Credentials to be used to log into Gitea from Jenkins to retrieve\
             \ the NetCICD repo."
           id: "git-jenkins"
-          password: "{AQAAABAAAAAQeJ9+PEYZ0w9Fa2lf0qjpUoesxZVi8B+2WELPK3oKPh8=}"
+          password: ${GIT_JENKINS_PASSWORD}
           scope: GLOBAL
           username: "git-jenkins"
       - usernamePassword:
           description: "Credentials to be used to log into Nexus from Jenkins"
           id: "nexus-jenkins"
-          password: "{AQAAABAAAAAQ3h7IEdId+2fUCuZ0AcGRkfNG33KLaWN6xU8SGLh8zMI=}"
+          password: ${NEXUS_JENKINS_PASSWORD}
           scope: GLOBAL
           username: "nexus-jenkins"
       - usernamePassword:
           description: "Credentials to be used to log into Argos from Jenkins"
           id: "argos-jenkins"
-          password: "{AQAAABAAAAAQ0YSlxPDQ8CA47ycVgXTjESJ25sKczW74SrdpZIJA/PM=}"
+          password: ${ARGOS_JENKINS_PASSWORD}
           scope: GLOBAL
           username: "argos-jenkins"
 jenkins:
@@ -41,22 +41,15 @@ jenkins:
       users:
         - id: ${JENKINS_ADMIN_ID}
           password: ${JENKINS_ADMIN_PASSWORD}
-        properties:
-        - "apiToken"
-        - "mailer"
-        - "myView"
-        - preferredProvider:
-            providerId: "default"
-        - "timezone"
-      - description: "The NetCICD user that is used to log into Jenkins"
-        id: "netcicd"
-        name: "netcicd"
-        properties:
-        - "apiToken"
-        - mailer:
-            emailAddress: "netcicd@example.com"
-        - preferredProvider:
-            providerId: "default"
+        - id: "netcicd"
+          password: ${NETCICD_PASSWORD}
+          name: "netcicd"
+          properties:
+          - "apiToken"
+          - mailer:
+              emailAddress: "netcicd@example.com"
+          - preferredProvider:
+              providerId: "default"
   authorizationStrategy:
     globalMatrix:
       permissions:
@@ -136,13 +129,18 @@ jenkins:
     - envVars:
         env:
         - key: "CML_URL"
-          value: "http://192.168.32.148:19399"
+          value: ${CML_URL}
 #  securityRealm: "keycloak"
 security:
   queueItemAuthenticator:
     authenticators:
     - global:
         strategy: triggeringUsersAuthorizationStrategy
+  scriptApproval:
+    approvedSignatures:
+    - "method hudson.slaves.SlaveComputer getJnlpMac"
+    - "method jenkins.model.Jenkins getComputer java.lang.String"
+    - "staticMethod jenkins.model.Jenkins getInstance"
 unclassified:
   location:
     url: http://172.16.11.8:8080/

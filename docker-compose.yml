@@ -105,6 +105,15 @@ services:
     environment:
       - JENKINS_ADMIN_ID=admin
       - JENKINS_ADMIN_PASSWORD=netcicd
+      - NETCICD_PASSWORD=netcicd
+      - CML_USER=guest
+      - CML_PASSWORD=guest
+      - CML_URL=http://172.16.32.148:19399
+      - GIT_JENKINS_PASSWORD=netcicd
+      - NEXUS_JENKINS_PASSWORD=netcicd
+      - ARGOS_JENKINS_PASSWORD=netcicd
+      - JENKINS_AGENT_CREATOR=netcicd
+      - JENKINS_AGENT_CREATOR_KEY=somekey
     depends_on:
       - jenkins-node
       - keycloak
@@ -163,8 +172,8 @@ services:
       tooling:
         ipv4_address: 172.16.11.11
       keycloak:   
-    ports:
-      - 8080:8080
+#    ports:
+#     - 8080:8080
     depends_on:
       - netcicd-db
     

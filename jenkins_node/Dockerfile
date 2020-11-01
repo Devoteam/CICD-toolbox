@@ -6,6 +6,7 @@ ENV JAVA_HOME "/usr"
 
 RUN apk add --update \
     openjdk8 \
+    curl \
     git \
     openssh \
     openssh-keygen \
@@ -62,6 +63,7 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 ADD docker-entrypoint.sh /usr/local/bin
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 RUN rm -rf /etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_dsa_key
-EXPOSE 22 
+EXPOSE 22
+EXPOSE 8080
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["/usr/sbin/sshd", "-D"]
