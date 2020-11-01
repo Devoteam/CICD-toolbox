@@ -2,17 +2,13 @@
 <jenkins.branch.MultiBranchProject_-State plugin="branch-api@2.6.0">
   <sourceActions>
     <entry>
-      <string>6e896273-307f-4b1f-9dad-50a4f2d297f2</string>
+      <string>b566a2bb-6769-4a11-ae5c-38bf3f253393</string>
       <list>
-        <jenkins.scm.api.metadata.ObjectMetadataAction plugin="scm-api@2.6.4">
-          <objectDescription>The NetCICD version 2 repo</objectDescription>
-          <objectUrl></objectUrl>
-        </jenkins.scm.api.metadata.ObjectMetadataAction>
-        <org.jenkinsci.plugin.gitea.GiteaLink plugin="gitea@1.2.1">
-          <iconClassName>icon-gitea-repo</iconClassName>
-          <url>http://172.16.11.3:3000/netcicd/NetCICD</url>
-        </org.jenkinsci.plugin.gitea.GiteaLink>
+        <jenkins.plugins.git.GitRemoteHeadRefAction plugin="git@4.4.5">
+          <remote>http://172.16.11.3:3000/netcicd/NetCICD.git</remote>
+          <name>master</name>
+        </jenkins.plugins.git.GitRemoteHeadRefAction>
       </list>
     </entry>
   </sourceActions>
-</jenkins.branch.MultiBranchProject_-State>
+</jenkins.branch.MultiBranchProject_-State># 
