@@ -12,6 +12,7 @@ networks:
       config:
         - subnet: 172.16.111.0/24
   keycloak:
+  reverse-proxy:
       
 services:
   # NetCICD database: we need a central location to store data
@@ -135,36 +136,43 @@ services:
   freeipa:
     container_name: freeipa
     image: freeipa/freeipa-server:centos-8
-    privileged: true
+
     restart: always
     hostname: freeipa
     domainname: example.com
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - ./freeipa/data:/data:Z 
 #    ports:
-#      - "8097:80"       # HTTP
+#      - "80:80"       # HTTP
 #      - "9444:443"      # HTTPS
 #      - "389:389"       # LDAP
-#     - "636:636"       # LDAPS
+#      - "636:636"       # LDAPS
 #      - "88:88"         # Kerberos
 #      - "464:464"       # Kerberos
 #      - "88:88/udp"     # Kerberos
 #      - "464:464/udp"   # Kerberos
 #      - "123:123/udp"   # ntp
 
+# freeipa.example.com resolves via /etc/hosts
+
     environment:
       - IPA_SERVER_HOSTNAME=freeipa.example.com
-      - IPA_SERVER_INSTALL_OPTS=-U -r example.com
+      - IPA_SERVER_INSTALL_OPTS=-U -r example.com --no-ntp
       - IPA_SERVER_IP=172.16.11.12
       - PASSWORD=password               # at least 8 characters
 
       - VIRTUAL_PROTO=https
       - VIRTUAL_HOST=freeipa.example.com
       - VIRTUAL_PORT=443
-
+    dns:
+      - 127.0.0.1
     sysctls:
       - net.ipv6.conf.all.disable_ipv6=0
     networks:
       tooling:
-        ipv4_address: 172.16.11.12     
+        ipv4_address: 172.16.11.12
+      reverse-proxy: 
 
 
 # Argos

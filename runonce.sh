@@ -29,6 +29,12 @@ echo "***********************************"
 sudo rm -rf nexus/data/*
 echo " " 
 echo "***********************************"
+echo " Cleaning FreeIPA" 
+echo "***********************************"
+sudo rm -rf freeipa/data/*
+sudo rm -rf freeipa/data/.*
+echo " " 
+echo "***********************************"
 echo " Cleaning Databases" 
 echo "***********************************"
 sudo chown $USER:$USER netcicd-db/db
