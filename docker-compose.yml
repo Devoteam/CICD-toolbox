@@ -198,10 +198,10 @@ services:
     networks:
       tooling:
         ipv4_address: 172.16.11.10    
- #    ports:
- #      - 1080:80
- #      - 8090:8080
- #      - 8087:8087
+     ports:
+       - 1080:80
+       - 8090:8080
+       - 8087:8087
     depends_on:
       - keycloak
 
