@@ -122,14 +122,14 @@ services:
       - keycloak
 
 #Node-Red
-  node-red:
-    container_name: node-red
+  nodered:
+    container_name: nodered
     image: nodered/node-red:latest
     environment:
       - TZ=Europe/Amsterdam
     volumes:
       - ./nodered/data:/data
-     networks:
+    networks:
       tooling:
         ipv4_address: 172.16.11.13
     expose:
