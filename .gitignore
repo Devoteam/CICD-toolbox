@@ -2,6 +2,7 @@
 /jenkins/jenkins_home/
 /nexus/data/
 /postgres/data/
+/nodered/data/
 /freeipa/data/
 /*token
 /NetCICD/
