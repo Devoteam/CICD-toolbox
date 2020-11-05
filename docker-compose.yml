@@ -124,7 +124,8 @@ services:
 # Nexus
   nexus:
     container_name: nexus
-    image: sonatype/nexus3
+    build: ./nexus
+#    image: sonatype/nexus3
     volumes:
       - ./nexus/data:/sonatype-work
     networks:
