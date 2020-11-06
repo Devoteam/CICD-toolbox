@@ -41,6 +41,24 @@ sudo chown $USER:$USER netcicd-db/db
 sudo rm -rf netcicd-db/db/*
 echo " " 
 echo "***********************************"
+echo " Cleaning NodeRED" 
+echo "***********************************"
+sudo chown $USER:$USER nodered/data
+sudo rm -rf nodered/data/*
+echo " " 
+echo "***********************************"
+echo " Cleaning Jupyter Notebook" 
+echo "***********************************"
+sudo chown $USER:$USER jupyter/data
+sudo rm -rf jupyter/data/*
+echo " " 
+echo "***********************************"
+echo " Cleaning Portainer" 
+echo "***********************************"
+sudo chown $USER:$USER portainer/data
+sudo rm -rf portainer/data/*
+echo " " 
+echo "***********************************"
 echo "Creating containers"
 echo "***********************************"
 docker-compose up -d --build
@@ -65,7 +83,7 @@ echo " "
 echo "**********************************"
 echo "Create gitusers"
 echo "**********************************"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username netcicd --password netcicd --admin --email networkautomationdocker@devoteam.nl --access-token'" > netcicd_token
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username netcicd --password netcicd --admin --email networkautomation@devoteam.nl --access-token'" > netcicd_token
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username $USER --password $USER --admin --email netcicd@netcicd.nl --access-token --must-change-password=false'" > ${USER}_token 
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-jenkins --password netcicd --email git-jenkins@netcicd.nl --access-token --must-change-password=false'" > git_jenkins_token 
 
@@ -87,12 +105,12 @@ echo " "
 echo "***********************************"
 echo "Create Develop branch "
 echo "***********************************"
-curl -X POST "http://172.16.11.3:3000/api/v1/repos/netcicd/NetCICD/branches" --user $USER:$USER -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"new_branch_name\": \"develop\"}"
+curl -X POST "http://172.16.11.3:3000/api/v1/repos/netcicd/NetCICD/branches" --user netcicd:netcicd -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"new_branch_name\": \"develop\"}"
 echo " "
 echo "***********************************"
 echo "Add $USER user to repo "
 echo "***********************************"
-curl -X PUT "http://172.16.11.3:3000/api/v1/repos/netcicd/NetCICD/collaborators/${USER}" --user netcicd:netcicd -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"permission\": \"write\"}"
+curl -X PUT "http://172.16.11.3:3000/api/v1/repos/netcicd/NetCICD/collaborators/${USER}" --user $USER:$USER -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"permission\": \"write\"}"
 echo " "
 echo "***********************************"
 echo "Add git-jenkins user to repo "

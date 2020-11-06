@@ -122,64 +122,64 @@ services:
       - keycloak
 
 # Nexus
-nexus:
-  container_name: nexus
-  build: ./nexus
-#    image: sonatype/nexus3
-  volumes:
-    - ./nexus/data:/sonatype-work
-  networks:
-    tooling:
-      ipv4_address: 172.16.11.9
-  expose:
-    - "8081"     
-#    ports:
-#      - 922:22/udp
-#      - 8082:8081
+  nexus:
+    container_name: nexus
+    build: ./nexus
+  #    image: sonatype/nexus3
+    volumes:
+      - ./nexus/data:/sonatype-work
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.9
+    expose:
+      - "8081"     
+  #    ports:
+  #      - 922:22/udp
+  #      - 8082:8081
 
 # Argos
-argos:
-  container_name: argos
-  image: argosnotary/argosnotary:1.0.0
-  volumes:
-    - ./argos/data:/data/db
-    - ./argos/config:/data/configdb
-  networks:
-    tooling:
-      ipv4_address: 172.16.11.10    
-  ports:
-     - 1080:80
-     - 8090:8080
-     - 8087:8087
-  depends_on:
-    - keycloak
+  argos:
+    container_name: argos
+    image: argosnotary/argosnotary:1.0.0
+    volumes:
+      - ./argos/data:/data/db
+      - ./argos/config:/data/configdb
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.10    
+    ports:
+      - 1080:80
+      - 8090:8080
+      - 8087:8087
+    depends_on:
+      - keycloak
 
 # Keycloak
-keycloak:
-  container_name: keycloak
-#    image: quay.io/keycloak/keycloak:latest
-  build: keycloak
-  environment:
-    DB_VENDOR: POSTGRES
-    DB_ADDR: netcicd-db
-    DB_DATABASE: keycloak
-    DB_USER: keycloak
-    DB_SCHEMA: public
-    DB_PASSWORD: keycloak
-    KEYCLOAK_USER: admin
-    KEYCLOAK_PASSWORD: Pa55w0rd
-    # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
-    #JDBC_PARAMS: "ssl=true"
-  networks:
-    tooling:
-      ipv4_address: 172.16.11.11
-    keycloak:
-  expose:
-    - "8080"
-#    ports:
-#     - 8080:8080
-  depends_on:
-    - netcicd-db
+  keycloak:
+    container_name: keycloak
+  #    image: quay.io/keycloak/keycloak:latest
+    build: keycloak
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: netcicd-db
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: keycloak
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: Pa55w0rd
+      # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
+      #JDBC_PARAMS: "ssl=true"
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.11
+      keycloak:
+    expose:
+      - "8080"
+  #    ports:
+  #     - 8080:8080
+    depends_on:
+      - netcicd-db
 
 # FreeIPA
   freeipa:
@@ -202,18 +202,18 @@ keycloak:
       - "88/udp"
       - "464/udp"
       - "123/udp"
-#    ports:
-#      - "80:80"       # HTTP
-#      - "9444:443"      # HTTPS
-#      - "389:389"       # LDAP
-#      - "636:636"       # LDAPS
-#      - "88:88"         # Kerberos
-#      - "464:464"       # Kerberos
-#      - "88:88/udp"     # Kerberos
-#      - "464:464/udp"   # Kerberos
-#      - "123:123/udp"   # ntp
+  #    ports:
+  #      - "80:80"       # HTTP
+  #      - "9444:443"      # HTTPS
+  #      - "389:389"       # LDAP
+  #      - "636:636"       # LDAPS
+  #      - "88:88"         # Kerberos
+  #      - "464:464"       # Kerberos
+  #      - "88:88/udp"     # Kerberos
+  #      - "464:464/udp"   # Kerberos
+  #      - "123:123/udp"   # ntp
 
-# freeipa.example.com resolves via /etc/hosts
+  # freeipa.example.com resolves via /etc/hosts
 
     environment:
       - IPA_SERVER_HOSTNAME=freeipa.home.lan
@@ -234,33 +234,49 @@ keycloak:
       reverse-proxy: 
 
 #Node-Red
-nodered:
-  container_name: nodered
-  image: nodered/node-red:latest
-  environment:
-    - TZ=Europe/Amsterdam
-  volumes:
-    - ./nodered/data:/data
-  networks:
-    tooling:
-      ipv4_address: 172.16.11.13
-  expose:
-    - "1880"     
+  nodered:
+    container_name: nodered
+    image: nodered/node-red:latest
+    environment:
+      - TZ=Europe/Amsterdam
+    volumes:
+      - ./nodered/data:/data
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.13
+    expose:
+      - "1880"     
 
 # Jupyter Notebook
-jupyter:
-  container_name: jupyter
-  image: jupyter/base-notebook
-  environment:
-    - JUPYTER_ENABLE_LAB=1
-  volumes:
-    - ./jupyter/data/:/notebooks
-  networks:
-    tooling:
-      ipv4_address: 172.16.11.14
-  expose:
-    - "8888"
-  command: start-notebook.sh   
+  jupyter:
+    container_name: jupyter
+    image: jupyter/base-notebook
+    environment:
+      - JUPYTER_ENABLE_LAB=1
+    volumes:
+      - ./jupyter/data/:/notebooks
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.14
+    expose:
+      - "8888"
+    command: start-notebook.sh \
+      --NotebookApp.password=${ACCESS_TOKEN} \
+      --NotebookApp.notebook_dir=/notebooks  
+
+# Portainer
+  portainer:
+    conatiner_name: portainer
+    image: portainer/portainer-ce
+    restart: always
+    volumes:
+      - ./portainer/data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.15
+    expose:
+      - "9000"
 
 #devmachine
 #  vscode:

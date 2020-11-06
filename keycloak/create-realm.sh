@@ -18,7 +18,7 @@ cd /opt/jboss/keycloak/bin
     -s directAccessGrantsEnabled=true \
     -s rootUrl=http://172.16.11.3:3000 \
     -s adminUrl=http://172.16.11.3:3000/ \
-    -s 'redirectUris=[ "http://172.16.11.3:3000*" ]' \
+    -s 'redirectUris=[ "http://172.16.11.3:3000/user/oauth2/keycloak/callback" ]' \
     -s 'webOrigins=[ "http://172.16.11.3:3000/" ]' \
     -o --fields id >GITEA
 
