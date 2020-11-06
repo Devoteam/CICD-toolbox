@@ -7,10 +7,10 @@ rm *_token
 rm keycloak_create.log
 echo " " 
 echo "***********************************"
-echo " Cleaning Argos" 
+echo " Cleaning Databases" 
 echo "***********************************"
-sudo rm -rf argos/config/*
-sudo rm -rf argos/data/*
+sudo chown $USER:$USER netcicd-db/db
+sudo rm -rf netcicd-db/db/*
 echo " " 
 echo "***********************************"
 echo " Cleaning Gitea" 
@@ -29,16 +29,16 @@ echo "***********************************"
 sudo rm -rf nexus/data/*
 echo " " 
 echo "***********************************"
+echo " Cleaning Argos" 
+echo "***********************************"
+sudo rm -rf argos/config/*
+sudo rm -rf argos/data/*
+echo " " 
+echo "***********************************"
 echo " Cleaning FreeIPA" 
 echo "***********************************"
 sudo rm -rf freeipa/data/*
 sudo rm -rf freeipa/data/.*
-echo " " 
-echo "***********************************"
-echo " Cleaning Databases" 
-echo "***********************************"
-sudo chown $USER:$USER netcicd-db/db
-sudo rm -rf netcicd-db/db/*
 echo " " 
 echo "***********************************"
 echo " Cleaning NodeRED" 
