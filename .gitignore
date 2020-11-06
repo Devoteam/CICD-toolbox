@@ -4,6 +4,8 @@
 /postgres/data/
 /nodered/data/
 /freeipa/data/
+/jupyter/data/
+/portainer/data/
 /*token
 /NetCICD/
 /jenkins/jenkins_home/.gitignore
