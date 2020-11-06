@@ -266,7 +266,7 @@ services:
 
 # Portainer
   portainer:
-    conatiner_name: portainer
+    container_name: portainer
     image: portainer/portainer-ce
     restart: always
     volumes:
