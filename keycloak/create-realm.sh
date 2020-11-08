@@ -14,7 +14,8 @@ cd /opt/jboss/keycloak/bin
     -s description="The Gitea git server in the toolchain" \
     -s clientId=Gitea \
     -s enabled=true \
-    -s publicClient=true \
+    -s bearerOnly=false \
+    -s publicClient=false \
     -s directAccessGrantsEnabled=true \
     -s rootUrl=http://172.16.11.3:3000 \
     -s adminUrl=http://172.16.11.3:3000/ \
@@ -24,11 +25,24 @@ cd /opt/jboss/keycloak/bin
 
 # output is Created new client with id 'f294f7f7-da37-47cf-8497-64f76ca8daab', we now need to grep the ID out of it
 GITEA_ID=$(cat GITEA | grep id | cut -d'"' -f 4)
+#echo $GITEA_ID
+
+# We need to retrieve the token from keycloak for this client
+./kcadm.sh get clients/$GITEA_ID/client-secret -r netcicd >gitea_secret
+GITEA_token=$(grep value gitea_secret | cut -d '"' -f4)
+# Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source in Gitea for Keycloak
+echo "GITEA_token: " $GITEA_token
 
 # Now we can add client specific roles (Clientroles)
 ./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-netcicd-admin -s description='The admin role for the NetCICD repo'
 ./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-netcicd-write -s description='The admin role for the NetCICD repo'
 ./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-netcicd-read -s description='The admin role for the NetCICD repo'
+
+#Now delete tokens and secrets
+rm GITEA
+rm gitea_secret
+GITEA_ID=""
+GITEA_token=""
 
 ./kcadm.sh create clients \
     -r netcicd \
@@ -78,6 +92,51 @@ NEXUS_ID=$(cat NEXUS | grep id | cut -d'"' -f 4)
 ./kcadm.sh create clients/$NEXUS_ID/roles -r netcicd -s name=nexus-docker-pull -s description='The role to be used in order to pull from the Docker mirror on Nexus'
 ./kcadm.sh create clients/$NEXUS_ID/roles -r netcicd -s name=nexus-docker-push -s description='The role to be used in order to push to the Docker mirror on Nexus'
 ./kcadm.sh create clients/$NEXUS_ID/roles -r netcicd -s name=nexus-read -s description='The role to be used for a Jenkins agent to push data to Nexus'
+
+./kcadm.sh create clients \
+    -r netcicd \
+    -s name="RADIUS" \
+    -s description="The FreeRADIUS server in the toolchain" \
+    -s clientId=RADIUS \
+    -s enabled=true \
+    -s publicClient=true \
+    -s directAccessGrantsEnabled=true \
+    -s rootUrl=http://172.16.11.5:1812 \
+    -s adminUrl=http://172.16.11.5:1812/ \
+    -s 'redirectUris=[ "http://172.16.11.5:1812/*" ]' \
+    -s 'webOrigins=[ "http://172.16.11.5:1812/" ]' \
+    -o --fields id >RADIUS
+
+# output is Created new client with id 'f294f7f7-da37-47cf-8497-64f76ca8daab', we now need to grep the ID out of it
+RADIUS_ID=$(cat RADIUS | grep id | cut -d'"' -f 4)
+
+# Now we can add client specific roles (Clientroles)
+./kcadm.sh create clients/$RADIUS_ID/roles -r netcicd -s name=RADIUS-admin -s description='The admin role for FreeRADIUS'
+./kcadm.sh create clients/$RADIUS_ID/roles -r netcicd -s name=RADIUS-LAN-client -s description='A role to be used for 802.1x authentication on switch ports'
+./kcadm.sh create clients/$RADIUS_ID/roles -r netcicd -s name=RADIUS-network-admin -s description='An admin role to be used for RADIUS based AAA on Cisco routers'
+./kcadm.sh create clients/$RADIUS_ID/roles -r netcicd -s name=RADIUS-network-operator -s description='A role to be used for RADIUS based AAA on Cisco routers'
+
+./kcadm.sh create clients \
+    -r netcicd \
+    -s name="TACACS" \
+    -s description="The TACACS+ server in the toolchain" \
+    -s clientId=TACACS \
+    -s enabled=true \
+    -s publicClient=true \
+    -s directAccessGrantsEnabled=true \
+    -s rootUrl=http://172.16.11.5:49 \
+    -s adminUrl=http://172.16.11.5:49/ \
+    -s 'redirectUris=[ "http://172.16.11.5:49/*" ]' \
+    -s 'webOrigins=[ "http://172.16.11.5:49/" ]' \
+    -o --fields id >TACACS
+
+# output is Created new client with id 'f294f7f7-da37-47cf-8497-64f76ca8daab', we now need to grep the ID out of it
+TACACS_ID=$(cat TACACS | grep id | cut -d'"' -f 4)
+
+# Now we can add client specific roles (Clientroles)
+./kcadm.sh create clients/$TACACS_ID/roles -r netcicd -s name=TACACS-admin -s description='The admin role for FreeRADIUS'
+./kcadm.sh create clients/$TACACS_ID/roles -r netcicd -s name=TACACS-network-admin -s description='An admin role to be used for RADIUS based AAA on Cisco routers, priv 15'
+./kcadm.sh create clients/$TACACS_ID/roles -r netcicd -s name=TACACS-network-operator -s description='A role to be used for RADIUS based AAA on Cisco routers, priv 2'
 
 #add users
 ./kcadm.sh create users \

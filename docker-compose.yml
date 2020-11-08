@@ -34,7 +34,8 @@ services:
   # Git server. We need a small one in order to run on a single machine. Can be replaced with any.
   gitea: 
     container_name: gitea
-    image: gitea/gitea:latest
+#    image: gitea/gitea:latest
+    build: gitea
     restart: always
     environment:
       - USER_UID=1000
@@ -62,7 +63,7 @@ services:
       - netcicd-db
       - keycloak
 
- # NetCICD Toolbox, containing TACACS, RADIUS,syslog, SNMP
+# NetCICD Toolbox, containing TACACS, RADIUS,syslog, SNMP
   toolbox:
     container_name: toolbox
     build: ./toolbox
@@ -181,57 +182,7 @@ services:
     depends_on:
       - netcicd-db
 
-# FreeIPA
-  freeipa:
-    container_name: freeipa
-    image: freeipa/freeipa-server:centos-8
-
-    restart: always
-    hostname: freeipa
-    domainname: home.lan
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-      - ./freeipa/data:/data:Z 
-    expose:
-      - "80"
-      - "443"
-      - "389"
-      - "636"
-      - "88"
-      - "464"
-      - "88/udp"
-      - "464/udp"
-      - "123/udp"
-  #    ports:
-  #      - "80:80"       # HTTP
-  #      - "9444:443"      # HTTPS
-  #      - "389:389"       # LDAP
-  #      - "636:636"       # LDAPS
-  #      - "88:88"         # Kerberos
-  #      - "464:464"       # Kerberos
-  #      - "88:88/udp"     # Kerberos
-  #      - "464:464/udp"   # Kerberos
-  #      - "123:123/udp"   # ntp
-
-  # freeipa.example.com resolves via /etc/hosts
-
-    environment:
-      - IPA_SERVER_HOSTNAME=freeipa.home.lan
-      - IPA_SERVER_INSTALL_OPTS=-U -r home.lan --no-ntp
-      - IPA_SERVER_IP=172.16.11.12
-      - PASSWORD=password               # at least 8 characters
-
-      - VIRTUAL_PROTO=http
-      - VIRTUAL_HOST=freeipa.home.lan
-      - VIRTUAL_PORT=80
-    dns:
-      - 127.0.0.1
-    sysctls:
-      - net.ipv6.conf.all.disable_ipv6=0
-    networks:
-      tooling:
-        ipv4_address: 172.16.11.12
-      reverse-proxy: 
+#Address for FreeIPA if I want to add this in the future.
 
 #Node-Red
   nodered:
