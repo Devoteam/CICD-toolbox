@@ -106,14 +106,10 @@ echo "**********************************************************************"
 echo " Create gitusers"
 echo "**********************************************************************"
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username netcicd --password netcicd --admin --email networkautomation@devoteam.nl --access-token'" > netcicd_token
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username $USER --password $USER --admin --email netcicd@netcicd.nl --access-token --must-change-password=false'" > ${USER}_token 
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-jenkins --password netcicd --email git-jenkins@netcicd.nl --access-token --must-change-password=false'" > git_jenkins_token 
 
 token0=`cat ${USER}_token  | awk '/Access token was successfully created... /{print $NF}' netcicd_token `
 echo "netcicd_token  is: " $token0
-
-token1=`cat ${USER}_token  | awk '/Access token was successfully created... /{print $NF}' ${USER}_token `
-echo "${USER}_token  is: " $token1
 
 token2=`cat git_jenkins_token | awk '/Access token was successfully created... /{print $NF}' git_jenkins_token`
 echo "git_jenkins_token is: " $token2
@@ -129,11 +125,6 @@ echo "**********************************************************************"
 curl -X POST "http://172.16.11.3:3000/api/v1/repos/netcicd/NetCICD/branches" --user netcicd:netcicd -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"new_branch_name\": \"develop\"}"
 echo " "
 echo "**********************************************************************"
-echo " Add $USER user to repo "
-echo "**********************************************************************"
-curl -X PUT "http://172.16.11.3:3000/api/v1/repos/netcicd/NetCICD/collaborators/${USER}" --user $USER:$USER -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"permission\": \"write\"}"
-echo " "
-echo "**********************************************************************"
 echo " Add git-jenkins user to repo "
 echo "**********************************************************************"
 curl -X PUT "http://172.16.11.3:3000/api/v1/repos/netcicd/NetCICD/collaborators/git-jenkins" --user netcicd:netcicd -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"permission\": \"write\"}"
@@ -142,12 +133,11 @@ echo "**********************************************************************"
 echo " Adding keycloak client key to Gitea"
 echo "**********************************************************************"
 gitea_client_id=$(grep GITEA_token keycloak_create.log | cut -d' ' -f3)
-echo $gitea_client_id
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin auth add-oauth --name keycloak --provider openidConnect --key Gitea --secret $gitea_client_id --auto-discover-url http://172.16.11.11:8080/auth/realms/netcicd/.well-known/openid-configuration --config=/data/gitea/conf/app.ini'"
-echo " "
-echo " OpenID logon works after updating the authentication provider with"
-echo " the credentials installed. Logon first time with netcicd/netcicd,"
-echo " go to site-administration->authentication settings and press update."
+echo "**********************************************************************"
+echo " Restarting Gitea"
+echo "**********************************************************************"
+docker restart gitea
 echo " "
 echo "**********************************************************************"
 echo "NetCICD Toolkit install done "
