@@ -108,7 +108,7 @@ echo "**********************************************************************"
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username netcicd --password netcicd --admin --email networkautomation@devoteam.nl --access-token'" > netcicd_token
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-jenkins --password netcicd --email git-jenkins@netcicd.nl --access-token --must-change-password=false'" > git_jenkins_token 
 
-token0=`cat ${USER}_token  | awk '/Access token was successfully created... /{print $NF}' netcicd_token `
+token0=`cat netcicd_token  | awk '/Access token was successfully created... /{print $NF}' netcicd_token `
 echo "netcicd_token  is: " $token0
 
 token2=`cat git_jenkins_token | awk '/Access token was successfully created... /{print $NF}' git_jenkins_token`
@@ -126,19 +126,14 @@ curl -X POST "http://172.16.11.3:3000/api/v1/repos/netcicd/NetCICD/branches" --u
 echo " "
 echo "**********************************************************************"
 echo " Add git-jenkins user to repo "
-echo "**********************************************************************"
 curl -X PUT "http://172.16.11.3:3000/api/v1/repos/netcicd/NetCICD/collaborators/git-jenkins" --user netcicd:netcicd -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"permission\": \"write\"}"
-echo " "
-echo "**********************************************************************"
 echo " Adding keycloak client key to Gitea"
 echo "**********************************************************************"
 gitea_client_id=$(grep GITEA_token keycloak_create.log | cut -d' ' -f3)
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin auth add-oauth --name keycloak --provider openidConnect --key Gitea --secret $gitea_client_id --auto-discover-url http://172.16.11.11:8080/auth/realms/netcicd/.well-known/openid-configuration --config=/data/gitea/conf/app.ini'"
 echo "**********************************************************************"
-echo " Restarting Gitea"
-echo "**********************************************************************"
-docker restart gitea
-echo " "
+echo " You'll need to confirm the keycloak settings in Gitea"
+echo " Site administration->Authentication Sources->keycloak->update"
 echo "**********************************************************************"
 echo "NetCICD Toolkit install done "
 echo " "
