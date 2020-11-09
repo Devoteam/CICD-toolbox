@@ -63,6 +63,18 @@ services:
       - netcicd-db
       - keycloak
 
+# RADIUS Server linked to Keycloak as per https://github.com/thomasdarimont/keycloak-freeradius-demo.git
+  radius:
+    container_name: radius
+    build: radius
+    restart: always
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.4
+    expose:
+      - "1812"
+      - "1813"
+
 # NetCICD Toolbox, containing TACACS, RADIUS,syslog, SNMP
   toolbox:
     container_name: toolbox
