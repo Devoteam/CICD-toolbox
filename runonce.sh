@@ -68,9 +68,81 @@ echo " Use docker-compose up -d next time"
 echo "**********************************************************************"
 echo " " 
 echo "**********************************************************************"
+echo " Make sure all containers are reachable locally with the name in the"
+echo " hosts file."
+sudo chmod o+w /etc/hosts
+if grep -q "gitea" /etc/hosts; then
+    echo "Gitea exists in /etc/hosts"
+else
+    echo "Add Gitea to /etc/hosts"
+    sudo echo "172.16.11.3   gitea" >> /etc/hosts
+fi
+
+if grep -q "jenkins" /etc/hosts; then
+    echo "Jenkins exists in /etc/hosts"
+else
+    echo "Add Jenkins to /etc/hosts"
+    sudo echo "172.16.11.8   jenkins" >> /etc/hosts
+fi
+
+if grep -q "nexus" /etc/hosts; then
+    echo "Nexus exists in /etc/hosts"
+else
+    echo "Add Nexus to /etc/hosts"
+    sudo echo "172.16.11.9   nexus" >> /etc/hosts
+fi
+
+if grep -q "argos" /etc/hosts; then
+    echo "Argos exists in /etc/hosts"
+else
+    echo "Add Argos to /etc/hosts"
+    sudo echo "172.16.11.10   argos" >> /etc/hosts
+fi
+
+if grep -q "keycloak" /etc/hosts; then
+    echo "Keycloak exists in /etc/hosts"
+else
+    echo "Add Keycloak to /etc/hosts"
+    sudo echo "172.16.11.11   keycloak" >> /etc/hosts
+fi
+
+if grep -q "nodered" /etc/hosts; then
+    echo "Node Red exists in /etc/hosts"
+else
+    echo "Add Node Red to /etc/hosts"
+    sudo echo "172.16.11.13   nodered" >> /etc/hosts
+fi
+
+if grep -q "jupyter" /etc/hosts; then
+    echo "Jupyter Notebook exists in /etc/hosts"
+else
+    echo "Add Jupyter to /etc/hosts"
+    sudo echo "172.16.11.14   jupyter" >> /etc/hosts
+fi
+
+if grep -q "portainer" /etc/hosts; then
+    echo "Portainer exists in /etc/hosts"
+else
+    echo "Add Potainer to /etc/hosts"
+    sudo echo "172.16.11.15   portainer" >> /etc/hosts
+fi
+
+if grep -q "cml" /etc/hosts; then
+    echo "cml exists in /etc/hosts"
+else
+    echo "Add Cisco Modeling Labs to /etc/hosts"
+    sudo echo "172.16.32.148   cml" >> /etc/hosts
+fi
+sudo chmod o-w /etc/hosts
+echo " " 
+echo "**********************************************************************"
 echo " Wait until keycloak is running"
 echo "**********************************************************************"
-until $(curl --output /dev/null --silent --head --fail http://172.16.11.11:8080); do
+echo " " 
+echo "**********************************************************************"
+echo " Wait until keycloak is running"
+echo "**********************************************************************"
+until $(curl --output /dev/null --silent --head --fail http://keycloak:8080); do
     printf '.'
     sleep 5
 done
@@ -84,12 +156,12 @@ cat keycloak_create.log
 echo " " 
 echo "**********************************************************************"
 echo " Wait until gitea is running"
-until $(curl --output /dev/null --silent --head --fail http://172.16.11.3:3000); do
+until $(curl --output /dev/null --silent --head --fail http://gitea:3000); do
     printf '.'
     sleep 5
 done
 echo "**********************************************************************"
-echo " Now go to http://172.16.11.3:3000 and"
+echo " Now go to http://gitea:3000 and"
 echo " "
 echo " Press install... you may need to " 
 echo " "
@@ -105,11 +177,11 @@ echo " "
 echo "**********************************************************************"
 echo " Create gitusers"
 echo "**********************************************************************"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username netcicd --password netcicd --admin --email networkautomation@devoteam.nl --access-token'" > netcicd_token
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username devoteam --password netcicd --admin --email networkautomation@devoteam.nl --access-token'" > admin_token
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-jenkins --password netcicd --email git-jenkins@netcicd.nl --access-token --must-change-password=false'" > git_jenkins_token 
 
-token0=`cat netcicd_token  | awk '/Access token was successfully created... /{print $NF}' netcicd_token `
-echo "netcicd_token  is: " $token0
+token0=`cat admin_token  | awk '/Access token was successfully created... /{print $NF}' admin_token `
+echo "admin_token  is: " $token0
 
 token2=`cat git_jenkins_token | awk '/Access token was successfully created... /{print $NF}' git_jenkins_token`
 echo "git_jenkins_token is: " $token2
@@ -117,36 +189,49 @@ echo " "
 echo "**********************************************************************"
 echo " Creating repo in Gitea "
 echo "**********************************************************************"
-curl --user netcicd:netcicd -X POST "http://172.16.11.3:3000/api/v1/repos/migrate" -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"auth_password\": \"string\",  \"auth_token\": \"string\",  \"auth_username\": \"string\",  \"clone_addr\": \"https://github.com/Devoteam/NetCICD.git\",  \"description\": \"string\",  \"issues\": true,  \"labels\": true,  \"milestones\": true,  \"mirror\": false,  \"private\": true,  \"pull_requests\": true,  \"releases\": true,  \"repo_name\": \"NetCICD\",  \"repo_owner\": \"netcicd\",  \"service\": \"git\",  \"uid\": 0,  \"wiki\": true}"
+curl --user devoteam:netcicd -X POST "http://gitea:3000/api/v1/repos/migrate" -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"auth_password\": \"string\",  \"auth_token\": \"string\",  \"auth_username\": \"string\",  \"clone_addr\": \"https://github.com/Devoteam/NetCICD.git\",  \"description\": \"string\",  \"issues\": true,  \"labels\": true,  \"milestones\": true,  \"mirror\": false,  \"private\": true,  \"pull_requests\": true,  \"releases\": true,  \"repo_name\": \"NetCICD\",  \"repo_owner\": \"devoteam\",  \"service\": \"git\",  \"uid\": 0,  \"wiki\": true}"
 echo " "
 echo "**********************************************************************"
 echo " Create Develop branch "
 echo "**********************************************************************"
-curl -X POST "http://172.16.11.3:3000/api/v1/repos/netcicd/NetCICD/branches" --user netcicd:netcicd -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"new_branch_name\": \"develop\"}"
+curl -X POST "http://gitea:3000/api/v1/repos/devoteam/NetCICD/branches" --user devoteam:netcicd -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"new_branch_name\": \"develop\"}"
 echo " "
 echo "**********************************************************************"
 echo " Add git-jenkins user to repo "
-curl -X PUT "http://172.16.11.3:3000/api/v1/repos/netcicd/NetCICD/collaborators/git-jenkins" --user netcicd:netcicd -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"permission\": \"write\"}"
+curl -X PUT "http://gitea:3000/api/v1/repos/devoteam/NetCICD/collaborators/git-jenkins" --user devoteam:netcicd -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"permission\": \"write\"}"
 echo " Adding keycloak client key to Gitea"
-echo "**********************************************************************"
+echo " "
 gitea_client_id=$(grep GITEA_token keycloak_create.log | cut -d' ' -f3)
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin auth add-oauth --name keycloak --provider openidConnect --key Gitea --secret $gitea_client_id --auto-discover-url http://172.16.11.11:8080/auth/realms/netcicd/.well-known/openid-configuration --config=/data/gitea/conf/app.ini'"
-echo "**********************************************************************"
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin auth add-oauth --name keycloak --provider openidConnect --key Gitea --secret $gitea_client_id --auto-discover-url http://keycloak:8080/auth/realms/netcicd/.well-known/openid-configuration --config=/data/gitea/conf/app.ini'"
+echo " "
 echo " You'll need to confirm the keycloak settings in Gitea"
 echo " Site administration->Authentication Sources->keycloak->update"
+echo "**********************************************************************"
+echo "Saving Keycloak self-signed certificate"
+echo "**********************************************************************"
+openssl s_client -showcerts -connect keycloak:8443 </dev/null 2>/dev/null|openssl x509 -outform PEM >./jenkins/keystore/keycloak.pem
+echo "**********************************************************************"
+echo " Copy certificate into Jenkins keystore"
+echo "**********************************************************************"
+docker cp jenkins:/usr/local/openjdk-8/jre/lib/security/cacerts ./jenkins/keystore/cacerts
+chmod +w ./jenkins/keystore/cacerts
+keytool -import -alias Keycloak -keystore ./jenkins/keystore/cacerts -file ./jenkins/keystore/keycloak.pem -storepass changeit -noprompt
+docker cp ./jenkins/keystore/cacerts jenkins:/usr/local/openjdk-8/jre/lib/security/cacerts
+docker start jenkins
+
 echo "**********************************************************************"
 echo "NetCICD Toolkit install done "
 echo " "
 echo "You can reach the servers on:"
 echo " "
-echo " Gitea:       http://172.16.11.3:3000"
-echo " Jenkins:     http://172.16.11.8:8080"
-echo " Nexus:       http://172.16.11.9:8081"
-echo " Argos:       http://172.16.11.10"
-echo " Keycloak:    http://172.16.11.11:8443"
-echo " Node-red:    http://172.16.11.13:1880"
-echo " Jupyter:     http://172.16.11.14:8888"
-echo " Portainer:   http://172.16.11.15:9000"
+echo " Gitea:       http://gitea:3000"
+echo " Jenkins:     http://jenkins:8080"
+echo " Nexus:       http://nexus:8081"
+echo " Argos:       http://argos"
+echo " Keycloak:    http://keycloak:8443"
+echo " Node-red:    http://nodered:1880"
+echo " Jupyter:     http://jupyter:8888"
+echo " Portainer:   http://portainer:9000"
 echo " "
 echo " There is one last step to take,"
 echo " which is setting the JENKINS-SIM"

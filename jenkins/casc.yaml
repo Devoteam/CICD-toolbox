@@ -164,7 +164,7 @@ jenkins:
   - envVars:
       env:
       - key: "CML_URL"
-        value: "http://172.16.32.148:19399"
+        value: "http://cml:19399"
   labelAtoms:
   - name: "jenkins_node"
   - name: "master"
@@ -199,20 +199,22 @@ security:
     - "staticMethod jenkins.model.Jenkins getInstance"
 unclassified:
   location:
-    url: http://172.16.11.8:8080/
+    url: http://jenkins:8080/
   giteaServers:
     servers:
     - displayName: "Gitea"
       manageHooks: false
-      serverUrl: "http://172.16.11.3:3000"
+      serverUrl: "http://gitea:3000"
   keycloakSecurityRealm:
     keycloakJson: |-
       {
         "realm": "netcicd",
-        "auth-server-url": "https://172.16.11.11:8443/auth/",
+        "auth-server-url": "https://keycloak:8443/auth/",
         "ssl-required": "external",
         "resource": "Jenkins",
         "public-client": true,
+        "verify-token-audience": true,
+        "use-resource-role-mappings": true,
         "confidential-port": 0
       }
     keycloakRespectAccessTokenTimeout: true

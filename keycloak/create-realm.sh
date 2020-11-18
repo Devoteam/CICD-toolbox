@@ -2,7 +2,7 @@
 # shell script to be copied into /opt/jboss/keycloak/bin
 cd /opt/jboss/keycloak/bin
 #Create credentials
-./kcadm.sh config credentials --server http://localhost:8080/auth --realm master --user admin --password Pa55w0rd
+./kcadm.sh config credentials --server http://172.16.11.11:8080/auth --realm master --user admin --password Pa55w0rd
 
 #add realm
 ./kcadm.sh create realms -s realm=netcicd -s enabled=true
@@ -17,13 +17,13 @@ cd /opt/jboss/keycloak/bin
     -s bearerOnly=false \
     -s publicClient=false \
     -s directAccessGrantsEnabled=true \
-    -s rootUrl=http://172.16.11.3:3000 \
-    -s adminUrl=http://172.16.11.3:3000/ \
-    -s 'redirectUris=[ "http://172.16.11.3:3000/user/oauth2/keycloak/callback" ]' \
-    -s 'webOrigins=[ "http://172.16.11.3:3000/" ]' \
+    -s rootUrl=http://gitea:3000 \
+    -s adminUrl=http://gitea:3000/ \
+    -s 'redirectUris=[ "http://gitea:3000/user/oauth2/keycloak/callback" ]' \
+    -s 'webOrigins=[ "http://gitea:3000/" ]' \
     -o --fields id >GITEA
 
-# output is Created new client with id 'f294f7f7-da37-47cf-8497-64f76ca8daab', we now need to grep the ID out of it
+# output is Created new client with id, we now need to grep the ID out of it
 GITEA_ID=$(cat GITEA | grep id | cut -d'"' -f 4)
 #echo $GITEA_ID
 
@@ -52,13 +52,13 @@ GITEA_token=""
     -s enabled=true \
     -s publicClient=true \
     -s directAccessGrantsEnabled=true \
-    -s rootUrl=http://172.16.11.8:8080 \
-    -s adminUrl=http://172.16.11.8:8080/ \
-    -s 'redirectUris=[ "http://172.16.11.8:8080/*" ]' \
-    -s 'webOrigins=[ "http://172.16.11.8:8080/" ]' \
+    -s rootUrl=http://jenkins:8080 \
+    -s adminUrl=http://jenkins:8080/ \
+    -s 'redirectUris=[ "http://jenkins:8080/*" ]' \
+    -s 'webOrigins=[ "http://jenkins:8080/" ]' \
     -o --fields id >JENKINS
 
-# output is Created new client with id 'f294f7f7-da37-47cf-8497-64f76ca8daab', we now need to grep the ID out of it
+# output is Created new client with id, we now need to grep the ID out of it
 JENKINS_ID=$(cat JENKINS | grep id | cut -d'"' -f 4)
 
 # Now we can add client specific roles (Clientroles)
@@ -77,13 +77,13 @@ JENKINS_ID=$(cat JENKINS | grep id | cut -d'"' -f 4)
     -s enabled=true \
     -s publicClient=true \
     -s directAccessGrantsEnabled=true \
-    -s rootUrl=http://172.16.11.9:8080 \
-    -s adminUrl=http://172.16.11.9:8080/ \
-    -s 'redirectUris=[ "http://172.16.11.9:8080/*" ]' \
-    -s 'webOrigins=[ "http://172.16.11.9:8080/" ]' \
+    -s rootUrl=http://nexus:8080 \
+    -s adminUrl=http://nexus:8080/ \
+    -s 'redirectUris=[ "http://nexus:8080/*" ]' \
+    -s 'webOrigins=[ "http://nexus:8080/" ]' \
     -o --fields id >NEXUS
 
-# output is Created new client with id 'f294f7f7-da37-47cf-8497-64f76ca8daab', we now need to grep the ID out of it
+# output is Created new client with id, we now need to grep the ID out of it
 NEXUS_ID=$(cat NEXUS | grep id | cut -d'"' -f 4)
 
 # Now we can add client specific roles (Clientroles)
@@ -101,13 +101,13 @@ NEXUS_ID=$(cat NEXUS | grep id | cut -d'"' -f 4)
     -s enabled=true \
     -s publicClient=true \
     -s directAccessGrantsEnabled=true \
-    -s rootUrl=http://172.16.11.5:1812 \
-    -s adminUrl=http://172.16.11.5:1812/ \
-    -s 'redirectUris=[ "http://172.16.11.5:1812/*" ]' \
-    -s 'webOrigins=[ "http://172.16.11.5:1812/" ]' \
+    -s rootUrl=http://radius:1812 \
+    -s adminUrl=http://radius:1812/ \
+    -s 'redirectUris=[ "http://radius:1812/*" ]' \
+    -s 'webOrigins=[ "http://radius:1812/" ]' \
     -o --fields id >RADIUS
 
-# output is Created new client with id 'f294f7f7-da37-47cf-8497-64f76ca8daab', we now need to grep the ID out of it
+# output is Created new client with id, we now need to grep the ID out of it
 RADIUS_ID=$(cat RADIUS | grep id | cut -d'"' -f 4)
 
 # Now we can add client specific roles (Clientroles)
@@ -124,13 +124,13 @@ RADIUS_ID=$(cat RADIUS | grep id | cut -d'"' -f 4)
     -s enabled=true \
     -s publicClient=true \
     -s directAccessGrantsEnabled=true \
-    -s rootUrl=http://172.16.11.5:49 \
-    -s adminUrl=http://172.16.11.5:49/ \
-    -s 'redirectUris=[ "http://172.16.11.5:49/*" ]' \
-    -s 'webOrigins=[ "http://172.16.11.5:49/" ]' \
+    -s rootUrl=http://tacacs:49 \
+    -s adminUrl=http://tacacs:49/ \
+    -s 'redirectUris=[ "http://tacacs:49/*" ]' \
+    -s 'webOrigins=[ "http://tacacs:49/" ]' \
     -o --fields id >TACACS
 
-# output is Created new client with id 'f294f7f7-da37-47cf-8497-64f76ca8daab', we now need to grep the ID out of it
+# output is Created new client with id, we now need to grep the ID out of it
 TACACS_ID=$(cat TACACS | grep id | cut -d'"' -f 4)
 
 # Now we can add client specific roles (Clientroles)
