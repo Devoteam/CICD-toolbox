@@ -1,5 +1,5 @@
 #!/bin/sh
-java -jar /root/agent.jar -jnlpUrl http://172.16.11.8:8080/computer/jenkins_node/slave-agent.jnlp -workDir \"/root/jenkins_slave\" &
+java -jar /root/agent.jar -jnlpUrl http://jenkins:8080/computer/jenkins_node/slave-agent.jnlp -workDir \"/root/jenkins_slave\" &
 
 if [ ! -f "/etc/ssh/ssh_host_rsa_key" ]; then
 	# generate fresh rsa key
