@@ -11,14 +11,19 @@ cd /opt/jboss/keycloak/bin
 ./kcadm.sh create roles \
     -r netcicd \
     -s name="ACCEPT_ROLE" \
-    -s description="RADIUS accepted users" \
-    -s 'attributes={ "ACCEPT_NAS-IP-Address": [ "192.168.88.1" ]}'
+    -s description="RADIUS accepted users"
+    
+ #now add attributes (it does not work when entered directly)
+./kcadm.sh update roles/ACCEPT_ROLE -r netcicd -s 'attributes.ACCEPT_NAS-IP-Address=["192.168.88.1"]'
+
 
 ./kcadm.sh create roles \
     -r netcicd \
     -s name="REJECT_ROLE" \
-    -s description="RADIUS rejected users" \
-    -s 'attributes={ "REJECT_NAS-IP-Address": [ "192.168.88.1" ] }'
+    -s description="RADIUS rejected users" 
+   
+ #now add attributes (it does not work when entered directly)
+./kcadm.sh update roles/REJECT_ROLE -r netcicd -s 'attributes.REJECT_NAS-IP-Address=[ "192.168.88.1" ]'
 
 #add clients
 ./kcadm.sh create clients \
