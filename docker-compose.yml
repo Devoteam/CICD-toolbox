@@ -154,14 +154,28 @@ services:
       DB_PASSWORD: keycloak
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: Pa55w0rd
+      RADIUS_SHARED_SECRET: secret
+      RADIUS_UDP: 'true'
+      RADIUS_UDP_AUTH_PORT: 1812
+      RADIUS_UDP_ACCOUNT_PORT: 1813
+      RADIUS_RADSEC: 'false'
+      RADIUS_RADSEC_PRIVATEKEY: /config/private.key
+      RADIUS_RADSEC_CERTIFICATE: /config/public.crt
+      RADIUS_COA: 'false'
+      RADIUS_COA_PORT: 1700
     networks:
       tooling:
         ipv4_address: 172.16.11.11
       keycloak: null
     expose:
       - '8080'
+      - '8443'
+      - '8190'
+      - '1812'
+      - '1813'
     depends_on:
       - netcicd-db
+    #entrypoint: /opt/radius/scripts/docker-entrypoint.sh
 
   nodered:
     container_name: nodered

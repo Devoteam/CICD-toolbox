@@ -149,10 +149,25 @@ until $(curl --output /dev/null --silent --head --fail http://keycloak:8080); do
 done
 echo " "
 echo "**********************************************************************"
+echo " Addiing keycloak RADIUS plugin"
+echo "**********************************************************************"
+docker exec -it keycloak sh -c "/opt/radius/scripts/keycloak.sh"
+echo " " 
+docker restart keycloak
+echo " " 
+echo "**********************************************************************"
+echo " Restarted keycloak to activate RADIUS, wait until keycloak is running"
+echo "**********************************************************************"
+until $(curl --output /dev/null --silent --head --fail http://keycloak:8080); do
+    printf '.'
+    sleep 5
+done
+echo " " 
+echo "**********************************************************************"
 echo " Creating keycloak setup"
 echo "**********************************************************************"
 docker exec -it keycloak sh -c "/opt/jboss/keycloak/bin/create-realm.sh"  > keycloak_create.log
-echo " " 
+echo " "
 cat keycloak_create.log
 echo " " 
 echo "**********************************************************************"
@@ -161,6 +176,7 @@ until $(curl --output /dev/null --silent --head --fail http://gitea:3000); do
     printf '.'
     sleep 5
 done
+echo " "
 echo "**********************************************************************"
 echo " Now go to http://gitea:3000 and"
 echo " "
