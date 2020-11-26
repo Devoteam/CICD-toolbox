@@ -7,24 +7,6 @@ cd /opt/jboss/keycloak/bin
 #add realm
 ./kcadm.sh create realms -s realm=netcicd -s enabled=true 
 
-#Add global roles (specific for RADIUS testing)
-./kcadm.sh create roles \
-    -r netcicd \
-    -s name="ACCEPT_ROLE" \
-    -s description="RADIUS accepted users"
-    
- #now add attributes (it does not work when entered directly)
-./kcadm.sh update roles/ACCEPT_ROLE -r netcicd -s 'attributes.ACCEPT_NAS-IP-Address=["192.168.88.1"]'
-
-
-./kcadm.sh create roles \
-    -r netcicd \
-    -s name="REJECT_ROLE" \
-    -s description="RADIUS rejected users" 
-   
- #now add attributes (it does not work when entered directly)
-./kcadm.sh update roles/REJECT_ROLE -r netcicd -s 'attributes.REJECT_NAS-IP-Address=[ "192.168.88.1" ]'
-
 #add clients
 ./kcadm.sh create clients \
     -r netcicd \
@@ -133,6 +115,9 @@ RADIUS_ID=$(cat RADIUS | grep id | cut -d'"' -f 4)
 ./kcadm.sh create clients/$RADIUS_ID/roles -r netcicd -s name=RADIUS-network-operator -s description='A role to be used for RADIUS based AAA on Cisco routers'
 ./kcadm.sh create clients/$RADIUS_ID/roles -r netcicd -s name=RADIUS-ACCEPT-ROLE -s description='A test role to be used for RADIUS based AAA'
 ./kcadm.sh create clients/$RADIUS_ID/roles -r netcicd -s name=RADIUS-REJECT-ROLE -s description='A test role to be used for RADIUS based AAA'
+ 
+ #now add attributes (it does not work when entered directly)
+ ./kcadm.sh update clients/$RADIUS_ID/roles/RADIUS-REJECT-ROLE -r netcicd -s 'attributes.REJECT_RADIUS=true'
 
 ./kcadm.sh create clients \
     -r netcicd \
