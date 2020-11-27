@@ -12,3 +12,4 @@
 keycloak_create.log
 jenkins/keystore/keycloak.pem
 keycloak/standalone.xml
+.access^
