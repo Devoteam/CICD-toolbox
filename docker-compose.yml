@@ -54,19 +54,6 @@ services:
     depends_on:
       - netcicd-db
       - keycloak
-      
-  radius:
-    container_name: radius
-    build: radius
-    restart: always
-    environment:
-      - RADIUS_SECRET=bubu123
-    networks:
-      tooling:
-        ipv4_address: 172.16.11.4
-    expose:
-      - '1812'
-      - '1813'
 
   toolbox:
     container_name: toolbox
