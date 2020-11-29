@@ -33,16 +33,15 @@ echo "**********************************************************************"
 sudo rm -rf nexus/data/*
 echo " " 
 echo "**********************************************************************"
+echo " Collecting Nexus Keycloak plugin jar files" 
+echo "**********************************************************************"
+wget --directory-prefix=nexus https://github.com/flytreeleft/nexus3-keycloak-plugin/releases/download/v0.4.0/nexus3-keycloak-plugin-0.4.0-bundle.kar
+echo " " 
+echo "**********************************************************************"
 echo " Cleaning Argos" 
 echo "**********************************************************************"
 sudo rm -rf argos/config/*
 sudo rm -rf argos/data/*
-echo " " 
-echo "**********************************************************************"
-echo " Cleaning FreeIPA" 
-echo "**********************************************************************"
-sudo rm -rf freeipa/data/*
-sudo rm -rf freeipa/data/.*
 echo " " 
 echo "**********************************************************************"
 echo " Cleaning NodeRED" 
@@ -256,7 +255,7 @@ chmod +w ./jenkins/keystore/cacerts
 keytool -import -alias Keycloak -keystore ./jenkins/keystore/cacerts -file ./jenkins/keystore/keycloak.pem -storepass changeit -noprompt
 docker cp ./jenkins/keystore/cacerts jenkins:/usr/local/openjdk-8/jre/lib/security/cacerts
 docker restart jenkins
-
+echo " " 
 echo "**********************************************************************"
 echo "NetCICD Toolkit install done "
 echo " "
