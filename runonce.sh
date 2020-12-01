@@ -176,6 +176,21 @@ echo " "
 cat keycloak_create.log
 echo " " 
 echo "**********************************************************************"
+echo " Creating nexus setup"
+echo "**********************************************************************"
+docker cp keycloak:/opt/jboss/keycloak/bin/keycloak-nexus.json nexus/keycloak-nexus.json
+docker cp nexus/keycloak-nexus.json nexus:/opt/sonatype/nexus/etc/keycloak.json
+docker restart nexus
+echo " " 
+echo "**********************************************************************"
+echo " Restarted nexus to activate Keycloak, wait until Nexus is running"
+echo "**********************************************************************"
+until $(curl --output /dev/null --silent --head --fail http://nexus:8081); do
+    printf '.'
+    sleep 5
+done
+echo " " 
+echo "**********************************************************************"
 echo " Wait until gitea is running"
 until $(curl --output /dev/null --silent --head --fail http://gitea:3000); do
     printf '.'

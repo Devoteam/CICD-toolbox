@@ -2,7 +2,7 @@
 # shell script to be copied into /opt/jboss/keycloak/bin
 cd /opt/jboss/keycloak/bin
 #Create credentials
-./kcadm.sh config credentials --server http://172.16.11.11:8080/auth --realm master --user admin --password Pa55w0rd
+./kcadm.sh config credentials --server http://keycloak:8080/auth --realm master --user admin --password Pa55w0rd
 
 #add realm
 ./kcadm.sh create realms -s realm=netcicd -s enabled=true 
@@ -96,7 +96,10 @@ NEXUS_ID=$(cat NEXUS | grep id | cut -d'"' -f 4)
 ./kcadm.sh create clients/$NEXUS_ID/roles -r netcicd -s name=nexus-read -s description='The role to be used for a Jenkins agent to push data to Nexus'
 # Now add the service account for Nexus
 ./kcadm.sh create users -r netcicd -s username=service-account-$NEXUS_ID -s enabled=true
-./kcadm.sh add-roles -r netcicd --uusername service-account-$NEXUS_ID --cclientid Nexus --rolename view-clients --rolename view-realm --rolename view-users
+./kcadm.sh add-roles -r netcicd --uusername service-account-$NEXUS_ID --cclientid realm --rolename view-clients --rolename view-realm --rolename view-users
+
+#download Nexus OIDC file
+./kcadm.sh get clients/$NEXUS_ID/installation/providers/keycloak-oidc-keycloak-json -r netcicd > keycloak-nexus.json
 
 ./kcadm.sh create clients \
     -r netcicd \
