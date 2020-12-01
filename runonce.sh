@@ -2,6 +2,7 @@
 
 user=Devoteam
 pwd=netcicd
+nexus_plugin="0.4.0"
 
 echo "**********************************************************************"
 echo " Start clean" 
@@ -35,7 +36,12 @@ echo " "
 echo "**********************************************************************"
 echo " Collecting Nexus Keycloak plugin jar files" 
 echo "**********************************************************************"
-wget --directory-prefix=nexus https://github.com/flytreeleft/nexus3-keycloak-plugin/releases/download/v0.4.0/nexus3-keycloak-plugin-0.4.0-bundle.kar
+if [ -f "nexus/nexus3-keycloak-plugin-$nexus_plugin-bundle.kar" ]; then
+    echo " Nexus plugin exists"
+else
+    echo " Get Nexus plugin"
+    wget --directory-prefix=nexus https://github.com/flytreeleft/nexus3-keycloak-plugin/releases/download/v$nexus_plugin/nexus3-keycloak-plugin-$nexus_plugin-bundle.kar
+fi
 echo " " 
 echo "**********************************************************************"
 echo " Cleaning Argos" 

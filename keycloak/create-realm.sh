@@ -75,8 +75,10 @@ JENKINS_ID=$(cat JENKINS | grep id | cut -d'"' -f 4)
     -s description="The Nexus repository in the toolchain" \
     -s clientId=Nexus \
     -s enabled=true \
-    -s publicClient=true \
+    -s publicClient=false \
     -s directAccessGrantsEnabled=true \
+    -s serviceAccountsEnabled=true \
+    -s authorizationServicesEnabled=true \
     -s rootUrl=http://nexus:8080 \
     -s adminUrl=http://nexus:8080/ \
     -s 'redirectUris=[ "http://nexus:8080/*" ]' \
@@ -92,6 +94,9 @@ NEXUS_ID=$(cat NEXUS | grep id | cut -d'"' -f 4)
 ./kcadm.sh create clients/$NEXUS_ID/roles -r netcicd -s name=nexus-docker-pull -s description='The role to be used in order to pull from the Docker mirror on Nexus'
 ./kcadm.sh create clients/$NEXUS_ID/roles -r netcicd -s name=nexus-docker-push -s description='The role to be used in order to push to the Docker mirror on Nexus'
 ./kcadm.sh create clients/$NEXUS_ID/roles -r netcicd -s name=nexus-read -s description='The role to be used for a Jenkins agent to push data to Nexus'
+# Now add the service account for Nexus
+./kcadm.sh create users -r netcicd -s username=service-account-$NEXUS_ID -s enabled=true
+./kcadm.sh add-roles -r netcicd --uusername service-account-$NEXUS_ID --cclientid Nexus --rolename view-clients --rolename view-realm --rolename view-users
 
 ./kcadm.sh create clients \
     -r netcicd \
@@ -117,7 +122,7 @@ RADIUS_ID=$(cat RADIUS | grep id | cut -d'"' -f 4)
 ./kcadm.sh create clients/$RADIUS_ID/roles -r netcicd -s name=RADIUS-REJECT-ROLE -s description='A test role to be used for RADIUS based AAA'
  
  #now add attributes (it does not work when entered directly)
- ./kcadm.sh update clients/$RADIUS_ID/roles/RADIUS-REJECT-ROLE -r netcicd -s 'attributes.REJECT_RADIUS=true'
+ ./kcadm.sh update clients/$RADIUS_ID/roles/RADIUS-REJECT-ROLE -r netcicd -s 'attributes.REJECT_RADIUS=["true"]'
 
 ./kcadm.sh create clients \
     -r netcicd \
