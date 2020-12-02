@@ -10,8 +10,6 @@ networks:
     ipam:
       config:
         - subnet: 172.16.111.0/24
-  keycloak: null
-  reverse-proxy: null
   
 services:
   netcicd-db:
@@ -153,7 +151,6 @@ services:
     networks:
       tooling:
         ipv4_address: 172.16.11.11
-      keycloak: null
     expose:
       - '8080'
       - '8443'
