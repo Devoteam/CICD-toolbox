@@ -16,6 +16,7 @@ echo " Cleaning Databases"
 echo "**********************************************************************"
 sudo chown $USER:$USER netcicd-db/db
 sudo rm -rf netcicd-db/db/*
+sudo rm -rf netcicd-db/db/.*
 echo " " 
 echo "**********************************************************************"
 echo " Cleaning Gitea" 
