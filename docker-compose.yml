@@ -1,75 +1,80 @@
-version: "3.8"
-
+version: '3.8'
 networks:
   tooling:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.19.0.0/24
-#          gateway: 172.19.0.1
-
+        - subnet: 172.16.11.0/24
+  jumphosts:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.111.0/24
+  keycloak: null
+  reverse-proxy: null
+  
 services:
-  # Git server. We need a small one in order to run on a single machine. Can be replaced with any.
-  gitea: 
+  netcicd-db:
+    container_name: netcicd-db
+    build: netcicd-db
+    restart: always
+    environment:
+      - 'POSTGRES_MULTIPLE_DATABASES=gitea,keycloak'
+      - POSTGRES_USER=netcicd
+      - POSTGRES_PASSWORD=netcicd
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.2
+    volumes:
+      - './netcicd-db/db:/var/lib/postgresql/data'
+
+  gitea:
     container_name: gitea
-    image: gitea/gitea:latest
+    build: gitea
     restart: always
     environment:
       - USER_UID=1000
       - USER_GID=1000
+      - DOMAIN=gitea
+      - SSH_DOMAIN=gitea
       - DB_TYPE=postgres
-      - DB_HOST=db:5432
+      - 'DB_HOST=netcicd-db:5432'
       - DB_NAME=gitea
       - DB_USER=gitea
       - DB_PASSWD=gitea
     networks:
       tooling:
-        ipv4_address: 172.19.0.3     
+        ipv4_address: 172.16.11.3
     volumes:
-      - ./gitea/data:/data
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-    ports:
-      - 3000:3000
-      - 322:22
+      - './gitea/data:/data'
+      - '/etc/timezone:/etc/timezone:ro'
+      - '/etc/localtime:/etc/localtime:ro'
+    expose:
+      - '3000'
     depends_on:
-      - db
+      - netcicd-db
+      - keycloak
 
-  db:
-    container_name: gitea_db
-    image: postgres
-    restart: always
-    environment:
-      - POSTGRES_USER=gitea
-      - POSTGRES_PASSWORD=gitea
-      - POSTGRES_DB=gitea
-    networks:
-      tooling:
-        ipv4_address: 172.19.0.4     
-    volumes:
-      - ./postgres/data:/var/lib/postgresql/data
-
-# NetCICD Toolbox, containing TACACS, RADIUS,syslog, SNMP
   toolbox:
     container_name: toolbox
     build: ./toolbox
     restart: always
     networks:
       tooling:
-        ipv4_address: 172.19.0.6     
-    ports:
-      - 622:22/tcp
-      - 49:49/tcp
-      - 161:161/udp
-      - 162:162/udp
-      - 514:514/udp
-      - 1812:1812/udp
-      - 1813:1813/udp
+        ipv4_address: 172.16.11.6
     volumes:
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
+      - '/etc/timezone:/etc/timezone:ro'
+      - '/etc/localtime:/etc/localtime:ro'
 
-# jenkins
+  jenkins-node:
+    container_name: jenkins_node
+    build: ./jenkins_node
+    privileged: true
+    user: root
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.7
+
   jenkins:
     container_name: jenkins
     build: ./jenkins
@@ -77,34 +82,125 @@ services:
     user: root
     networks:
       tooling:
-        ipv4_address: 172.19.0.8     
-    ports:
-      - 822:22/udp
-      - 8081:8080
-      - 50000:50000
-    volumes:
-      - ./jenkins/data:/var/jenkins_home
-      - ./jenkins/sock:/var/run/docker.sock
-      - ./jenkins/docker:/usr/local/bin/docker
-      - ./jenkins/config:/var/jenkins_conf
+        ipv4_address: 172.16.11.8
     environment:
-      - CASC_JENKINS_CONFIG=/var/jenkins_conf
+      - JENKINS_ADMIN_ID=admin
+      - JENKINS_ADMIN_PASSWORD=netcicd
+      - NETCICD_PASSWORD=netcicd
+      - CML_USER=guest
+      - CML_PASSWORD=guest
+      - 'CML_URL=http://172.16.32.148:19399'
+      - GIT_JENKINS_PASSWORD=netcicd
+      - NEXUS_JENKINS_PASSWORD=netcicd
+      - ARGOS_JENKINS_PASSWORD=netcicd
+      - JENKINS_AGENT_CREATOR=netcicd
+      - JENKINS_AGENT_CREATOR_KEY=somekey
+#      - JAVA_OPTS="$JAVA_OPTS -Djavax.net.ssl.trustStore=/var/jenkins_home/keystore/cacerts -Djavax.net.ssl.trustStorePassword=changeit"
+    volumes:
+      - './jenkins/keystore:/var/jenkins_home/keystore'
+    depends_on:
+      - jenkins-node
+      - keycloak
 
-# Nexus
   nexus:
     container_name: nexus
-    image: sonatype/nexus3
+    build: ./nexus
     volumes:
-      - ./nexus/data:/sonatype-work
+      - './nexus/data:/sonatype-work'
     networks:
       tooling:
-        ipv4_address: 172.19.0.9     
-    ports:
-      - 922:22/udp
-      - 8082:8081
+        ipv4_address: 172.16.11.9
+    expose:
+      - '8081'
 
-# awx
-# Argos
+  argos:
+    container_name: argos
+    image: 'argosnotary/argosnotary:1.0.0'
+    volumes:
+      - './argos/data:/data/db'
+      - './argos/config:/data/configdb'
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.10
+    expose:
+      - '80'
+      - '8080'
+      - '8087'
+    depends_on:
+      - keycloak
 
-# Conjur
+  keycloak:
+    container_name: keycloak
+    build: keycloak
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: netcicd-db
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: keycloak
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: Pa55w0rd
+      RADIUS_SHARED_SECRET: secret
+      RADIUS_UDP: 'true'
+      RADIUS_UDP_AUTH_PORT: 1812
+      RADIUS_UDP_ACCOUNT_PORT: 1813
+      RADIUS_RADSEC: 'false'
+      RADIUS_RADSEC_PRIVATEKEY: /config/private.key
+      RADIUS_RADSEC_CERTIFICATE: /config/public.crt
+      RADIUS_COA: 'false'
+      RADIUS_COA_PORT: 1700
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.11
+      keycloak: null
+    expose:
+      - '8080'
+      - '8443'
+      - '1812'
+      - '1813'
+    depends_on:
+      - netcicd-db
 
+  nodered:
+    container_name: nodered
+    image: 'nodered/node-red:latest'
+    environment:
+      - TZ=Europe/Amsterdam
+    volumes:
+      - './nodered/data:/data'
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.13
+    expose:
+      - '1880'
+
+  jupyter:
+    container_name: jupyter
+    image: jupyter/base-notebook
+    restart: always
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - RESTARTABLE=yes
+    volumes:
+      - './jupyter/data/:/notebooks'
+      - './jupyter/workspace:/home/jovyan'
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.14
+    expose:
+      - '8888'
+    command: start-notebook.sh --NotebookApp.notebook_dir=/notebooks
+
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce
+    restart: always
+    volumes:
+      - './portainer/data:/data'
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.15
+    expose:
+      - '9000'

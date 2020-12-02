@@ -1,0 +1,178 @@
+credentials:
+  system:
+    domainCredentials:
+    - credentials:
+      - usernamePassword:
+          description: "Credentials to start simulation in VIRL/CML"
+          id: "CML-SIM-CRED"
+          password: ${CML_PASSWORD}
+          scope: GLOBAL
+          username: ${CML_USER}
+      - usernamePassword:
+          description: "Credentials to be used to log into Jenkins and create agents.\
+            \ Username is netcicd, password is ADMIN TOKEN!"
+          id: "Jenkins-SIM"
+          password: ${JENKINS_AGENT_CREATOR_KEY}
+          scope: GLOBAL
+          username: ${JENKINS_AGENT_CREATOR}
+      - usernamePassword:
+          description: "Credentials to be used to log into Gitea from Jenkins to retrieve\
+            \ the NetCICD repo."
+          id: "git-jenkins"
+          password: ${GIT_JENKINS_PASSWORD}
+          scope: GLOBAL
+          username: "git-jenkins"
+      - usernamePassword:
+          description: "Credentials to be used to log into Nexus from Jenkins"
+          id: "nexus-jenkins"
+          password: ${NEXUS_JENKINS_PASSWORD}
+          scope: GLOBAL
+          username: "nexus-jenkins"
+      - usernamePassword:
+          description: "Credentials to be used to log into Argos from Jenkins"
+          id: "argos-jenkins"
+          password: ${ARGOS_JENKINS_PASSWORD}
+          scope: GLOBAL
+          username: "argos-jenkins"
+jenkins:
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: ${JENKINS_ADMIN_ID}
+          password: ${JENKINS_ADMIN_PASSWORD}
+        - id: "netcicd"
+          password: ${NETCICD_PASSWORD}
+          name: "netcicd"
+          properties:
+          - "apiToken"
+          - mailer:
+              emailAddress: "netcicd@example.com"
+          - preferredProvider:
+              providerId: "default"
+  remotingSecurity:
+    enabled: true
+  authorizationStrategy:
+    roleBased:
+      roles:
+        agents:
+        - name: "jenkins-netcicd-agent"
+          pattern: "stage*"
+          permissions:
+          - "Agent/Provision"
+          - "Agent/Configure"
+          - "Agent/Build"
+          - "Agent/Connect"
+          - "Agent/Delete"
+          - "Agent/Disconnect"        
+        global:
+        - assignments:
+          - "anonymous"
+          - "jenkins_readonly"
+          name: "read_only"
+          pattern: ".*"
+          permissions:
+          - "Overall/Read"
+          - "Agent/Connect"
+          - "Agent/Disconnect"
+        - assignments:
+          - "admin"
+          - "jenkins_admin"
+          - "netcicd"
+          name: "admin"
+          pattern: ".*"
+          permissions:
+          - "Job/Move"
+          - "Job/Build"
+          - "Lockable Resources/View"
+          - "Credentials/Delete"
+          - "Credentials/ManageDomains"
+          - "Lockable Resources/Unlock"
+          - "View/Create"
+          - "Agent/Configure"
+          - "Job/Read"
+          - "Credentials/Update"
+          - "Agent/Create"
+          - "Job/Delete"
+          - "Agent/Build"
+          - "View/Configure"
+          - "Lockable Resources/Reserve"
+          - "Agent/Provision"
+          - "SCM/Tag"
+          - "Job/Create"
+          - "Job/Discover"
+          - "Credentials/View"
+          - "Agent/Connect"
+          - "Agent/Delete"
+          - "Run/Replay"
+          - "Agent/Disconnect"
+          - "Run/Delete"
+          - "Job/Cancel"
+          - "Overall/Read"
+          - "Run/Update"
+          - "Credentials/Create"
+          - "Overall/Administer"
+          - "View/Delete"
+          - "Job/Configure"
+          - "Job/Workspace"
+          - "View/Read"
+          - "Job/ViewStatus"
+  globalNodeProperties:
+  - envVars:
+      env:
+      - key: "CML_URL"
+        value: "http://cml:19399"
+  labelAtoms:
+  - name: "jenkins_node"
+  - name: "master"
+  nodes:
+  - permanent:
+      launcher:
+        jnlp:
+          workDirSettings:
+            disabled: false
+            failIfWorkDirIsMissing: false
+            internalDir: "remoting"
+      name: "jenkins_node"
+      nodeDescription: "Jenkins Worker node"
+      remoteFS: "/root/jenkins_slave"
+      retentionStrategy: "always"
+  numExecutors: 0
+  globalNodeProperties:
+    - envVars:
+        env:
+        - key: "CML_URL"
+          value: ${CML_URL}
+  securityRealm: "keycloak"
+security:
+  queueItemAuthenticator:
+    authenticators:
+    - global:
+        strategy: triggeringUsersAuthorizationStrategy
+  scriptApproval:
+    approvedSignatures:
+    - "method hudson.slaves.SlaveComputer getJnlpMac"
+    - "method jenkins.model.Jenkins getComputer java.lang.String"
+    - "staticMethod jenkins.model.Jenkins getInstance"
+unclassified:
+  location:
+    url: http://jenkins:8080/
+  giteaServers:
+    servers:
+    - displayName: "Gitea"
+      manageHooks: false
+      serverUrl: "http://gitea:3000"
+  keycloakSecurityRealm:
+    keycloakJson: |-
+      {
+        "realm": "netcicd",
+        "auth-server-url": "https://keycloak:8443/auth/",
+        "ssl-required": "external",
+        "resource": "Jenkins",
+        "public-client": true,
+        "verify-token-audience": false,
+        "use-resource-role-mappings": true,
+        "confidential-port": 0
+      }
+    keycloakRespectAccessTokenTimeout: true
+    keycloakValidate: false
