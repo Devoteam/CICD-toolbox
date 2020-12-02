@@ -7,7 +7,7 @@ With the amazing team of DevOps specialists at Devoteam, we started to develop a
 
 Tooling only has to make your life easier, after all Tech is for People, not the other way around. 
 
-This is the place where we do this. Feel free to contribute.
+This is the place where we do this. We are far from finished. Feel free to contribute.
 
 # Want we want to achieve
 Having a well functioning tool chain can save a lot of time. But automation is also the fastest way to destroy your business. That is why we want to build a setup that has a specific setup:
