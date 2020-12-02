@@ -1,7 +1,7 @@
 # Background
 When working on NetCICD, again and again, tools used changed their way of use. Jenkins for example changed from username/password on the API to token-only, breaking the pipeline. 
 
-In addition, additional functionality was needed: some sort of SSO, Jupyter Notebook, Node Red, git, etc. Adding more tools made the tool chain more brittle every time. And what was worse: building it using VM ate my CPU and memory, basically limiting the size of the simulations that can be done in VIRL/CML. In short: having a dependable pipeline is one complex thing, making sure it keeps on working is another.
+In addition, additional functionality was needed: some sort of SSO, Jupyter Notebook, Node Red, git, etc. Adding more tools made the tool chain more brittle every time. And what was worse: building it using VM ate CPU and memory, basically limiting the size of the simulations that can be done in VIRL/CML. In short: having a dependable pipeline is one complex thing, making sure it keeps on working is another.
 
 With the amazing team of DevOps specialists at Devoteam, we started to develop a basic devops toolchain, containing most things you might need to get started. It is pre-configured and can be used to jumpstart a NetCICD project and based upon Docker to minimise the footprint on a local machine (running K8S locally adds no value, only eats CPU). 
 
