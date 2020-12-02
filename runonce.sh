@@ -68,15 +68,6 @@ sudo chown $USER:$USER portainer/data
 sudo rm -rf portainer/data/*
 echo " " 
 echo "**********************************************************************"
-echo " Creating containers"
-echo "**********************************************************************"
-docker-compose up -d --build
-echo " " 
-echo "**********************************************************************"
-echo " Use docker-compose up -d next time"
-echo "**********************************************************************"
-echo " " 
-echo "**********************************************************************"
 echo " Make sure all containers are reachable locally with the name in the"
 echo " hosts file."
 echo " " 
@@ -144,6 +135,25 @@ else
     sudo echo "172.16.32.148   cml" >> /etc/hosts
 fi
 sudo chmod o-w /etc/hosts
+echo " " 
+echo "**********************************************************************"
+echo " git clone Nexus CasC plugin and build .kar file"
+echo "**********************************************************************"
+git clone https://github.com/AdaptiveConsulting/nexus-casc-plugin.git
+cd nexus-casc-plugin
+mvn package
+cp target/*.kar ../nexus/
+cd ..
+rm -rf nexus-casc-plugin/
+echo " " 
+echo "**********************************************************************"
+echo " Creating containers"
+echo "**********************************************************************"
+docker-compose up -d --build
+echo " " 
+echo "**********************************************************************"
+echo " Use docker-compose up -d next time"
+echo "**********************************************************************"
 echo " " 
 echo "**********************************************************************"
 echo " Wait until keycloak is running"

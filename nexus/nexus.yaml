@@ -1,0 +1,178 @@
+---
+core:
+  baseUrl: ${BASE_URL:"nexus"}
+  httpProxy: ${HTTP_PROXY:""}
+  httpsProxy: ${HTTPS_PROXY:""}
+  # TODO: allow to have a list here...
+  nonProxyHosts: ${NO_PROXY:""}
+capabilities:
+  - type: OutreachManagementCapability
+    enabled: false
+security:
+  anonymousAccess: false
+  pruneUsers: true
+  realms:
+    - name: NetCICD
+      enabled: true
+    - name: "DockerToken"
+      enabled: true
+  privileges:
+    - id: system-repository-admin-docker-docker-proxy-update
+      enabled: true
+      name: system-repository-admin-docker-docker-proxy-update
+      description: Permit update to docker-proxy repository configuration
+      type: repository-admin
+      properties:
+        format: docker
+        repository: docker-proxy
+        actions: read,update
+  roles:
+    - id: repository-read-docker
+      enabled: true
+      source: default
+      name: repository-read-docker
+      description: "Docker Anonymous Access for public proxy / group repositories"
+      privileges:
+        - nx-healthcheck-read
+        - nx-repository-view-docker-docker-browse
+        - nx-repository-view-docker-docker-proxy-browse
+        - nx-repository-view-docker-docker-proxy-read
+        - nx-repository-view-docker-docker-read
+        - nx-search-read
+    - id: repository-read-all
+      enabled: true
+      source: default
+      name: repository-read-all
+      description: "Read All permission for repositories"
+      privileges:
+        - nx-apikey-all
+        - nx-healthcheck-read
+        - nx-repository-view-*-*-browse
+        - nx-repository-view-*-*-read
+        - nx-search-read
+    - id: repository-write-all
+      enabled: true
+      source: default
+      name: repository-write-all
+      description: "Write All permission for repositories"
+      privileges:
+        - nx-apikey-all
+        - nx-healthcheck-read
+        - nx-repository-view-*-*-*
+        - nx-search-read
+  users:
+    - username: anonymous
+      firstName: Anonymous
+      lastName: User
+      password: anonymous
+      updateExistingPassword: false
+      email: anonymous@example.org
+      roles:
+        - source: "default"
+          role: repository-read-docker
+    - username: johndoe
+      firstName: John
+      lastName: Doe
+      password: "${file:/run/secrets/password_johndoe}"
+      updateExistingPassword: true
+      email: johndoe@example.org
+      roles:
+        - source: "default"
+          role: nx-admin
+    - username: janedoe
+      firstName: Jane
+      lastName: Doe
+      password: changeme
+      updateExistingPassword: false
+      email: janedoe@example.org
+      roles:
+        - source: "default"
+          role: repository-write-all
+repository:
+  pruneBlobStores: true
+  blobStores:
+    - name: docker
+      type: File
+      attributes:
+        file:
+          path: docker
+        blobStoreQuotaConfig:
+          quotaLimitBytes: 10240000000
+          quotaType: spaceUsedQuota
+  pruneCleanupPolicies: true
+  cleanupPolicies:
+    - name: cleanup-everything
+      format: ALL_FORMATS
+      notes: ''
+      criteria:
+        lastDownloaded: 864000
+    - name: cleanup-docker-proxy
+      format: docker
+      notes: ''
+      criteria:
+        lastDownloaded: 864000
+  pruneRepositories: true
+  repositories:
+    # https://help.sonatype.com/repomanager3/formats/docker-registry
+    - name: docker-hosted
+      online: true
+      recipeName: docker-hosted
+      attributes:
+        docker:
+          forceBasicAuth: true  # Do not permit anonymous access to this repository
+          v1Enabled: true
+          httpPort: 8082   # Uncomment to activate
+          #httpsPort: 8083  # Requires Nexus Jetty be configured to use SSL Certificates
+        storage:
+          blobStoreName: docker
+          strictContentTypeValidation: true
+          writePolicy: ALLOW
+        cleanup:
+          policyName:
+            - None
+    - name: docker-proxy
+      online: true
+      recipeName: docker-proxy
+      attributes:
+        docker:
+          forceBasicAuth: false  # Allow anonymous access
+          v1Enabled: true
+        proxy:
+          remoteUrl: https://registry-1.docker.io
+          contentMaxAge: -1.0
+          metadataMaxAge: 1440.0
+        dockerProxy:
+          indexType: HUB
+          cacheForeignLayers: true
+          foreignLayerUrlWhitelist:
+            - '.*'
+        httpclient:
+          blocked: false
+          autoBlock: true
+          connection:
+            useTrustStore: false
+        storage:
+          blobStoreName: docker
+          strictContentTypeValidation: true
+        routingRules:
+          routingRuleId: null
+        negativeCache:
+          enabled: true
+          timeToLive: 1440.0
+        cleanup:
+          policyName:
+            - cleanup-docker-proxy
+    - name: docker
+      online: true
+      recipeName: docker-group
+      attributes:
+        docker:
+          forceBasicAuth: false  # Each repo uses its own setting
+          v1Enabled: true
+        storage:
+          blobStoreName: docker
+          strictContentTypeValidation: true
+        group:
+          memberNames:
+            - "docker-hosted"
+            - "docker-proxy"
