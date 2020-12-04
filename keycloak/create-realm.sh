@@ -95,8 +95,7 @@ NEXUS_ID=$(cat NEXUS | grep id | cut -d'"' -f 4)
 ./kcadm.sh create clients/$NEXUS_ID/roles -r netcicd -s name=nexus-docker-push -s description='The role to be used in order to push to the Docker mirror on Nexus'
 ./kcadm.sh create clients/$NEXUS_ID/roles -r netcicd -s name=nexus-read -s description='The role to be used for a Jenkins agent to push data to Nexus'
 # Now add the service account for Nexus
-./kcadm.sh create users -r netcicd -s username=service-account-$NEXUS_ID -s enabled=true
-./kcadm.sh add-roles -r netcicd --uusername service-account-$NEXUS_ID --cclientid realm --rolename view-clients --rolename view-realm --rolename view-users
+./kcadm.sh add-roles -r netcicd --uusername service-account-nexus --cclientid realm-management --rolename view-clients --rolename view-realm --rolename view-users
 
 #download Nexus OIDC file
 ./kcadm.sh get clients/$NEXUS_ID/installation/providers/keycloak-oidc-keycloak-json -r netcicd > keycloak-nexus.json

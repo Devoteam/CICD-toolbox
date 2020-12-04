@@ -103,8 +103,17 @@ services:
   nexus:
     container_name: nexus
     build: ./nexus
+    user: 'nexus'
+    environment:
+      BASE_URL: 'http://localhost:8081'
+      NEXUS_SECURITY_RANDOMPASSWORD: 'false'
+      NEXUS_CASC_CONFIG: '/opt/nexus.yaml'
     volumes:
       - './nexus/data:/sonatype-work'
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
     networks:
       tooling:
         ipv4_address: 172.16.11.9
