@@ -1,3 +1,26 @@
+# How to install
+### Work in progress!!
+Even though we try to make this work as well as we can, it is being improved daily. Master should work, Develop is the most complete.
+## Prerequisites
+The setup has been developed and tested on Ubuntu 20.04.
+You need to have installed:
+* Git
+* Docker
+
+You need to be able to run docker as non-root. See [here](https://www.thegeekdiary.com/run-docker-as-a-non-root-user/) for details.
+## Installation
+You can install the toolbox as follows:
+
+```git clone https://github.com/Devoteam/NetCICD-developer-toolbox.git```  
+```cd NetCICD-developer-toolbox```  
+```./runonce.sh```
+
+### Do NOT run this script after use.
+* The script stops all existing containers
+* It wipes all working directories, networks, containers and builds
+* Networks are preconfigured to enable the connect-back from CML
+* Running or starting twice will create failing networks and/or containers, duplicate IP addresses and all kinds of other mayhem.
+
 # Background
 When working on NetCICD, again and again, tools used changed their way of use. Jenkins for example changed from username/password on the API to token-only, breaking the pipeline. 
 
