@@ -1,13 +1,13 @@
 {
-  "realm": "netcicd",
-  "auth-server-url": "https://keycloak:8443/auth/",
-  "ssl-required": "external",
-  "resource": "Nexus",
-  "verify-token-audience": true,
-  "credentials": {
-    "secret": "8e8350f6-e6cc-4a79-828f-176ddf0cb2e7"
+  "realm" : "netcicd",
+  "auth-server-url" : "http://keycloak:8080/auth/",
+  "ssl-required" : "external",
+  "resource" : "Nexus",
+  "verify-token-audience" : true,
+  "credentials" : {
+    "secret" : "6f7ebbe4-ec33-4335-8a11-c92262a8d7af"
   },
-  "use-resource-role-mappings": true,
-  "confidential-port": 0,
-  "policy-enforcer": {}
+  "use-resource-role-mappings" : true,
+  "confidential-port" : 0,
+  "policy-enforcer" : { }
 }

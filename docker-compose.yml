@@ -10,8 +10,6 @@ networks:
     ipam:
       config:
         - subnet: 172.16.111.0/24
-  keycloak: null
-  reverse-proxy: null
   
 services:
   netcicd-db:
@@ -105,8 +103,17 @@ services:
   nexus:
     container_name: nexus
     build: ./nexus
+    user: 'nexus'
+    environment:
+      BASE_URL: 'http://localhost:8081'
+      NEXUS_SECURITY_RANDOMPASSWORD: 'false'
+      NEXUS_CASC_CONFIG: '/opt/nexus.yaml'
     volumes:
       - './nexus/data:/sonatype-work'
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
     networks:
       tooling:
         ipv4_address: 172.16.11.9
@@ -153,7 +160,6 @@ services:
     networks:
       tooling:
         ipv4_address: 172.16.11.11
-      keycloak: null
     expose:
       - '8080'
       - '8443'
