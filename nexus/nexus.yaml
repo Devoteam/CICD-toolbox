@@ -12,8 +12,8 @@ security:
   anonymousAccess: true
   pruneUsers: true
   realms:
-#    - name: "Keycloak"
-#      enabled: true
+    - name: "org.github.flytreeleft.nexus3.keycloak.plugin.KeycloakAuthenticatingRealm"
+      enabled: true
     - name: "DockerToken"
       enabled: true
     - name: "NpmToken"
@@ -31,6 +31,42 @@ security:
         repository: docker-proxy
         actions: read,update
   roles:
+    - id: ClientRole:nexus-admin
+      enabled: true
+      source: default
+      name: ClientRole:nexus-admin
+      description: "ClientRole: The admin role for Nexus"
+      privileges:
+        - nx-all
+    - id: "ClientRole:nexus-docker-pull"
+      enabled: true
+      source: default
+      name: "ClientRole:nexus-docker-pull"
+      description: "ClientRole: The role to be used in order to pull from the Docker mirror on Nexus"
+      privileges:
+        - nx-healthcheck-read
+        - nx-repository-view-docker-docker-browse
+        - nx-repository-view-docker-docker-proxy-browse
+        - nx-repository-view-docker-docker-proxy-read
+        - nx-repository-view-docker-docker-read
+        - nx-search-read
+    - id: "ClientRole:nexus-docker-push"
+      enabled: true
+      source: default
+      name: "ClientRole:nexus-docker-push"
+      description: "ClientRole: The role to be used in order to push to the Docker mirror on Nexus"
+      privileges:
+        - nx-healthcheck-read
+        - nx-repository-view-docker-docker-*
+        - nx-repository-view-docker-docker-proxy-*
+        - nx-search-read
+    - id: Keycloak-nexus-netcicd-agent
+      enabled: true
+      source: default
+      name: Keycloak-nexus-netcicd-agent
+      description: "The role to be used for a Jenkins agent to push data to Nexus"
+      privileges:
+        - nx-repository-admin-raw-NetCICD-hosted-*
     - id: repository-read-docker
       enabled: true
       source: default
@@ -95,6 +131,14 @@ security:
 repository:
   pruneBlobStores: true
   blobStores:
+    - name: NetCICD
+      type: File
+      attributes:
+        file:
+          path: NetCICD
+        blobStoreQuotaConfig:
+          quotaLimitBytes: 10240000000
+          quotaType: spaceUsedQuota
     - name: docker
       type: File
       attributes:
@@ -196,6 +240,20 @@ repository:
   pruneRepositories: true
   repositories:
     # https://help.sonatype.com/repomanager3/formats/docker-registry
+    - name: NetCICD-hosted
+      online: true
+      recipeName: raw-hosted
+      attributes:
+        raw:
+          forceBasicAuth: true  # Do not permit anonymous access to this repository
+          v1Enabled: true
+        storage:
+          blobStoreName: NetCICD
+          strictContentTypeValidation: true
+          writePolicy: ALLOW_ONCE
+        cleanup:
+          policyName:
+            - None
     - name: docker-hosted
       online: true
       recipeName: docker-hosted
