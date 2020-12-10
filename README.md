@@ -25,7 +25,7 @@ You need to have installed:
 * Git
 * Docker
 
-You need to be able to run docker as non-root. See [here](https://www.thegeekdiary.com/run-docker-as-a-non-root-user/) for details.
+You need to be able to run docker as non-root. See [here](https://docs.docker.com/engine/install/linux-postinstall/) for details.
 ## Installation
 You can install the toolbox as follows:
 
