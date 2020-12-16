@@ -15,4 +15,4 @@ keycloak/standalone.xml
 .access^
 wget-log
 nexus/nexus-casc-plugin*
-nexus/keycloak-nexus.json
+nexus/keycloak-nexus*

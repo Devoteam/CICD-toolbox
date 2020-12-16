@@ -243,6 +243,7 @@ done
 echo " "
 echo "****************************************************************************************************************"
 echo " Create local gituser (admin role)"
+user=gitea-user 
 echo "****************************************************************************************************************"
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username $user --password $pwd --admin --email networkautomation@devoteam.nl --access-token'" > admin_token
 echo " "
