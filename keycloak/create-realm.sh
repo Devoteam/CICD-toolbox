@@ -34,9 +34,13 @@ GITEA_token=$(grep value gitea_secret | cut -d '"' -f4)
 echo "GITEA_token: " $GITEA_token
 
 # Now we can add client specific roles (Clientroles)
-./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-netcicd-admin -s description='The admin role for the NetCICD repo'
-./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-netcicd-write -s description='The admin role for the NetCICD repo'
-./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-netcicd-read -s description='The admin role for the NetCICD repo'
+./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-infraautomators-admin -s description='The admin role for the Infra Automators organization'
+./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-netops-read -s description='A read-only role for network operations, intended for users/operators'
+./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-netops-write -s description='A read-write role for network operations, intended for network specialists'
+./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-netdev-read -s description='A read-only role for network development, intended for network architects'
+./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-netdev-write -s description='A read-write role for network development, intended for network senior network architects'
+./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-tooling-read -s description='A read-only role for the tooling team, intended for developers that do not alter platform specific workflows'
+./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-tooling-write -s description='A read-write role for the tooling team, intended for senior developers of the tooling team'
 
 #Now delete tokens and secrets
 rm GITEA
@@ -63,6 +67,7 @@ JENKINS_ID=$(cat JENKINS | grep id | cut -d'"' -f 4)
 
 # Now we can add client specific roles (Clientroles)
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-admin -s description='The admin role for Jenkins'
+./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-user -s description='A user in Jenkins'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-agent -s description='The role to be used for a user that needs to create agents in Jenkins'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-gitea -s description='The role to be used for a user that needs to retrieve a repo from Gitea'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-nexus -s description='The role to be used for Jenkins to push data to Nexus'
@@ -155,9 +160,9 @@ TACACS_ID=$(cat TACACS | grep id | cut -d'"' -f 4)
     -s username=netcicd \
     -s firstName=network \
     -s lastName=CICD \
-    -s email=netcicd@example.com
+    -s email=netcicd@infraautomators.example.com
 ./kcadm.sh set-password -r netcicd --username netcicd --new-password netcicd
-./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Gitea --rolename gitea-netcicd-admin
+./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Gitea --rolename gitea-infraautomators-admin
 ./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Jenkins --rolename jenkins-admin
 ./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Nexus --rolename nexus-admin
 ./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Nexus --rolename nexus-docker-pull
@@ -169,17 +174,73 @@ TACACS_ID=$(cat TACACS | grep id | cut -d'"' -f 4)
     -s username=git-jenkins \
     -s firstName=network \
     -s lastName=Operator \
-    -s email=netcicd@b.c
+    -s email=git-jenkins@infraautomators.example.com
 ./kcadm.sh set-password -r netcicd --username git-jenkins --new-password netcicd
-./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Gitea --rolename gitea-netcicd-read
+./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Gitea --rolename gitea-netops-read
 ./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Jenkins --rolename jenkins-gitea
 
 ./kcadm.sh create users \
     -r netcicd \
     -s enabled=true \
-    -s username=guest \
-    -s firstName=network \
-    -s lastName=Operator \
-    -s email=guest@b.c
-./kcadm.sh set-password -r netcicd --username guest --new-password guest
-./kcadm.sh add-roles -r netcicd --uusername guest --cclientid Jenkins --rolename jenkins-cml
+    -s username=thedude \
+    -s firstName=The \
+    -s lastName=Dude \
+    -s email=thedude@infraautomators.example.com
+./kcadm.sh set-password -r netcicd --username thedude --new-password thedude
+./kcadm.sh add-roles -r netcicd --uusername thedude --cclientid Gitea --rolename gitea-netops-read
+./kcadm.sh add-roles -r netcicd --uusername thedude --cclientid Jenkins --rolename jenkins-user
+
+./kcadm.sh create users \
+    -r netcicd \
+    -s enabled=true \
+    -s username=thespecialist \
+    -s firstName=The \
+    -s lastName=Specialist \
+    -s email=boom@infraautomators.example.com
+./kcadm.sh set-password -r netcicd --username thespecialist --new-password thespecialist
+./kcadm.sh add-roles -r netcicd --uusername thespecialist --cclientid Gitea --rolename gitea-netops-write
+./kcadm.sh add-roles -r netcicd --uusername thespecialist --cclientid Jenkins --rolename jenkins-user
+
+./kcadm.sh create users \
+    -r netcicd \
+    -s enabled=true \
+    -s username=architect \
+    -s firstName=Network \
+    -s lastName=Architect \
+    -s email=architect@infraautomators.example.com
+./kcadm.sh set-password -r netcicd --username architect --new-password architect
+./kcadm.sh add-roles -r netcicd --uusername architect --cclientid Gitea --rolename gitea-netdev-read
+./kcadm.sh add-roles -r netcicd --uusername architect --cclientid Jenkins --rolename jenkins-user
+
+./kcadm.sh create users \
+    -r netcicd \
+    -s enabled=true \
+    -s username=networkguru \
+    -s firstName=Network \
+    -s lastName=Guru \
+    -s email=networkguru@infraautomators.example.com
+./kcadm.sh set-password -r netcicd --username networkguru --new-password networkguru
+./kcadm.sh add-roles -r netcicd --uusername networkguru --cclientid Gitea --rolename gitea-netdev-write
+./kcadm.sh add-roles -r netcicd --uusername networkguru --cclientid Jenkins --rolename jenkins-user
+
+./kcadm.sh create users \
+    -r netcicd \
+    -s enabled=true \
+    -s username=hacker \
+    -s firstName=Happy \
+    -s lastName=Hacker \
+    -s email=whitehat@infraautomators.example.com
+./kcadm.sh set-password -r netcicd --username hacker --new-password whitehat
+./kcadm.sh add-roles -r netcicd --uusername hacker --cclientid Gitea --rolename gitea-tooling-read
+./kcadm.sh add-roles -r netcicd --uusername hacker --cclientid Jenkins --rolename jenkins-user
+
+./kcadm.sh create users \
+    -r netcicd \
+    -s enabled=true \
+    -s username=tooltiger \
+    -s firstName=Tool \
+    -s lastName=Tiger \
+    -s email=tooltiger@infraautomators.example.com
+./kcadm.sh set-password -r netcicd --username tooltiger --new-password tooltiger
+./kcadm.sh add-roles -r netcicd --uusername tooltiger --cclientid Gitea --rolename gitea-tooling-write
+./kcadm.sh add-roles -r netcicd --uusername tooltiger --cclientid Jenkins --rolename jenkins-user
