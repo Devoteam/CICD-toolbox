@@ -1,7 +1,5 @@
 #!/bin/bash 
 
-user=Devoteam
-pwd=netcicd
 nexus_plugin="0.4.0"
 
 echo "****************************************************************************************************************"
@@ -165,7 +163,7 @@ until $(curl --output /dev/null --silent --head --fail http://keycloak:8080); do
 done
 echo " "
 echo "****************************************************************************************************************"
-echo " Addiing keycloak RADIUS plugin"
+echo " Adding keycloak RADIUS plugin"
 echo "****************************************************************************************************************"
 docker exec -it keycloak sh -c "/opt/radius/scripts/keycloak.sh"
 echo " " 
@@ -185,6 +183,11 @@ echo "**************************************************************************
 docker exec -it keycloak sh -c "/opt/jboss/keycloak/bin/create-realm.sh"  > keycloak_create.log
 echo " "
 cat keycloak_create.log
+echo " " 
+echo "****************************************************************************************************************"
+echo " Creating gitea setup"
+echo "****************************************************************************************************************"
+gitea/gitea_install.sh
 echo " " 
 echo "****************************************************************************************************************"
 echo " Creating nexus setup"
@@ -207,74 +210,6 @@ until $(curl --output /dev/null --silent --head --fail http://gitea:3000); do
     printf '.'
     sleep 5
 done
-echo " "
-echo "****************************************************************************************************************"
-echo " Now go to http://gitea:3000 and"
-echo " "
-echo " Press install... you may need to " 
-echo " "
-echo " login to see install" 
-echo " "
-echo "****************************************************************************************************************"
-read -p " Press any key to continue... " -n1 -s
-echo " "
-echo "****************************************************************************************************************"
-echo " Configuring Gitea"
-echo "****************************************************************************************************************"
-docker cp gitea/app.ini gitea:/data/gitea/conf/app.ini
-echo " "
-echo "****************************************************************************************************************"
-echo " Adding keycloak client key to Gitea"
-echo " "
-gitea_client_id=$(grep GITEA_token keycloak_create.log | cut -d' ' -f3)
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin auth add-oauth --name keycloak --provider openidConnect --key Gitea --secret $gitea_client_id --auto-discover-url http://keycloak:8080/auth/realms/netcicd/.well-known/openid-configuration --config=/data/gitea/conf/app.ini'"
-echo " "
-echo " You'll need to confirm the keycloak settings in Gitea"
-echo " Site administration->Authentication Sources->keycloak->update"
-echo "****************************************************************************************************************"
-echo " Restarting Gitea"
-echo "****************************************************************************************************************"
-docker restart gitea
-echo " Wait until gitea is running"
-until $(curl --output /dev/null --silent --head --fail http://gitea:3000); do
-    printf '.'
-    sleep 5
-done
-echo " "
-echo "****************************************************************************************************************"
-echo " Create local gituser (admin role)"
-echo "****************************************************************************************************************"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username $user --password $pwd --admin --email networkautomation@devoteam.nl --access-token'" > admin_token
-echo " "
-echo "****************************************************************************************************************"
-echo " Creating NetCICD organization in Gitea "
-echo "****************************************************************************************************************"
-ORG_PAYLOAD='{ "description": "Infrastructure automation transformation team", "full_name": "Infrastructure Transformakers", "location": "Github", "repo_admin_change_team_access": true, "username": "infra", "visibility": "public", "website": "https://www.devoteam.com"}'
-org_data=`curl -s --user $user:$pwd -X POST "http://gitea:3000/api/v1/orgs" -H "accept: application/json" -H "Content-Type: application/json" --data "${ORG_PAYLOAD}"`
-#We may need the ID to add users to the org or team.
-
-netops_team_payload='{ "can_create_org_repo": true, "description": "The network operations team", "includes_all_repositories": false, "name": "netops", "permission": "write", "units": ["repo.code","repo.issues","repo.ext_issues","repo.wiki","repo.pulls","repo.releases","repo.ext_wiki"]}'
-ops_team_data=`curl -s --user $user:$pwd -X POST "http://gitea:3000/api/v1/orgs/infra/teams" -H "accept: application/json" -H "Content-Type: application/json" --data "${ops_team_payload}"`
-#We may need the ID to add users to the org or team.
-
-netdev_team_payload='{ "can_create_org_repo": true, "description": "The network architecture team", "includes_all_repositories": false, "name": "netdev", "permission": "write", "units": ["repo.code","repo.issues","repo.ext_issues","repo.wiki","repo.pulls","repo.releases","repo.ext_wiki"]}'
-ops_team_data=`curl -s --user $user:$pwd -X POST "http://gitea:3000/api/v1/orgs/infra/teams" -H "accept: application/json" -H "Content-Type: application/json" --data "${ops_team_payload}"`
-#We may need the ID to add users to the org or team.
-
-tooling_team_payload='{ "can_create_org_repo": true, "description": "The tooling team", "includes_all_repositories": false, "name": "tooling", "permission": "write", "units": ["repo.code","repo.issues","repo.ext_issues","repo.wiki","repo.pulls","repo.releases","repo.ext_wiki"]}'
-ops_team_data=`curl -s --user $user:$pwd -X POST "http://gitea:3000/api/v1/orgs/infra/teams" -H "accept: application/json" -H "Content-Type: application/json" --data "${ops_team_payload}"`
-#We may need the ID to add users to the org or team.
-
-echo " "
-echo "****************************************************************************************************************"
-echo " Creating repo in Gitea "
-echo "****************************************************************************************************************"
-curl --user $user:$pwd -X POST "http://gitea:3000/api/v1/repos/migrate" -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"auth_password\": \"string\",  \"auth_token\": \"string\",  \"auth_username\": \"string\",  \"clone_addr\": \"https://github.com/Devoteam/NetCICD.git\",  \"description\": \"The NetCICD toolbox\",  \"issues\": true,  \"labels\": true,  \"milestones\": true,  \"mirror\": false,  \"private\": false,  \"pull_requests\": true,  \"releases\": true,  \"repo_name\": \"NetCICD\",  \"repo_owner\": \"$user\",  \"service\": \"git\",  \"uid\": 0,  \"wiki\": true}"
-echo " "
-echo "****************************************************************************************************************"
-echo " Create Develop branch "
-echo "****************************************************************************************************************"
-curl --user $user:$pwd -X POST "http://gitea:3000/api/v1/repos/$user/NetCICD/branches" -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"new_branch_name\": \"develop\"}"
 echo " " 
 echo "****************************************************************************************************************"
 echo "Saving Keycloak self-signed certificate"

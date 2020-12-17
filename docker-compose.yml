@@ -40,6 +40,9 @@ services:
       - DB_NAME=gitea
       - DB_USER=gitea
       - DB_PASSWD=gitea
+      - INSTALL_LOCK=true
+      - SECRET_KEY=z5sRR3DQ4ZxJ5EcFSM8amg9eEfyLffxssDcO14bs2JlZRLwPl3E3PQ24xDMGB56j
+      - REQUIRE_SIGNIN_VIEW=true
     networks:
       tooling:
         ipv4_address: 172.16.11.3
