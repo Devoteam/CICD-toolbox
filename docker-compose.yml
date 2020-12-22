@@ -100,7 +100,7 @@ services:
     volumes:
       - './jenkins/keystore:/var/jenkins_home/keystore'
     depends_on:
-      - jenkins-node
+#      - jenkins-node
       - keycloak
 
   nexus:
