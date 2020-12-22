@@ -123,7 +123,7 @@ echo "**************************************************************************
 echo " Creating webhook for the repo"
 echo "****************************************************************************************************************"
 echo " "
-NetCICD-developer-toolbox_webhook_payload='{
+NetCICD_developer_toolbox_webhook_payload='{
     "active": true,
     "branch_filter": "*",
     "config": {
@@ -133,7 +133,7 @@ NetCICD-developer-toolbox_webhook_payload='{
     "events": [ "push" ],
     "type": "gitea"
     }'
-curl --user gitea-admin:netcicd -X POST "http://gitea:3000/api/v1/repos/infraautomator/NetCICD-developer-toolbox/hooks" -H  "accept: application/json" -H  "Content-Type: application/json" -d "$NetCICD-developer-toolbox_webhook_payload"
+curl --user gitea-admin:netcicd -X POST "http://gitea:3000/api/v1/repos/infraautomator/NetCICD-developer-toolbox/hooks" -H  "accept: application/json" -H  "Content-Type: application/json" -d "$NetCICD_developer_toolbox_webhook_payload"
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating gitea-netops-read team in Gitea "
