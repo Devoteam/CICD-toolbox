@@ -15,7 +15,7 @@ services:
   netcicd-db:
     container_name: netcicd-db
     build: netcicd-db
-    restart: always
+    restart: on-failure
     environment:
       - 'POSTGRES_MULTIPLE_DATABASES=gitea,keycloak'
       - POSTGRES_USER=netcicd
@@ -29,7 +29,7 @@ services:
   gitea:
     container_name: gitea
     build: gitea
-    restart: always
+    restart: on-failure
     environment:
       - USER_UID=1000
       - USER_GID=1000
@@ -56,20 +56,20 @@ services:
       - netcicd-db
       - keycloak
 
-  toolbox:
-    container_name: toolbox
-    build: ./toolbox
-    restart: always
-    networks:
-      tooling:
-        ipv4_address: 172.16.11.6
-    volumes:
-      - '/etc/timezone:/etc/timezone:ro'
-      - '/etc/localtime:/etc/localtime:ro'
+  # toolbox:
+  #   container_name: toolbox
+  #   build: ./toolbox
+  #   restart: on-failure
+  #     tooling:
+  #       ipv4_address: 172.16.11.6
+  #   volumes:
+  #     - '/etc/timezone:/etc/timezone:ro'
+  #     - '/etc/localtime:/etc/localtime:ro'
 
   jenkins-node:
     container_name: jenkins_node
     build: ./jenkins_node
+    restart: on-failure
     privileged: true
     user: root
     networks:
@@ -79,6 +79,7 @@ services:
   jenkins:
     container_name: jenkins
     build: ./jenkins
+    restart: on-failure
     privileged: true
     user: root
     networks:
@@ -96,7 +97,6 @@ services:
       - ARGOS_JENKINS_PASSWORD=netcicd
       - JENKINS_AGENT_CREATOR=netcicd
       - JENKINS_AGENT_CREATOR_KEY=somekey
-#      - JAVA_OPTS="$JAVA_OPTS -Djavax.net.ssl.trustStore=/var/jenkins_home/keystore/cacerts -Djavax.net.ssl.trustStorePassword=changeit"
     volumes:
       - './jenkins/keystore:/var/jenkins_home/keystore'
     depends_on:
@@ -106,6 +106,7 @@ services:
   nexus:
     container_name: nexus
     build: ./nexus
+    restart: on-failure
     user: 'nexus'
     environment:
       BASE_URL: 'http://localhost:8081'
@@ -123,25 +124,27 @@ services:
     expose:
       - '8081'
 
-  argos:
-    container_name: argos
-    image: 'argosnotary/argosnotary:1.0.0'
-    volumes:
-      - './argos/data:/data/db'
-      - './argos/config:/data/configdb'
-    networks:
-      tooling:
-        ipv4_address: 172.16.11.10
-    expose:
-      - '80'
-      - '8080'
-      - '8087'
-    depends_on:
-      - keycloak
+  # argos:
+  #   container_name: argos
+  #   image: 'argosnotary/argosnotary:1.0.0'
+  #   restart: on-failure
+  #   volumes:
+  #     - './argos/data:/data/db'
+  #     - './argos/config:/data/configdb'
+  #   networks:
+  #     tooling:
+  #       ipv4_address: 172.16.11.10
+  #   expose:
+  #     - '80'
+  #     - '8080'
+  #     - '8087'
+  #   depends_on:
+  #     - keycloak
 
   keycloak:
     container_name: keycloak
     build: keycloak
+    restart: on-failure
     environment:
       DB_VENDOR: POSTGRES
       DB_ADDR: netcicd-db
@@ -174,6 +177,7 @@ services:
   nodered:
     container_name: nodered
     image: 'nodered/node-red:latest'
+    restart: on-failure
     environment:
       - TZ=Europe/Amsterdam
     volumes:
@@ -184,32 +188,32 @@ services:
     expose:
       - '1880'
 
-  jupyter:
-    container_name: jupyter
-    image: jupyter/base-notebook
-    restart: always
-    environment:
-      - JUPYTER_ENABLE_LAB=yes
-      - RESTARTABLE=yes
-    volumes:
-      - './jupyter/data/:/notebooks'
-      - './jupyter/workspace:/home/jovyan'
-    networks:
-      tooling:
-        ipv4_address: 172.16.11.14
-    expose:
-      - '8888'
-    command: start-notebook.sh --NotebookApp.notebook_dir=/notebooks
+  # jupyter:
+  #   container_name: jupyter
+  #   image: jupyter/base-notebook
+  #   restart: always
+  #   environment:
+  #     - JUPYTER_ENABLE_LAB=yes
+  #     - RESTARTABLE=yes
+  #   volumes:
+  #     - './jupyter/data/:/notebooks'
+  #     - './jupyter/workspace:/home/jovyan'
+  #   networks:
+  #     tooling:
+  #       ipv4_address: 172.16.11.14
+  #   expose:
+  #     - '8888'
+  #   command: start-notebook.sh --NotebookApp.notebook_dir=/notebooks
 
-  portainer:
-    container_name: portainer
-    image: portainer/portainer-ce
-    restart: always
-    volumes:
-      - './portainer/data:/data'
-      - '/var/run/docker.sock:/var/run/docker.sock'
-    networks:
-      tooling:
-        ipv4_address: 172.16.11.15
-    expose:
-      - '9000'
+  # portainer:
+  #   container_name: portainer
+  #   image: portainer/portainer-ce
+  #   restart: always
+  #   volumes:
+  #     - './portainer/data:/data'
+  #     - '/var/run/docker.sock:/var/run/docker.sock'
+  #   networks:
+  #     tooling:
+  #       ipv4_address: 172.16.11.15
+  #   expose:
+  #     - '9000'

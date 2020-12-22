@@ -10,39 +10,50 @@
       </configs>
     </org.jenkinsci.plugins.configfiles.folder.FolderConfigFileProperty>
   </properties>
-  <folderViews class="jenkins.branch.MultiBranchProjectViewHolder" plugin="branch-api@2.6.0">
+  <folderViews class="jenkins.branch.MultiBranchProjectViewHolder" plugin="branch-api@2.6.2">
     <owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
   </folderViews>
   <healthMetrics>
-    <com.cloudbees.hudson.plugins.folder.health.WorstChildHealthMetric plugin="cloudbees-folder@6.14">
+    <com.cloudbees.hudson.plugins.folder.health.WorstChildHealthMetric plugin="cloudbees-folder@6.15">
       <nonRecursive>false</nonRecursive>
     </com.cloudbees.hudson.plugins.folder.health.WorstChildHealthMetric>
-    <jenkins.branch.PrimaryBranchHealthMetric plugin="branch-api@2.6.0"/>
+    <jenkins.branch.PrimaryBranchHealthMetric plugin="branch-api@2.6.2"/>
   </healthMetrics>
-  <icon class="jenkins.branch.MetadataActionFolderIcon" plugin="branch-api@2.6.0">
+  <icon class="jenkins.branch.MetadataActionFolderIcon" plugin="branch-api@2.6.2">
     <owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
   </icon>
-  <orphanedItemStrategy class="com.cloudbees.hudson.plugins.folder.computed.DefaultOrphanedItemStrategy" plugin="cloudbees-folder@6.14">
+  <orphanedItemStrategy class="com.cloudbees.hudson.plugins.folder.computed.DefaultOrphanedItemStrategy" plugin="cloudbees-folder@6.15">
     <pruneDeadBranches>true</pruneDeadBranches>
     <daysToKeep>-1</daysToKeep>
     <numToKeep>-1</numToKeep>
   </orphanedItemStrategy>
   <triggers>
-    <com.cloudbees.hudson.plugins.folder.computed.PeriodicFolderTrigger plugin="cloudbees-folder@6.14">
+    <com.cloudbees.hudson.plugins.folder.computed.PeriodicFolderTrigger plugin="cloudbees-folder@6.15">
       <spec>* * * * *</spec>
       <interval>60000</interval>
     </com.cloudbees.hudson.plugins.folder.computed.PeriodicFolderTrigger>
   </triggers>
   <disabled>false</disabled>
-  <sources class="jenkins.branch.MultiBranchProject$BranchSourceList" plugin="branch-api@2.6.0">
+  <sources class="jenkins.branch.MultiBranchProject$BranchSourceList" plugin="branch-api@2.6.2">
     <data>
       <jenkins.branch.BranchSource>
-        <source class="jenkins.plugins.git.GitSCMSource" plugin="git@4.4.5">
-          <id>b566a2bb-6769-4a11-ae5c-38bf3f253393</id>
-          <remote>http://172.16.11.3:3000/netcicd/NetCICD.git</remote>
+        <source class="org.jenkinsci.plugin.gitea.GiteaSCMSource" plugin="gitea@1.2.1">
+          <id>952128a7-0921-4b31-b315-a55f93cf323d</id>
+          <serverUrl>http://gitea:3000</serverUrl>
+          <repoOwner>infraautomator</repoOwner>
+          <repository>NetCICD</repository>
           <credentialsId>git-jenkins</credentialsId>
           <traits>
-            <jenkins.plugins.git.traits.BranchDiscoveryTrait/>
+            <org.jenkinsci.plugin.gitea.BranchDiscoveryTrait>
+              <strategyId>1</strategyId>
+            </org.jenkinsci.plugin.gitea.BranchDiscoveryTrait>
+            <org.jenkinsci.plugin.gitea.OriginPullRequestDiscoveryTrait>
+              <strategyId>1</strategyId>
+            </org.jenkinsci.plugin.gitea.OriginPullRequestDiscoveryTrait>
+            <org.jenkinsci.plugin.gitea.ForkPullRequestDiscoveryTrait>
+              <strategyId>1</strategyId>
+              <trust class="org.jenkinsci.plugin.gitea.ForkPullRequestDiscoveryTrait$TrustContributors"/>
+            </org.jenkinsci.plugin.gitea.ForkPullRequestDiscoveryTrait>
           </traits>
         </source>
         <strategy class="jenkins.branch.DefaultBranchPropertyStrategy">
@@ -56,4 +67,4 @@
     <owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
     <scriptPath>Jenkinsfile</scriptPath>
   </factory>
-</org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject># 
+</org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject>

@@ -284,6 +284,7 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Adding users to Gitea "
 echo "****************************************************************************************************************"
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-jenkins --password netcicd --email git-jenkins@infraautomators.example.com --access-token'" > git-jenkins_token
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username thedude --password thedude --email thedude@infraautomators.example.com --access-token'" > thedude_token
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username thespecialist --password thespecialist --email thespecialist@infraautomators.example.com --access-token'" > thespecialist_token
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username architect --password architect --email architect@infraautomators.example.com --access-token'" > architect_token
@@ -295,6 +296,7 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Assigning users to teams "
 echo "****************************************************************************************************************"
+curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netops_team_read_id/members/git-jenkins" -H  "accept: application/json"
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netops_team_read_id/members/thedude" -H  "accept: application/json"
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netops_team_write_id/members/thespecialist" -H  "accept: application/json"
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netdev_team_read_id/members/architect" -H  "accept: application/json"

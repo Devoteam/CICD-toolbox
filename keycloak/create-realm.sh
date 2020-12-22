@@ -176,7 +176,7 @@ TACACS_ID=$(cat TACACS | grep id | cut -d'"' -f 4)
     -s lastName=Operator \
     -s email=git-jenkins@infraautomators.example.com
 ./kcadm.sh set-password -r netcicd --username git-jenkins --new-password netcicd
-./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Gitea --rolename gitea-netops-read
+./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Gitea --rolename gitea-netops-write
 ./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Jenkins --rolename jenkins-gitea
 
 ./kcadm.sh create users \
