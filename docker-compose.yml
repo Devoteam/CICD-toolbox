@@ -66,15 +66,15 @@ services:
   #     - '/etc/timezone:/etc/timezone:ro'
   #     - '/etc/localtime:/etc/localtime:ro'
 
-  jenkins-node:
-    container_name: jenkins_node
-    build: ./jenkins_node
-    restart: on-failure
-    privileged: true
-    user: root
-    networks:
-      tooling:
-        ipv4_address: 172.16.11.7
+  # jenkins-node:
+  #   container_name: jenkins_node
+  #   build: ./jenkins_node
+  #   restart: on-failure
+  #   privileged: true
+  #   user: root
+  #   networks:
+  #     tooling:
+  #       ipv4_address: 172.16.11.7
 
   jenkins:
     container_name: jenkins

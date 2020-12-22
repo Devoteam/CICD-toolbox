@@ -123,21 +123,8 @@ jenkins:
       - key: "CML_URL"
         value: "http://cml:19399"
   labelAtoms:
-  - name: "jenkins_node"
   - name: "master"
-  nodes:
-  - permanent:
-      launcher:
-        jnlp:
-          workDirSettings:
-            disabled: false
-            failIfWorkDirIsMissing: false
-            internalDir: "remoting"
-      name: "jenkins_node"
-      nodeDescription: "Jenkins Worker node"
-      remoteFS: "/root/jenkins_slave"
-      retentionStrategy: "always"
-  numExecutors: 0
+  numExecutors: 1
   globalNodeProperties:
     - envVars:
         env:
