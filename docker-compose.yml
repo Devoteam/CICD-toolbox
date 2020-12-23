@@ -86,7 +86,7 @@ services:
       tooling:
         ipv4_address: 172.16.11.8
     environment:
-      - JENKINS_ADMIN_ID=admin
+      - JENKINS_ADMIN_ID=jenkins_admin
       - JENKINS_ADMIN_PASSWORD=netcicd
       - NETCICD_PASSWORD=netcicd
       - CML_USER=guest

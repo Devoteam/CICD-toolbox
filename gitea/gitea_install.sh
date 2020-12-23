@@ -9,9 +9,7 @@ docker cp gitea/app.ini gitea:/data/gitea/conf/app.ini
 echo " "
 echo "****************************************************************************************************************"
 echo " Adding keycloak client key to Gitea"
-echo " "
 gitea_client_id=$(grep GITEA_token keycloak_create.log | cut -d' ' -f3 | tr -d '\r' )
-echo " "
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin auth add-oauth --name keycloak --provider openidConnect --key Gitea --secret $gitea_client_id --auto-discover-url http://keycloak:8080/auth/realms/netcicd/.well-known/openid-configuration --config=/data/gitea/conf/app.ini'"
 echo "****************************************************************************************************************"
 echo " Restarting Gitea"
@@ -43,8 +41,6 @@ ORG_PAYLOAD='{
     "website": ""
     }'
 org_data=`curl -s --user $user:$pwd -X POST "http://gitea:3000/api/v1/orgs" -H "accept: application/json" -H "Content-Type: application/json" --data "${ORG_PAYLOAD}"`
-#We may need the ID to add users to the org or team.
-
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating NetCICD repo under InfraAutomators organization"
@@ -78,7 +74,6 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating webhook for the repo"
 echo "****************************************************************************************************************"
-echo " "
 NetCICD_webhook_payload='{
     "active": true,
     "branch_filter": "*",
@@ -90,6 +85,7 @@ NetCICD_webhook_payload='{
     "type": "gitea"
     }'
 curl --user gitea-admin:netcicd -X POST "http://gitea:3000/api/v1/repos/infraautomator/NetCICD/hooks" -H  "accept: application/json" -H  "Content-Type: application/json" -d "$NetCICD_webhook_payload"
+echo " "
 echo "****************************************************************************************************************"
 echo " Creating NetCICD-development-toolbox repo under InfraAutomators organization"
 echo "****************************************************************************************************************"
@@ -327,7 +323,8 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Assigning users to teams "
 echo "****************************************************************************************************************"
-curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netops_team_read_id/members/git-jenkins" -H  "accept: application/json"
+curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netdev_team_write_id/members/git-jenkins" -H  "accept: application/json"
+curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$tooling_team_write_id/members/git-jenkins" -H  "accept: application/json"
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netops_team_read_id/members/thedude" -H  "accept: application/json"
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netops_team_write_id/members/thespecialist" -H  "accept: application/json"
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netdev_team_read_id/members/architect" -H  "accept: application/json"
