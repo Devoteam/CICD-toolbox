@@ -47,7 +47,7 @@ jenkins:
           properties:
           - "apiToken"
           - mailer:
-              emailAddress: "netcicd@example.com"
+              emailAddress: "netcicd@infraautomators.example.com"
           - preferredProvider:
               providerId: "default"
   remotingSecurity:
@@ -69,7 +69,7 @@ jenkins:
         - assignments:
           - "anonymous"
           - "jenkins_readonly"
-          name: "read_only"
+          name: "jenkins_read_only"
           pattern: ".*"
           permissions:
           - "Overall/Read"
@@ -78,7 +78,7 @@ jenkins:
         - assignments:
           - "admin"
           - "netcicd"
-          name: "admin"
+          name: "jenkins_admin"
           pattern: ".*"
           permissions:
           - "Job/Move"
@@ -123,7 +123,7 @@ jenkins:
           - "networkguru"
           - "hacker"
           - "tooltiger"
-          name: "user"
+          name: "jenkins_user"
           pattern: ".*"
           permissions:
           - "Job/Move"
