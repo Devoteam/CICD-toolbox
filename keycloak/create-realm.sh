@@ -55,6 +55,7 @@ GITEA_token=""
     -s clientId=Jenkins \
     -s enabled=true \
     -s publicClient=true \
+    -s fullScopeAllowed=false \
     -s directAccessGrantsEnabled=true \
     -s rootUrl=http://jenkins:8080 \
     -s adminUrl=http://jenkins:8080/ \
@@ -66,13 +67,17 @@ GITEA_token=""
 JENKINS_ID=$(cat JENKINS | grep id | cut -d'"' -f 4)
 
 # Now we can add client specific roles (Clientroles)
-./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-admin -s description='The admin role for Jenkins'
-./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-user -s description='A user in Jenkins'
-./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-agent -s description='The role to be used for a user that needs to create agents in Jenkins'
-./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-gitea -s description='The role to be used for a user that needs to retrieve a repo from Gitea'
-./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-nexus -s description='The role to be used for Jenkins to push data to Nexus'
-./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-argos -s description='The role to be used for Jenkins to log keys to Argos'
-./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-cml -s description='The role to be used for Jenkins to interact with Cisco Modeling Labs (CML)'
+./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins_admin -s description='The admin role for Jenkins'
+./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins_user -s description='A user in Jenkins'
+./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins_netcicd_agent -s description='The role to be used for a user that needs to create agents in Jenkins'
+./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins_netcicd_run -s description='The role to be used for a user that needs to run the NetCICD pipeline'
+./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins_netcicd_dev -s description='The role to be used for a user that needs to configure the NetCICD pipeline'
+./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins_netcicd_toolbox_run -s description='The role to be used for a user that needs to run the NetCICD-developer-toolbox pipeline'
+./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins_netcicd_toolbox_dev -s description='The role to be used for a user that needs to configure the NetCICD-developer-toolbox pipeline'
+./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins_gitea -s description='The role to be used for a user that needs to retrieve a repo from Gitea'
+./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins_nexus -s description='The role to be used for Jenkins to push data to Nexus'
+./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins_argos -s description='The role to be used for Jenkins to log keys to Argos'
+./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins_cml -s description='The role to be used for Jenkins to interact with Cisco Modeling Labs (CML)'
    
 ./kcadm.sh create clients \
     -r netcicd \
@@ -153,6 +158,112 @@ TACACS_ID=$(cat TACACS | grep id | cut -d'"' -f 4)
 ./kcadm.sh create clients/$TACACS_ID/roles -r netcicd -s name=TACACS-network-admin -s description='An admin role to be used for RADIUS based AAA on Cisco routers, priv 15'
 ./kcadm.sh create clients/$TACACS_ID/roles -r netcicd -s name=TACACS-network-operator -s description='A role to be used for RADIUS based AAA on Cisco routers, priv 2'
 
+#add groups - we start at the ICT infra level, which implements the capacity layer of the MyREFerence model
+./kcadm.sh create groups -r netcicd -s name="Infra" &>INFRA
+infra_id=$(cat INFRA | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$infra_id/children -r netcicd -s name="Operations" &>OPS
+ops_id=$(cat OPS | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$ops_id/children -r netcicd -s name="Network" &>NET
+network_id=$(cat NET | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$network_id/children -r netcicd -s name="Campus" &>CAMPUS
+campus_id=$(cat CAMPUS | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$campus_id/children -r netcicd -s name="Campus-operators" &>CAMOPS
+camops_id=$(cat CAMOPS | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$campus_id/children -r netcicd -s name="Campus-specialist" &>CAMSPEC
+camspec_id=$(cat CAMSPEC | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$network_id/children -r netcicd -s name="WAN" &>WAN
+wan_id=$(cat WAN | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$wan_id/children -r netcicd -s name="WAN-operators" &>WANOPS
+wanops_id=$(cat WANOPS | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$wan_id/children -r netcicd -s name="WAN-specialist" &>WANSPEC
+wanspec_id=$(cat WANSPEC | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$network_id/children -r netcicd -s name="Datacenter" &>DC
+dc_id=$(cat DC | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$dc_id/children -r netcicd -s name="DC-operators" &>DCOPS
+dcops_id=$(cat DCOPS | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$dc_id/children -r netcicd -s name="DC-specialist" &>DCSPEC
+dcspec_id=$(cat DCSPEC | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$infra_id/children -r netcicd -s name="Compute" &>COMPUTE
+compute_id=$(cat COMPUTE | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$compute_id/children -r netcicd -s name="Container" &>CONTAINER
+container_id=$(cat CONTAINER | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$container_id/children -r netcicd -s name="Container-operators" &>CTOPS
+ctops_id=$(cat CTOPS | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$container_id/children -r netcicd -s name="Container-specialist" &>CTSPEC
+ctspec_id=$(cat CTSPEC | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$compute_id/children -r netcicd -s name="VM" &>VM
+vm_id=$(cat VM | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$vm_id/children -r netcicd -s name="VM-operators" &>VMOPS
+vmops_id=$(cat VMOPS | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$vm_id/children -r netcicd -s name="VM-specialist" &>VMSPEC
+vmspec_id=$(cat VMSPEC | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$compute_id/children -r netcicd -s name="Cloud" &>CL
+cl_id=$(cat CL | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$cl_id/children -r netcicd -s name="Cloud-operators" &>CLOPS
+clops_id=$(cat CLOPS | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$cl_id/children -r netcicd -s name="Cloud-specialist" &>CLSPEC
+clspec_id=$(cat CLSPEC | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$infra_id/children -r netcicd -s name="Storage" &>STORAGE
+storage_id=$(cat STORAGE | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$infra_id/children -r netcicd -s name="Development" &>DEV
+dev_id=$(cat DEV | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$dev_id/children -r netcicd -s name="Campus-architect" &>CAMARCH
+camarch_id=$(cat CAMARCH | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$dev_id/children -r netcicd -s name="WAN-architect" &>WANARCH
+wanarch_id=$(cat WANARCH | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$dev_id/children -r netcicd -s name="DC-architect" &>DCARCH
+dcarch_id=$(cat DCARCH | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$dev_id/children -r netcicd -s name="Storage-architect" &>STORARCH
+storarch_id=$(cat STORARCH | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$dev_id/children -r netcicd -s name="Container-architect" &>CONTARCH
+ctarch_id=$(cat CONTARCH | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$dev_id/children -r netcicd -s name="VM Architect" &>VMARCH
+vmarch_id=$(cat VMARCH | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$dev_id/children -r netcicd -s name="Cloud Architect" &>CLARCH
+clarch_id=$(cat CLARCH | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$dev_id/children -r netcicd -s name="Tooling Architect" &>TOOLARCH
+toolarch_id=$(cat TOOLARCH | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$infra_id/children -r netcicd -s name="Tooling" &>TOOL
+tool_id=$(cat TOOL | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$tool_id/children -r netcicd -s name="Tooling Operations" &>TOOLOPS
+toolops_id=$(cat TOOLOPS | grep id | cut -d"'" -f 2)
+
+./kcadm.sh create groups/$tool_id/children -r netcicd -s name="Tooling Development" &>TOOLDEV
+tooldev_id=$(cat TOOLDEV | grep id | cut -d"'" -f 2)
+
 #add users
 ./kcadm.sh create users \
     -r netcicd \
@@ -163,7 +274,7 @@ TACACS_ID=$(cat TACACS | grep id | cut -d'"' -f 4)
     -s email=netcicd@infraautomators.example.com
 ./kcadm.sh set-password -r netcicd --username netcicd --new-password netcicd
 ./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Gitea --rolename gitea-infraautomators-admin
-./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Jenkins --rolename jenkins-admin
+./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Jenkins --rolename jenkins_admin
 ./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Nexus --rolename nexus-admin
 ./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Nexus --rolename nexus-docker-pull
 ./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Nexus --rolename nexus-docker-push
@@ -177,7 +288,7 @@ TACACS_ID=$(cat TACACS | grep id | cut -d'"' -f 4)
     -s email=git-jenkins@infraautomators.example.com
 ./kcadm.sh set-password -r netcicd --username git-jenkins --new-password netcicd
 ./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Gitea --rolename gitea-netops-write
-./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Jenkins --rolename jenkins-gitea
+./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Jenkins --rolename jenkins_gitea
 
 ./kcadm.sh create users \
     -r netcicd \
@@ -185,10 +296,31 @@ TACACS_ID=$(cat TACACS | grep id | cut -d'"' -f 4)
     -s username=thedude \
     -s firstName=The \
     -s lastName=Dude \
-    -s email=thedude@infraautomators.example.com
+    -s email=thedude@infraautomators.example.com &>THEDUDE
+dude_id=$(cat THEDUDE | grep id | cut -d"'" -f 2)
+
 ./kcadm.sh set-password -r netcicd --username thedude --new-password thedude
-./kcadm.sh add-roles -r netcicd --uusername thedude --cclientid Gitea --rolename gitea-netops-read
-./kcadm.sh add-roles -r netcicd --uusername thedude --cclientid Jenkins --rolename jenkins-user
+
+./kcadm.sh update users/$dude_id/groups/$camops_id \
+    -r netcicd \
+    -s realm=netcicd \
+    -s userId=$dude_id \
+    -s groupId=$camops_id \
+    -n
+
+./kcadm.sh update users/$dude_id/groups/$wanops_id \
+    -r netcicd \
+    -s realm=netcicd \
+    -s userId=$dude_id \
+    -s groupId=$wanops_id \
+    -n
+
+./kcadm.sh update users/$dude_id/groups/$dcops_id \
+    -r netcicd \
+    -s realm=netcicd \
+    -s userId=$dude_id \
+    -s groupId=$dcops_id \
+    -n
 
 ./kcadm.sh create users \
     -r netcicd \
@@ -196,32 +328,72 @@ TACACS_ID=$(cat TACACS | grep id | cut -d'"' -f 4)
     -s username=thespecialist \
     -s firstName=The \
     -s lastName=Specialist \
-    -s email=boom@infraautomators.example.com
+    -s email=boom@infraautomators.example.com &>THESPEC
+
+spec_id=$(cat THESPEC | grep id | cut -d"'" -f 2)
+
 ./kcadm.sh set-password -r netcicd --username thespecialist --new-password thespecialist
-./kcadm.sh add-roles -r netcicd --uusername thespecialist --cclientid Gitea --rolename gitea-netops-write
-./kcadm.sh add-roles -r netcicd --uusername thespecialist --cclientid Jenkins --rolename jenkins-user
+
+./kcadm.sh update users/$spec_id/groups/$camspec_id \
+    -r netcicd \
+    -s realm=netcicd \
+    -s userId=$spec_id \
+    -s groupId=$camspec_id \
+    -n
+
+./kcadm.sh update users/$spec_id/groups/$wanspec_id \
+    -r netcicd \
+    -s realm=netcicd \
+    -s userId=$spec_id \
+    -s groupId=$wanspec_id \
+    -n
+
+./kcadm.sh update users/$spec_id/groups/$dcspec_id \
+    -r netcicd \
+    -s realm=netcicd \
+    -s userId=$spec_id \
+    -s groupId=$dcspec_id \
+    -n
 
 ./kcadm.sh create users \
     -r netcicd \
     -s enabled=true \
     -s username=architect \
-    -s firstName=Network \
+    -s firstName=The \
     -s lastName=Architect \
-    -s email=architect@infraautomators.example.com
-./kcadm.sh set-password -r netcicd --username architect --new-password architect
-./kcadm.sh add-roles -r netcicd --uusername architect --cclientid Gitea --rolename gitea-netdev-read
-./kcadm.sh add-roles -r netcicd --uusername architect --cclientid Jenkins --rolename jenkins-user
+    -s email=architect@infraautomators.example.com &>ARCH
 
-./kcadm.sh create users \
+arch_id=$(cat ARCH | grep id | cut -d"'" -f 2)
+
+./kcadm.sh set-password -r netcicd --username architect --new-password architect
+
+./kcadm.sh update users/$arch_id/groups/$storarch_id \
     -r netcicd \
-    -s enabled=true \
-    -s username=networkguru \
-    -s firstName=Network \
-    -s lastName=Guru \
-    -s email=networkguru@infraautomators.example.com
-./kcadm.sh set-password -r netcicd --username networkguru --new-password networkguru
-./kcadm.sh add-roles -r netcicd --uusername networkguru --cclientid Gitea --rolename gitea-netdev-write
-./kcadm.sh add-roles -r netcicd --uusername networkguru --cclientid Jenkins --rolename jenkins-user
+    -s realm=netcicd \
+    -s userId=$arch_id \
+    -s groupId=$storarch_id \
+    -n
+
+./kcadm.sh update users/$arch_id/groups/$ctarch_id \
+    -r netcicd \
+    -s realm=netcicd \
+    -s userId=$arch_id \
+    -s groupId=$ctarch_id \
+    -n
+
+./kcadm.sh update users/$arch_id/groups/$vmarch_id \
+    -r netcicd \
+    -s realm=netcicd \
+    -s userId=$arch_id \
+    -s groupId=$vmarch_id \
+    -n
+
+./kcadm.sh update users/$arch_id/groups/$clarch_id \
+    -r netcicd \
+    -s realm=netcicd \
+    -s userId=$arch_id \
+    -s groupId=$clarch_id \
+    -n
 
 ./kcadm.sh create users \
     -r netcicd \
@@ -229,10 +401,25 @@ TACACS_ID=$(cat TACACS | grep id | cut -d'"' -f 4)
     -s username=hacker \
     -s firstName=Happy \
     -s lastName=Hacker \
-    -s email=whitehat@infraautomators.example.com
+    -s email=whitehat@infraautomators.example.com &>HACKER
+
+hack_id=$(cat HACKER | grep id | cut -d"'" -f 2)
+
 ./kcadm.sh set-password -r netcicd --username hacker --new-password whitehat
-./kcadm.sh add-roles -r netcicd --uusername hacker --cclientid Gitea --rolename gitea-tooling-read
-./kcadm.sh add-roles -r netcicd --uusername hacker --cclientid Jenkins --rolename jenkins-user
+
+./kcadm.sh update users/$hack_id/groups/$toolops_id \
+    -r netcicd \
+    -s realm=netcicd \
+    -s userId=$hack_id \
+    -s groupId=$toolops_id \
+    -n
+
+./kcadm.sh update users/$hack_id/groups/$tooldev_id \
+    -r netcicd \
+    -s realm=netcicd \
+    -s userId=$hack_id \
+    -s groupId=$tooldev_id \
+    -n
 
 ./kcadm.sh create users \
     -r netcicd \
@@ -240,7 +427,15 @@ TACACS_ID=$(cat TACACS | grep id | cut -d'"' -f 4)
     -s username=tooltiger \
     -s firstName=Tool \
     -s lastName=Tiger \
-    -s email=tooltiger@infraautomators.example.com
+    -s email=tooltiger@infraautomators.example.com &>TOOLTIGER
+
+tooltiger_id=$(cat TOOLTIGER | grep id | cut -d"'" -f 2)
+
 ./kcadm.sh set-password -r netcicd --username tooltiger --new-password tooltiger
-./kcadm.sh add-roles -r netcicd --uusername tooltiger --cclientid Gitea --rolename gitea-tooling-write
-./kcadm.sh add-roles -r netcicd --uusername tooltiger --cclientid Jenkins --rolename jenkins-user
+
+./kcadm.sh update users/$tooltiger_id/groups/$toolarch_id \
+    -r netcicd \
+    -s realm=netcicd \
+    -s userId=$tooltiger_id \
+    -s groupId=$toolarch_id \
+    -n
