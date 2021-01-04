@@ -466,7 +466,7 @@ echo "Created Tooling Architect group within the Development Department with ID:
 #adding client roles to the group
 ./kcadm.sh add-roles \
     -r netcicd \
-    --gid $tooldev_id \
+    --gid $toolarch_id \
     --cclientid Jenkins \
     --rolename jenkins-netcicd-toolbox-dev 
 echo "Added roles to Tooling Architect."
