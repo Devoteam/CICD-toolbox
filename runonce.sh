@@ -67,7 +67,7 @@ sudo chown $USER:$USER portainer/data
 sudo rm -rf portainer/data/*
 echo " " 
 echo "****************************************************************************************************************"
-echo " Make sure all containers are reachable locally with the name in the"
+echo " Making sure all containers are reachable locally with the name in the"
 echo " hosts file."
 echo " " 
 sudo chmod o+w /etc/hosts
@@ -123,7 +123,7 @@ fi
 if grep -q "portainer" /etc/hosts; then
     echo " Portainer exists in /etc/hosts"
 else
-    echo " Add Potainer to /etc/hosts"
+    echo " Add Portainer to /etc/hosts"
     sudo echo "172.16.11.15   portainer" >> /etc/hosts
 fi
 
@@ -205,17 +205,9 @@ until $(curl --output /dev/null --silent --head --fail http://nexus:8081); do
 done
 echo " " 
 echo "****************************************************************************************************************"
-echo " Wait until gitea is running"
-until $(curl --output /dev/null --silent --head --fail http://gitea:3000); do
-    printf '.'
-    sleep 5
-done
-echo " " 
-echo "****************************************************************************************************************"
-echo "Saving Keycloak self-signed certificate"
-echo "****************************************************************************************************************"
+echo " Saving Keycloak self-signed certificate"
 openssl s_client -showcerts -connect keycloak:8443 </dev/null 2>/dev/null|openssl x509 -outform PEM >./jenkins/keystore/keycloak.pem
-echo "****************************************************************************************************************"
+echo " "
 echo " Copy certificate into Jenkins keystore"
 echo "****************************************************************************************************************"
 docker cp jenkins:/usr/local/openjdk-8/jre/lib/security/cacerts ./jenkins/keystore/cacerts

@@ -47,7 +47,7 @@ jenkins:
           properties:
           - "apiToken"
           - mailer:
-              emailAddress: "netcicd@example.com"
+              emailAddress: "netcicd@infraautomators.example.com"
           - preferredProvider:
               providerId: "default"
   remotingSecurity:
@@ -68,8 +68,8 @@ jenkins:
         global:
         - assignments:
           - "anonymous"
-          - "jenkins_readonly"
-          name: "read_only"
+          - "jenkins-readonly"
+          name: "jenkins-readonly"
           pattern: ".*"
           permissions:
           - "Overall/Read"
@@ -77,9 +77,8 @@ jenkins:
           - "Agent/Disconnect"
         - assignments:
           - "admin"
-          - "jenkins_admin"
           - "netcicd"
-          name: "admin"
+          name: "jenkins-admin"
           pattern: ".*"
           permissions:
           - "Job/Move"
@@ -117,27 +116,129 @@ jenkins:
           - "Job/Workspace"
           - "View/Read"
           - "Job/ViewStatus"
+        - assignments:
+          name: "jenkins-user"
+          pattern: ".*"
+          permissions:
+          - "Job/Move"
+          - "Job/Build"
+          - "Credentials/Delete"
+          - "View/Create"
+          - "Agent/Configure"
+          - "Job/Read"
+          - "Credentials/Update"
+          - "Agent/Create"
+          - "Job/Delete"
+          - "Agent/Build"
+          - "View/Configure"
+          - "Agent/Provision"
+          - "SCM/Tag"
+          - "Job/Create"
+          - "Job/Discover"
+          - "Credentials/View"
+          - "Agent/Connect"
+          - "Agent/Delete"
+          - "Run/Replay"
+          - "Agent/Disconnect"
+          - "Run/Delete"
+          - "Job/Cancel"
+          - "Overall/Read"
+          - "Run/Update"
+          - "Credentials/Create"
+          - "View/Delete"
+          - "Job/Configure"
+          - "Job/Workspace"
+          - "View/Read"
+          - "Job/ViewStatus"
+        items:
+        - name: "jenkins-netcicd-dev"
+          pattern: "^NetCICD$"
+          permissions:
+          - "Job/Move"
+          - "Lockable Resources/View"
+          - "Job/Build"
+          - "SCM/Tag"
+          - "Credentials/Delete"
+          - "Job/Create"
+          - "Credentials/ManageDomains"
+          - "Lockable Resources/Unlock"
+          - "Job/Discover"
+          - "Job/Read"
+          - "Credentials/View"
+          - "Credentials/Update"
+          - "Run/Replay"
+          - "Run/Delete"
+          - "Job/Cancel"
+          - "Run/Update"
+          - "Job/Delete"
+          - "Credentials/Create"
+          - "Job/Configure"
+          - "Job/Workspace"
+          - "Lockable Resources/Reserve"
+          - "Job/ViewStatus"
+        - name: "jenkins-netcicd-toolbox-dev"
+          pattern: "^NetCICD-developer-toolbox$"
+          permissions:
+          - "Job/Move"
+          - "Lockable Resources/View"
+          - "Job/Build"
+          - "SCM/Tag"
+          - "Credentials/Delete"
+          - "Job/Create"
+          - "Credentials/ManageDomains"
+          - "Lockable Resources/Unlock"
+          - "Job/Discover"
+          - "Job/Read"
+          - "Credentials/View"
+          - "Credentials/Update"
+          - "Run/Replay"
+          - "Run/Delete"
+          - "Job/Cancel"
+          - "Run/Update"
+          - "Job/Delete"
+          - "Credentials/Create"
+          - "Job/Configure"
+          - "Job/Workspace"
+          - "Lockable Resources/Reserve"
+          - "Job/ViewStatus"
+        - name: "jenkins-netcicd-run"
+          pattern: "^NetCICD$"
+          permissions:
+          - "Lockable Resources/View"
+          - "Job/Build"
+          - "SCM/Tag"
+          - "Lockable Resources/Unlock"
+          - "Credentials/View"
+          - "Run/Replay"
+          - "Job/Cancel"
+          - "Run/Delete"
+          - "Run/Update"
+          - "Job/Workspace"
+          - "Lockable Resources/Reserve"
+          - "Job/ViewStatus"
+        - name: "jenkins-netcicd-toolbox-run"
+          pattern: "^NetCICD-developer-toolbox$"
+          permissions:
+          - "Lockable Resources/View"
+          - "Job/Build"
+          - "SCM/Tag"
+          - "Lockable Resources/Unlock"
+          - "Credentials/View"
+          - "Run/Replay"
+          - "Job/Cancel"
+          - "Run/Delete"
+          - "Run/Update"
+          - "Job/Workspace"
+          - "Lockable Resources/Reserve"
+          - "Job/ViewStatus"
   globalNodeProperties:
   - envVars:
       env:
       - key: "CML_URL"
         value: "http://cml:19399"
   labelAtoms:
-  - name: "jenkins_node"
   - name: "master"
-  nodes:
-  - permanent:
-      launcher:
-        jnlp:
-          workDirSettings:
-            disabled: false
-            failIfWorkDirIsMissing: false
-            internalDir: "remoting"
-      name: "jenkins_node"
-      nodeDescription: "Jenkins Worker node"
-      remoteFS: "/root/jenkins_slave"
-      retentionStrategy: "always"
-  numExecutors: 0
+  numExecutors: 1
   globalNodeProperties:
     - envVars:
         env:

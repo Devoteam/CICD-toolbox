@@ -9,9 +9,7 @@ docker cp gitea/app.ini gitea:/data/gitea/conf/app.ini
 echo " "
 echo "****************************************************************************************************************"
 echo " Adding keycloak client key to Gitea"
-echo " "
 gitea_client_id=$(grep GITEA_token keycloak_create.log | cut -d' ' -f3 | tr -d '\r' )
-echo " "
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin auth add-oauth --name keycloak --provider openidConnect --key Gitea --secret $gitea_client_id --auto-discover-url http://keycloak:8080/auth/realms/netcicd/.well-known/openid-configuration --config=/data/gitea/conf/app.ini'"
 echo "****************************************************************************************************************"
 echo " Restarting Gitea"
@@ -43,8 +41,6 @@ ORG_PAYLOAD='{
     "website": ""
     }'
 org_data=`curl -s --user $user:$pwd -X POST "http://gitea:3000/api/v1/orgs" -H "accept: application/json" -H "Content-Type: application/json" --data "${ORG_PAYLOAD}"`
-#We may need the ID to add users to the org or team.
-
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating NetCICD repo under InfraAutomators organization"
@@ -76,6 +72,21 @@ echo "**************************************************************************
 curl --user $user:$pwd -X POST "http://gitea:3000/api/v1/repos/infraautomator/NetCICD/branches" -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"new_branch_name\": \"develop\"}"
 echo " "
 echo "****************************************************************************************************************"
+echo " Creating webhook for the repo"
+echo "****************************************************************************************************************"
+NetCICD_webhook_payload='{
+    "active": true,
+    "branch_filter": "*",
+    "config": {
+        "content_type": "json",
+        "url": "http://jenkins:8080/gitea-webhook/post"
+        },
+    "events": [ "push" ],
+    "type": "gitea"
+    }'
+curl --user gitea-admin:netcicd -X POST "http://gitea:3000/api/v1/repos/infraautomator/NetCICD/hooks" -H  "accept: application/json" -H  "Content-Type: application/json" -d "$NetCICD_webhook_payload"
+echo " "
+echo "****************************************************************************************************************"
 echo " Creating NetCICD-development-toolbox repo under InfraAutomators organization"
 echo "****************************************************************************************************************"
 NetCICD_repo_payload='{
@@ -103,6 +114,22 @@ echo "**************************************************************************
 echo " Create Develop branch "
 echo "****************************************************************************************************************"
 curl --user $user:$pwd -X POST "http://gitea:3000/api/v1/repos/infraautomator/NetCICD-developer-toolbox/branches" -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"new_branch_name\": \"develop\"}"
+echo " "
+echo "****************************************************************************************************************"
+echo " Creating webhook for the repo"
+echo "****************************************************************************************************************"
+echo " "
+NetCICD_developer_toolbox_webhook_payload='{
+    "active": true,
+    "branch_filter": "*",
+    "config": {
+        "content_type": "json",
+        "url": "http://jenkins:8080/gitea-webhook/post"
+        },
+    "events": [ "push" ],
+    "type": "gitea"
+    }'
+curl --user gitea-admin:netcicd -X POST "http://gitea:3000/api/v1/repos/infraautomator/NetCICD-developer-toolbox/hooks" -H  "accept: application/json" -H  "Content-Type: application/json" -d "$NetCICD_developer_toolbox_webhook_payload"
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating gitea-netops-read team in Gitea "
@@ -284,6 +311,7 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Adding users to Gitea "
 echo "****************************************************************************************************************"
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-jenkins --password netcicd --email git-jenkins@infraautomators.example.com --access-token'" > git-jenkins_token
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username thedude --password thedude --email thedude@infraautomators.example.com --access-token'" > thedude_token
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username thespecialist --password thespecialist --email thespecialist@infraautomators.example.com --access-token'" > thespecialist_token
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username architect --password architect --email architect@infraautomators.example.com --access-token'" > architect_token
@@ -295,6 +323,8 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Assigning users to teams "
 echo "****************************************************************************************************************"
+curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netdev_team_write_id/members/git-jenkins" -H  "accept: application/json"
+curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$tooling_team_write_id/members/git-jenkins" -H  "accept: application/json"
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netops_team_read_id/members/thedude" -H  "accept: application/json"
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netops_team_write_id/members/thespecialist" -H  "accept: application/json"
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netdev_team_read_id/members/architect" -H  "accept: application/json"

@@ -8,4 +8,5 @@ RUN xargs /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
 
 COPY casc.yaml /var/jenkins_conf/casc.yaml
 COPY NetCICD/ /var/jenkins_home/jobs/NetCICD/
+COPY NetCICD-developer-toolbox/ /var/jenkins_home/jobs/NetCICD-developer-toolbox/
 ARG JAVA_OPTS
