@@ -67,7 +67,7 @@ sudo chown $USER:$USER portainer/data
 sudo rm -rf portainer/data/*
 echo " " 
 echo "****************************************************************************************************************"
-echo " Make sure all containers are reachable locally with the name in the"
+echo " Making sure all containers are reachable locally with the name in the"
 echo " hosts file."
 echo " " 
 sudo chmod o+w /etc/hosts
