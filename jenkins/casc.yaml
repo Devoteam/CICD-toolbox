@@ -267,7 +267,7 @@ unclassified:
     keycloakJson: |-
       {
         "realm": "netcicd",
-        "auth-server-url": "https://keycloak:8443/auth/",
+        "auth-server-url": "https://keycloak:8443/auth",
         "ssl-required": "external",
         "resource": "Jenkins",
         "public-client": true,
