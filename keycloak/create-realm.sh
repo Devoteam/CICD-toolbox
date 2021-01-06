@@ -55,10 +55,11 @@ GITEA_token=""
     -s description="The Jenkins orchestrator in the toolchain" \
     -s clientId=Jenkins \
     -s enabled=true \
-    -s publicClient=true \
+    -s publicClient=false \
     -s fullScopeAllowed=false \
     -s directAccessGrantsEnabled=true \
     -s serviceAccountsEnabled=true \
+    -s authorizationServicesEnabled=true \
     -s rootUrl=http://jenkins:8080 \
     -s adminUrl=http://jenkins:8080/ \
     -s 'redirectUris=[ "http://jenkins:8080/*" ]' \
@@ -82,10 +83,41 @@ echo " "
 
 echo "Created Jenkins roles." 
 echo " "
-# Now we need service accounts for Jenkins to log into other systems
+
+# Now we need a service account for other systems to log into Jenkins
 ./kcadm.sh add-roles -r netcicd --uusername service-account-jenkins --cclientid realm-management --rolename view-clients --rolename view-realm --rolename view-users
 
 echo "Created Jenkins Service Account" 
+echo " "
+
+# We need to add a client scope on the realm for Jenkins in order to include the audience in the access token
+./kcadm.sh create -x "client-scopes" -r netcicd -s name=jenkins-audience -s protocol=openid-connect
+
+echo "Created Client scope for Jenkins" 
+echo " "
+
+# Create a mapper for the audience
+./kcadm.sh create clients/$JENKINS_ID/protocol-mappers/models \
+    -r netcicd \
+	-s name=jenkins-audience-mapper \
+    -s protocol=openid-connect \
+	-s protocolMapper=oidc-audience-mapper \
+    -s consentRequired=false \
+	-s config="{\"included.client.audience\" : \"Jenkins\",\"id.token.claim\" : \"false\",\"access.token.claim\" : \"true\"}"
+
+echo "Created audience mapper in the Client Scope" 
+echo " "
+
+# We need to add the scope to the token
+./kcadm.sh update clients/$JENKINS_ID -r netcicd --body "{\"defaultClientScopes\": [\"jenkins-audience\"]}"
+
+echo "Included Jenkins Audience in token" 
+echo " "
+
+#download Nexus OIDC file
+./kcadm.sh get clients/$JENKINS_ID/installation/providers/keycloak-oidc-keycloak-json -r netcicd > keycloak-jenkins.json
+
+echo "Created keycloak-jenkins installation json" 
 echo " "
    
 ./kcadm.sh create clients \
@@ -128,6 +160,9 @@ echo " "
 
 #download Nexus OIDC file
 ./kcadm.sh get clients/$NEXUS_ID/installation/providers/keycloak-oidc-keycloak-json -r netcicd > keycloak-nexus.json
+
+echo "Created keycloak-nexus installation json" 
+echo " "
 
 ./kcadm.sh create clients \
     -r netcicd \
@@ -558,7 +593,7 @@ echo " "
     -s email=git-jenkins@infraautomators.example.com
 ./kcadm.sh set-password -r netcicd --username git-jenkins --new-password netcicd
 ./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Gitea --rolename gitea-netops-write
-./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Jenkins --rolename jenkins-gitea
+#./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Jenkins --rolename jenkins-gitea
 
 ./kcadm.sh create users \
     -r netcicd \
