@@ -1,8 +1,0 @@
-{
-  "realm": "netcicd",
-  "auth-server-url": "https://172.16.11.11:8443/auth/",
-  "ssl-required": "external",
-  "resource": "Jenkins",
-  "public-client": true,
-  "confidential-port": 0
-}
