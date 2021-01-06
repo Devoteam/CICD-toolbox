@@ -265,15 +265,5 @@ unclassified:
       serverUrl: "http://gitea:3000"
   keycloakSecurityRealm:
     keycloakJson: |-
-      {
-        "realm": "netcicd",
-        "auth-server-url": "https://keycloak:8443/auth/",
-        "ssl-required": "external",
-        "resource": "Jenkins",
-        "public-client": true,
-        "verify-token-audience": false,
-        "use-resource-role-mappings": true,
-        "confidential-port": 0
-      }
     keycloakRespectAccessTokenTimeout: true
     keycloakValidate: false

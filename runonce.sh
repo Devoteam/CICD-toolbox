@@ -167,11 +167,8 @@ echo " Adding keycloak RADIUS plugin"
 echo "****************************************************************************************************************"
 docker exec -it keycloak sh -c "/opt/radius/scripts/keycloak.sh"
 echo " " 
+echo "Reloading "
 docker restart keycloak
-echo " " 
-echo "****************************************************************************************************************"
-echo " Restarted keycloak to activate RADIUS, wait until keycloak is running"
-echo "****************************************************************************************************************"
 until $(curl --output /dev/null --silent --head --fail http://keycloak:8080); do
     printf '.'
     sleep 5
@@ -190,15 +187,24 @@ echo "**************************************************************************
 gitea/gitea_install.sh
 echo " " 
 echo "****************************************************************************************************************"
+echo " Creating jenkins setup"
+echo "****************************************************************************************************************"
+docker cp keycloak:/opt/jboss/keycloak/bin/keycloak-jenkins.json jenkins/keycloak-jenkins.json
+docker cp jenkins/keycloak-jenkins.json jenkins:/var/jenkins_conf/keycloak.json
+docker exec -it jenkins sh -c "sed -i -e 's/^/      /' /var/jenkins_conf/keycloak.json"
+docker exec -it jenkins sh -c "sed -i -e 's/auth\/\"/auth\"/g' /var/jenkins_conf/keycloak.json"
+docker exec -it jenkins sh -c "echo >> /var/jenkins_conf/keycloak.json"
+docker exec -it jenkins sh -c "sed -i -e '/keycloakJson: |-/r /var/jenkins_conf/keycloak.json' /var/jenkins_conf/casc.yaml"
+echo "Reloading "
+docker restart jenkins
+echo " " 
+echo "****************************************************************************************************************"
 echo " Creating nexus setup"
 echo "****************************************************************************************************************"
 docker cp keycloak:/opt/jboss/keycloak/bin/keycloak-nexus.json nexus/keycloak-nexus.json
 docker cp nexus/keycloak-nexus.json nexus:/opt/sonatype/nexus/etc/keycloak.json
+echo "Reloading "
 docker restart nexus
-echo " " 
-echo "****************************************************************************************************************"
-echo " Restarted nexus to activate Keycloak, wait until Nexus is running"
-echo "****************************************************************************************************************"
 until $(curl --output /dev/null --silent --head --fail http://nexus:8081); do
     printf '.'
     sleep 5
@@ -214,7 +220,12 @@ docker cp jenkins:/usr/local/openjdk-8/jre/lib/security/cacerts ./jenkins/keysto
 chmod +w ./jenkins/keystore/cacerts
 keytool -import -alias Keycloak -keystore ./jenkins/keystore/cacerts -file ./jenkins/keystore/keycloak.pem -storepass changeit -noprompt
 docker cp ./jenkins/keystore/cacerts jenkins:/usr/local/openjdk-8/jre/lib/security/cacerts
+echo "Reloading "
 docker restart jenkins
+until $(curl --output /dev/null --silent --head --fail http://jenkins:8080); do
+    printf '.'
+    sleep 5
+done
 echo " " 
 echo "****************************************************************************************************************"
 echo "NetCICD Toolkit install done "

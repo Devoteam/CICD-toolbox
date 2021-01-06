@@ -18,3 +18,4 @@ nexus/nexus-casc-plugin*
 nexus/keycloak-nexus*
 
 nexus/keycloak-nexus.json
+jenkins/keycloak-jenkins.json
