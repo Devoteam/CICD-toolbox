@@ -8,20 +8,6 @@ echo "**************************************************************************
 docker cp gitea/app.ini gitea:/data/gitea/conf/app.ini
 echo " "
 echo "****************************************************************************************************************"
-echo " Adding keycloak client key to Gitea"
-gitea_client_id=$(grep GITEA_token keycloak_create.log | cut -d' ' -f3 | tr -d '\r' )
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin auth add-oauth --name keycloak --provider openidConnect --key Gitea --secret $gitea_client_id --auto-discover-url http://keycloak:8080/auth/realms/netcicd/.well-known/openid-configuration --config=/data/gitea/conf/app.ini'"
-echo "****************************************************************************************************************"
-echo " Restarting Gitea"
-echo "****************************************************************************************************************"
-docker restart gitea
-echo " Wait until gitea is running"
-until $(curl --output /dev/null --silent --head --fail http://gitea:3000); do
-    printf '.'
-    sleep 5
-done
-echo " "
-echo "****************************************************************************************************************"
 user=gitea-admin
 pwd=netcicd
 echo " Create local gituser (admin role: $user)"
@@ -51,18 +37,18 @@ NetCICD_repo_payload='{
     "auth_username": "string",  
     "clone_addr": "https://github.com/Devoteam/NetCICD.git",  
     "description": "The NetCICD toolbox",  
-    "issues": true,  
-    "labels": true,  
-    "milestones": true,  
+    "issues": false,  
+    "labels": false,  
+    "milestones": false,  
     "mirror": false,  
     "private": false,  
-    "pull_requests": true,  
-    "releases": true,  
+    "pull_requests": false,  
+    "releases": false,  
     "repo_name": "NetCICD",  
     "repo_owner": "infraautomator",  
     "service": "git",  
     "uid": 0,  
-    "wiki": true
+    "wiki": false
     }'
 curl --user $user:$pwd -X POST "http://gitea:3000/api/v1/repos/migrate" -H  "accept: application/json" -H  "Content-Type: application/json" -d "$NetCICD_repo_payload"
 echo " "
@@ -95,18 +81,18 @@ NetCICD_repo_payload='{
     "auth_username": "string",  
     "clone_addr": "https://github.com/Devoteam/NetCICD-developer-toolbox.git",  
     "description": "The NetCICD toolbox",  
-    "issues": true,  
-    "labels": true,  
-    "milestones": true,  
+    "issues": false,  
+    "labels": false,  
+    "milestones": false,  
     "mirror": false,  
     "private": false,  
-    "pull_requests": true,  
-    "releases": true,  
+    "pull_requests": false,  
+    "releases": false,  
     "repo_name": "NetCICD-developer-toolbox",  
     "repo_owner": "infraautomator",  
     "service": "git",  
     "uid": 0,  
-    "wiki": true
+    "wiki": false
     }'
 curl --user $user:$pwd -X POST "http://gitea:3000/api/v1/repos/migrate" -H  "accept: application/json" -H  "Content-Type: application/json" -d "$NetCICD_repo_payload"
 echo " "
@@ -331,3 +317,17 @@ curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netdev_team_read_
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netdev_team_write_id/members/networkguru" -H  "accept: application/json"
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$tooling_team_read_id/members/hacker" -H  "accept: application/json"
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$tooling_team_write_id/members/tooltiger" -H  "accept: application/json"
+echo "****************************************************************************************************************"
+echo " Adding keycloak client key to Gitea"
+gitea_client_id=$(grep GITEA_token keycloak_create.log | cut -d' ' -f3 | tr -d '\r' )
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin auth add-oauth --name keycloak --provider openidConnect --key Gitea --secret $gitea_client_id --auto-discover-url http://keycloak:8080/auth/realms/netcicd/.well-known/openid-configuration --config=/data/gitea/conf/app.ini'"
+echo "****************************************************************************************************************"
+echo " Restarting Gitea"
+echo "****************************************************************************************************************"
+docker restart gitea
+echo " Wait until gitea is running"
+until $(curl --output /dev/null --silent --head --fail http://gitea:3000); do
+    printf '.'
+    sleep 5
+done
+echo " "
