@@ -16,7 +16,7 @@ cd /opt/jboss/keycloak/bin
     -s enabled=true \
     -s bearerOnly=false \
     -s publicClient=false \
-    -s fullScopeAllowed=false \
+    -s fullScopeAllowed=true \
     -s directAccessGrantsEnabled=true \
     -s rootUrl=http://gitea:3000 \
     -s adminUrl=http://gitea:3000/ \
@@ -261,6 +261,14 @@ echo "Created Campus Operator group within Campus Operations with ID: ${camops_i
     --cclientid Jenkins \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-toolbox-run 
+
+./kcadm.sh add-roles \
+    -r netcicd \
+    --gid $camops_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read
+
 echo "Added roles to Campus Operators."
 echo " "
 
@@ -283,6 +291,14 @@ echo "Created Campus Specialists group within Campus Operations with ID: ${camsp
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-dev \
     --rolename jenkins-netcicd-toolbox-run 
+
+./kcadm.sh add-roles \
+    -r netcicd \
+    --gid $camspec_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read
+     
 echo "Added roles to Operations Campus Specialists."
 echo " "
 
@@ -308,6 +324,14 @@ echo "Created WAN Operator group within WAN Operations with ID: ${wanops_id}"
     --cclientid Jenkins \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-toolbox-run 
+
+./kcadm.sh add-roles \
+    -r netcicd \
+    --gid $wanops_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read
+
 echo "Added roles to WAN Operators."
 echo " "
 
@@ -330,6 +354,14 @@ echo "Created WAN Specialists group within WAN Operations with ID: ${wanspec_id}
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-dev \
     --rolename jenkins-netcicd-toolbox-run 
+
+./kcadm.sh add-roles \
+    -r netcicd \
+    --gid $wanspec_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read
+     
 echo "Added roles to Operations WAN Specialists."
 echo " "
 
@@ -355,6 +387,14 @@ echo "Created DC Operator group within DC Operations with ID: ${dcops_id}"
     --cclientid Jenkins \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-toolbox-run 
+
+./kcadm.sh add-roles \
+    -r netcicd \
+    --gid $dcops_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read
+
 echo "Added roles to DC Operators."
 echo " "
 
@@ -377,6 +417,14 @@ echo "Created DC Specialists group within DC Operations with ID: ${dcspec_id}"
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-dev \
     --rolename jenkins-netcicd-toolbox-run 
+
+./kcadm.sh add-roles \
+    -r netcicd \
+    --gid $dcspec_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read
+     
 echo "Added roles to Operations DC Specialists."
 echo " "
 
@@ -451,6 +499,14 @@ echo "Created Campus Architect group within the Development Department with ID: 
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-dev \
     --rolename jenkins-netcicd-toolbox-run 
+
+./kcadm.sh add-roles \
+    -r netcicd \
+    --gid $wacamarch_idnarch_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read
+
 echo "Added roles to Campus Architects."
 echo " "
 
@@ -473,6 +529,14 @@ echo "Created WAN Architect group within the Development Department with ID: ${w
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-dev \
     --rolename jenkins-netcicd-toolbox-run 
+
+./kcadm.sh add-roles \
+    -r netcicd \
+    --gid $wanarch_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read
+
 echo "Added roles to WAN Architects."
 echo " "
 
@@ -495,6 +559,14 @@ echo "Created DC Architect group within the Development Department with ID: ${dc
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-dev \
     --rolename jenkins-netcicd-toolbox-run 
+
+./kcadm.sh add-roles \
+    -r netcicd \
+    --gid $dcarch_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read
+
 echo "Added roles to DC Architects."
 echo " "
 
@@ -524,6 +596,14 @@ echo "Created Tooling Architect group within the Development Department with ID:
     --gid $toolarch_id \
     --cclientid Jenkins \
     --rolename jenkins-netcicd-toolbox-dev 
+
+./kcadm.sh add-roles \
+    -r netcicd \
+    --gid $toolarch_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read
+
 echo "Added roles to Tooling Architect."
 echo " "
 
@@ -551,6 +631,13 @@ echo "Created Tooling Operations group within the Tooling Department with ID: ${
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-toolbox-run 
 
+./kcadm.sh add-roles \
+    -r netcicd \
+    --gid $toolops_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read
+     
 ./kcadm.sh create groups/$tool_id/children -r netcicd -s name="Tooling Development" &>TOOLDEV
 tooldev_id=$(cat TOOLDEV | grep id | cut -d"'" -f 2)
 echo "Created Tooling Development group within the Tooling Department with ID: ${tooldev_id}" 
@@ -571,6 +658,14 @@ echo " "
     --cclientid Jenkins \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-toolbox-dev 
+
+./kcadm.sh add-roles \
+    -r netcicd \
+    --gid $tooldev_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-docker-push \
+    --rolename nexus-read   
 
 #add users
 ./kcadm.sh create users \
