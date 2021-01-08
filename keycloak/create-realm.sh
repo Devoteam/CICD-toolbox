@@ -91,9 +91,9 @@ echo "Created Jenkins Service Account"
 echo " "
 
 # We need to add a client scope on the realm for Jenkins in order to include the audience in the access token
-./kcadm.sh create -x "client-scopes" -r netcicd -s name=jenkins-audience -s protocol=openid-connect
-
-echo "Created Client scope for Jenkins" 
+./kcadm.sh create -x "client-scopes" -r netcicd -s name=jenkins-audience -s protocol=openid-connect &>JENKINS_SCOPE
+JENKINS_SCOPE_ID=$(cat JENKINS_SCOPE | grep id | cut -d"'" -f 2)
+echo "Created Client scope for Jenkins with id: ${JENKINS_SCOPE_ID}" 
 echo " "
 
 # Create a mapper for the audience
@@ -114,7 +114,7 @@ echo " "
 echo "Included Jenkins Audience in token" 
 echo " "
 
-#download Nexus OIDC file
+#download Jenkins OIDC file
 ./kcadm.sh get clients/$JENKINS_ID/installation/providers/keycloak-oidc-keycloak-json -r netcicd > keycloak-jenkins.json
 
 echo "Created keycloak-jenkins installation json" 
@@ -127,7 +127,7 @@ echo " "
     -s clientId=Nexus \
     -s enabled=true \
     -s publicClient=false \
-    -s fullScopeAllowed=false \
+    -s fullScopeAllowed=true \
     -s directAccessGrantsEnabled=true \
     -s serviceAccountsEnabled=true \
     -s authorizationServicesEnabled=true \
@@ -152,7 +152,10 @@ echo " "
 
 echo "Created Nexus roles." 
 echo " "
-# Now add the service account for Nexus
+
+# Now add the scope mappings for Nexus
+./kcadm.sh add-roles -r netcicd --uusername service-account-nexus --cclientid account --rolename manage-account --rolename manage-account-links --rolename view-profile
+./kcadm.sh add-roles -r netcicd --uusername service-account-nexus --cclientid Nexus --rolename uma_protection
 ./kcadm.sh add-roles -r netcicd --uusername service-account-nexus --cclientid realm-management --rolename view-clients --rolename view-realm --rolename view-users
 
 echo "Created Nexus Service Account" 
