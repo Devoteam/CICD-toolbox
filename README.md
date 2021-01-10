@@ -28,6 +28,7 @@ You need to have installed:
 * Docker
 * openjdk8-jre (sudo apt install openjdk-8-jre-headless)
 * maven
+* curl
 
 You need to be able to run docker as non-root. See [here](https://docs.docker.com/engine/install/linux-postinstall/) for details.
 ## Installation
