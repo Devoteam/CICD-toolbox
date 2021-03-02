@@ -16,6 +16,9 @@ services:
     container_name: netcicd-db
     build: netcicd-db
     restart: on-failure
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
     environment:
       - 'POSTGRES_MULTIPLE_DATABASES=gitea,keycloak'
       - POSTGRES_USER=netcicd
@@ -23,6 +26,8 @@ services:
     networks:
       tooling:
         ipv4_address: 172.16.11.2
+    expose:
+      - '5432'
     volumes:
       - './netcicd-db/db:/var/lib/postgresql/data'
 
@@ -30,6 +35,9 @@ services:
     container_name: gitea
     build: gitea
     restart: on-failure
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
     environment:
       - USER_UID=1000
       - USER_GID=1000
@@ -60,6 +68,10 @@ services:
   #   container_name: toolbox
   #   build: ./toolbox
   #   restart: on-failure
+  #   init: true
+  #   stop_signal: SIGINT
+  #   stop_grace_period: 15s
+  #   networks: 
   #     tooling:
   #       ipv4_address: 172.16.11.6
   #   volumes:
@@ -70,6 +82,9 @@ services:
   #   container_name: jenkins_node
   #   build: ./jenkins_node
   #   restart: on-failure
+  #   init: true
+  #   stop_signal: SIGINT
+  #   stop_grace_period: 15s
   #   privileged: true
   #   user: root
   #   networks:
@@ -80,6 +95,9 @@ services:
     container_name: jenkins
     build: ./jenkins
     restart: on-failure
+#    init: true
+#    stop_signal: SIGINT
+#    stop_grace_period: 15s
     privileged: true
     user: root
     networks:
@@ -91,7 +109,7 @@ services:
       - NETCICD_PASSWORD=netcicd
       - CML_USER=guest
       - CML_PASSWORD=guest
-      - 'CML_URL=http://172.16.32.148:19399'
+      - 'CML_URL=http://192.168.32.148:19399'
       - GIT_JENKINS_PASSWORD=netcicd
       - NEXUS_JENKINS_PASSWORD=netcicd
       - ARGOS_JENKINS_PASSWORD=netcicd
@@ -99,6 +117,8 @@ services:
       - JENKINS_AGENT_CREATOR_KEY=somekey
     volumes:
       - './jenkins/keystore:/var/jenkins_home/keystore'
+    expose:
+      - '8080'
     depends_on:
 #      - jenkins-node
       - keycloak
@@ -107,6 +127,9 @@ services:
     container_name: nexus
     build: ./nexus
     restart: on-failure
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
     user: 'nexus'
     environment:
       BASE_URL: 'http://localhost:8081'
@@ -128,6 +151,9 @@ services:
   #   container_name: argos
   #   image: 'argosnotary/argosnotary:1.0.0'
   #   restart: on-failure
+  #   init: true
+  #   stop_signal: SIGINT
+  #   stop_grace_period: 15s
   #   volumes:
   #     - './argos/data:/data/db'
   #     - './argos/config:/data/configdb'
@@ -145,6 +171,9 @@ services:
     container_name: keycloak
     build: keycloak
     restart: on-failure
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
     environment:
       DB_VENDOR: POSTGRES
       DB_ADDR: netcicd-db
@@ -178,6 +207,9 @@ services:
     container_name: nodered
     image: 'nodered/node-red:latest'
     restart: on-failure
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
     environment:
       - TZ=Europe/Amsterdam
     volumes:
@@ -192,6 +224,9 @@ services:
   #   container_name: jupyter
   #   image: jupyter/base-notebook
   #   restart: always
+  #   init: true
+  #   stop_signal: SIGINT
+  #   stop_grace_period: 15s
   #   environment:
   #     - JUPYTER_ENABLE_LAB=yes
   #     - RESTARTABLE=yes
@@ -209,6 +244,9 @@ services:
   #   container_name: portainer
   #   image: portainer/portainer-ce
   #   restart: always
+  #   init: true
+  #   stop_signal: SIGINT
+  #   stop_grace_period: 15s
   #   volumes:
   #     - './portainer/data:/data'
   #     - '/var/run/docker.sock:/var/run/docker.sock'

@@ -189,12 +189,9 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating jenkins setup"
 echo "****************************************************************************************************************"
-docker cp keycloak:/opt/jboss/keycloak/bin/keycloak-jenkins.json jenkins/keycloak-jenkins.json
-docker cp jenkins/keycloak-jenkins.json jenkins:/var/jenkins_conf/keycloak.json
-docker exec -it jenkins sh -c "sed -i -e 's/^/      /' /var/jenkins_conf/keycloak.json"
-docker exec -it jenkins sh -c "sed -i -e 's/auth\/\"/auth\"/g' /var/jenkins_conf/keycloak.json"
-docker exec -it jenkins sh -c "echo >> /var/jenkins_conf/keycloak.json"
-docker exec -it jenkins sh -c "sed -i -e '/keycloakJson: |-/r /var/jenkins_conf/keycloak.json' /var/jenkins_conf/casc.yaml"
+#config for ioc_auth plugin: only need to replace secret in casc.yaml
+jenkins_client_id=$(grep JENKINS_token keycloak_create.log | cut -d' ' -f3 | tr -d '\r' )
+docker exec -it jenkins sh -c "sed -i -e 's/oic_secret/\"$jenkins_client_id\"/' /var/jenkins_conf/casc.yaml"
 echo "Reloading "
 docker restart jenkins
 echo " " 
@@ -222,7 +219,7 @@ keytool -import -alias Keycloak -keystore ./jenkins/keystore/cacerts -file ./jen
 docker cp ./jenkins/keystore/cacerts jenkins:/usr/local/openjdk-8/jre/lib/security/cacerts
 echo "Reloading "
 docker restart jenkins
-until $(curl --output /dev/null --silent --head --fail http://jenkins:8080); do
+until $(curl --output /dev/null --silent --head --fail http://jenkins:8080/whoAmI); do
     printf '.'
     sleep 5
 done
