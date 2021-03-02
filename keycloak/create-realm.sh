@@ -26,7 +26,6 @@ cd /opt/jboss/keycloak/bin
 
 # output is Created new client with id, we now need to grep the ID out of it
 GITEA_ID=$(cat GITEA | grep id | cut -d'"' -f 4)
-#echo $GITEA_ID
 
 # We need to retrieve the token from keycloak for this client
 ./kcadm.sh get clients/$GITEA_ID/client-secret -r netcicd >gitea_secret
@@ -70,7 +69,12 @@ GITEA_token=""
 JENKINS_ID=$(cat JENKINS | grep id | cut -d'"' -f 4)
 
 echo "Created Jenkins client with ID: ${JENKINS_ID}" 
-echo " "
+
+# We need to retrieve the token from keycloak for this client
+./kcadm.sh get clients/$JENKINS_ID/client-secret -r netcicd >jenkins_secret
+JENKINS_token=$(grep value jenkins_secret | cut -d '"' -f4)
+# Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source in Gitea for Keycloak
+echo "JENKINS_token: " $JENKINS_token
 
 # Now we can add client specific roles (Clientroles)
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-admin -s description='The admin role for Jenkins'
@@ -114,11 +118,47 @@ echo " "
 echo "Included Jenkins Audience in token" 
 echo " "
 
+# Create a mapper for the group-mappings
+
+#        {
+#          "id": "a1806ab1-bdd3-4cad-894b-02cbbe009900",
+#         "name": "rolE-group-mapper",
+#          "protocol": "openid-connect",
+#          "protocolMapper": "oidc-usermodel-client-role-mapper",
+#          "consentRequired": false,
+#          "config": {
+#            "multivalued": "true",
+#            "userinfo.token.claim": "true",
+#            "id.token.claim": "false",
+#            "access.token.claim": "true",
+#            "claim.name": "group-membership",
+#            "jsonType.label": "String",
+#            "usermodel.clientRoleMapping.clientId": "Jenkins"
+#          }
+#        },
+
+./kcadm.sh create clients/$JENKINS_ID/protocol-mappers/models \
+    -r netcicd \
+	-s name=role-group-mapper \
+    -s protocol=openid-connect \
+	-s protocolMapper=oidc-usermodel-client-role-mapper \
+    -s consentRequired=false \
+	-s config="{\"multivalued\" : \"true\",\"userinfo.token.claim\" : \"true\",\"id.token.claim\" : \"false\",\"access.token.claim\" : \"false\",\"claim.name\" : \"group-membership\",\"jsonType.label\" : \"String\",\"usermodel.clientRoleMapping.clientId\" : \"Jenkins\"}"
+
+echo "Created role-group mapper in the Client Scope" 
+echo " "
+
 #download Jenkins OIDC file
 ./kcadm.sh get clients/$JENKINS_ID/installation/providers/keycloak-oidc-keycloak-json -r netcicd > keycloak-jenkins.json
 
 echo "Created keycloak-jenkins installation json" 
 echo " "
+
+#Now delete tokens and secrets
+rm JENKINS
+rm jenkins_secret
+JENKINS_ID=""
+JENKINS_token=""
    
 ./kcadm.sh create clients \
     -r netcicd \
@@ -259,6 +299,7 @@ echo "Created Campus Operator group within Campus Operations with ID: ${camops_i
     -r netcicd \
     --gid $camops_id \
     --cclientid Jenkins \
+    --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-toolbox-run 
 
@@ -288,6 +329,7 @@ echo "Created Campus Specialists group within Campus Operations with ID: ${camsp
     -r netcicd \
     --gid $camspec_id \
     --cclientid Jenkins \
+    --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-dev \
     --rolename jenkins-netcicd-toolbox-run 
@@ -322,6 +364,7 @@ echo "Created WAN Operator group within WAN Operations with ID: ${wanops_id}"
     -r netcicd \
     --gid $wanops_id \
     --cclientid Jenkins \
+    --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-toolbox-run 
 
@@ -351,6 +394,7 @@ echo "Created WAN Specialists group within WAN Operations with ID: ${wanspec_id}
     -r netcicd \
     --gid $wanspec_id \
     --cclientid Jenkins \
+    --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-dev \
     --rolename jenkins-netcicd-toolbox-run 
@@ -385,6 +429,7 @@ echo "Created DC Operator group within DC Operations with ID: ${dcops_id}"
     -r netcicd \
     --gid $dcops_id \
     --cclientid Jenkins \
+    --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-toolbox-run 
 
@@ -414,6 +459,7 @@ echo "Created DC Specialists group within DC Operations with ID: ${dcspec_id}"
     -r netcicd \
     --gid $dcspec_id \
     --cclientid Jenkins \
+    --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-dev \
     --rolename jenkins-netcicd-toolbox-run 
@@ -496,6 +542,7 @@ echo "Created Campus Architect group within the Development Department with ID: 
     -r netcicd \
     --gid $camarch_id \
     --cclientid Jenkins \
+    --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-dev \
     --rolename jenkins-netcicd-toolbox-run 
@@ -526,6 +573,7 @@ echo "Created WAN Architect group within the Development Department with ID: ${w
     -r netcicd \
     --gid $wanarch_id \
     --cclientid Jenkins \
+    --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-dev \
     --rolename jenkins-netcicd-toolbox-run 
@@ -556,6 +604,7 @@ echo "Created DC Architect group within the Development Department with ID: ${dc
     -r netcicd \
     --gid $dcarch_id \
     --cclientid Jenkins \
+    --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-dev \
     --rolename jenkins-netcicd-toolbox-run 
@@ -595,6 +644,7 @@ echo "Created Tooling Architect group within the Development Department with ID:
     -r netcicd \
     --gid $toolarch_id \
     --cclientid Jenkins \
+    --rolename jenkins-user \
     --rolename jenkins-netcicd-toolbox-dev 
 
 ./kcadm.sh add-roles \
@@ -628,6 +678,7 @@ echo "Created Tooling Operations group within the Tooling Department with ID: ${
     -r netcicd \
     --gid $toolops_id \
     --cclientid Jenkins \
+    --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-toolbox-run 
 
@@ -656,6 +707,7 @@ echo " "
     -r netcicd \
     --gid $tooldev_id \
     --cclientid Jenkins \
+    --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-toolbox-dev 
 

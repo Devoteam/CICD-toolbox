@@ -35,28 +35,13 @@ credentials:
           scope: GLOBAL
           username: "argos-jenkins"
 jenkins:
-  securityRealm:
-    local:
-      allowsSignup: false
-      users:
-        - id: ${JENKINS_ADMIN_ID}
-          password: ${JENKINS_ADMIN_PASSWORD}
-        - id: "netcicd"
-          password: ${NETCICD_PASSWORD}
-          name: "netcicd"
-          properties:
-          - "apiToken"
-          - mailer:
-              emailAddress: "netcicd@infraautomators.example.com"
-          - preferredProvider:
-              providerId: "default"
-  remotingSecurity:
-    enabled: true
   authorizationStrategy:
     roleBased:
       roles:
         agents:
-        - name: "jenkins-netcicd-agent"
+        - assignments:
+          - "jenkins-netcicd-agent"
+          name: "local_netcicd-agent"
           pattern: "stage*"
           permissions:
           - "Agent/Provision"
@@ -67,18 +52,20 @@ jenkins:
           - "Agent/Disconnect"        
         global:
         - assignments:
-          - "anonymous"
           - "jenkins-readonly"
-          name: "jenkins-readonly"
+          name: "local_readonly"
           pattern: ".*"
           permissions:
           - "Overall/Read"
-          - "Agent/Connect"
-          - "Agent/Disconnect"
+          - "Credentials/View"
+          - "Job/Read"
+          - "Job/ViewStatus"
+          - "View/Read"
+          - "Lockable Resources/View"
         - assignments:
-          - "admin"
+          - "jenkins-admin"
           - "netcicd"
-          name: "jenkins-admin"
+          name: "local_admin"
           pattern: ".*"
           permissions:
           - "Job/Move"
@@ -117,7 +104,8 @@ jenkins:
           - "View/Read"
           - "Job/ViewStatus"
         - assignments:
-          name: "jenkins-user"
+          - "jenkins-user"
+          name: "local_user"
           pattern: ".*"
           permissions:
           - "Job/Move"
@@ -151,7 +139,9 @@ jenkins:
           - "View/Read"
           - "Job/ViewStatus"
         items:
-        - name: "jenkins-netcicd-dev"
+        - assignments:
+          - "jenkins-netcicd-dev"
+          name: "local_netcicd-dev"
           pattern: "^NetCICD$"
           permissions:
           - "Job/Move"
@@ -176,7 +166,9 @@ jenkins:
           - "Job/Workspace"
           - "Lockable Resources/Reserve"
           - "Job/ViewStatus"
-        - name: "jenkins-netcicd-toolbox-dev"
+        - assignments:
+          - "jenkins-netcicd-toolbox-dev"
+          name: "local_netcicd-toolbox-dev"
           pattern: "^NetCICD-developer-toolbox$"
           permissions:
           - "Job/Move"
@@ -201,7 +193,9 @@ jenkins:
           - "Job/Workspace"
           - "Lockable Resources/Reserve"
           - "Job/ViewStatus"
-        - name: "jenkins-netcicd-run"
+        - assignments:
+          - "jenkins-netcicd-run"
+          name: "local_netcicd-run"
           pattern: "^NetCICD$"
           permissions:
           - "Lockable Resources/View"
@@ -216,7 +210,9 @@ jenkins:
           - "Job/Workspace"
           - "Lockable Resources/Reserve"
           - "Job/ViewStatus"
-        - name: "jenkins-netcicd-toolbox-run"
+        - assignments:
+          - "jenkins-netcicd-toolbox-run"
+          name: "local_netcicd-toolbox-run"
           pattern: "^NetCICD-developer-toolbox$"
           permissions:
           - "Lockable Resources/View"
@@ -231,25 +227,39 @@ jenkins:
           - "Job/Workspace"
           - "Lockable Resources/Reserve"
           - "Job/ViewStatus"
-  globalNodeProperties:
-  - envVars:
-      env:
-      - key: "CML_URL"
-        value: "http://cml:19399"
   labelAtoms:
   - name: "master"
   numExecutors: 1
+  remotingSecurity:
+    enabled: true
+  securityRealm:
+    oic:
+      clientId: "Jenkins"
+      clientSecret: oic_secret
+      wellKnownOpenIDConfigurationUrl: "http://keycloak:8080/auth/realms/netcicd/.well-known/openid-configuration"
+      tokenServerUrl: "http://keycloak:8080/auth/realms/netcicd/protocol/openid-connect/token"
+      authorizationServerUrl: "http://keycloak:8080/auth/realms/netcicd/protocol/openid-connect/auth"
+      userInfoServerUrl: "http://keycloak:8080/auth/realms/netcicd/protocol/openid-connect/userinfo"
+      userNameField: "preferred_username"
+      fullNameFieldName: "name"
+      emailFieldName: "email"
+      groupsFieldName: "group-membership"
+      scopes: "web-origins address phone openid offline_access profile roles microprofile-jwt email"
+      disableSslVerification: false
+      logoutFromOpenidProvider: true
+      endSessionEndpoint: "http://keycloak:8080/auth/realms/netcicd/protocol/openid-connect/logout"
+      postLogoutRedirectUrl: "http://jenkins:8080"
+      escapeHatchEnabled: true
+      escapeHatchGroup: "local-admin"
+      escapeHatchSecret: ${JENKINS_ADMIN_PASSWORD}
+      escapeHatchUsername: ${JENKINS_ADMIN_ID}
+      scopes: "web-origins address phone openid offline_access profile roles microprofile-jwt email"
   globalNodeProperties:
     - envVars:
         env:
         - key: "CML_URL"
           value: ${CML_URL}
-  securityRealm: "keycloak"
 security:
-  queueItemAuthenticator:
-    authenticators:
-    - global:
-        strategy: triggeringUsersAuthorizationStrategy
   scriptApproval:
     approvedSignatures:
     - "method hudson.slaves.SlaveComputer getJnlpMac"
@@ -263,7 +273,7 @@ unclassified:
     - displayName: "Gitea"
       manageHooks: false
       serverUrl: "http://gitea:3000"
-  keycloakSecurityRealm:
-    keycloakJson: |-
-    keycloakRespectAccessTokenTimeout: true
-    keycloakValidate: false
+  timestamper:
+    allPipelines: true
+    elapsedTimeFormat: "'<b>'HH:mm:ss.S'</b> '"
+    systemTimeFormat: "'<b>'HH:mm:ss'</b> '" 
