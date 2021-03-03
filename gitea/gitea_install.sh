@@ -133,6 +133,7 @@ netops_team_read_payload='{
         "repo.wiki", 
         "repo.pulls", 
         "repo.releases", 
+        "repo.projects",
         "repo.ext_wiki" 
         ] 
     }'
@@ -165,6 +166,7 @@ netops_team_write_payload='{
         "repo.wiki", 
         "repo.pulls", 
         "repo.releases", 
+        "repo.projects",
         "repo.ext_wiki" 
         ] 
     }'
@@ -192,6 +194,7 @@ netdev_team_read_payload='{
         "repo.wiki",
         "repo.pulls",
         "repo.releases",
+        "repo.projects",
         "repo.ext_wiki"
         ]
     }'
@@ -224,6 +227,7 @@ netdev_team_write_payload='{
         "repo.wiki",
         "repo.pulls",
         "repo.releases",
+        "repo.projects",
         "repo.ext_wiki"
         ]
     }'
@@ -251,6 +255,7 @@ tooling_team_read_payload='{
         "repo.wiki",
         "repo.pulls",
         "repo.releases",
+        "repo.projects",
         "repo.ext_wiki"
         ]
     }'
@@ -283,6 +288,7 @@ tooling_team_write_payload='{
         "repo.wiki",
         "repo.pulls",
         "repo.releases",
+        "repo.projects",
         "repo.ext_wiki"
         ]
     }'
@@ -309,13 +315,21 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Assigning users to teams "
 echo "****************************************************************************************************************"
+echo "git-jenkins in Netdev write: " $netdev_team_write_id
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netdev_team_write_id/members/git-jenkins" -H  "accept: application/json"
+echo "git-jenkins in tooling write: " $tooling_team_write_id
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$tooling_team_write_id/members/git-jenkins" -H  "accept: application/json"
+echo "thedude in netops read: " $netops_team_read_id
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netops_team_read_id/members/thedude" -H  "accept: application/json"
+echo "thespecialist in netops write: " $netops_team_write_id
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netops_team_write_id/members/thespecialist" -H  "accept: application/json"
+echo "architect in netdev read: " $netdev_team_read_id
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netdev_team_read_id/members/architect" -H  "accept: application/json"
+echo "networkguru in netdev write: " $netdev_team_write_id
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netdev_team_write_id/members/networkguru" -H  "accept: application/json"
+echo "hacker in tooling read: " $tooling_team_read_id
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$tooling_team_read_id/members/hacker" -H  "accept: application/json"
+echo "tooltiger in tooling write: " $tooling_team_write_id
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$tooling_team_write_id/members/tooltiger" -H  "accept: application/json"
 echo "****************************************************************************************************************"
 echo " Adding keycloak client key to Gitea"

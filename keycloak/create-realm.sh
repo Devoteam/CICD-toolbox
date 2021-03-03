@@ -724,8 +724,8 @@ echo " "
     -r netcicd \
     -s enabled=true \
     -s username=netcicd \
-    -s firstName=network \
-    -s lastName=CICD \
+    -s firstName=NetCICD \
+    -s lastName=Godmode \
     -s email=netcicd@infraautomators.example.com
 ./kcadm.sh set-password -r netcicd --username netcicd --new-password netcicd
 ./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Gitea --rolename gitea-infraautomators-admin

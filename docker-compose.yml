@@ -147,25 +147,25 @@ services:
     expose:
       - '8081'
 
-  # argos:
-  #   container_name: argos
-  #   image: 'argosnotary/argosnotary:1.0.0'
-  #   restart: on-failure
-  #   init: true
-  #   stop_signal: SIGINT
-  #   stop_grace_period: 15s
-  #   volumes:
-  #     - './argos/data:/data/db'
-  #     - './argos/config:/data/configdb'
-  #   networks:
-  #     tooling:
-  #       ipv4_address: 172.16.11.10
-  #   expose:
-  #     - '80'
-  #     - '8080'
-  #     - '8087'
-  #   depends_on:
-  #     - keycloak
+  argos:
+    container_name: argos
+    image: 'argosnotary/argosnotary:1.0.0'
+    restart: on-failure
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
+    volumes:
+      - './argos/data:/data/db'
+      - './argos/config:/data/configdb'
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.10
+    expose:
+      - '80'
+      - '8080'
+      - '8087'
+    depends_on:
+      - keycloak
 
   keycloak:
     container_name: keycloak
