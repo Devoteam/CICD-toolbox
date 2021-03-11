@@ -19,3 +19,7 @@ nexus/keycloak-nexus*
 
 nexus/keycloak-nexus.json
 jenkins/keycloak-jenkins.json
+gerrit/cache
+gerrit/etc
+gerrit/index
+gerrit/git
