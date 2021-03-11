@@ -5,7 +5,12 @@ cd /opt/jboss/keycloak/bin
 ./kcadm.sh config credentials --server http://keycloak:8080/auth --realm master --user admin --password Pa55w0rd
 
 #add realm
-./kcadm.sh create realms -s realm=netcicd -s enabled=true 
+./kcadm.sh create realms \
+    -s realm=netcicd \
+    -s id=netcicd \
+    -s enabled=true \
+    -s displayName="Welcome to the Infrastructure Development Toolkit" \
+    -s displayNameHtml="<b>Welcome to the Infrastructure Development Toolkit</b>"
 
 #add clients
 ./kcadm.sh create clients \
@@ -149,17 +154,99 @@ echo "Created role-group mapper in the Client Scope"
 echo " "
 
 #download Jenkins OIDC file
-./kcadm.sh get clients/$JENKINS_ID/installation/providers/keycloak-oidc-keycloak-json -r netcicd > keycloak-jenkins.json
+#./kcadm.sh get clients/$JENKINS_ID/installation/providers/keycloak-oidc-keycloak-json -r netcicd > keycloak-jenkins.json
 
-echo "Created keycloak-jenkins installation json" 
-echo " "
+#echo "Created keycloak-jenkins installation json" 
+#echo " "
 
 #Now delete tokens and secrets
 rm JENKINS
 rm jenkins_secret
 JENKINS_ID=""
 JENKINS_token=""
-   
+
+./kcadm.sh create clients \
+    -r netcicd \
+    -s name="Gerrit" \
+    -s description="The Gerrit git server" \
+    -s clientId=Gerrit \
+    -s enabled=true \
+    -s publicClient=false \
+    -s fullScopeAllowed=false \
+    -s directAccessGrantsEnabled=true \
+    -s serviceAccountsEnabled=true \
+    -s authorizationServicesEnabled=true \
+    -s rootUrl=http://gerrit:8080 \
+    -s adminUrl=http://gerrit:8080/ \
+    -s 'redirectUris=[ "http://gerrit:8080/*" ]' \
+    -s 'webOrigins=[ "http://gerrit:8080/" ]' \
+    -o --fields id >GERRIT
+
+# output is Created new client with id, we now need to grep the ID out of it
+GERRIT_ID=$(cat GERRIT | grep id | cut -d'"' -f 4)
+
+echo "Created GERRIT client with ID: ${GERRIT_ID}" 
+
+# We need to retrieve the token from keycloak for this client
+./kcadm.sh get clients/$GERRIT_ID/client-secret -r netcicd >gerrit_secret
+GERRIT_token=$(grep value gerrit_secret | cut -d '"' -f4)
+# Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source in Gerrit for Keycloak
+echo "GERRIT_token: " $GERRIT_token
+
+# Now we can add client specific roles (Clientroles)
+./kcadm.sh create clients/$GERRIT_ID/roles -r netcicd -s name=gerrit-admin -s description='The admin role for Gerrit'
+./kcadm.sh create clients/$GERRIT_ID/roles -r netcicd -s name=gerrit-user -s description='A user in Gerrit'
+
+echo "Created Gerrit roles." 
+echo " "
+
+# Now we need a service account for other systems to log into Gerrit
+./kcadm.sh add-roles -r netcicd --uusername service-account-gerrit --cclientid realm-management --rolename view-clients --rolename view-realm --rolename view-users
+
+echo "Created Gerrit Service Account" 
+echo " "
+
+# We need to add a client scope on the realm for Gerrit in order to include the audience in the access token
+./kcadm.sh create -x "client-scopes" -r netcicd -s name=gerrit-audience -s protocol=openid-connect &>GERRIT_SCOPE
+GERRIT_SCOPE_ID=$(cat GERRIT_SCOPE | grep id | cut -d"'" -f 2)
+echo "Created Client scope for Gerrit with id: ${GERRIT_SCOPE_ID}" 
+echo " "
+
+# Create a mapper for the audience
+./kcadm.sh create clients/$GERRIT_ID/protocol-mappers/models \
+    -r netcicd \
+	-s name=gerrit-audience-mapper \
+    -s protocol=openid-connect \
+	-s protocolMapper=oidc-audience-mapper \
+    -s consentRequired=false \
+	-s config="{\"included.client.audience\" : \"Gerrit\",\"id.token.claim\" : \"false\",\"access.token.claim\" : \"true\"}"
+
+echo "Created audience mapper in the Client Scope" 
+echo " "
+
+# We need to add the scope to the token
+./kcadm.sh update clients/$GERRIT_ID -r netcicd --body "{\"defaultClientScopes\": [\"gerrit-audience\"]}"
+
+echo "Included Gerrit Audience in token" 
+echo " "
+
+./kcadm.sh create clients/$GERRIT_ID/protocol-mappers/models \
+    -r netcicd \
+	-s name=role-group-mapper \
+    -s protocol=openid-connect \
+	-s protocolMapper=oidc-usermodel-client-role-mapper \
+    -s consentRequired=false \
+	-s config="{\"multivalued\" : \"true\",\"userinfo.token.claim\" : \"true\",\"id.token.claim\" : \"false\",\"access.token.claim\" : \"false\",\"claim.name\" : \"group-membership\",\"jsonType.label\" : \"String\",\"usermodel.clientRoleMapping.clientId\" : \"Gerrit\"}"
+
+echo "Created role-group mapper in the Client Scope" 
+echo " "
+
+#Now delete tokens and secrets
+rm GERRIT
+rm gerrit_secret
+GERRIT_ID=""
+GERRIT_token=""
+
 ./kcadm.sh create clients \
     -r netcicd \
     -s name="Nexus" \
@@ -743,7 +830,7 @@ echo " "
     -s email=git-jenkins@infraautomators.example.com
 ./kcadm.sh set-password -r netcicd --username git-jenkins --new-password netcicd
 ./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Gitea --rolename gitea-netops-write
-#./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Jenkins --rolename jenkins-gitea
+./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Jenkins --rolename jenkins-gitea
 
 ./kcadm.sh create users \
     -r netcicd \

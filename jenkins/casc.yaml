@@ -19,7 +19,7 @@ credentials:
           description: "Credentials to be used to log into Gitea from Jenkins to retrieve\
             \ the NetCICD repo."
           id: "git-jenkins"
-          password: ${GIT_JENKINS_PASSWORD}
+          password: git_jenkins_token
           scope: GLOBAL
           username: "git-jenkins"
       - usernamePassword:

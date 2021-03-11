@@ -5,11 +5,6 @@ networks:
     ipam:
       config:
         - subnet: 172.16.11.0/24
-  jumphosts:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.16.111.0/24
   
 services:
   netcicd-db:
@@ -78,18 +73,27 @@ services:
   #     - '/etc/timezone:/etc/timezone:ro'
   #     - '/etc/localtime:/etc/localtime:ro'
 
-  # jenkins-node:
-  #   container_name: jenkins_node
-  #   build: ./jenkins_node
-  #   restart: on-failure
-  #   init: true
-  #   stop_signal: SIGINT
-  #   stop_grace_period: 15s
-  #   privileged: true
-  #   user: root
-  #   networks:
-  #     tooling:
-  #       ipv4_address: 172.16.11.7
+  gerrit:
+    container_name: gerrit
+    image: gerritcodereview/gerrit
+    restart: on-failure
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
+    privileged: true
+    volumes:
+       - ./gerrit/etc:/var/gerrit/etc
+       - ./gerrit/git:/var/gerrit/git
+       - ./gerrit/db:/var/gerrit/db
+       - ./gerrit/index:/var/gerrit/index
+       - ./gerrit/cache:/var/gerrit/cache
+    ports:
+       - "29418:29418"
+       - "8080:8080"
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.7
+    entrypoint: java -jar /var/gerrit/bin/gerrit.war init -d /var/gerrit
 
   jenkins:
     container_name: jenkins
