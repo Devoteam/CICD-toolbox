@@ -26,6 +26,7 @@ The setup has been developed and tested on Ubuntu 20.04.
 You need to have installed:
 * Git
 * Docker
+* Docker-compose
 * openjdk8-jre (sudo apt install openjdk-8-jre-headless)
 * maven
 * curl
