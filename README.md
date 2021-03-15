@@ -22,7 +22,7 @@ For more information on the systems used and the setup of the individual systems
 ### Work in progress!!
 Even though we try to make this work as well as we can, it is being improved daily. Master should work, Develop is the most complete.
 ## Installation
-The setup has been developed and tested on Ubuntu 20.04 25 GB disk, 2 CPU, 4 GB memory on KVM. As the setup uses local networking, using the Ubuntu Desktop version is easier. During install testing the minimal install is used. After install, execute:
+The setup has been developed and tested on Ubuntu 20.04 25 GB disk, 2 CPU, 4 GB memory on KVM with Internet access. As the setup also uses local networking, using the Ubuntu Desktop version is easier. During install testing the minimal install is used. After install, execute:
 
 ```sudo apt-get update ```
 
