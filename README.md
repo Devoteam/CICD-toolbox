@@ -21,9 +21,26 @@ For more information on the systems used and the setup of the individual systems
 # How to install
 ### Work in progress!!
 Even though we try to make this work as well as we can, it is being improved daily. Master should work, Develop is the most complete.
-## Prerequisites
-The setup has been developed and tested on Ubuntu 20.04.
-You need to have installed:
+## Installation
+The setup has been developed and tested on Ubuntu 20.04 25 GB disk, 2 CPU, 4 GB memory on KVM. As the setup uses local networking, using the Ubuntu Desktop version is easier. During install testing the minimal install is used. After install, execute:
+
+```sudo apt-get update ```
+```sudo apt install openjdk-8-jre-headless maven git docker.io curl```
+```sudo usermod -aG docker ${USER}```
+```su - ${USER}```
+```sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose```
+```sudo chmod +x /usr/local/bin/docker-compose```
+```git clone https://github.com/Devoteam/NetCICD-developer-toolbox.git```
+```cd NetCICD-developer-toolbox/```
+
+###As Docker has a pull rate limit, you need to authenticate first:
+```docker login -u <yourusername> -p <yourpassword>```
+
+After this, you can run:
+
+```./runonce.sh ```
+
+This installs:
 * Git
 * Docker
 * Docker-compose
@@ -32,13 +49,6 @@ You need to have installed:
 * curl
 
 You need to be able to run docker as non-root. See [here](https://docs.docker.com/engine/install/linux-postinstall/) for details.
-## Installation
-You can install the toolbox as follows:
-
-```git clone https://github.com/Devoteam/NetCICD-developer-toolbox.git```  
-```cd NetCICD-developer-toolbox```  
-```./runonce.sh```
-
 ### Do NOT run this script after use.
 * The script stops all existing containers
 * It wipes all working directories, networks, containers and builds
