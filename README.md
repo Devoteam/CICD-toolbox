@@ -25,15 +25,23 @@ Even though we try to make this work as well as we can, it is being improved dai
 The setup has been developed and tested on Ubuntu 20.04 25 GB disk, 2 CPU, 4 GB memory on KVM. As the setup uses local networking, using the Ubuntu Desktop version is easier. During install testing the minimal install is used. After install, execute:
 
 ```sudo apt-get update ```
+
 ```sudo apt install openjdk-8-jre-headless maven git docker.io curl```
+
 ```sudo usermod -aG docker ${USER}```
+
 ```su - ${USER}```
+
 ```sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose```
+
 ```sudo chmod +x /usr/local/bin/docker-compose```
+
 ```git clone https://github.com/Devoteam/NetCICD-developer-toolbox.git```
+
 ```cd NetCICD-developer-toolbox/```
 
-###As Docker has a pull rate limit, you need to authenticate first:
+
+### As Docker has a pull rate limit, you need to authenticate first:
 ```docker login -u <yourusername> -p <yourpassword>```
 
 After this, you can run:
