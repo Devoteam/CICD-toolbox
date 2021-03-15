@@ -172,7 +172,7 @@ echo "**************************************************************************
 docker-compose up -d --build --remove-orphans  
 echo " " 
 echo "****************************************************************************************************************"
-echo " Use docker-compose up -d next time"
+echo " Use docker-compose up -d or ./up next time"
 echo "****************************************************************************************************************"
 echo " " 
 echo "****************************************************************************************************************"
@@ -237,10 +237,10 @@ openssl s_client -showcerts -connect keycloak:8443 </dev/null 2>/dev/null|openss
 echo " "
 echo " Copy certificate into Jenkins keystore"
 echo "****************************************************************************************************************"
-docker cp jenkins:/usr/local/openjdk-8/jre/lib/security/cacerts ./jenkins/keystore/cacerts
+docker cp jenkins:/opt/java/openjdk/jre/lib/security/cacerts ./jenkins/keystore/cacerts
 chmod +w ./jenkins/keystore/cacerts
 keytool -import -alias Keycloak -keystore ./jenkins/keystore/cacerts -file ./jenkins/keystore/keycloak.pem -storepass changeit -noprompt
-docker cp ./jenkins/keystore/cacerts jenkins:/usr/local/openjdk-8/jre/lib/security/cacerts
+docker cp ./jenkins/keystore/cacerts jenkins:/opt/java/openjdk/jre/lib/security/cacerts
 echo "Reloading "
 docker restart jenkins
 until $(curl --output /dev/null --silent --head --fail http://jenkins:8080/whoAmI); do

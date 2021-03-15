@@ -89,6 +89,7 @@ echo "JENKINS_token: " $JENKINS_token
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-dev -s description='The role to be used for a user that needs to configure the NetCICD pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-toolbox-run -s description='The role to be used for a user that needs to run the NetCICD-developer-toolbox pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-toolbox-dev -s description='The role to be used for a user that needs to configure the NetCICD-developer-toolbox pipeline'
+./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-gitea -s description='A role for Jenkins to work with Gitea'
 
 echo "Created Jenkins roles." 
 echo " "
@@ -636,7 +637,7 @@ echo "Created Campus Architect group within the Development Department with ID: 
 
 ./kcadm.sh add-roles \
     -r netcicd \
-    --gid $wacamarch_idnarch_id \
+    --gid $camarch_id \
     --cclientid Nexus \
     --rolename nexus-docker-pull \
     --rolename nexus-read
