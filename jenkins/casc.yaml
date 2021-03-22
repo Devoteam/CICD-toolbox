@@ -9,31 +9,12 @@ credentials:
           scope: GLOBAL
           username: ${CML_USER}
       - usernamePassword:
-          description: "Credentials to be used to log into Jenkins and create agents.\
-            \ Username is netcicd, password is ADMIN TOKEN!"
-          id: "Jenkins-SIM"
-          password: ${JENKINS_AGENT_CREATOR_KEY}
-          scope: GLOBAL
-          username: ${JENKINS_AGENT_CREATOR}
-      - usernamePassword:
           description: "Credentials to be used to log into Gitea from Jenkins to retrieve\
             \ the NetCICD repo."
           id: "git-jenkins"
           password: git_jenkins_token
           scope: GLOBAL
           username: "git-jenkins"
-      - usernamePassword:
-          description: "Credentials to be used to log into Nexus from Jenkins"
-          id: "nexus-jenkins"
-          password: ${NEXUS_JENKINS_PASSWORD}
-          scope: GLOBAL
-          username: "nexus-jenkins"
-      - usernamePassword:
-          description: "Credentials to be used to log into Argos from Jenkins"
-          id: "argos-jenkins"
-          password: ${ARGOS_JENKINS_PASSWORD}
-          scope: GLOBAL
-          username: "argos-jenkins"
 jenkins:
   authorizationStrategy:
     roleBased:
@@ -41,6 +22,7 @@ jenkins:
         agents:
         - assignments:
           - "jenkins-netcicd-agent"
+          - "jenkins-git"
           name: "local_netcicd-agent"
           pattern: "stage*"
           permissions:
@@ -53,6 +35,7 @@ jenkins:
         global:
         - assignments:
           - "jenkins-readonly"
+          - "jenkins-git"
           name: "local_readonly"
           pattern: ".*"
           permissions:

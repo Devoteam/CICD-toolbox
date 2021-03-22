@@ -211,8 +211,8 @@ echo "**************************************************************************
 echo " Creating jenkins setup"
 echo "****************************************************************************************************************"
 #token for gitea_jenkins user: only need to replace git_jenkins_token in casc.yaml
-#git_jenkins_token=$(grep GIT-JENKINS_token keycloak_create.log | cut -d' ' -f3 | tr -d '\r' )
-#docker exec -it jenkins sh -c "sed -i -e 's/git_jenkins_token/\"$git_jenkins_token\"/' /var/jenkins_conf/casc.yaml"
+git_jenkins_token=$(grep GIT-JENKINS_token keycloak_create.log | cut -d' ' -f3 | tr -d '\r' )
+docker exec -it jenkins sh -c "sed -i -e 's/git_jenkins_token/\"$git_jenkins_token\"/' /var/jenkins_conf/casc.yaml"
 #config for ioc_auth plugin: only need to replace secret in casc.yaml
 jenkins_client_id=$(grep JENKINS_token keycloak_create.log | cut -d' ' -f3 | tr -d '\r' )
 docker exec -it jenkins sh -c "sed -i -e 's/oic_secret/\"$jenkins_client_id\"/' /var/jenkins_conf/casc.yaml"
@@ -263,9 +263,10 @@ echo " Node-red:    http://nodered:1880"
 echo " Jupyter:     http://jupyter:8888"
 echo " Portainer:   http://portainer:9000"
 echo " "
-echo " There is one last step to take,"
-echo " which is setting the JENKINS-SIM"
-echo " credentials. The user netcicd needs"
+echo "****************************************************************************************************************"
+echo " Manual step..."
+echo " "
+echo " In order for jenkins to be able to "
 echo " a token and that token is the"
 echo " password for JENKINS-SIM"
 echo " "

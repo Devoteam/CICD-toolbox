@@ -89,7 +89,8 @@ echo "JENKINS_token: " $JENKINS_token
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-dev -s description='The role to be used for a user that needs to configure the NetCICD pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-toolbox-run -s description='The role to be used for a user that needs to run the NetCICD-developer-toolbox pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-toolbox-dev -s description='The role to be used for a user that needs to configure the NetCICD-developer-toolbox pipeline'
-./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-gitea -s description='A role for Jenkins to work with Gitea'
+./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-toolbox-dev -s description='The role to be used for a user that needs to configure the NetCICD-developer-toolbox pipeline'
+./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-git -s description='A role for Jenkins to work with Git'
 
 echo "Created Jenkins roles." 
 echo " "
@@ -342,6 +343,24 @@ TACACS_ID=$(cat TACACS | grep id | cut -d'"' -f 4)
 ./kcadm.sh create clients/$TACACS_ID/roles -r netcicd -s name=TACACS-admin -s description='The admin role for FreeRADIUS'
 ./kcadm.sh create clients/$TACACS_ID/roles -r netcicd -s name=TACACS-network-admin -s description='An admin role to be used for RADIUS based AAA on Cisco routers, priv 15'
 ./kcadm.sh create clients/$TACACS_ID/roles -r netcicd -s name=TACACS-network-operator -s description='A role to be used for RADIUS based AAA on Cisco routers, priv 2'
+
+#add groups - we start at the system level, which implements the groups related to service accounts
+./kcadm.sh create groups -r netcicd -s name="System" &>SYSTEM
+system_id=$(cat SYSTEM | grep id | cut -d"'" -f 2)
+echo "Created System Group with ID: ${system_id}" 
+echo " "
+
+./kcadm.sh create groups/$system_id/children -r netcicd -s name="jenkins-git" &>J_G
+j_g_id=$(cat J_G | grep id | cut -d"'" -f 2)
+echo "Created jenkins-git group with ID: ${j_g_id}" 
+echo " "
+
+#adding client roles to the group
+./kcadm.sh add-roles \
+    -r netcicd \
+    --gid $j_g_id \
+    --cclientid Jenkins \
+    --rolename jenkins-git
 
 #add groups - we start at the ICT infra level, which implements the capacity layer of the MyREFerence model
 ./kcadm.sh create groups -r netcicd -s name="Infra" &>INFRA
@@ -826,12 +845,12 @@ echo " "
     -r netcicd \
     -s enabled=true \
     -s username=git-jenkins \
-    -s firstName=network \
-    -s lastName=Operator \
+    -s firstName=Jenkins \
+    -s lastName=gitOperator \
     -s email=git-jenkins@infraautomators.example.com
 ./kcadm.sh set-password -r netcicd --username git-jenkins --new-password netcicd
 ./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Gitea --rolename gitea-netops-write
-./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Jenkins --rolename jenkins-gitea
+./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Jenkins --rolename jenkins-git
 
 ./kcadm.sh create users \
     -r netcicd \
