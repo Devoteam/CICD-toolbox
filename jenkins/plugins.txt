@@ -1,4 +1,5 @@
 ace-editor:latest
+ansible:latest
 ant:latest
 antisamy-markup-formatter:latest
 apache-httpcomponents-client-4-api:latest

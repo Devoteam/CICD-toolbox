@@ -10,7 +10,7 @@ services:
   netcicd-db:
     container_name: netcicd-db
     build: netcicd-db
-    restart: on-failure
+    restart: always
     init: true
     stop_signal: SIGINT
     stop_grace_period: 15s
@@ -29,7 +29,7 @@ services:
   gitea:
     container_name: gitea
     build: gitea
-    restart: on-failure
+    restart: unless-stopped
     init: true
     stop_signal: SIGINT
     stop_grace_period: 15s
@@ -73,32 +73,32 @@ services:
   #     - '/etc/timezone:/etc/timezone:ro'
   #     - '/etc/localtime:/etc/localtime:ro'
 
-  gerrit:
-    container_name: gerrit
-    image: gerritcodereview/gerrit
-    restart: on-failure
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    privileged: true
-    volumes:
-       - ./gerrit/etc:/var/gerrit/etc
-       - ./gerrit/git:/var/gerrit/git
-       - ./gerrit/db:/var/gerrit/db
-       - ./gerrit/index:/var/gerrit/index
-       - ./gerrit/cache:/var/gerrit/cache
-    ports:
-       - "29418:29418"
-       - "8080:8080"
-    networks:
-      tooling:
-        ipv4_address: 172.16.11.7
-    entrypoint: java -jar /var/gerrit/bin/gerrit.war init -d /var/gerrit
+  # gerrit:
+  #   container_name: gerrit
+  #   image: gerritcodereview/gerrit
+  #   restart: on-failure
+  #   init: true
+  #   stop_signal: SIGINT
+  #   stop_grace_period: 15s
+  #   privileged: true
+  #   volumes:
+  #      - ./gerrit/etc:/var/gerrit/etc
+  #      - ./gerrit/git:/var/gerrit/git
+  #      - ./gerrit/db:/var/gerrit/db
+  #      - ./gerrit/index:/var/gerrit/index
+  #      - ./gerrit/cache:/var/gerrit/cache
+  #   ports:
+  #      - "29418:29418"
+  #      - "8080:8080"
+  #   networks:
+  #     tooling:
+  #       ipv4_address: 172.16.11.7
+  #   entrypoint: java -jar /var/gerrit/bin/gerrit.war init -d /var/gerrit
 
   jenkins:
     container_name: jenkins
     build: ./jenkins
-    restart: on-failure
+    restart: unless-stopped
 #    init: true
 #    stop_signal: SIGINT
 #    stop_grace_period: 15s
@@ -113,7 +113,7 @@ services:
       - NETCICD_PASSWORD=netcicd
       - CML_USER=guest
       - CML_PASSWORD=guest
-      - 'CML_URL=http://192.168.32.148:19399'
+      - 'CML_URL=https://192.168.32.148'
       - GIT_JENKINS_PASSWORD=netcicd
       - NEXUS_JENKINS_PASSWORD=netcicd
       - ARGOS_JENKINS_PASSWORD=netcicd
@@ -130,7 +130,7 @@ services:
   nexus:
     container_name: nexus
     build: ./nexus
-    restart: on-failure
+    restart: unless-stopped
     init: true
     stop_signal: SIGINT
     stop_grace_period: 15s
@@ -154,7 +154,7 @@ services:
   argos:
     container_name: argos
     image: 'argosnotary/argosnotary:1.0.0'
-    restart: on-failure
+    restart: unless-stopped
     init: true
     stop_signal: SIGINT
     stop_grace_period: 15s
@@ -174,7 +174,7 @@ services:
   keycloak:
     container_name: keycloak
     build: keycloak
-    restart: on-failure
+    restart: unless-stopped
     init: true
     stop_signal: SIGINT
     stop_grace_period: 15s
@@ -210,7 +210,7 @@ services:
   nodered:
     container_name: nodered
     image: 'nodered/node-red:latest'
-    restart: on-failure
+    restart: unless-stopped
     init: true
     stop_signal: SIGINT
     stop_grace_period: 15s

@@ -7,6 +7,6 @@ COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
 RUN xargs /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
 
 COPY casc.yaml /var/jenkins_conf/casc.yaml
-COPY NetCICD/ /var/jenkins_home/jobs/NetCICD/
-COPY NetCICD-developer-toolbox/ /var/jenkins_home/jobs/NetCICD-developer-toolbox/
+COPY Infraautomator/ /var/jenkins_home/jobs/Infraautomator/
+
 ARG JAVA_OPTS

@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 #script asssumes gitea is running
 
 echo " "
@@ -36,7 +36,7 @@ NetCICD_repo_payload='{
     "auth_token": "string",  
     "auth_username": "string",  
     "clone_addr": "https://github.com/Devoteam/NetCICD.git",  
-    "description": "The NetCICD toolbox",  
+    "description": "The NetCICD pipeline",  
     "issues": false,  
     "labels": false,  
     "milestones": false,  
@@ -70,7 +70,7 @@ NetCICD_webhook_payload='{
     "events": [ "push" ],
     "type": "gitea"
     }'
-curl --user gitea-admin:netcicd -X POST "http://gitea:3000/api/v1/repos/infraautomator/NetCICD/hooks" -H  "accept: application/json" -H  "Content-Type: application/json" -d "$NetCICD_webhook_payload"
+curl --user $user:$pwd -X POST "http://gitea:3000/api/v1/repos/infraautomator/NetCICD/hooks" -H  "accept: application/json" -H  "Content-Type: application/json" -d "$NetCICD_webhook_payload"
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating NetCICD-development-toolbox repo under InfraAutomators organization"

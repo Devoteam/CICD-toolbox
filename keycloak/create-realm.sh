@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 # shell script to be copied into /opt/jboss/keycloak/bin
 cd /opt/jboss/keycloak/bin
 #Create credentials
@@ -84,13 +84,14 @@ echo "JENKINS_token: " $JENKINS_token
 # Now we can add client specific roles (Clientroles)
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-admin -s description='The admin role for Jenkins'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-user -s description='A user in Jenkins'
+./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-readonly -s description='A viewer in Jenkins'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-agent -s description='The role to be used for a user that needs to create agents in Jenkins'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-run -s description='The role to be used for a user that needs to run the NetCICD pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-dev -s description='The role to be used for a user that needs to configure the NetCICD pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-toolbox-run -s description='The role to be used for a user that needs to run the NetCICD-developer-toolbox pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-toolbox-dev -s description='The role to be used for a user that needs to configure the NetCICD-developer-toolbox pipeline'
-./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-toolbox-dev -s description='The role to be used for a user that needs to configure the NetCICD-developer-toolbox pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-git -s description='A role for Jenkins to work with Git'
+./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-nodemaster -s description='A role for Jenkins to create and delete agents in Jenkinsfiles'
 
 echo "Created Jenkins roles." 
 echo " "
@@ -125,25 +126,6 @@ echo " "
 echo "Included Jenkins Audience in token" 
 echo " "
 
-# Create a mapper for the group-mappings
-
-#        {
-#          "id": "a1806ab1-bdd3-4cad-894b-02cbbe009900",
-#         "name": "rolE-group-mapper",
-#          "protocol": "openid-connect",
-#          "protocolMapper": "oidc-usermodel-client-role-mapper",
-#          "consentRequired": false,
-#          "config": {
-#            "multivalued": "true",
-#            "userinfo.token.claim": "true",
-#            "id.token.claim": "false",
-#            "access.token.claim": "true",
-#            "claim.name": "group-membership",
-#            "jsonType.label": "String",
-#            "usermodel.clientRoleMapping.clientId": "Jenkins"
-#          }
-#        },
-
 ./kcadm.sh create clients/$JENKINS_ID/protocol-mappers/models \
     -r netcicd \
 	-s name=role-group-mapper \
@@ -160,12 +142,6 @@ echo " "
 
 #echo "Created keycloak-jenkins installation json" 
 #echo " "
-
-#Now delete tokens and secrets
-rm JENKINS
-rm jenkins_secret
-JENKINS_ID=""
-JENKINS_token=""
 
 ./kcadm.sh create clients \
     -r netcicd \
@@ -848,9 +824,22 @@ echo " "
     -s firstName=Jenkins \
     -s lastName=gitOperator \
     -s email=git-jenkins@infraautomators.example.com
+
+
 ./kcadm.sh set-password -r netcicd --username git-jenkins --new-password netcicd
 ./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Gitea --rolename gitea-netops-write
 ./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Jenkins --rolename jenkins-git
+
+./kcadm.sh create users \
+    -r netcicd \
+    -s enabled=true \
+    -s username=jenkins-jenkins \
+    -s firstName=Jenkins \
+    -s lastName=Jenkins \
+    -s email=jenkins-jenkins@infraautomators.example.com
+./kcadm.sh set-password -r netcicd --username jenkins-jenkins --new-password netcicd
+./kcadm.sh add-roles -r netcicd  --uusername jenkins-jenkins --cclientid Jenkins --rolename jenkins-nodemaster
+
 
 ./kcadm.sh create users \
     -r netcicd \
@@ -1001,3 +990,9 @@ tooltiger_id=$(cat TOOLTIGER | grep id | cut -d"'" -f 2)
     -s userId=$tooltiger_id \
     -s groupId=$toolarch_id \
     -n
+
+#Now delete tokens and secrets
+rm JENKINS
+rm jenkins_secret
+JENKINS_ID=""
+JENKINS_token=""
