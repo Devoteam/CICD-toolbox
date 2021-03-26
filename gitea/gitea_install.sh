@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 #script asssumes gitea is running
 
 echo " "
@@ -36,7 +36,7 @@ NetCICD_repo_payload='{
     "auth_token": "string",  
     "auth_username": "string",  
     "clone_addr": "https://github.com/Devoteam/NetCICD.git",  
-    "description": "The NetCICD toolbox",  
+    "description": "The NetCICD pipeline",  
     "issues": false,  
     "labels": false,  
     "milestones": false,  
@@ -70,7 +70,7 @@ NetCICD_webhook_payload='{
     "events": [ "push" ],
     "type": "gitea"
     }'
-curl --user gitea-admin:netcicd -X POST "http://gitea:3000/api/v1/repos/infraautomator/NetCICD/hooks" -H  "accept: application/json" -H  "Content-Type: application/json" -d "$NetCICD_webhook_payload"
+curl --user $user:$pwd -X POST "http://gitea:3000/api/v1/repos/infraautomator/NetCICD/hooks" -H  "accept: application/json" -H  "Content-Type: application/json" -d "$NetCICD_webhook_payload"
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating NetCICD-development-toolbox repo under InfraAutomators organization"
@@ -303,9 +303,7 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Adding users to Gitea "
 echo "****************************************************************************************************************"
-git_jenkins_pwd=$( grep JENKINS_token keycloak_create.log | cut -d' ' -f3 | tr -d '\r' )
-echo $git_jenkins_pwd
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-jenkins --password ${git_jenkins_pwd} --email git-jenkins@infraautomators.example.com --access-token'" > git-jenkins_token
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-jenkins --password netcicd --email git-jenkins@infraautomators.example.com --access-token'" > git-jenkins_token
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username thedude --password thedude --email thedude@infraautomators.example.com --access-token'" > thedude_token
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username thespecialist --password thespecialist --email thespecialist@infraautomators.example.com --access-token'" > thespecialist_token
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username architect --password architect --email architect@infraautomators.example.com --access-token'" > architect_token

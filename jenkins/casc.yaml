@@ -9,51 +9,37 @@ credentials:
           scope: GLOBAL
           username: ${CML_USER}
       - usernamePassword:
-          description: "Credentials to be used to log into Jenkins and create agents.\
-            \ Username is netcicd, password is ADMIN TOKEN!"
-          id: "Jenkins-SIM"
-          password: ${JENKINS_AGENT_CREATOR_KEY}
-          scope: GLOBAL
-          username: ${JENKINS_AGENT_CREATOR}
-      - usernamePassword:
           description: "Credentials to be used to log into Gitea from Jenkins to retrieve\
             \ the NetCICD repo."
           id: "git-jenkins"
-          password: git_jenkins_token
+          password: "netcicd"
           scope: GLOBAL
           username: "git-jenkins"
       - usernamePassword:
-          description: "Credentials to be used to log into Nexus from Jenkins"
-          id: "nexus-jenkins"
-          password: ${NEXUS_JENKINS_PASSWORD}
+          description: "Credentials to be used to log into Gitea from Jenkins to retrieve\
+            \ the NetCICD repo."
+          id: "jenkins-jenkins"
+          password: "netcicd"
           scope: GLOBAL
-          username: "nexus-jenkins"
-      - usernamePassword:
-          description: "Credentials to be used to log into Argos from Jenkins"
-          id: "argos-jenkins"
-          password: ${ARGOS_JENKINS_PASSWORD}
-          scope: GLOBAL
-          username: "argos-jenkins"
+          username: "jenkins-jenkins"
 jenkins:
   authorizationStrategy:
     roleBased:
       roles:
-        agents:
-        - assignments:
-          - "jenkins-netcicd-agent"
-          name: "local_netcicd-agent"
-          pattern: "stage*"
-          permissions:
-          - "Agent/Provision"
-          - "Agent/Configure"
-          - "Agent/Build"
-          - "Agent/Connect"
-          - "Agent/Delete"
-          - "Agent/Disconnect"        
         global:
         - assignments:
+          - "jenkins-nodemaster"
+          - "jenkins-jenkins"
+          name: "localAgentManager"
+          pattern: ".*"
+          permissions:
+          - "Overall/Read"
+          - "Agent/Create"
+          - "Agent/Delete"        
+        - assignments:
           - "jenkins-readonly"
-          name: "local_readonly"
+          - "jenkins-git"
+          name: "localReadonly"
           pattern: ".*"
           permissions:
           - "Overall/Read"
@@ -64,8 +50,7 @@ jenkins:
           - "Lockable Resources/View"
         - assignments:
           - "jenkins-admin"
-          - "netcicd"
-          name: "local_admin"
+          name: "localAdmin"
           pattern: ".*"
           permissions:
           - "Job/Move"
@@ -105,7 +90,7 @@ jenkins:
           - "Job/ViewStatus"
         - assignments:
           - "jenkins-user"
-          name: "local_user"
+          name: "localUser"
           pattern: ".*"
           permissions:
           - "Job/Move"
@@ -141,7 +126,7 @@ jenkins:
         items:
         - assignments:
           - "jenkins-netcicd-dev"
-          name: "local_netcicd-dev"
+          name: "localNetcicdDev"
           pattern: "^NetCICD$"
           permissions:
           - "Job/Move"
@@ -168,7 +153,7 @@ jenkins:
           - "Job/ViewStatus"
         - assignments:
           - "jenkins-netcicd-toolbox-dev"
-          name: "local_netcicd-toolbox-dev"
+          name: "localNetcicdToolboxDev"
           pattern: "^NetCICD-developer-toolbox$"
           permissions:
           - "Job/Move"
@@ -195,7 +180,7 @@ jenkins:
           - "Job/ViewStatus"
         - assignments:
           - "jenkins-netcicd-run"
-          name: "local_netcicd-run"
+          name: "localNetcicdRun"
           pattern: "^NetCICD$"
           permissions:
           - "Lockable Resources/View"
@@ -212,7 +197,7 @@ jenkins:
           - "Job/ViewStatus"
         - assignments:
           - "jenkins-netcicd-toolbox-run"
-          name: "local_netcicd-toolbox-run"
+          name: "localNetcicdToolboxRun"
           pattern: "^NetCICD-developer-toolbox$"
           permissions:
           - "Lockable Resources/View"
