@@ -79,6 +79,7 @@ plugin-util-api:latest
 popper-api:latest
 rebuild:latest
 resource-disposer:latest
+robot:latest
 role-strategy:latest
 run-condition:latest
 scm-api:latest
