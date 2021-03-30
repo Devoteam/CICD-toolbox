@@ -1,5 +1,0 @@
-[plugin "gerrit-oauth-provider-keycloak-oauth"]
-	root-url = http://keycloak:8080
-	realm = netcicd
-	client-id = Gerrit
-	client-secret = geheim

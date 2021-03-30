@@ -22,20 +22,6 @@ echo "**************************************************************************
 sudo rm -rf gitea/data/*
 echo " " 
 echo "****************************************************************************************************************"
-echo " Cleaning Gerrit" 
-echo "****************************************************************************************************************"
-sudo rm -rf gerrit/etc/*
-sudo rm -rf gerrit/db/*
-sudo rm -rf gerrit/cache/*
-sudo rm -rf gerrit/git/*
-sudo rm -rf gerrit/index/*
-echo " " 
-echo "****************************************************************************************************************"
-echo " Cleaning Gitea" 
-echo "****************************************************************************************************************"
-sudo rm -rf gitea/data/*
-echo " " 
-echo "****************************************************************************************************************"
 echo " Cleaning Jenkins" 
 echo "****************************************************************************************************************"
 sudo rm -rf jenkins/jenkins_home/*
@@ -90,13 +76,6 @@ if grep -q "gitea" /etc/hosts; then
 else
     echo " Add Gitea to /etc/hosts"
     sudo echo "172.16.11.3   gitea" >> /etc/hosts
-fi
-
-if grep -q "gerrit" /etc/hosts; then
-    echo " Gerrit exists in /etc/hosts"
-else
-    echo " Add Gerrit to /etc/hosts"
-    sudo echo "172.16.11.7   gerrit" >> /etc/hosts
 fi
 
 if grep -q "jenkins" /etc/hosts; then
@@ -204,16 +183,6 @@ echo "**************************************************************************
 gitea/gitea_install.sh
 echo " " 
 echo "****************************************************************************************************************"
-echo " Creating gerrit setup"
-echo "****************************************************************************************************************"
-docker cp keycloak:/opt/jboss/keycloak/bin/keycloak-gerrit.json gerrit/keycloak-gerrit.json
-docker cp gerrit/gerrit-oauth-provider.jar gerrit:/var/gerrit/plugins/gerrit-oauth-provider.jar
-geheim=$(grep secret gerrit/keycloak-gerrit.json | cut -d'"' -f4)
-sed  "s/geheim/$geheim/" gerrit/gerrit-oauth-config.txt > gerrit/openid-config
-docker cp gerrit/openid-config gerrit:/var/gerrit/etc/openid-config
-docker exec -it gerrit sh -c "cat /var/gerrit/etc/openid-config >> /var/gerrit/etc/gerrit.config"
-echo " " 
-echo "****************************************************************************************************************"
 echo " Creating jenkins setup"
 echo "****************************************************************************************************************"
 #config for ioc_auth plugin: only need to replace secret in casc.yaml
@@ -258,7 +227,6 @@ echo "You can reach the servers on:"
 echo " "
 echo " Gitea:       http://gitea:3000"
 echo " Jenkins:     http://jenkins:8080"
-echo " Gerrit:      http://gerrit:8080"
 echo " Nexus:       http://nexus:8081"
 echo " Argos:       http://argos"
 echo " Keycloak:    http://keycloak:8443"

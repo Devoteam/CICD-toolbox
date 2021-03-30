@@ -58,40 +58,6 @@ services:
     depends_on:
       - netcicd-db
       - keycloak
-
-  # toolbox:
-  #   container_name: toolbox
-  #   build: ./toolbox
-  #   restart: on-failure
-  #   init: true
-  #   stop_signal: SIGINT
-  #   stop_grace_period: 15s
-  #   networks: 
-  #     tooling:
-  #       ipv4_address: 172.16.11.6
-  #   volumes:
-  #     - '/etc/timezone:/etc/timezone:ro'
-  #     - '/etc/localtime:/etc/localtime:ro'
-
-  gerrit:
-    container_name: gerrit
-    image: gerritcodereview/gerrit
-    restart: on-failure
-    privileged: true
-    volumes:
-       - ./gerrit/etc:/var/gerrit/etc
-       - ./gerrit/git:/var/gerrit/git
-       - ./gerrit/db:/var/gerrit/db
-       - ./gerrit/index:/var/gerrit/index
-       - ./gerrit/cache:/var/gerrit/cache
-    ports:
-       - "29418:29418"
-       - "8080:8080"
-    networks:
-      tooling:
-        ipv4_address: 172.16.11.7
-    environment:
-      - CANONICAL_WEB_URL=http://gerrit:8080
       
   jenkins:
     container_name: jenkins
