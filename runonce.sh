@@ -204,6 +204,16 @@ echo "**************************************************************************
 gitea/gitea_install.sh
 echo " " 
 echo "****************************************************************************************************************"
+echo " Creating gerrit setup"
+echo "****************************************************************************************************************"
+docker cp keycloak:/opt/jboss/keycloak/bin/keycloak-gerrit.json gerrit/keycloak-gerrit.json
+docker cp gerrit/gerrit-oauth-provider.jar gerrit:/var/gerrit/plugins/gerrit-oauth-provider.jar
+geheim=$(grep secret gerrit/keycloak-gerrit.json | cut -d'"' -f4)
+sed  "s/geheim/$geheim/" gerrit/gerrit-oauth-config.txt > gerrit/openid-config
+docker cp gerrit/openid-config gerrit:/var/gerrit/etc/openid-config
+docker exec -it gerrit sh -c "cat /var/gerrit/etc/openid-config >> /var/gerrit/etc/gerrit.config"
+echo " " 
+echo "****************************************************************************************************************"
 echo " Creating jenkins setup"
 echo "****************************************************************************************************************"
 #config for ioc_auth plugin: only need to replace secret in casc.yaml
@@ -262,7 +272,7 @@ echo "**************************************************************************
 rm *_token
 rm keycloak_create.log
 echo " "
-echo "****************************************************************************************************************"echo "****************************************************************************************************************"
+echo "****************************************************************************************************************"
 echo " Manual steps..."
 echo " "
 echo " In order for Jenkins to be able to run the jenkinsfiles, jenkins needs the jenkins-jenkins user to have a token."
