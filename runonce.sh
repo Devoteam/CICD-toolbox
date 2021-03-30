@@ -257,6 +257,12 @@ echo " Jupyter:     http://jupyter:8888"
 echo " Portainer:   http://portainer:9000"
 echo " "
 echo "****************************************************************************************************************"
+echo "Cleaning up"
+echo "****************************************************************************************************************"
+rm *_token
+rm keycloak_create.log
+echo " "
+echo "****************************************************************************************************************"echo "****************************************************************************************************************"
 echo " Manual steps..."
 echo " "
 echo " In order for Jenkins to be able to run the jenkinsfiles, jenkins needs the jenkins-jenkins user to have a token."
