@@ -12,7 +12,7 @@ user=gitea-admin
 pwd=netcicd
 echo " Create local gituser (admin role: $user)"
 echo "****************************************************************************************************************"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username $user --password $pwd --admin --email gitea-admin@infraautomators.example.com --access-token'" > admin_token
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username $user --password $pwd --admin --email gitea-admin@infraautomators.example.com'"
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating InfraAutomators organization in Gitea "
@@ -303,36 +303,26 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Adding users to Gitea "
 echo "****************************************************************************************************************"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-jenkins --password netcicd --email git-jenkins@infraautomators.example.com --access-token'" > git-jenkins_token
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username thedude --password thedude --email thedude@infraautomators.example.com --access-token'" > thedude_token
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username thespecialist --password thespecialist --email thespecialist@infraautomators.example.com --access-token'" > thespecialist_token
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username architect --password architect --email architect@infraautomators.example.com --access-token'" > architect_token
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username networkguru --password networkguru --email networkguru@infraautomators.example.com --access-token'" > networkguru_token
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username hacker --password whitehat --email hacker@infraautomators.example.com --access-token'" > hacker_token
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username tooltiger --password tooltiger --email tooltiger@infraautomators.example.com --access-token'" > tooltiger_token
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-jenkins --password netcicd --email git-jenkins@infraautomators.example.com'"
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username thedude --password thedude --email thedude@infraautomators.example.com'"
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username thespecialist --password thespecialist --email thespecialist@infraautomators.example.com'"
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username architect --password architect --email architect@infraautomators.example.com'"
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username networkguru --password networkguru --email networkguru@infraautomators.example.com'"
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username hacker --password whitehat --email hacker@infraautomators.example.com'"
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username tooltiger --password tooltiger --email tooltiger@infraautomators.example.com'"
 # as Gitea cannot honor groups from keycloak, we must add the users to the groups separately
 echo " "
 echo "****************************************************************************************************************"
 echo " Assigning users to teams "
 echo "****************************************************************************************************************"
-echo "git-jenkins in Netdev write: " $netdev_team_write_id
-curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netdev_team_write_id/members/git-jenkins" -H  "accept: application/json"
-
-echo "git-jenkins in tooling write: " $tooling_team_write_id
-curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$tooling_team_write_id/members/git-jenkins" -H  "accept: application/json"
-
-echo "thedude in netops read: " $netops_team_read_id
-curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netops_team_read_id/members/thedude" -H  "accept: application/json"
-echo "thespecialist in netops write: " $netops_team_write_id
-curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netops_team_write_id/members/thespecialist" -H  "accept: application/json"
-echo "architect in netdev read: " $netdev_team_read_id
-curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netdev_team_read_id/members/architect" -H  "accept: application/json"
-echo "networkguru in netdev write: " $netdev_team_write_id
-curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netdev_team_write_id/members/networkguru" -H  "accept: application/json"
-echo "hacker in tooling read: " $tooling_team_read_id
-curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$tooling_team_read_id/members/hacker" -H  "accept: application/json"
-echo "tooltiger in tooling write: " $tooling_team_write_id
-curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$tooling_team_write_id/members/tooltiger" -H  "accept: application/json"
+curl -o /dev/null --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netdev_team_write_id/members/git-jenkins" -H  "accept: application/json"
+curl -o /dev/null --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$tooling_team_write_id/members/git-jenkins" -H  "accept: application/json"
+curl -o /dev/null --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netops_team_read_id/members/thedude" -H  "accept: application/json"
+curl -o /dev/null --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netops_team_write_id/members/thespecialist" -H  "accept: application/json"
+curl -o /dev/null --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netdev_team_read_id/members/architect" -H  "accept: application/json"
+curl -o /dev/null --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netdev_team_write_id/members/networkguru" -H  "accept: application/json"
+curl -o /dev/null --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$tooling_team_read_id/members/hacker" -H  "accept: application/json"
+curl -o /dev/null --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$tooling_team_write_id/members/tooltiger" -H  "accept: application/json"
 echo "****************************************************************************************************************"
 echo " Adding keycloak client key to Gitea"
 gitea_client_id=$(grep GITEA_token keycloak_create.log | cut -d' ' -f3 | tr -d '\r' )

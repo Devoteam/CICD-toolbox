@@ -1,2 +1,0 @@
-netcicd    Cleartext-Password := "NetCICD"
-         Reply-Message = "Hello, %{User-Name}"

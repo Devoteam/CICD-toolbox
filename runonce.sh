@@ -22,20 +22,6 @@ echo "**************************************************************************
 sudo rm -rf gitea/data/*
 echo " " 
 echo "****************************************************************************************************************"
-echo " Cleaning Gerrit" 
-echo "****************************************************************************************************************"
-sudo rm -rf gerrit/etc/*
-sudo rm -rf gerrit/db/*
-sudo rm -rf gerrit/cache/*
-sudo rm -rf gerrit/git/*
-sudo rm -rf gerrit/index/*
-echo " " 
-echo "****************************************************************************************************************"
-echo " Cleaning Gitea" 
-echo "****************************************************************************************************************"
-sudo rm -rf gitea/data/*
-echo " " 
-echo "****************************************************************************************************************"
 echo " Cleaning Jenkins" 
 echo "****************************************************************************************************************"
 sudo rm -rf jenkins/jenkins_home/*
@@ -90,13 +76,6 @@ if grep -q "gitea" /etc/hosts; then
 else
     echo " Add Gitea to /etc/hosts"
     sudo echo "172.16.11.3   gitea" >> /etc/hosts
-fi
-
-if grep -q "gerrit" /etc/hosts; then
-    echo " Gerrit exists in /etc/hosts"
-else
-    echo " Add Gerrit to /etc/hosts"
-    sudo echo "172.16.11.7   gerrit" >> /etc/hosts
 fi
 
 if grep -q "jenkins" /etc/hosts; then
@@ -248,13 +227,18 @@ echo "You can reach the servers on:"
 echo " "
 echo " Gitea:       http://gitea:3000"
 echo " Jenkins:     http://jenkins:8080"
-echo " Gerrit:      http://gerrit:8080"
 echo " Nexus:       http://nexus:8081"
 echo " Argos:       http://argos"
 echo " Keycloak:    http://keycloak:8443"
 echo " Node-red:    http://nodered:1880"
 echo " Jupyter:     http://jupyter:8888"
 echo " Portainer:   http://portainer:9000"
+echo " "
+echo "****************************************************************************************************************"
+echo "Cleaning up"
+echo "****************************************************************************************************************"
+rm *_token
+rm keycloak_create.log
 echo " "
 echo "****************************************************************************************************************"
 echo " Manual steps..."
