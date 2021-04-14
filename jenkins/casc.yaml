@@ -22,6 +22,12 @@ credentials:
           password: "netcicd"
           scope: GLOBAL
           username: "jenkins-jenkins"
+      - usernamePassword:
+          description: "Credentials to be used to log into Argos from Jenkins."
+          id: "jenkins-argos"
+          password: "netcicd"
+          scope: GLOBAL
+          username: "jenkins-argos"
 jenkins:
   authorizationStrategy:
     roleBased:
@@ -262,3 +268,6 @@ unclassified:
     allPipelines: true
     elapsedTimeFormat: "'<b>'HH:mm:ss.S'</b> '"
     systemTimeFormat: "'<b>'HH:mm:ss'</b> '" 
+  argosServiceConfiguration:
+    argosBaseUrl: "https://argos"
+    privateKeyCredentialId: "jenkins-argos"

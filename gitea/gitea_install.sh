@@ -304,6 +304,8 @@ echo "**************************************************************************
 echo " Adding users to Gitea "
 echo "****************************************************************************************************************"
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-jenkins --password netcicd --email git-jenkins@infraautomators.example.com'"
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username netcicd-pipeline --password netcicd --email netcicd-pipeline@infraautomators.example.com --access-token'" > install_log/netcicd-pipeline_token
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-argos --password netcicd --email git-argos@infraautomators.example.com --access-token'" > install_log/git-argos_token
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username thedude --password thedude --email thedude@infraautomators.example.com'"
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username thespecialist --password thespecialist --email thespecialist@infraautomators.example.com'"
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username architect --password architect --email architect@infraautomators.example.com'"
@@ -325,7 +327,7 @@ curl -o /dev/null --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$tool
 curl -o /dev/null --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$tooling_team_write_id/members/tooltiger" -H  "accept: application/json"
 echo "****************************************************************************************************************"
 echo " Adding keycloak client key to Gitea"
-gitea_client_id=$(grep GITEA_token keycloak_create.log | cut -d' ' -f3 | tr -d '\r' )
+gitea_client_id=$(grep GITEA_token install_log/keycloak_create.log | cut -d' ' -f3 | tr -d '\r' )
 docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin auth add-oauth --name keycloak --provider openidConnect --key Gitea --secret $gitea_client_id --auto-discover-url http://keycloak:8080/auth/realms/netcicd/.well-known/openid-configuration --config=/data/gitea/conf/app.ini'"
 echo "****************************************************************************************************************"
 echo " Restarting Gitea"

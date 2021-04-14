@@ -7,7 +7,7 @@ echo " Start clean"
 echo "****************************************************************************************************************"
 docker-compose down --remove-orphans
 rm *_token
-rm keycloak_create.log
+rm install_log/keycloak_create.log
 echo " " 
 echo "****************************************************************************************************************"
 echo " Cleaning Databases" 
@@ -146,6 +146,12 @@ cd ..
 rm -rf nexus-casc-plugin/
 echo " " 
 echo "****************************************************************************************************************"
+echo " getting Nexus APK proxy plugin"
+echo "****************************************************************************************************************"
+#wget https://search.maven.org/remotecontent?filepath=org/sonatype/nexus/plugins/nexus-repository-apk/0.0.17/nexus-repository-apk-0.0.17-bundle.kar
+mv *.kar nexus/
+echo " " 
+echo "****************************************************************************************************************"
 echo " Creating containers"
 echo "****************************************************************************************************************"
 docker-compose up -d --build --remove-orphans  
@@ -173,9 +179,9 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating keycloak setup"
 echo "****************************************************************************************************************"
-docker exec -it keycloak sh -c "/opt/jboss/keycloak/bin/create-realm.sh"  > keycloak_create.log
+docker exec -it keycloak sh -c "/opt/jboss/keycloak/bin/create-realm.sh"  > install_log/keycloak_create.log
 echo " "
-cat keycloak_create.log
+cat install_log/keycloak_create.log
 echo " " 
 echo "****************************************************************************************************************"
 echo " Creating gitea setup"
@@ -237,10 +243,23 @@ echo " "
 echo "****************************************************************************************************************"
 echo "Cleaning up"
 echo "****************************************************************************************************************"
-rm *_token
-rm keycloak_create.log
+#rm *_token
+rm install_log/keycloak_create.log
 echo " "
 echo "****************************************************************************************************************"
+echo " Preparing for finalizing install via ROBOT"
+echo "****************************************************************************************************************"
+wget https://chromedriver.storage.googleapis.com/89.0.4389.23/chromedriver_linux64.zip
+wget https://github.com/mozilla/geckodriver/releases/download/v0.29.1/geckodriver-v0.29.1-linux64.tar.gz
+gunzip chromedriver*
+chmod +x chromedriver
+sudo mv chromedriver /usr/local/bin
+rm -f chomedriver*
+tar -xvzf geckodriver*
+chmod +x geckodriver
+sudo mv geckodriver /usr/local/bin/
+rm -rf geckodriver*
+robot -d install_log/ finalize_install.robot
 echo " Manual steps..."
 echo " "
 echo " In order for Jenkins to be able to run the jenkinsfiles, jenkins needs the jenkins-jenkins user to have a token."
