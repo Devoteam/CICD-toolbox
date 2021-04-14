@@ -24,7 +24,7 @@ Close browsers
 
 ${BROWSER1}         Firefox
 ${BROWSER2}         Chrome
-${DELAY}            0
+${DELAY}            1
 ${VALID PASSWORD}   netcicd
 ${JENKINS URL}      http://jenkins:8080/
 ${JENKINS LOGOUT}   http://jenkins:8080/logout 
@@ -64,13 +64,14 @@ Change jenkins-jenkins credentials
     Click Button                Save
 
 Login to Gitea as git-jenkins
-    Open Browser                ${GITEA LOGIN}        ${BROWSER1}
-    Set Selenium Speed          ${DELAY}
+    Go To                ${GITEA LOGIN}
     Click Image                 class:openidConnect
     Keycloak Page Should Be Open
     Input Text                  username              git-jenkins
     Input Text                  password              ${VALID PASSWORD}
     Submit Credentials
+    Location Should Contain     ${GITEA URL}     
+    Input Text                  password              ${VALID PASSWORD}
     Click Button                Link Account
     Input Text                  password              ${VALID PASSWORD}
     Input Text                  retype                ${VALID PASSWORD}
@@ -84,7 +85,7 @@ Jenkins Page Should Be Open
     Title Should Be             Dashboard [Jenkins]
 
 Gitea Page Should Be Open
-    Location Should Be          ${GITEA URL}
+    Location Should Contain     ${GITEA URL}
     Title Should Be             git-jenkins - Dashboard
 
 Click Jenkins Logout Link

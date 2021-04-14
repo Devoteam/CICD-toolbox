@@ -8,6 +8,12 @@ echo "**************************************************************************
 docker-compose down --remove-orphans
 rm *_token
 rm install_log/keycloak_create.log
+rm chrome*
+rm selenium*
+rm log.html
+rm output.xml
+rm report.html
+rm install_log/*
 echo " " 
 echo "****************************************************************************************************************"
 echo " Cleaning Databases" 
@@ -192,7 +198,7 @@ echo "**************************************************************************
 echo " Creating jenkins setup"
 echo "****************************************************************************************************************"
 #config for ioc_auth plugin: only need to replace secret in casc.yaml
-jenkins_client_id=$(grep JENKINS_token keycloak_create.log | cut -d' ' -f3 | tr -d '\r' )
+jenkins_client_id=$(grep JENKINS_token install_log/keycloak_create.log | cut -d' ' -f3 | tr -d '\r' )
 docker exec -it jenkins sh -c "sed -i -e 's/oic_secret/\"$jenkins_client_id\"/' /var/jenkins_conf/casc.yaml"
 echo "Reloading "
 docker restart jenkins
@@ -249,9 +255,10 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Preparing for finalizing install via ROBOT"
 echo "****************************************************************************************************************"
+sudo pip3 install robotframework robotframework-selenium2library
 wget https://chromedriver.storage.googleapis.com/89.0.4389.23/chromedriver_linux64.zip
 wget https://github.com/mozilla/geckodriver/releases/download/v0.29.1/geckodriver-v0.29.1-linux64.tar.gz
-gunzip chromedriver*
+unzip chromedriver*
 chmod +x chromedriver
 sudo mv chromedriver /usr/local/bin
 rm -f chomedriver*
@@ -261,23 +268,6 @@ sudo mv geckodriver /usr/local/bin/
 rm -rf geckodriver*
 robot -d install_log/ finalize_install.robot
 echo " Manual steps..."
-echo " "
-echo " In order for Jenkins to be able to run the jenkinsfiles, jenkins needs the jenkins-jenkins user to have a token."
-echo " "
-echo "   * Go to http://jenkins:8080/user/jenkins-jenkins/configure (jenkins-jenkins/netcicd). "
-echo " "
-echo "   * Add the token. Copy this token, and paste it into a temporary file. Log out." 
-echo " "
-echo "   * Go to http://jenkins:8080/credentials/store/system/domain/_/credential/jenkins-jenkins/update (netcicd/netcicd)" 
-echo " "
-echo "   * Click Change Password and paste the token there. Delete the temporary file."
-echo " "
-echo " In order for Jenkins to be able to scan git, the git-jenkins users needs to log in once."
-echo " "
-echo "   * Go to http://gitea:3000/user/login?redirect_to=%2f"
-echo " "
-echo "   * Log in as (git-jenkins/netcicd) and set the password. You must use the same password as used in"
-echo "     Jenkins Credentials git-jenkins. Use something safe."
 echo " "
 echo " The pipeline uses guest/guest in order to log in to CML. Change this to your own credentials in "
 echo " http://jenkins:8080/credentials/store/system/domain/_/credential/CML-SIM-CRED/update"
