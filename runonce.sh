@@ -261,7 +261,7 @@ wget https://github.com/mozilla/geckodriver/releases/download/v0.29.1/geckodrive
 unzip chromedriver*
 chmod +x chromedriver
 sudo mv chromedriver /usr/local/bin
-rm -f chomedriver*
+rm -f chromedriver*
 tar -xvzf geckodriver*
 chmod +x geckodriver
 sudo mv geckodriver /usr/local/bin/

@@ -1,0 +1,4 @@
+*.log
+*_token
+*.xml
+*.html
