@@ -26,7 +26,7 @@ The setup has been developed and tested on Ubuntu 20.04 25 GB disk, 2 CPU, 4 GB 
 
 ```sudo apt-get update ```
 
-```sudo apt -y install openjdk-8-jre-headless maven git docker.io curl```
+```sudo apt -y install openjdk-8-jre-headless maven git docker.io curl python3 python3-pip python-is-python3```
 
 ```sudo usermod -aG docker ${USER}```
 

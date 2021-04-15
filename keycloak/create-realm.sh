@@ -91,7 +91,7 @@ echo "JENKINS_token: " $JENKINS_token
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-toolbox-run -s description='The role to be used for a user that needs to run the NetCICD-developer-toolbox pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-toolbox-dev -s description='The role to be used for a user that needs to configure the NetCICD-developer-toolbox pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-git -s description='A role for Jenkins to work with Git'
-./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-nodemaster -s description='A role for Jenkins to create and delete agents in Jenkinsfiles'
+./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-argos -s description='A role for Jenkins to create logs in Argos'
 
 echo "Created Jenkins roles." 
 echo " "
@@ -145,88 +145,6 @@ echo " "
 
 ./kcadm.sh create clients \
     -r netcicd \
-    -s name="Gerrit" \
-    -s description="The Gerrit git server" \
-    -s clientId=Gerrit \
-    -s enabled=true \
-    -s publicClient=false \
-    -s fullScopeAllowed=false \
-    -s directAccessGrantsEnabled=true \
-    -s serviceAccountsEnabled=true \
-    -s authorizationServicesEnabled=true \
-    -s rootUrl=http://gerrit:8080 \
-    -s adminUrl=http://gerrit:8080/ \
-    -s 'redirectUris=[ "http://gerrit:8080/*" ]' \
-    -s 'webOrigins=[ "http://gerrit:8080/" ]' \
-    -o --fields id >NetCICD_GERRIT
-
-# output is Created new client with id, we now need to grep the ID out of it
-GERRIT_ID=$(cat NetCICD_GERRIT | grep id | cut -d'"' -f 4)
-
-echo "Created GERRIT client with ID: ${GERRIT_ID}" 
-
-# We need to retrieve the token from keycloak for this client
-./kcadm.sh get clients/$GERRIT_ID/client-secret -r netcicd >NetCICD_gerrit_secret
-GERRIT_token=$(grep value NetCICD_gerrit_secret | cut -d '"' -f4)
-# Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source in Gerrit for Keycloak
-echo "GERRIT_token: " $GERRIT_token
-
-# Now we can add client specific roles (Clientroles)
-./kcadm.sh create clients/$GERRIT_ID/roles -r netcicd -s name=gerrit-admin -s description='The admin role for Gerrit'
-./kcadm.sh create clients/$GERRIT_ID/roles -r netcicd -s name=gerrit-user -s description='A user in Gerrit'
-
-echo "Created Gerrit roles." 
-echo " "
-
-# Now we need a service account for other systems to log into Gerrit
-./kcadm.sh add-roles -r netcicd --uusername service-account-gerrit --cclientid realm-management --rolename view-clients --rolename view-realm --rolename view-users
-
-echo "Created Gerrit Service Account" 
-echo " "
-
-# We need to add a client scope on the realm for Gerrit in order to include the audience in the access token
-./kcadm.sh create -x "client-scopes" -r netcicd -s name=gerrit-audience -s protocol=openid-connect &>NetCICD_GERRIT_SCOPE
-GERRIT_SCOPE_ID=$(cat NetCICD_GERRIT_SCOPE | grep id | cut -d"'" -f 2)
-echo "Created Client scope for Gerrit with id: ${GERRIT_SCOPE_ID}" 
-echo " "
-
-# Create a mapper for the audience
-./kcadm.sh create clients/$GERRIT_ID/protocol-mappers/models \
-    -r netcicd \
-	-s name=gerrit-audience-mapper \
-    -s protocol=openid-connect \
-	-s protocolMapper=oidc-audience-mapper \
-    -s consentRequired=false \
-	-s config="{\"included.client.audience\" : \"Gerrit\",\"id.token.claim\" : \"false\",\"access.token.claim\" : \"true\"}"
-
-echo "Created audience mapper in the Client Scope" 
-echo " "
-
-# We need to add the scope to the token
-./kcadm.sh update clients/$GERRIT_ID -r netcicd --body "{\"defaultClientScopes\": [\"gerrit-audience\"]}"
-
-echo "Included Gerrit Audience in token" 
-echo " "
-
-./kcadm.sh create clients/$GERRIT_ID/protocol-mappers/models \
-    -r netcicd \
-	-s name=role-group-mapper \
-    -s protocol=openid-connect \
-	-s protocolMapper=oidc-usermodel-client-role-mapper \
-    -s consentRequired=false \
-	-s config="{\"multivalued\" : \"true\",\"userinfo.token.claim\" : \"true\",\"id.token.claim\" : \"false\",\"access.token.claim\" : \"false\",\"claim.name\" : \"group-membership\",\"jsonType.label\" : \"String\",\"usermodel.clientRoleMapping.clientId\" : \"Gerrit\"}"
-
-echo "Created role-group mapper in the Client Scope" 
-echo " "
-
-#Now delete tokens and secrets
-rm GERRIT
-rm gerrit_secret
-GERRIT_ID=""
-GERRIT_token=""
-
-./kcadm.sh create clients \
-    -r netcicd \
     -s name="Nexus" \
     -s description="The Nexus repository in the toolchain" \
     -s clientId=Nexus \
@@ -254,6 +172,7 @@ echo " "
 ./kcadm.sh create clients/$NEXUS_ID/roles -r netcicd -s name=nexus-docker-pull -s description='The role to be used in order to pull from the Docker mirror on Nexus'
 ./kcadm.sh create clients/$NEXUS_ID/roles -r netcicd -s name=nexus-docker-push -s description='The role to be used in order to push to the Docker mirror on Nexus'
 ./kcadm.sh create clients/$NEXUS_ID/roles -r netcicd -s name=nexus-read -s description='The role to be used for a Jenkins agent to push data to Nexus'
+./kcadm.sh create clients/$NEXUS_ID/roles -r netcicd -s name=nexus-apk-read -s description='The role to be used for a NetCICD client to pull  APK packages data from Nexus'
 
 echo "Created Nexus roles." 
 echo " "
@@ -837,8 +756,31 @@ echo " "
     -s firstName=Jenkins \
     -s lastName=Jenkins \
     -s email=jenkins-jenkins@infraautomators.example.com
+
 ./kcadm.sh set-password -r netcicd --username jenkins-jenkins --new-password netcicd
-./kcadm.sh add-roles -r netcicd  --uusername jenkins-jenkins --cclientid Jenkins --rolename jenkins-nodemaster
+./kcadm.sh add-roles -r netcicd  --uusername jenkins-jenkins --cclientid Jenkins --rolename jenkins-netcicd-agent
+
+./kcadm.sh create users \
+    -r netcicd \
+    -s enabled=true \
+    -s username=jenkins-argos \
+    -s firstName=Jenkins \
+    -s lastName=Argos \
+    -s email=jenkins-argos@infraautomators.example.com
+
+./kcadm.sh set-password -r netcicd --username jenkins-argos --new-password netcicd
+./kcadm.sh add-roles -r netcicd  --uusername jenkins-argos --cclientid Jenkins --rolename jenkins-argos
+
+./kcadm.sh create users \
+    -r netcicd \
+    -s enabled=true \
+    -s username=netcicd-pipeline\
+    -s firstName=NetCICD \
+    -s lastName=Pipeline \
+    -s email=netcicd-pipeline@infraautomators.example.com
+
+./kcadm.sh set-password -r netcicd --username netcicd-pipeline --new-password netcicd
+./kcadm.sh add-roles -r netcicd  --uusername netcicd-pipeline --cclientid Nexus --rolename nexus-apk-read
 
 
 ./kcadm.sh create users \

@@ -79,6 +79,17 @@ security:
         - nx-repository-view-docker-docker-proxy-read
         - nx-repository-view-docker-docker-read
         - nx-search-read
+    - id: ClientRole:nexus-apk-read
+      enabled: true
+      source: default
+      name: ClientRole:nexus-apk-read
+      description: "APK Anonymous Access for public proxy / group repositories"
+      privileges:
+        - nx-healthcheck-read
+        - nx-repository-view-apk-apk-main-proxy-read
+        - nx-repository-view-apk-apk-community-proxy-read
+        - nx-repository-view-apk-apk-testing-proxy-read
+        - nx-search-read
     - id: repository-read-all
       enabled: true
       source: default
@@ -110,27 +121,18 @@ security:
       roles:
         - source: "default"
           role: repository-read-docker
-    - username: johndoe
-      firstName: John
-      lastName: Doe
-      password: "${file:/run/secrets/password_johndoe}"
-      updateExistingPassword: true
-      email: johndoe@example.org
-      roles:
-        - source: "default"
-          role: nx-admin
-    - username: janedoe
-      firstName: Jane
-      lastName: Doe
-      password: changeme
-      updateExistingPassword: false
-      email: janedoe@example.org
-      roles:
-        - source: "default"
-          role: repository-write-all
+          role: ClientRole:nexus-apk-read
 repository:
   pruneBlobStores: true
   blobStores:
+    - name: apk
+      type: File
+      attributes:
+        file:
+          path: apk
+        blobStoreQuotaConfig:
+          quotaLimitBytes: 10240000000
+          quotaType: spaceUsedQuota
     - name: NetCICD
       type: File
       attributes:
@@ -199,6 +201,11 @@ repository:
   cleanupPolicies:
     - name: cleanup-everything
       format: ALL_FORMATS
+      notes: ''
+      criteria:
+        lastDownloaded: 864000
+    - name: cleanup-apk-proxy
+      format: apk
       notes: ''
       criteria:
         lastDownloaded: 864000
@@ -510,6 +517,72 @@ repository:
             - "nuget-hosted"
             - "nuget-proxy"
     # https://help.sonatype.com/repomanager3/formats/pypi-repositories
+    - name: apk-main-proxy
+      online: true
+      recipeName: apk-proxy
+      attributes:
+        proxy:
+          remoteUrl: http://dl-cdn.alpinelinux.org/alpine/v3.12/main
+          contentMaxAge: -1.0
+          metadataMaxAge: 1440.0
+        httpclient:
+          blocked: false
+          autoBlock: true
+          connection:
+            useTrustStore: false
+        storage:
+          blobStoreName: apk
+          strictContentTypeValidation: true
+        negativeCache:
+          enabled: true
+          timeToLive: 1440.0
+        cleanup:
+          policyName:
+            - cleanup-apk-proxy
+    - name: apk-community-proxy
+      online: true
+      recipeName: apk-proxy
+      attributes:
+        proxy:
+          remoteUrl: http://dl-cdn.alpinelinux.org/alpine/v3.12/community
+          contentMaxAge: -1.0
+          metadataMaxAge: 1440.0
+        httpclient:
+          blocked: false
+          autoBlock: true
+          connection:
+            useTrustStore: false
+        storage:
+          blobStoreName: apk
+          strictContentTypeValidation: true
+        negativeCache:
+          enabled: true
+          timeToLive: 1440.0
+        cleanup:
+          policyName:
+            - cleanup-apk-proxy
+    - name: apk-testing-proxy
+      online: true
+      recipeName: apk-proxy
+      attributes:
+        proxy:
+          remoteUrl: http://dl-cdn.alpinelinux.org/alpine/edge/testing
+          contentMaxAge: -1.0
+          metadataMaxAge: 1440.0
+        httpclient:
+          blocked: false
+          autoBlock: true
+          connection:
+            useTrustStore: false
+        storage:
+          blobStoreName: apk
+          strictContentTypeValidation: true
+        negativeCache:
+          enabled: true
+          timeToLive: 1440.0
+        cleanup:
+          policyName:
+            - cleanup-apk-proxy
     - name: pypi-proxy
       online: true
       recipeName: pypi-proxy
