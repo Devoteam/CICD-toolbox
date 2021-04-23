@@ -38,6 +38,10 @@ The setup has been developed and tested on Ubuntu 20.04 25 GB disk, 2 CPU, 4 GB 
 
 ```git clone https://github.com/Devoteam/NetCICD-developer-toolbox.git```
 
+```sudo mv chromedriver /usr/local/bin```
+
+```sudo mv chromedriver /usr/local/bin```
+
 ```cd NetCICD-developer-toolbox/```
 
 
