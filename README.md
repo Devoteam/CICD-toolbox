@@ -40,7 +40,7 @@ The setup has been developed and tested on Ubuntu 20.04 25 GB disk, 2 CPU, 4 GB 
 
 ```sudo mv chromedriver /usr/local/bin```
 
-```sudo mv chromedriver /usr/local/bin```
+```sudo mv geckodriver /usr/local/bin```
 
 ```cd NetCICD-developer-toolbox/```
 
