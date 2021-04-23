@@ -34,6 +34,7 @@ ${GITEA LOGIN}      http://gitea:3000/user/login?redirect_to=%2f
 *** Keywords ***
 Log into Jenkins as jenkins-jenkins
     Open Browser                ${JENKINS URL}       ${BROWSER1}
+    Maximize Browser Window
     Go To                       ${JENKINS URL}
     Set Selenium Speed          ${DELAY}
     Keycloak Page Should Be Open
