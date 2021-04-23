@@ -266,16 +266,9 @@ echo "**************************************************************************
 echo " Preparing for finalizing install via ROBOT"
 echo "****************************************************************************************************************"
 sudo pip3 install robotframework robotframework-selenium2library
-wget https://chromedriver.storage.googleapis.com/89.0.4389.23/chromedriver_linux64.zip
-wget https://github.com/mozilla/geckodriver/releases/download/v0.29.1/geckodriver-v0.29.1-linux64.tar.gz
-unzip chromedriver*
-chmod +x chromedriver
-sudo mv chromedriver /usr/local/bin
-rm -f chromedriver*
-tar -xvzf geckodriver*
-chmod +x geckodriver
+sudo mv chromedriver /usr/local/bin/
 sudo mv geckodriver /usr/local/bin/
-rm -rf geckodriver*
+exec bash
 robot -d install_log/ finalize_install.robot
 echo " Manual steps..."
 echo " "
