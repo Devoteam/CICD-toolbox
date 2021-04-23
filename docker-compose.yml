@@ -111,25 +111,46 @@ services:
     expose:
       - '8081'
 
-  argos:
+  mongodb:
+    container_name: mongodb
+    image: argosnotary/mongo:4.2.8
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.4
+    expose:
+      - '27017' 
+
+  argos-frontend:
     container_name: argos
-    image: 'argosnotary/argosnotary:1.0.0'
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    volumes:
-      - './argos/data:/data/db'
-      - './argos/config:/data/configdb'
+    image: argosnotary/argos-frontend:1.0.2
+    environment:
+      - BACKEND_URL=http://argos-service:8080
     networks:
       tooling:
         ipv4_address: 172.16.11.10
     expose:
       - '80'
-      - '8080'
-      - '8087'
     depends_on:
+      - argos-service
+
+  argos-service:
+    container_name: argos-service
+    image: argosnotary/argos-service:1.0.3
+    environment:
+      spring.config.location: /application.yml
+      jwt.token.secret: Z2LcVpgCuGtpb5rBDNIIWGe8RXqYGWDpWFjWhYQUS2Z8rjE2/GTJlu0s6BRYG0Mn0kV8StC9cFE83Jkl68RCkw==
+      spring.profiles.active: integration-test
+      JAVA_OPTS: '-Xmx1g'
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.5
+    expose:
+      - '8080'
+    depends_on:
+      - mongodb
       - keycloak
+    volumes:
+      - ./argos/application.yml:/application.yml
 
   keycloak:
     container_name: keycloak

@@ -239,6 +239,32 @@ TACACS_ID=$(cat NetCICD_TACACS | grep id | cut -d'"' -f 4)
 ./kcadm.sh create clients/$TACACS_ID/roles -r netcicd -s name=TACACS-network-admin -s description='An admin role to be used for RADIUS based AAA on Cisco routers, priv 15'
 ./kcadm.sh create clients/$TACACS_ID/roles -r netcicd -s name=TACACS-network-operator -s description='A role to be used for RADIUS based AAA on Cisco routers, priv 2'
 
+./kcadm.sh create clients \
+    -r netcicd \
+    -s name="Argos" \
+    -s description="The Argos notary in the toolchain" \
+    -s clientId=argos \
+    -s enabled=true \
+    -s publicClient=false \
+    -s directAccessGrantsEnabled=true \
+    -s rootUrl=http://argos \
+    -s adminUrl=http://argos/ \
+    -s 'redirectUris=[ "http://argos/*" ]' \
+    -s 'webOrigins=[ "http://argos/" ]' \
+    -o --fields id >NetCICD_ARGOS
+
+# output is Created new client with id, we now need to grep the ID out of it
+ARGOS_ID=$(cat NetCICD_ARGOS | grep id | cut -d'"' -f 4)
+
+# Now we can add client specific roles (Clientroles)
+./kcadm.sh create clients/$ARGOS_ID/roles -r netcicd -s name=Argos-admin -s description='The admin role for Argos'
+
+# We need to retrieve the token from keycloak for this client
+./kcadm.sh get clients/$ARGOS_ID/client-secret -r netcicd >NetCICD_argos_secret
+ARGOS_token=$(grep value NetCICD_argos_secret | cut -d '"' -f4)
+# Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source in Gitea for Keycloak
+echo "ARGOS_token: " $ARGOS_token
+
 #add groups - we start at the system level, which implements the groups related to service accounts
 ./kcadm.sh create groups -r netcicd -s name="System" &>NetCICD_SYSTEM
 system_id=$(cat NetCICD_SYSTEM | grep id | cut -d"'" -f 2)

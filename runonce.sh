@@ -203,6 +203,16 @@ docker exec -it jenkins sh -c "sed -i -e 's/oic_secret/\"$jenkins_client_id\"/' 
 echo "Reloading "
 docker restart jenkins
 echo " " 
+echo " " 
+echo "****************************************************************************************************************"
+echo " Creating Argos setup"
+echo "****************************************************************************************************************"
+argos_client_id=$(grep ARGOS_token install_log/keycloak_create.log | cut -d' ' -f3 | tr -d '\r' )
+cp argos/compose-application.yml argos/application.yml
+sed -i -e "s/argos_secret/$argos_client_id/" argos/application.yml
+echo "Reloading "
+docker-compose up -d --build --no-deps argos-service
+echo " " 
 echo "****************************************************************************************************************"
 echo " Creating nexus setup"
 echo "****************************************************************************************************************"
