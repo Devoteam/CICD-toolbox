@@ -81,3 +81,8 @@ You need to be able to run docker as non-root. See [here](https://docs.docker.co
 * It wipes all working directories, networks, containers and builds
 * Networks are preconfigured to enable the connect-back from CML
 * Running or starting twice will create failing networks and/or containers, duplicate IP addresses and all kinds of other mayhem.
+#### License ###
+This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#### Copyright ####
+(c) Mark Sibering
+
