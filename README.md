@@ -16,7 +16,7 @@ As you can see, the tool chain is separated from the managed environments. This 
 
 In every environment you'll see a jump host. This jump host is the only system that can connect back to the tool chain. It is controlled from Jenkins.
 
-By default, a setup that links to a local CML Personal edition is included, the Netcicd Pipeline. if CML is installed on the same machine as the toolbox is installed upon, Jenkins starts a lab and configures the nodes of the first stage.
+By default, a setup that links to a local [CML Personal edition](https://learningnetworkstore.cisco.com/cisco-modeling-labs-personal/cisco-cml-personal) is included, the Netcicd Pipeline. if CML is installed on the same machine as the toolbox is installed upon, Jenkins starts a lab and configures the nodes of the first stage.
 
 For more information on the systems used and the setup of the individual systems, look at the wiki.
 
