@@ -24,7 +24,7 @@ Close browsers
 
 ${BROWSER1}         Firefox
 ${BROWSER2}         Chrome
-${DELAY}            1
+${DELAY}            0
 ${VALID PASSWORD}   netcicd
 ${JENKINS URL}      http://jenkins:8080/
 ${JENKINS LOGOUT}   http://jenkins:8080/logout 
