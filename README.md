@@ -34,11 +34,11 @@ After install, execute:
 
 ```sudo apt -y install openjdk-8-jre-headless maven git docker.io curl python3 python3-pip python-is-python3```
 
+```sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose```
+
 ```sudo usermod -aG docker ${USER}```
 
 ```su - ${USER}```
-
-```sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose```
 
 ```sudo chmod +x /usr/local/bin/docker-compose```
 
