@@ -50,6 +50,15 @@ After install, execute:
 
 ```cd NetCICD-developer-toolbox/```
 
+Now the script will run all the way until the end, but it does succeed in running the Robot script (FAIL). This is due to the current shell. Close the current terminal.
+
+Open a new terminal and enter:
+
+```cd NetCICD-developer-toolbox/```
+
+```robot -d install_log/ finalize_install.robot```
+
+Now everything should PASS.
 
 ### As Docker has a pull rate limit, you need to authenticate first:
 ```docker login -u <yourusername> -p <yourpassword>```
