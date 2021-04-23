@@ -36,6 +36,10 @@ The setup has been developed and tested on Ubuntu 20.04 25 GB disk, 2 CPU, 4 GB 
 
 ```sudo chmod +x /usr/local/bin/docker-compose```
 
+```python3 -m pip install robotframework```
+
+```python3 -m pip install robotframework-selenium2library```
+
 ```git clone https://github.com/Devoteam/NetCICD-developer-toolbox.git```
 
 ```cd NetCICD-developer-toolbox/```
