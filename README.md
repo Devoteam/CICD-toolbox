@@ -38,7 +38,7 @@ After install, execute:
 
 ```sudo usermod -aG docker ${USER}```
 
-```su - ${USER}```
+```sudo su - ${USER}```
 
 ```sudo chmod +x /usr/local/bin/docker-compose```
 
