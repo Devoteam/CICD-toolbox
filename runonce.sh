@@ -8,8 +8,6 @@ echo "**************************************************************************
 docker-compose down --remove-orphans
 rm *_token
 rm install_log/keycloak_create.log
-rm chrome*
-rm selenium*
 rm log.html
 rm output.xml
 rm report.html
@@ -266,11 +264,13 @@ echo "**************************************************************************
 echo " Preparing for finalizing install via ROBOT"
 echo "****************************************************************************************************************"
 sudo pip3 install robotframework robotframework-selenium2library
-sudo mv chromedriver /usr/local/bin/
 sudo mv geckodriver /usr/local/bin/
-exec bash
-robot -d install_log/ finalize_install.robot
 echo " Manual steps..."
+echo " "
+echo " Log out and open a new terminal"
+echo " "
+echo " cd NetCICD-developer-toolbox"
+echo " robot -d install_log/ finalize_install.robot"
 echo " "
 echo " The pipeline uses guest/guest in order to log in to CML. Change this to your own credentials in "
 echo " http://jenkins:8080/credentials/store/system/domain/_/credential/CML-SIM-CRED/update"
