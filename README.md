@@ -30,7 +30,7 @@ As the last part of the install uses Robotframework with Selenium, it requires a
 
 After install, execute:
 
-```sudo apt-get update ```
+```sudo apt-get update && sudo apt-get upgrade -y```
 
 ```sudo apt -y install openjdk-8-jre-headless maven git docker.io curl python3 python3-pip python-is-python3```
 
