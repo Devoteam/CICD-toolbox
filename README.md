@@ -57,20 +57,26 @@ After this, you can run:
 
 ```./runonce.sh ```
 
-This installs:
-* Git
-* Docker
-* Docker-compose
-* openjdk8-jre (sudo apt install openjdk-8-jre-headless)
-* maven
-* curl
-
 You need to be able to run docker as non-root. See [here](https://docs.docker.com/engine/install/linux-postinstall/) for details.
 ### Do NOT run this script after use.
 * The script stops all existing containers
 * It wipes all working directories, networks, containers and builds
 * Networks are preconfigured to enable the connect-back from CML
 * Running or starting twice will create failing networks and/or containers, duplicate IP addresses and all kinds of other mayhem.
+
+### Wat the Robot script does ###
+In order for Jenkins to be able to run the jenkinsfiles, jenkins needs the jenkins-jenkins user to have a token.
+
+* Go to http://jenkins:8080/user/jenkins-jenkins/configure (jenkins-jenkins/netcicd). 
+* Add the token. Copy this token, and paste it into a temporary file. Log out.
+* Go to http://jenkins:8080/credentials/store/system/domain/_/credential/jenkins-jenkins/update (netcicd/netcicd)
+* Click Change Password and paste the token there. Delete the temporary file.
+
+In order for Jenkins to be able to scan git, the git-jenkins users needs to log in once.
+
+* Go to http://gitea:3000/user/login?redirect_to=%2f
+* Log in as (git-jenkins/netcicd) and set the password. You must use the same password as used in Jenkins Credentials git-jenkins. Use something safe.
+
 #### License ###
 This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #### Copyright ####
