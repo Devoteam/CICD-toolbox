@@ -82,6 +82,7 @@ In order for Jenkins to be able to scan git, the git-jenkins users needs to log 
 
 ## About Cisco Modeling Labs installation ##
 The pipeline is initially developed to work with Cisco Modeling Labs Personal Edition, but will work with any Jenkinsfile you feed the pipeline. In order to work with CML PE, you can use a stock install, but it needs a fixed IP address. The address configured in the pipeline is 192.168.32.148. If you used a different address, you need to change this in [Jenkins](http://jenkins:8080/configure), look for Global Properties and change the IP address at CML-URL.
+
 ![jenkinsproperties](jenkinsproperties.png)
 
 #### License ###
