@@ -1,7 +1,9 @@
 DepShield: [![DepShield Badge](https://depshield.sonatype.org/badges/Devoteam/NetCICD-developer-toolbox/depshield.svg)](https://depshield.github.io)
 
 # Background
-When working on NetCICD, again and again, tools used changed their way of use. In addition, additional functionality was needed: some sort of SSO, Jupyter Notebook, Node Red, git, etc. Adding more tools made the tool chain more brittle every time. And what was worse: building it using VM ate CPU and memory, basically limiting the size of the simulations that can be done. In short: having a dependable pipeline is one complex thing, making sure it keeps on working is another.
+When working on [NetCICD](https://github.com/Devoteam/NetCICD), again and again, tools used changed their way of use. In addition, additional functionality was needed: some sort of SSO, Jupyter Notebook, Node Red, git, etc. Adding more tools made the tool chain more brittle every time. And what was worse: building it using VM ate CPU and memory, basically limiting the size of the simulations that can be done. In short: having a dependable pipeline is one complex thing, making sure it keeps on working is another.
+
+With the advent of [Cisco Modeling Labs](https://www.cisco.com/c/en/us/products/cloud-systems-management/modeling-labs/index.html) replacing VIRL, a new piece of the puzzle needed to be changed.
 
 With the amazing team of DevOps specialists at Devoteam, we started to develop a basic devops toolchain, containing most things you might need to get started on the click of a button. It is pre-configured and can be used to jumpstart a NetCICD project and based upon Docker to minimise the footprint on a local machine. 
 
@@ -58,6 +60,7 @@ After this, you can run:
 ```./runonce.sh ```
 
 You need to be able to run docker as non-root. See [here](https://docs.docker.com/engine/install/linux-postinstall/) for details.
+
 ### Do NOT run this script after use.
 * The script stops all existing containers
 * It wipes all working directories, networks, containers and builds
@@ -76,6 +79,10 @@ In order for Jenkins to be able to scan git, the git-jenkins users needs to log 
 
 * Go to http://gitea:3000/user/login?redirect_to=%2f
 * Log in as (git-jenkins/netcicd) and set the password. You must use the same password as used in Jenkins Credentials git-jenkins. Use something safe.
+
+## About Cisco Modeling Labs installation ##
+The pipeline is initially developed to work with Cisco Modeling Labs Personal Edition, but will work with any Jenkinsfile you feed the pipeline. In order to work with CML PE, you can use a stock install, but it needs a fixed IP address. The address configured in the pipeline is 192.168.32.148. If you used a different address, you need to change this in [Jenkins](http://jenkins:8080/configure), look for Global Properties and change the IP address at CML-URL.
+![jenkinsproperties](jenkinsproperties.png)
 
 #### License ###
 This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
