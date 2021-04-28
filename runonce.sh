@@ -150,12 +150,6 @@ cd ..
 rm -rf nexus-casc-plugin/
 echo " " 
 echo "****************************************************************************************************************"
-echo " getting Nexus APK proxy plugin"
-echo "****************************************************************************************************************"
-#wget https://search.maven.org/remotecontent?filepath=org/sonatype/nexus/plugins/nexus-repository-apk/0.0.17/nexus-repository-apk-0.0.17-bundle.kar
-mv *.kar nexus/
-echo " " 
-echo "****************************************************************************************************************"
 echo " Creating containers"
 echo "****************************************************************************************************************"
 docker-compose up -d --build --remove-orphans  
