@@ -67,6 +67,9 @@ You need to be able to run docker as non-root. See [here](https://docs.docker.co
 * Networks are preconfigured to enable the connect-back from CML
 * Running or starting twice will create failing networks and/or containers, duplicate IP addresses and all kinds of other mayhem.
 
+## Users ##
+All users are configured in Keycloak. {The wiki]() has the complete list.
+
 ### Wat the Robot script does ###
 In order for Jenkins to be able to run the jenkinsfiles, jenkins needs the jenkins-jenkins user to have a token.
 
