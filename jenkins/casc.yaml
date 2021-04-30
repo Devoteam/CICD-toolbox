@@ -34,7 +34,6 @@ jenkins:
       roles:
         global:
         - assignments:
-          - "jenkins-nodemaster"
           - "jenkins-jenkins"
           name: "localAgentManager"
           pattern: ".*"
