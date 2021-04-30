@@ -672,6 +672,14 @@ echo "Created Tooling Architect group within the Development Department with ID:
 ./kcadm.sh add-roles \
     -r netcicd \
     --gid $toolarch_id \
+    --cclientid Gitea \
+    --rolename gitea-netops-read \
+    --rolename gitea-netdev-read \
+    --rolename gitea-tooling-write \
+
+./kcadm.sh add-roles \
+    -r netcicd \
+    --gid $toolarch_id \
     --cclientid Jenkins \
     --rolename jenkins-user \
     --rolename jenkins-netcicd-toolbox-dev 
@@ -914,6 +922,27 @@ arch_id=$(cat NetCICD_ARCH | grep id | cut -d"'" -f 2)
     -s realm=netcicd \
     -s userId=$arch_id \
     -s groupId=$clarch_id \
+    -n
+
+./kcadm.sh update users/$arch_id/groups/$camarch_id \
+    -r netcicd \
+    -s realm=netcicd \
+    -s userId=$arch_id \
+    -s groupId=$camarch_id \
+    -n
+
+./kcadm.sh update users/$arch_id/groups/$wanarch_id \
+    -r netcicd \
+    -s realm=netcicd \
+    -s userId=$arch_id \
+    -s groupId=$wanarch_id \
+    -n
+
+./kcadm.sh update users/$arch_id/groups/$dcarch_id \
+    -r netcicd \
+    -s realm=netcicd \
+    -s userId=$arch_id \
+    -s groupId=$dcarch_id \
     -n
 
 ./kcadm.sh create users \
