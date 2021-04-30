@@ -68,7 +68,7 @@ You need to be able to run docker as non-root. See [here](https://docs.docker.co
 * Running or starting twice will create failing networks and/or containers, duplicate IP addresses and all kinds of other mayhem.
 
 ## Users ##
-All users are configured in Keycloak. {The wiki]() has the complete list.
+All users are configured in Keycloak. [The wiki](https://github.com/Devoteam/NetCICD-developer-toolbox/wiki/Users-and-passwords) has the complete list.
 
 ### Wat the Robot script does ###
 In order for Jenkins to be able to run the jenkinsfiles, jenkins needs the jenkins-jenkins user to have a token.
