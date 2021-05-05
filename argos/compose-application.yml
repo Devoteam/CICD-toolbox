@@ -23,21 +23,22 @@ spring:
     oauth2:
       client:
         registration:
-          netcicd:
+          keycloak:
             client-id: argos
-            client-name: argos
+            clientName: Argos
             client-secret: argos_secret
-            redirectUri: "{baseUrl}/api/oauth2/callback/{registrationId}"
             provider: keycloak
+            redirect-uri: "http://argos/api/oauth2/callback/{registrationId}"
             authorization-grant-type: authorization_code
             scope: openid, profile
         provider:
           keycloak:
             authorization-uri: http://keycloak:8080/auth/realms/netcicd/protocol/openid-connect/auth
             token-uri: http://keycloak:8080/auth/realms/netcicd/protocol/openid-connect/token
-            userInfoUri: http://keycloak:8080/auth/realms/netcicd/protocol/openid-connect/userinfo
-            userNameAttribute: preferred_username
-            userEmailAttribute: email
+            user-info-uri: http://keycloak:8080/auth/realms/netcicd/protocol/openid-connect/userinfo
+            jwk-set-uri: http://keycloak:8080/auth/realms/netcicd/protocol/openid-connect/certs
+            user-name-attribute: preferred_username
+            user-email-attribute: email
   application:
     name: argos-service
 management:

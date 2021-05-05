@@ -257,7 +257,8 @@ TACACS_ID=$(cat NetCICD_TACACS | grep id | cut -d'"' -f 4)
 ARGOS_ID=$(cat NetCICD_ARGOS | grep id | cut -d'"' -f 4)
 
 # Now we can add client specific roles (Clientroles)
-./kcadm.sh create clients/$ARGOS_ID/roles -r netcicd -s name=Argos-admin -s description='The admin role for Argos'
+./kcadm.sh create clients/$ARGOS_ID/roles -r netcicd -s name=argos-admin -s description='The admin role for Argos'
+./kcadm.sh create clients/$ARGOS_ID/roles -r netcicd -s name=argos-jenkins -s description='The jenkins user role for Argos'
 
 # We need to retrieve the token from keycloak for this client
 ./kcadm.sh get clients/$ARGOS_ID/client-secret -r netcicd >NetCICD_argos_secret
@@ -671,6 +672,14 @@ echo "Created Tooling Architect group within the Development Department with ID:
 ./kcadm.sh add-roles \
     -r netcicd \
     --gid $toolarch_id \
+    --cclientid Gitea \
+    --rolename gitea-netops-read \
+    --rolename gitea-netdev-read \
+    --rolename gitea-tooling-write \
+
+./kcadm.sh add-roles \
+    -r netcicd \
+    --gid $toolarch_id \
     --cclientid Jenkins \
     --rolename jenkins-user \
     --rolename jenkins-netcicd-toolbox-dev 
@@ -796,6 +805,7 @@ echo " "
 
 ./kcadm.sh set-password -r netcicd --username jenkins-argos --new-password netcicd
 ./kcadm.sh add-roles -r netcicd  --uusername jenkins-argos --cclientid Jenkins --rolename jenkins-argos
+./kcadm.sh add-roles -r netcicd  --uusername jenkins-argos --cclientid Argos --rolename argos-jenkins
 
 ./kcadm.sh create users \
     -r netcicd \
@@ -912,6 +922,27 @@ arch_id=$(cat NetCICD_ARCH | grep id | cut -d"'" -f 2)
     -s realm=netcicd \
     -s userId=$arch_id \
     -s groupId=$clarch_id \
+    -n
+
+./kcadm.sh update users/$arch_id/groups/$camarch_id \
+    -r netcicd \
+    -s realm=netcicd \
+    -s userId=$arch_id \
+    -s groupId=$camarch_id \
+    -n
+
+./kcadm.sh update users/$arch_id/groups/$wanarch_id \
+    -r netcicd \
+    -s realm=netcicd \
+    -s userId=$arch_id \
+    -s groupId=$wanarch_id \
+    -n
+
+./kcadm.sh update users/$arch_id/groups/$dcarch_id \
+    -r netcicd \
+    -s realm=netcicd \
+    -s userId=$arch_id \
+    -s groupId=$dcarch_id \
     -n
 
 ./kcadm.sh create users \
