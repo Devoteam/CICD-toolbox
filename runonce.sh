@@ -51,6 +51,7 @@ echo " Cleaning Argos"
 echo "****************************************************************************************************************"
 sudo rm -rf argos/config/*
 sudo rm -rf argos/data/*
+sudo cp -p argos/compose-application.yml argos/application.yml
 echo " " 
 echo "****************************************************************************************************************"
 echo " Cleaning NodeRED" 
@@ -200,7 +201,6 @@ echo "**************************************************************************
 echo " Creating Argos setup"
 echo "****************************************************************************************************************"
 argos_client_id=$(grep ARGOS_token install_log/keycloak_create.log | cut -d' ' -f3 | tr -d '\r' )
-cp argos/compose-application.yml argos/application.yml
 sed -i -e "s/argos_secret/$argos_client_id/" argos/application.yml
 echo "Reloading "
 docker-compose up -d --build --no-deps argos-service

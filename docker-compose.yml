@@ -135,7 +135,7 @@ services:
 
   argos-service:
     container_name: argos-service
-    image: argosnotary/argos-service:1.0.3
+    image: argosnotary/argos-service:master-beta
     environment:
       spring.config.location: /application.yml
       jwt.token.secret: Z2LcVpgCuGtpb5rBDNIIWGe8RXqYGWDpWFjWhYQUS2Z8rjE2/GTJlu0s6BRYG0Mn0kV8StC9cFE83Jkl68RCkw==
