@@ -767,6 +767,7 @@ echo " "
 ./kcadm.sh set-password -r netcicd --username netcicd --new-password netcicd
 ./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Gitea --rolename gitea-infraautomators-admin
 ./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Jenkins --rolename jenkins-admin
+./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Jenkins --rolename argos-admin
 ./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Nexus --rolename nexus-admin
 ./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Nexus --rolename nexus-docker-pull
 ./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Nexus --rolename nexus-docker-push
