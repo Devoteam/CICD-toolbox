@@ -24,12 +24,14 @@ Close browsers
 
 ${BROWSER1}         Firefox
 ${BROWSER2}         Chrome
-${DELAY}            0
+${DELAY}            1
 ${VALID PASSWORD}   netcicd
 ${JENKINS URL}      http://jenkins:8080/
 ${JENKINS LOGOUT}   http://jenkins:8080/logout 
 ${GITEA URL}        http://gitea:3000
 ${GITEA LOGIN}      http://gitea:3000/user/login?redirect_to=%2f
+${ARGOS URL}        http://argos
+${ARGOS LOGIN}      http://argos/login
 
 *** Keywords ***
 Log into Jenkins as jenkins-jenkins
@@ -58,6 +60,15 @@ Log into Jenkins as netcicd
     Submit Credentials
     Jenkins Page Should Be Open
 
+Log into Argos as netcicd
+    Argos Page Should Be Open
+    Click Button                Login with
+    Keycloak Page Should Be Open
+    Input Text                  username              netcicd
+    Input Text                  password              ${VALID PASSWORD}
+    Submit Credentials
+    Argos Page Should Be Open
+
 Change jenkins-jenkins credentials 
     Go To                       http://jenkins:8080/credentials/store/system/domain/_/credential/jenkins-jenkins/update
     Click Button                Change Password
@@ -83,6 +94,10 @@ Keycloak Page Should Be Open
 
 Jenkins Page Should Be Open
     Location Should Contain     ${JENKINS URL}
+    Title Should Be             Dashboard [Jenkins]
+
+Argos Page Should Be Open
+    Location Should Contain     ${ARGOS URL}
     Title Should Be             Dashboard [Jenkins]
 
 Gitea Page Should Be Open
