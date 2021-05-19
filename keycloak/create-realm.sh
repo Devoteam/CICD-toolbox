@@ -258,6 +258,7 @@ ARGOS_ID=$(cat NetCICD_ARGOS | grep id | cut -d'"' -f 4)
 
 # Now we can add client specific roles (Clientroles)
 ./kcadm.sh create clients/$ARGOS_ID/roles -r netcicd -s name=argos-admin -s description='The admin role for Argos'
+./kcadm.sh create clients/$ARGOS_ID/roles -r netcicd -s name=argos-user -s description='The user role for Argos'
 ./kcadm.sh create clients/$ARGOS_ID/roles -r netcicd -s name=argos-jenkins -s description='The jenkins user role for Argos'
 
 # We need to retrieve the token from keycloak for this client

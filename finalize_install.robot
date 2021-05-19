@@ -17,6 +17,11 @@ Enter Jenkins token in credentials
 Enable Jenkins to log into git
     Login to Gitea as git-jenkins
 
+Configure Argos
+    Open Browser
+    Log into Argos as netcicd
+    Close Browser
+
 Close browsers
     Close Browser
 
@@ -24,7 +29,7 @@ Close browsers
 
 ${BROWSER1}         Firefox
 ${BROWSER2}         Chrome
-${DELAY}            1
+${DELAY}            0
 ${VALID PASSWORD}   netcicd
 ${JENKINS URL}      http://jenkins:8080/
 ${JENKINS LOGOUT}   http://jenkins:8080/logout 
@@ -61,8 +66,8 @@ Log into Jenkins as netcicd
     Jenkins Page Should Be Open
 
 Log into Argos as netcicd
-    Argos Page Should Be Open
-    Click Button                Login with
+    Go To                       http://argos/api/oauth2/authorize/keycloak?redirect_uri=/authenticated
+    Wait Until Location Contains  keycloak:8
     Keycloak Page Should Be Open
     Input Text                  username              netcicd
     Input Text                  password              ${VALID PASSWORD}
@@ -76,7 +81,7 @@ Change jenkins-jenkins credentials
     Click Button                Save
 
 Login to Gitea as git-jenkins
-    Go To                ${GITEA LOGIN}
+    Go To                       ${GITEA LOGIN}
     Click Image                 class:openidConnect
     Keycloak Page Should Be Open
     Input Text                  username              git-jenkins
@@ -98,7 +103,7 @@ Jenkins Page Should Be Open
 
 Argos Page Should Be Open
     Location Should Contain     ${ARGOS URL}
-    Title Should Be             Dashboard [Jenkins]
+    Title Should Be             Argos Dashboard
 
 Gitea Page Should Be Open
     Location Should Contain     ${GITEA URL}
