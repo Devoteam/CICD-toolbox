@@ -1,4 +1,4 @@
-FROM jboss/keycloak:12.0.4
+FROM jboss/keycloak:12.0.3
 
 COPY create-realm.sh /opt/jboss/keycloak/bin/create-realm.sh
 COPY img/keycloak-bg.png /opt/jboss/keycloak/themes/keycloak/login/resources/img/keycloak-bg.png
