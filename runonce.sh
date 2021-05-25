@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 nexus_plugin="0.4.0"
 
@@ -252,7 +252,7 @@ echo "**************************************************************************
 echo "Cleaning up"
 echo "****************************************************************************************************************"
 #rm *_token
-rm install_log/keycloak_create.log
+#rm install_log/keycloak_create.log
 echo " "
 echo "****************************************************************************************************************"
 echo " Preparing for finalizing install via ROBOT"
