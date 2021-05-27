@@ -98,7 +98,7 @@ services:
     stop_grace_period: 15s
     user: 'nexus'
     environment:
-      BASE_URL: 'http://localhost:8081'
+      BASE_URL: 'http://nexus:8081'
       NEXUS_SECURITY_RANDOMPASSWORD: 'false'
       NEXUS_CASC_CONFIG: '/opt/nexus.yaml'
     volumes:
