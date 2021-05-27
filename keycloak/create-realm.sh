@@ -51,12 +51,6 @@ echo "GITEA_token: ${GITEA_token}"
 ./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-tooling-read -s description='A read-only role for the tooling team, intended for developers that do not alter platform specific workflows'
 ./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-tooling-write -s description='A read-write role for the tooling team, intended for senior developers of the tooling team'
 
-#Now delete tokens and secrets
-rm NetCICD_GITEA
-rm NetCICD_gitea_secret
-GITEA_ID=""
-GITEA_token=""
-
 ./kcadm.sh create clients \
     -r netcicd \
     -s name="Jenkins" \
@@ -86,6 +80,7 @@ echo " "
 JENKINS_token=$(grep value NetCICD_jenkins_secret | cut -d '"' -f4)
 # Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source in Gitea for Keycloak
 echo "JENKINS_token: ${JENKINS_token}"
+echo " "
 
 # Now we can add client specific roles (Clientroles)
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-admin -s description='The admin role for Jenkins'
@@ -100,7 +95,6 @@ echo "JENKINS_token: ${JENKINS_token}"
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-argos -s description='A role for Jenkins to create logs in Argos'
 
 echo "Created Jenkins roles." 
-echo " "
 
 # Now we need a service account for other systems to log into Jenkins
 ./kcadm.sh add-roles -r netcicd --uusername service-account-jenkins --cclientid realm-management --rolename view-clients --rolename view-realm --rolename view-users
@@ -172,7 +166,7 @@ echo "Created Nexus client with ID: ${NEXUS_ID}"
 echo " "
 
 # Create Client secret
-./kcadm.sh create clients/$JENKINS_ID/client-secret -r netcicd
+./kcadm.sh create clients/$NEXUS_ID/client-secret -r netcicd
 
 # Now we can add client specific roles (Clientroles)
 ./kcadm.sh create clients/$NEXUS_ID/roles -r netcicd -s name=nexus-admin -s description='The admin role for Nexus'
@@ -263,7 +257,7 @@ TACACS_ID=$(cat NetCICD_TACACS | grep id | cut -d'"' -f 4)
 
 # output is Created new client with id, we now need to grep the ID out of it
 ARGOS_ID=$(cat NetCICD_ARGOS | grep id | cut -d'"' -f 4)
-echo "Created Jenkins client with ID: ${ARGOS_ID}" 
+echo "Created Argos client with ID: ${ARGOS_ID}" 
 
 # Create Client secret
 ./kcadm.sh create clients/$ARGOS_ID/client-secret -r netcicd
@@ -1011,4 +1005,4 @@ tooltiger_id=$(cat NetCICD_TOOLTIGER | grep id | cut -d"'" -f 2)
     -n
 
 #Now delete tokens and secrets
-rm NetCICD_*
+#rm NetCICD_*

@@ -53,8 +53,8 @@ services:
       - './gitea/data:/data'
       - '/etc/timezone:/etc/timezone:ro'
       - '/etc/localtime:/etc/localtime:ro'
-    expose:
-      - '3000'
+    ports:
+      - 3000:3000
     depends_on:
       - netcicd-db
       - keycloak
@@ -84,8 +84,8 @@ services:
       - JENKINS_AGENT_CREATOR_KEY=somekey
     volumes:
       - './jenkins/keystore:/var/jenkins_home/keystore'
-    expose:
-      - '8080'
+    ports:
+      - 8080:8080
     depends_on:
       - keycloak
 
@@ -110,8 +110,8 @@ services:
     networks:
       tooling:
         ipv4_address: 172.16.11.9
-    expose:
-      - '8081'
+    ports:
+      - 8081:8081
 
   mongodb:
     container_name: mongodb
@@ -130,8 +130,8 @@ services:
     networks:
       tooling:
         ipv4_address: 172.16.11.10
-    expose:
-      - '80'
+    ports:
+      - 8082:80
     depends_on:
       - argos-service
 
@@ -182,11 +182,11 @@ services:
     networks:
       tooling:
         ipv4_address: 172.16.11.11
-    expose:
-      - '8080'
-      - '8443'
-      - '1812'
-      - '1813'
+    ports:
+      - 8083:8080
+      - 8443:8443
+      - 1812:1812
+      - 1813:1813
     depends_on:
       - netcicd-db
 
@@ -204,41 +204,41 @@ services:
     networks:
       tooling:
         ipv4_address: 172.16.11.13
-    expose:
-      - '1880'
+    ports:
+      - 1880:1880
 
-  # jupyter:
-  #   container_name: jupyter
-  #   image: jupyter/base-notebook
-  #   restart: always
-  #   init: true
-  #   stop_signal: SIGINT
-  #   stop_grace_period: 15s
-  #   environment:
-  #     - JUPYTER_ENABLE_LAB=yes
-  #     - RESTARTABLE=yes
-  #   volumes:
-  #     - './jupyter/data/:/notebooks'
-  #     - './jupyter/workspace:/home/jovyan'
-  #   networks:
-  #     tooling:
-  #       ipv4_address: 172.16.11.14
-  #   expose:
-  #     - '8888'
-  #   command: start-notebook.sh --NotebookApp.notebook_dir=/notebooks
+  jupyter:
+    container_name: jupyter
+    image: jupyter/base-notebook
+    restart: always
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - RESTARTABLE=yes
+    volumes:
+      - './jupyter/data/:/notebooks'
+      - './jupyter/workspace:/home/jovyan'
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.14
+    ports:
+      - 8888:8888
+    command: start-notebook.sh --NotebookApp.notebook_dir=/notebooks
 
-  # portainer:
-  #   container_name: portainer
-  #   image: portainer/portainer-ce
-  #   restart: always
-  #   init: true
-  #   stop_signal: SIGINT
-  #   stop_grace_period: 15s
-  #   volumes:
-  #     - './portainer/data:/data'
-  #     - '/var/run/docker.sock:/var/run/docker.sock'
-  #   networks:
-  #     tooling:
-  #       ipv4_address: 172.16.11.15
-  #   expose:
-  #     - '9000'
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce
+    restart: always
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
+    volumes:
+      - './portainer/data:/data'
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.15
+    ports:
+      - 9000:9000

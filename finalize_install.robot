@@ -17,10 +17,10 @@ Enter Jenkins token in credentials
 Enable Jenkins to log into git
     Login to Gitea as git-jenkins
 
-Configure Argos
-    Open Browser
-    Log into Argos as netcicd
-    Close Browser
+#Configure Argos
+#    Open Browser
+#    Log into Argos as netcicd
+#    Close Browser
 
 Close browsers
     Close Browser

@@ -259,7 +259,7 @@ echo "**************************************************************************
 echo " Preparing for finalizing install via ROBOT"
 echo "****************************************************************************************************************"
 sudo pip3 install robotframework robotframework-selenium2library
-sudo mv geckodriver /usr/local/bin/
+sudo cp geckodriver /usr/local/bin/
 echo " Manual steps..."
 echo " "
 echo " Log out and open a new terminal"
