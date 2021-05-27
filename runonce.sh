@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 nexus_plugin="0.4.0"
 
@@ -185,13 +185,14 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating gitea setup"
 echo "****************************************************************************************************************"
-gitea/gitea_install.sh
+gitea/gitea_install.sh > install_log/gitea_create.log
 echo " " 
-echo "****************************************************************************************************************"
+cat install_log/gitea_create.log
+echo " " echo "****************************************************************************************************************"
 echo " Creating jenkins setup"
 echo "****************************************************************************************************************"
 #config for ioc_auth plugin: only need to replace secret in casc.yaml
-jenkins_client_id=$(grep JENKINS_token install_log/keycloak_create.log | cut -d' ' -f3 | tr -d '\r' )
+jenkins_client_id=$(grep JENKINS_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
 docker exec -it jenkins sh -c "sed -i -e 's/oic_secret/\"$jenkins_client_id\"/' /var/jenkins_conf/casc.yaml"
 echo "Reloading "
 docker restart jenkins
@@ -200,7 +201,7 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating Argos setup"
 echo "****************************************************************************************************************"
-argos_client_id=$(grep ARGOS_token install_log/keycloak_create.log | cut -d' ' -f3 | tr -d '\r' )
+argos_client_id=$(grep ARGOS_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
 sed -i -e "s/argos_secret/$argos_client_id/" argos/application.yml
 echo "Reloading "
 docker-compose up -d --build --no-deps argos-service
@@ -252,13 +253,13 @@ echo "**************************************************************************
 echo "Cleaning up"
 echo "****************************************************************************************************************"
 #rm *_token
-rm install_log/keycloak_create.log
+#rm install_log/keycloak_create.log
 echo " "
 echo "****************************************************************************************************************"
 echo " Preparing for finalizing install via ROBOT"
 echo "****************************************************************************************************************"
 sudo pip3 install robotframework robotframework-selenium2library
-sudo mv geckodriver /usr/local/bin/
+sudo cp geckodriver /usr/local/bin/
 echo " Manual steps..."
 echo " "
 echo " Log out and open a new terminal"

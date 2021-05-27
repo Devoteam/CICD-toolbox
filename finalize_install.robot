@@ -17,6 +17,11 @@ Enter Jenkins token in credentials
 Enable Jenkins to log into git
     Login to Gitea as git-jenkins
 
+#Configure Argos
+#    Open Browser
+#    Log into Argos as netcicd
+#    Close Browser
+
 Close browsers
     Close Browser
 
@@ -30,6 +35,8 @@ ${JENKINS URL}      http://jenkins:8080/
 ${JENKINS LOGOUT}   http://jenkins:8080/logout 
 ${GITEA URL}        http://gitea:3000
 ${GITEA LOGIN}      http://gitea:3000/user/login?redirect_to=%2f
+${ARGOS URL}        http://argos
+${ARGOS LOGIN}      http://argos/login
 
 *** Keywords ***
 Log into Jenkins as jenkins-jenkins
@@ -58,6 +65,15 @@ Log into Jenkins as netcicd
     Submit Credentials
     Jenkins Page Should Be Open
 
+Log into Argos as netcicd
+    Go To                       http://argos/api/oauth2/authorize/keycloak?redirect_uri=/authenticated
+    Wait Until Location Contains  keycloak:8
+    Keycloak Page Should Be Open
+    Input Text                  username              netcicd
+    Input Text                  password              ${VALID PASSWORD}
+    Submit Credentials
+    Argos Page Should Be Open
+
 Change jenkins-jenkins credentials 
     Go To                       http://jenkins:8080/credentials/store/system/domain/_/credential/jenkins-jenkins/update
     Click Button                Change Password
@@ -65,7 +81,7 @@ Change jenkins-jenkins credentials
     Click Button                Save
 
 Login to Gitea as git-jenkins
-    Go To                ${GITEA LOGIN}
+    Go To                       ${GITEA LOGIN}
     Click Image                 class:openidConnect
     Keycloak Page Should Be Open
     Input Text                  username              git-jenkins
@@ -84,6 +100,10 @@ Keycloak Page Should Be Open
 Jenkins Page Should Be Open
     Location Should Contain     ${JENKINS URL}
     Title Should Be             Dashboard [Jenkins]
+
+Argos Page Should Be Open
+    Location Should Contain     ${ARGOS URL}
+    Title Should Be             Argos Dashboard
 
 Gitea Page Should Be Open
     Location Should Contain     ${GITEA URL}

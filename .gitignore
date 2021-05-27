@@ -19,3 +19,5 @@ nexus/keycloak-nexus*
 nexus/keycloak-nexus.json
 jenkins/keycloak-jenkins.json
 argos/application.yml
+geckodriver
+install_log/
