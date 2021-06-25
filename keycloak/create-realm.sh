@@ -181,7 +181,7 @@ echo " "
 
 # Now add the scope mappings for Nexus
 RM_ID=$( ./kcadm.sh get -r netcicd clients | grep realm-management -B1 | grep id | awk -F',' '{print $(1)}' | cut -d ' ' -f5 | cut -d '"' -f2 )
-echo $RM_ID
+
 ./kcadm.sh create -r netcicd clients/$NEXUS_ID/scope-mappings/clients/$RM_ID  --body "[{\"name\": \"view-realm\"}]"
 ./kcadm.sh create -r netcicd clients/$NEXUS_ID/scope-mappings/clients/$RM_ID  --body "[{\"name\": \"view-users\"}]"
 ./kcadm.sh create -r netcicd clients/$NEXUS_ID/scope-mappings/clients/$RM_ID  --body "[{\"name\": \"view-clients\"}]"

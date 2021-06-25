@@ -28,6 +28,12 @@ credentials:
           password: "netcicd"
           scope: GLOBAL
           username: "jenkins-argos"
+      - usernamePassword:
+          description: "Credentials to be used to log into Nexus from Jenkins."
+          id: "jenkins-nexus"
+          password: "netcicd"
+          scope: GLOBAL
+          username: "netcicd"
 jenkins:
   authorizationStrategy:
     roleBased:

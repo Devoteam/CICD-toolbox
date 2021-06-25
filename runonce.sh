@@ -188,10 +188,11 @@ echo "**************************************************************************
 gitea/gitea_install.sh > install_log/gitea_create.log
 echo " " 
 cat install_log/gitea_create.log
-echo " " echo "****************************************************************************************************************"
+echo " "
+echo "****************************************************************************************************************"
 echo " Creating jenkins setup"
 echo "****************************************************************************************************************"
-#config for ioc_auth plugin: only need to replace secret in casc.yaml
+#config for oic_auth plugin: only need to replace secret in casc.yaml
 jenkins_client_id=$(grep JENKINS_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
 docker exec -it jenkins sh -c "sed -i -e 's/oic_secret/\"$jenkins_client_id\"/' /var/jenkins_conf/casc.yaml"
 echo "Reloading "

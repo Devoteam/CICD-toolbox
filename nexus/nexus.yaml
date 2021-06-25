@@ -195,7 +195,7 @@ repository:
   pruneRepositories: true
   repositories:
     # https://help.sonatype.com/repomanager3/formats/docker-registry
-    - name: NetCICD-hosted
+    - name: NetCICD-reports
       online: true
       recipeName: raw-hosted
       attributes:
