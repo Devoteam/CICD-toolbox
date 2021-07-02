@@ -181,7 +181,7 @@ echo " "
 
 # Now add the scope mappings for Nexus
 RM_ID=$( ./kcadm.sh get -r netcicd clients | grep realm-management -B1 | grep id | awk -F',' '{print $(1)}' | cut -d ' ' -f5 | cut -d '"' -f2 )
-echo $RM_ID
+
 ./kcadm.sh create -r netcicd clients/$NEXUS_ID/scope-mappings/clients/$RM_ID  --body "[{\"name\": \"view-realm\"}]"
 ./kcadm.sh create -r netcicd clients/$NEXUS_ID/scope-mappings/clients/$RM_ID  --body "[{\"name\": \"view-users\"}]"
 ./kcadm.sh create -r netcicd clients/$NEXUS_ID/scope-mappings/clients/$RM_ID  --body "[{\"name\": \"view-clients\"}]"
@@ -264,7 +264,19 @@ TACACS_ID=$(cat NetCICD_TACACS | grep id | cut -d'"' -f 4)
 
 # output is Created new client with id, we now need to grep the ID out of it
 ARGOS_ID=$(cat NetCICD_ARGOS | grep id | cut -d'"' -f 4)
-echo "Created Argos client with ID: ${ARGOS_ID}" localhost# Now we can add client specific roles (Clientroles)
+echo "Created Argos client with ID: ${ARGOS_ID}"
+
+# Create Client secret
+./kcadm.sh create clients/$ARGOS_ID/client-secret -r netcicd
+
+# We need to retrieve the token from keycloak for this client
+./kcadm.sh get clients/$ARGOS_ID/client-secret -r netcicd >NetCICD_argos_secret
+ARGOS_token=$(grep value NetCICD_argos_secret | cut -d '"' -f4)
+
+# Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source 
+echo "ARGOS_token: ${ARGOS_token}"
+
+# Now we can add client specific roles (Clientroles)
 ./kcadm.sh create clients/$ARGOS_ID/roles -r netcicd -s name=argos-admin -s description='The admin role for Argos'
 ./kcadm.sh create clients/$ARGOS_ID/roles -r netcicd -s name=argos-user -s description='The user role for Argos'
 ./kcadm.sh create clients/$ARGOS_ID/roles -r netcicd -s name=argos-jenkins -s description='The jenkins user role for Argos'

@@ -188,10 +188,11 @@ echo "**************************************************************************
 gitea/gitea_install.sh > install_log/gitea_create.log
 echo " " 
 cat install_log/gitea_create.log
-echo " " echo "****************************************************************************************************************"
+echo " "
+echo "****************************************************************************************************************"
 echo " Creating jenkins setup"
 echo "****************************************************************************************************************"
-#config for ioc_auth plugin: only need to replace secret in casc.yaml
+#config for oic_auth plugin: only need to replace secret in casc.yaml
 jenkins_client_id=$(grep JENKINS_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
 docker exec -it jenkins sh -c "sed -i -e 's/oic_secret/\"$jenkins_client_id\"/' /var/jenkins_conf/casc.yaml"
 echo "Reloading "
@@ -267,7 +268,9 @@ echo " "
 echo " cd NetCICD-developer-toolbox"
 echo " robot -d install_log/ finalize_install.robot"
 echo " "
-echo " The pipeline uses guest/guest in order to log in to CML. Change this to your own credentials in "
+echo " The pipeline uses the default Cisco DevNet CML Sandbox credentials developer/C1sco12345 to log in to CML."
+echo " You may change this to your own credentials in:"
+echo " "
 echo " http://jenkins:8080/credentials/store/system/domain/_/credential/CML-SIM-CRED/update"
 echo " "
 echo " Due to limitations in Keycloak, do **not** use docker-compose down. Keycloak will no longer function after this."
