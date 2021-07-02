@@ -124,7 +124,7 @@ services:
     container_name: argos
     image: argosnotary/argos-frontend:1.0.2
     environment:
-      - BACKEND_URL=http://argos-service:8080
+      - BACKEND_URL=http://argos-service:8085
     networks:
       tooling:
         ipv4_address: 172.16.11.10
@@ -145,7 +145,7 @@ services:
       tooling:
         ipv4_address: 172.16.11.5
     expose:
-      - '8080'
+      - '8085'
     depends_on:
       - mongodb
       - keycloak
@@ -181,7 +181,7 @@ services:
       tooling:
         ipv4_address: 172.16.11.11
     ports:
-      - 8083:8080
+      - 8080:8080
       - 8443:8443
       - 1812:1812
       - 1813:1813
