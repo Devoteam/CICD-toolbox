@@ -62,10 +62,10 @@ echo "GITEA_token: ${GITEA_token}"
     -s directAccessGrantsEnabled=true \
     -s serviceAccountsEnabled=true \
     -s authorizationServicesEnabled=true \
-    -s rootUrl=http://jenkins:8080 \
-    -s adminUrl=http://jenkins:8080/ \
-    -s 'redirectUris=[ "http://jenkins:8080/*" ]' \
-    -s 'webOrigins=[ "http://jenkins:8080/" ]' \
+    -s rootUrl=http://jenkins:8084 \
+    -s adminUrl=http://jenkins:8084/ \
+    -s 'redirectUris=[ "http://jenkins:8084/*" ]' \
+    -s 'webOrigins=[ "http://jenkins:8084/" ]' \
     -o --fields id >NetCICD_JENKINS
 
 # output is Created new client with id, we now need to grep the ID out of it

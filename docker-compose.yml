@@ -83,7 +83,7 @@ services:
     volumes:
       - './jenkins/keystore:/var/jenkins_home/keystore'
     ports:
-      - 8080:8080
+      - 8084:8084
     depends_on:
       - keycloak
 

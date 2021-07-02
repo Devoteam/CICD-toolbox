@@ -231,7 +231,7 @@ keytool -import -alias Keycloak -keystore ./jenkins/keystore/cacerts -file ./jen
 docker cp ./jenkins/keystore/cacerts jenkins:/opt/java/openjdk/jre/lib/security/cacerts
 echo "Reloading "
 docker restart jenkins
-until $(curl --output /dev/null --silent --head --fail http://jenkins:8080/whoAmI); do
+until $(curl --output /dev/null --silent --head --fail http://jenkins:8084/whoAmI); do
     printf '.'
     sleep 5
 done
@@ -242,7 +242,7 @@ echo " "
 echo "You can reach the servers on:"
 echo " "
 echo " Gitea:       http://gitea:3000"
-echo " Jenkins:     http://jenkins:8080"
+echo " Jenkins:     http://jenkins:8084"
 echo " Nexus:       http://nexus:8081"
 echo " Argos:       http://argos"
 echo " Keycloak:    http://keycloak:8443"
@@ -271,7 +271,7 @@ echo " "
 echo " The pipeline uses the default Cisco DevNet CML Sandbox credentials developer/C1sco12345 to log in to CML."
 echo " You may change this to your own credentials in:"
 echo " "
-echo " http://jenkins:8080/credentials/store/system/domain/_/credential/CML-SIM-CRED/update"
+echo " http://jenkins:8084/credentials/store/system/domain/_/credential/CML-SIM-CRED/update"
 echo " "
 echo " Due to limitations in Keycloak, do **not** use docker-compose down. Keycloak will no longer function after this."
 echo " "
