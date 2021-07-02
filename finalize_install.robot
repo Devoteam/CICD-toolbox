@@ -31,8 +31,8 @@ ${BROWSER1}         Firefox
 ${BROWSER2}         Chrome
 ${DELAY}            0
 ${VALID PASSWORD}   netcicd
-${JENKINS URL}      http://jenkins:8080/
-${JENKINS LOGOUT}   http://jenkins:8080/logout 
+${JENKINS URL}      http://jenkins:8084/
+${JENKINS LOGOUT}   http://jenkins:8084/logout 
 ${GITEA URL}        http://gitea:3000
 ${GITEA LOGIN}      http://gitea:3000/user/login?redirect_to=%2f
 ${ARGOS URL}        http://argos
@@ -51,7 +51,7 @@ Log into Jenkins as jenkins-jenkins
     Jenkins Page Should Be Open
 
 Create jenkins-jenkins token
-    Go To                       http://jenkins:8080/user/jenkins-jenkins/configure
+    Go To                       http://jenkins:8084/user/jenkins-jenkins/configure
     Click Button                Add new Token
     Click Button                Generate
     ${TOKEN}                    Get Text             class:new-token-value.visible
@@ -75,7 +75,7 @@ Log into Argos as netcicd
     Argos Page Should Be Open
 
 Change jenkins-jenkins credentials 
-    Go To                       http://jenkins:8080/credentials/store/system/domain/_/credential/jenkins-jenkins/update
+    Go To                       http://jenkins:8084/credentials/store/system/domain/_/credential/jenkins-jenkins/update
     Click Button                Change Password
     Input Text                  class:complex-password-field.hidden-password-field.setting-input               ${TOKEN}
     Click Button                Save

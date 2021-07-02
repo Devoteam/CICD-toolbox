@@ -65,7 +65,7 @@ NetCICD_webhook_payload='{
     "branch_filter": "*",
     "config": {
         "content_type": "json",
-        "url": "http://jenkins:8080/gitea-webhook/post"
+        "url": "http://jenkins:8084/gitea-webhook/post"
         },
     "events": [ "push" ],
     "type": "gitea"
@@ -110,7 +110,7 @@ NetCICD_developer_toolbox_webhook_payload='{
     "branch_filter": "*",
     "config": {
         "content_type": "json",
-        "url": "http://jenkins:8080/gitea-webhook/post"
+        "url": "http://jenkins:8084/gitea-webhook/post"
         },
     "events": [ "push" ],
     "type": "gitea"

@@ -244,7 +244,7 @@ jenkins:
       disableSslVerification: false
       logoutFromOpenidProvider: true
       endSessionEndpoint: "http://keycloak:8080/auth/realms/netcicd/protocol/openid-connect/logout"
-      postLogoutRedirectUrl: "http://jenkins:8080"
+      postLogoutRedirectUrl: "http://jenkins:8084"
       escapeHatchEnabled: true
       escapeHatchGroup: "local-admin"
       escapeHatchSecret: ${JENKINS_ADMIN_PASSWORD}
@@ -263,7 +263,7 @@ security:
     - "staticMethod jenkins.model.Jenkins getInstance"
 unclassified:
   location:
-    url: http://jenkins:8080/
+    url: http://jenkins:8084/
   giteaServers:
     servers:
     - displayName: "Gitea"
