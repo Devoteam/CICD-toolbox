@@ -75,9 +75,9 @@ services:
       - CML_USER=developer
       - CML_PASSWORD=C1sco12345
       - 'CML_URL=https://10.10.20.161'
-      - 'GITEA_URL=https://172.16.11.3'
-      - 'JENKINS_URL=https://172.16.11.8'
-      - 'NEXUS_URL=https://172.16.11.9'
+      - 'GITEA_IP=172.16.11.3'
+      - 'JENKINS_IP=172.16.11.8'
+      - 'NEXUS_IP=172.16.11.9'
       - GIT_JENKINS_PASSWORD=netcicd
       - NEXUS_JENKINS_PASSWORD=netcicd
       - ARGOS_JENKINS_PASSWORD=netcicd
