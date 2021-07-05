@@ -255,6 +255,12 @@ jenkins:
         env:
         - key: "CML_URL"
           value: ${CML_URL}
+        - key: "CML_URL"
+          value: ${JENKINS_URL}
+        - key: "CML_URL"
+          value: ${GITEA_URL}
+        - key: "CML_URL"
+          value: ${NEXUS_URL}
 security:
   scriptApproval:
     approvedSignatures:
