@@ -255,6 +255,12 @@ jenkins:
         env:
         - key: "CML_URL"
           value: ${CML_URL}
+        - key: "GITEA_IP"
+          value: ${GITEA_IP}
+        - key: "JENKINS_IP"
+          value: ${JENKINS_IP}
+        - key: "NEXUS_IP"
+          value: ${NEXUS_IP}
 security:
   scriptApproval:
     approvedSignatures:
