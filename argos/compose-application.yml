@@ -24,7 +24,7 @@ spring:
       client:
         registration:
           keycloak:
-            client-id: argos
+            client-id: Argos
             clientName: Argos
             client-secret: argos_secret
             provider: keycloak
