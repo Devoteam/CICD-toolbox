@@ -256,6 +256,7 @@ TACACS_ID=$(cat NetCICD_TACACS | grep id | cut -d'"' -f 4)
     -s enabled=true \
     -s publicClient=false \
     -s directAccessGrantsEnabled=true \
+    -s fullScopeAllowed=false \
     -s rootUrl=http://argos \
     -s adminUrl=http://argos/ \
     -s 'redirectUris=[ "http://argos/*" ]' \
