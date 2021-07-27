@@ -47,13 +47,6 @@ else
 fi
 echo " " 
 echo "****************************************************************************************************************"
-echo " Cleaning Argos" 
-echo "****************************************************************************************************************"
-sudo rm -rf argos/config/*
-sudo rm -rf argos/data/*
-sudo cp -p argos/compose-application.yml argos/application.yml
-echo " " 
-echo "****************************************************************************************************************"
 echo " Cleaning NodeRED" 
 echo "****************************************************************************************************************"
 sudo chown $USER:$USER nodered/data
@@ -97,13 +90,6 @@ else
     sudo echo "172.16.11.9   nexus" >> /etc/hosts
 fi
 
-if grep -q "argos" /etc/hosts; then
-    echo " Argos exists in /etc/hosts"
-else
-    echo " Add Argos to /etc/hosts"
-    sudo echo "172.16.11.10   argos" >> /etc/hosts
-fi
-
 if grep -q "keycloak" /etc/hosts; then
     echo " Keycloak exists in /etc/hosts"
 else
@@ -143,12 +129,16 @@ echo " "
 echo "****************************************************************************************************************"
 echo " git clone Nexus CasC plugin and build .kar file"
 echo "****************************************************************************************************************"
-git clone https://github.com/AdaptiveConsulting/nexus-casc-plugin.git
-cd nexus-casc-plugin
-mvn package
-cp target/*.kar ../nexus/
-cd ..
-rm -rf nexus-casc-plugin/
+if [ ! -f ./nexus/nexus-casc* ]; then
+    git clone https://github.com/AdaptiveConsulting/nexus-casc-plugin.git
+    cd nexus-casc-plugin
+    mvn package
+    cp target/*.kar ../nexus/
+    cd ..
+    rm -rf nexus-casc-plugin/
+else
+    echo "Plugin exists, no need to build"
+fi
 echo " " 
 echo "****************************************************************************************************************"
 echo " Creating containers"
@@ -200,14 +190,6 @@ docker restart jenkins
 echo " " 
 echo " " 
 echo "****************************************************************************************************************"
-echo " Creating Argos setup"
-echo "****************************************************************************************************************"
-argos_client_id=$(grep ARGOS_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
-sed -i -e "s/argos_secret/$argos_client_id/" argos/application.yml
-echo "Reloading "
-docker-compose up -d --build --no-deps argos-service
-echo " " 
-echo "****************************************************************************************************************"
 echo " Creating nexus setup"
 echo "****************************************************************************************************************"
 docker cp keycloak:/opt/jboss/keycloak/bin/keycloak-nexus.json nexus/keycloak-nexus.json
@@ -244,7 +226,6 @@ echo " "
 echo " Gitea:       http://gitea:3000"
 echo " Jenkins:     http://jenkins:8084"
 echo " Nexus:       http://nexus:8081"
-echo " Argos:       http://argos"
 echo " Keycloak:    http://keycloak:8443"
 echo " Node-red:    http://nodered:1880"
 echo " Jupyter:     http://jupyter:8888"

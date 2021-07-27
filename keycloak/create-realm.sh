@@ -92,7 +92,6 @@ echo " "
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-toolbox-run -s description='The role to be used for a user that needs to run the NetCICD-developer-toolbox pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-toolbox-dev -s description='The role to be used for a user that needs to configure the NetCICD-developer-toolbox pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-git -s description='A role for Jenkins to work with Git'
-./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-argos -s description='A role for Jenkins to create logs in Argos'
 
 echo "Created Jenkins roles." 
 
@@ -250,43 +249,23 @@ TACACS_ID=$(cat NetCICD_TACACS | grep id | cut -d'"' -f 4)
 
 ./kcadm.sh create clients \
     -r netcicd \
-    -s name="Argos" \
-    -s description="The Argos notary in the toolchain" \
-    -s clientId=Argos \
+    -s name="Portainer" \
+    -s description="System to manage containers in the toolchain" \
+    -s clientId=Portainer \
     -s enabled=true \
-    -s publicClient=false \
+    -s publicClient=true \
     -s directAccessGrantsEnabled=true \
-    -s fullScopeAllowed=false \
-    -s rootUrl=http://argos \
-    -s adminUrl=http://argos/ \
-    -s 'redirectUris=[ "http://argos/*" ]' \
-    -s 'webOrigins=[ "http://argos/" ]' \
-    -o --fields id >NetCICD_ARGOS
+    -s rootUrl=http://portainer:9000 \
+    -s adminUrl=http://portainer:9000/ \
+    -s 'redirectUris=[ "http://portainer:9000/*" ]' \
+    -s 'webOrigins=[ "http://portainer:9000/" ]' \
+    -o --fields id >NetCICD_PORTAINER
 
 # output is Created new client with id, we now need to grep the ID out of it
-ARGOS_ID=$(cat NetCICD_ARGOS | grep id | cut -d'"' -f 4)
-echo "Created Argos client with ID: ${ARGOS_ID}"
-
-# Create Client secret
-./kcadm.sh create clients/$ARGOS_ID/client-secret -r netcicd
-
-# We need to retrieve the token from keycloak for this client
-./kcadm.sh get clients/$ARGOS_ID/client-secret -r netcicd >NetCICD_argos_secret
-ARGOS_token=$(grep value NetCICD_argos_secret | cut -d '"' -f4)
-
-# Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source 
-echo "ARGOS_token: ${ARGOS_token}"
+PORTAINER_ID=$(cat NetCICD_PORTAINER | grep id | cut -d'"' -f 4)
 
 # Now we can add client specific roles (Clientroles)
-./kcadm.sh create clients/$ARGOS_ID/roles -r netcicd -s name=argos-admin -s description='The admin role for Argos'
-./kcadm.sh create clients/$ARGOS_ID/roles -r netcicd -s name=argos-user -s description='The user role for Argos'
-./kcadm.sh create clients/$ARGOS_ID/roles -r netcicd -s name=argos-jenkins -s description='The jenkins user role for Argos'
-
-# We need to retrieve the token from keycloak for this client
-./kcadm.sh get clients/$ARGOS_ID/client-secret -r netcicd >NetCICD_argos_secret
-ARGOS_token=$(grep value NetCICD_argos_secret | cut -d '"' -f4)
-# Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source in Gitea for Keycloak
-echo "ARGOS_token: " $ARGOS_token
+./kcadm.sh create clients/$PORTAINER_ID/roles -r netcicd -s name=PORTAINER-admin -s description='The admin role for FreeRADIUS'
 
 #add groups - we start at the system level, which implements the groups related to service accounts
 ./kcadm.sh create groups -r netcicd -s name="System" &>NetCICD_SYSTEM
@@ -789,7 +768,6 @@ echo " "
 ./kcadm.sh set-password -r netcicd --username netcicd --new-password netcicd
 ./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Gitea --rolename gitea-infraautomators-admin
 ./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Jenkins --rolename jenkins-admin
-./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Argos --rolename argos-admin
 ./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Nexus --rolename nexus-admin
 ./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Nexus --rolename nexus-docker-pull
 ./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Nexus --rolename nexus-docker-push
@@ -817,18 +795,6 @@ echo " "
 
 ./kcadm.sh set-password -r netcicd --username jenkins-jenkins --new-password netcicd
 ./kcadm.sh add-roles -r netcicd  --uusername jenkins-jenkins --cclientid Jenkins --rolename jenkins-netcicd-agent
-
-./kcadm.sh create users \
-    -r netcicd \
-    -s enabled=true \
-    -s username=jenkins-argos \
-    -s firstName=Jenkins \
-    -s lastName=Argos \
-    -s email=jenkins-argos@infraautomators.example.com
-
-./kcadm.sh set-password -r netcicd --username jenkins-argos --new-password netcicd
-./kcadm.sh add-roles -r netcicd  --uusername jenkins-argos --cclientid Jenkins --rolename jenkins-argos
-./kcadm.sh add-roles -r netcicd  --uusername jenkins-argos --cclientid Argos --rolename argos-jenkins
 
 ./kcadm.sh create users \
     -r netcicd \
