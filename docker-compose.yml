@@ -5,12 +5,11 @@ networks:
     ipam:
       config:
         - subnet: 172.16.11.0/24
-  
 services:
   netcicd-db:
     container_name: netcicd-db
     build: netcicd-db
-    restart: always
+    restart: unless-stopped
     init: true
     stop_signal: SIGINT
     stop_grace_period: 15s
@@ -25,7 +24,6 @@ services:
       - '5432'
     volumes:
       - './netcicd-db/db:/var/lib/postgresql/data'
-
   gitea:
     container_name: gitea
     build: gitea
@@ -54,11 +52,10 @@ services:
       - '/etc/timezone:/etc/timezone:ro'
       - '/etc/localtime:/etc/localtime:ro'
     ports:
-      - 3000:3000
+      - '3000:3000'
     depends_on:
       - netcicd-db
       - keycloak
-      
   jenkins:
     container_name: jenkins
     build: ./jenkins
@@ -75,9 +72,9 @@ services:
       - CML_USER=developer
       - CML_PASSWORD=C1sco12345
       - 'CML_URL=https://10.10.20.161'
-      - 'GITEA_IP=172.16.11.3'
-      - 'JENKINS_IP=172.16.11.8'
-      - 'NEXUS_IP=172.16.11.9'
+      - GITEA_IP=172.16.11.3
+      - JENKINS_IP=172.16.11.8
+      - NEXUS_IP=172.16.11.9
       - GIT_JENKINS_PASSWORD=netcicd
       - NEXUS_JENKINS_PASSWORD=netcicd
       - ARGOS_JENKINS_PASSWORD=netcicd
@@ -86,11 +83,10 @@ services:
     volumes:
       - './jenkins/keystore:/var/jenkins_home/keystore'
     ports:
-      - 8084:8084
-      - 50000:50000
+      - '8084:8084'
+      - '50000:50000'
     depends_on:
       - keycloak
-
   nexus:
     container_name: nexus
     build: ./nexus
@@ -98,11 +94,11 @@ services:
     init: true
     stop_signal: SIGINT
     stop_grace_period: 15s
-    user: 'nexus'
+    user: nexus
     environment:
       BASE_URL: 'http://nexus:8081'
       NEXUS_SECURITY_RANDOMPASSWORD: 'false'
-      NEXUS_CASC_CONFIG: '/opt/nexus.yaml'
+      NEXUS_CASC_CONFIG: /opt/nexus.yaml
     volumes:
       - './nexus/data:/sonatype-work'
     ulimits:
@@ -113,8 +109,7 @@ services:
       tooling:
         ipv4_address: 172.16.11.9
     ports:
-      - 8081:8081
-
+      - '8081:8081'
   keycloak:
     container_name: keycloak
     build: keycloak
@@ -144,13 +139,12 @@ services:
       tooling:
         ipv4_address: 172.16.11.11
     ports:
-      - 8080:8080
-      - 8443:8443
-      - 1812:1812
-      - 1813:1813
+      - '8080:8080'
+      - '8443:8443'
+      - '1812:1812'
+      - '1813:1813'
     depends_on:
       - netcicd-db
-
   nodered:
     container_name: nodered
     image: 'nodered/node-red:latest'
@@ -166,12 +160,11 @@ services:
       tooling:
         ipv4_address: 172.16.11.13
     ports:
-      - 1880:1880
-
+      - '1880:1880'
   jupyter:
     container_name: jupyter
     image: jupyter/base-notebook
-    restart: always
+    restart: unless-stopped
     init: true
     stop_signal: SIGINT
     stop_grace_period: 15s
@@ -185,13 +178,12 @@ services:
       tooling:
         ipv4_address: 172.16.11.14
     ports:
-      - 8888:8888
+      - '8888:8888'
     command: start-notebook.sh --NotebookApp.notebook_dir=/notebooks
-
   portainer:
     container_name: portainer
     image: portainer/portainer-ce
-    restart: always
+    restart: unless-stopped
     init: true
     stop_signal: SIGINT
     stop_grace_period: 15s
@@ -202,4 +194,4 @@ services:
       tooling:
         ipv4_address: 172.16.11.15
     ports:
-      - 9000:9000
+      - '9000:9000'

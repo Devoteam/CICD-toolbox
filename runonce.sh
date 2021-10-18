@@ -135,7 +135,7 @@ if [ ! -f ./nexus/nexus-casc* ]; then
     mvn package
     cp target/*.kar ../nexus/
     cd ..
-    rm -rf nexus-casc-plugin/
+#    rm -rf nexus-casc-plugin/
 else
     echo "Plugin exists, no need to build"
 fi
@@ -153,18 +153,6 @@ until $(curl --output /dev/null --silent --head --fail http://keycloak:8080); do
     sleep 5
 done
 echo " "
-echo "****************************************************************************************************************"
-echo " Adding keycloak RADIUS plugin"
-echo "****************************************************************************************************************"
-docker exec -it keycloak sh -c "/opt/radius/scripts/keycloak.sh"
-echo " " 
-echo "Reloading "
-docker restart keycloak
-until $(curl --output /dev/null --silent --head --fail http://keycloak:8080); do
-    printf '.'
-    sleep 5
-done
-echo " " 
 echo "****************************************************************************************************************"
 echo " Creating keycloak setup"
 echo "****************************************************************************************************************"
@@ -207,10 +195,10 @@ openssl s_client -showcerts -connect keycloak:8443 </dev/null 2>/dev/null|openss
 echo " "
 echo " Copy certificate into Jenkins keystore"
 echo "****************************************************************************************************************"
-docker cp jenkins:/opt/java/openjdk/jre/lib/security/cacerts ./jenkins/keystore/cacerts
+docker cp jenkins:/opt/java/openjdk/lib/security/cacerts ./jenkins/keystore/cacerts
 chmod +w ./jenkins/keystore/cacerts
 keytool -import -alias Keycloak -keystore ./jenkins/keystore/cacerts -file ./jenkins/keystore/keycloak.pem -storepass changeit -noprompt
-docker cp ./jenkins/keystore/cacerts jenkins:/opt/java/openjdk/jre/lib/security/cacerts
+docker cp ./jenkins/keystore/cacerts jenkins:/opt/java/openjdk/lib/security/cacerts
 echo "Reloading "
 docker restart jenkins
 until $(curl --output /dev/null --silent --head --fail http://jenkins:8084/whoAmI); do
