@@ -2,3 +2,7 @@
 sudo dnf install maven git -y
 sudo yum install java-1.8.0-openjdk curl 
 yum install maven
+git clone http://github.com/Devoteam/CICD-toolbox.git
+cd CICD-toolbox
+./runonce.sh 
+

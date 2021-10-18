@@ -135,7 +135,7 @@ if [ ! -f ./nexus/nexus-casc* ]; then
     mvn package
     cp target/*.kar ../nexus/
     cd ..
-#    rm -rf nexus-casc-plugin/
+    rm -rf nexus-casc-plugin/
 else
     echo "Plugin exists, no need to build"
 fi
