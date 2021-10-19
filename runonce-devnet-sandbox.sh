@@ -71,14 +71,14 @@ sudo yum install java-1.8.0-openjdk curl
 wget https://www.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz --no-check-certificate
 sudo tar xf apache-maven-3.6.3-bin.tar.gz -C /opt
 sudo ln -s /opt/apache-maven-3.6.3 /opt/maven
-echo -e """\
+sudo echo -e """\
       Host *\n\
           export M2_HOME=/opt/maven
           export MAVEN_HOME=/opt/maven
           export PATH=${M2_HOME}/bin:${PATH}
       """ > /etc/profile.d/maven.sh
 sudo chmod +x /etc/profile.d/maven.sh
-source /etc/profile.d/maven.sh
+sudo source /etc/profile.d/maven.sh
 echo " " 
 echo "****************************************************************************************************************"
 echo " git clone Nexus CasC plugin and build .kar file"
