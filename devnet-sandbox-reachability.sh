@@ -31,20 +31,6 @@ fi
 echo " Add Keycloak to /etc/hosts"
 sudo echo "10.10.20.50   keycloak" >> /etc/hosts
 
-if grep -q "nodered" /etc/hosts; then
-    echo " NodeRed exists in /etc/hosts, removing..."
-    sudo sed '/nodered/d' /etc/hosts
-fi
-echo " Add NodeRed to /etc/hosts"
-sudo echo "10.10.20.50   nodered" >> /etc/hosts
-
-if grep -q "jupyter" /etc/hosts; then
-    echo " Jupyter Notebook exists in /etc/hosts, removing..."
-    sudo sed '/jupyter/d' /etc/hosts
-fi
-echo " Add Jupyter Notebook to /etc/hosts"
-sudo echo "10.10.20.50   jupyter" >> /etc/hosts
-
 if grep -q "portainer" /etc/hosts; then
     echo " Portainer exists in /etc/hosts, removing..."
     sudo sed '/portainer/d' /etc/hosts
