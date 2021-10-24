@@ -145,41 +145,6 @@ services:
       - '1813:1813'
     depends_on:
       - netcicd-db
-  nodered:
-    container_name: nodered
-    image: 'nodered/node-red:latest'
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    environment:
-      - TZ=Europe/Amsterdam
-    volumes:
-      - './nodered/data:/data'
-    networks:
-      tooling:
-        ipv4_address: 172.16.11.13
-    ports:
-      - '1880:1880'
-  jupyter:
-    container_name: jupyter
-    image: jupyter/base-notebook
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    environment:
-      - JUPYTER_ENABLE_LAB=yes
-      - RESTARTABLE=yes
-    volumes:
-      - './jupyter/data/:/notebooks'
-      - './jupyter/workspace:/home/jovyan'
-    networks:
-      tooling:
-        ipv4_address: 172.16.11.14
-    ports:
-      - '8888:8888'
-    command: start-notebook.sh --NotebookApp.notebook_dir=/notebooks
   portainer:
     container_name: portainer
     image: portainer/portainer-ce
