@@ -67,7 +67,7 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Installing java, maven and curl" 
 echo "****************************************************************************************************************"
-sudo yum install java-1.8.0-openjdk curl
+sudo yum -y install java-1.8.0-openjdk curl
 wget https://www.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz --no-check-certificate
 sudo tar xf apache-maven-3.6.3-bin.tar.gz -C /opt
 sudo ln -s /opt/apache-maven-3.6.3 /opt/maven
