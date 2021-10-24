@@ -59,42 +59,42 @@ echo " "
 sudo chmod o+w /etc/hosts
 if grep -q "gitea" /etc/hosts; then
     echo " Gitea exists in /etc/hosts, removing..."
-    sudo sed '/gitea/d' /etc/hosts
+    sudo sed -i '/gitea/d' /etc/hosts
 fi
 echo " Add Gitea to /etc/hosts"
 sudo echo "172.16.11.3   gitea" >> /etc/hosts
 
 if grep -q "jenkins" /etc/hosts; then
     echo " Jenkins exists in /etc/hosts, removing..."
-    sudo sed '/jenkins/d' /etc/hosts
+    sudo sed -i '/jenkins/d' /etc/hosts
 fi
 echo " Add Jenkins to /etc/hosts"
 sudo echo "172.16.11.8   jenkins" >> /etc/hosts
 
 if grep -q "nexus" /etc/hosts; then
     echo " Nexus exists in /etc/hosts, removing..."
-    sudo sed '/nexus/d' /etc/hosts
+    sudo sed -i '/nexus/d' /etc/hosts
 fi
 echo " Add Nexus to /etc/hosts"
 sudo echo "172.16.11.9   nexus" >> /etc/hosts
 
 if grep -q "keycloak" /etc/hosts; then
     echo " Keycloak exists in /etc/hosts, removing..."
-    sudo sed '/keycloak/d' /etc/hosts
+    sudo sed -i '/keycloak/d' /etc/hosts
 fi
 echo " Add Keycloak to /etc/hosts"
 sudo echo "172.16.11.11   keycloak" >> /etc/hosts
 
 if grep -q "portainer" /etc/hosts; then
     echo " Portainer exists in /etc/hosts, removing..."
-    sudo sed '/portainer/d' /etc/hosts
+    sudo sed -i '/portainer/d' /etc/hosts
 fi
 echo " Add Portainer to /etc/hosts"
 sudo echo "172.16.11.15   portainer" >> /etc/hosts
 
 if grep -q "cml" /etc/hosts; then
     echo " Cisco Modeling Labs exists in /etc/hosts, removing..."
-    sudo sed '/cml/d' /etc/hosts
+    sudo sed -i '/cml/d' /etc/hosts
 fi
 echo " Add Cisco Modeling Labs to /etc/hosts"
 sudo echo "10.10.20.161   cml" >> /etc/hosts
