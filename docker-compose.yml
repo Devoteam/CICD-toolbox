@@ -5,6 +5,10 @@ networks:
     ipam:
       config:
         - subnet: 172.16.11.0/24
+volumes:
+  netcicd_db:
+  portainer_data:
+
 services:
   netcicd-db:
     container_name: netcicd-db
@@ -23,7 +27,8 @@ services:
     expose:
       - '5432'
     volumes:
-      - './netcicd-db/db:/var/lib/postgresql/data'
+      - netcicd_db:/var/lib/postgresql/data
+
   gitea:
     container_name: gitea
     build: gitea
@@ -56,6 +61,7 @@ services:
     depends_on:
       - netcicd-db
       - keycloak
+
   jenkins:
     container_name: jenkins
     build: ./jenkins
@@ -87,6 +93,7 @@ services:
       - '50000:50000'
     depends_on:
       - keycloak
+
   nexus:
     container_name: nexus
     build: ./nexus
@@ -110,6 +117,7 @@ services:
         ipv4_address: 172.16.11.9
     ports:
       - '8081:8081'
+
   keycloak:
     container_name: keycloak
     build: keycloak
@@ -126,25 +134,15 @@ services:
       DB_PASSWORD: keycloak
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: Pa55w0rd
-      RADIUS_SHARED_SECRET: secret
-      RADIUS_UDP: 'true'
-      RADIUS_UDP_AUTH_PORT: 1812
-      RADIUS_UDP_ACCOUNT_PORT: 1813
-      RADIUS_RADSEC: 'false'
-      RADIUS_RADSEC_PRIVATEKEY: /config/private.key
-      RADIUS_RADSEC_CERTIFICATE: /config/public.crt
-      RADIUS_COA: 'false'
-      RADIUS_COA_PORT: 1700
     networks:
       tooling:
         ipv4_address: 172.16.11.11
     ports:
       - '8080:8080'
       - '8443:8443'
-      - '1812:1812'
-      - '1813:1813'
     depends_on:
       - netcicd-db
+
   portainer:
     container_name: portainer
     image: portainer/portainer-ce
@@ -153,7 +151,7 @@ services:
     stop_signal: SIGINT
     stop_grace_period: 15s
     volumes:
-      - './portainer/data:/data'
+      - portainer_data:/data
       - '/var/run/docker.sock:/var/run/docker.sock'
     networks:
       tooling:

@@ -1,7 +1,7 @@
 #!/bin/bash
 # shell script to be copied into /opt/jboss/keycloak/bin
 cd /opt/jboss/keycloak/bin
-rm Net*
+
 #Create credentials
 ./kcadm.sh config credentials --server http://keycloak:8080/auth --realm master --user admin --password Pa55w0rd
 
@@ -198,55 +198,6 @@ echo " "
 
 echo "Created keycloak-nexus installation json" 
 echo " "
-
-./kcadm.sh create clients \
-    -r netcicd \
-    -s name="RADIUS" \
-    -s description="The FreeRADIUS server in the toolchain" \
-    -s clientId=RADIUS \
-    -s enabled=true \
-    -s publicClient=true \
-    -s protocol=radius-protocol \
-    -s directAccessGrantsEnabled=true \
-    -s 'redirectUris=[ "*" ]' \
-    -o --fields id >NetCICD_RADIUS
-
-# output is Created new client with id, we now need to grep the ID out of it
-RADIUS_ID=$(cat NetCICD_RADIUS | grep id | cut -d'"' -f 4)
-
-# Now we can add client specific roles (Clientroles)
-./kcadm.sh create clients/$RADIUS_ID/roles -r netcicd -s name=RADIUS-admin -s description='The admin role for FreeRADIUS'
-./kcadm.sh create clients/$RADIUS_ID/roles -r netcicd -s name=RADIUS-LAN-client -s description='A role to be used for 802.1x authentication on switch ports'
-./kcadm.sh create clients/$RADIUS_ID/roles -r netcicd -s name=RADIUS-network-admin -s description='An admin role to be used for RADIUS based AAA on Cisco routers'
-./kcadm.sh create clients/$RADIUS_ID/roles -r netcicd -s name=RADIUS-network-operator -s description='A role to be used for RADIUS based AAA on Cisco routers'
-./kcadm.sh create clients/$RADIUS_ID/roles -r netcicd -s name=RADIUS-ACCEPT-ROLE -s description='A test role to be used for RADIUS based AAA'
-./kcadm.sh create clients/$RADIUS_ID/roles -r netcicd -s name=RADIUS-REJECT-ROLE -s description='A test role to be used for RADIUS based AAA'
- 
- #now add attributes (it does not work when entered directly)
- ./kcadm.sh update clients/$RADIUS_ID/roles/RADIUS-REJECT-ROLE -r netcicd -s 'attributes.REJECT_RADIUS=["true"]'
-
-./kcadm.sh create clients \
-    -r netcicd \
-    -s name="TACACS" \
-    -s description="The TACACS+ server in the toolchain" \
-    -s clientId=TACACS \
-    -s enabled=true \
-    -s publicClient=true \
-    -s directAccessGrantsEnabled=true \
-    -s rootUrl=http://tacacs:49 \
-    -s adminUrl=http://tacacs:49/ \
-    -s 'redirectUris=[ "http://tacacs:49/*" ]' \
-    -s 'webOrigins=[ "http://tacacs:49/" ]' \
-    -o --fields id >NetCICD_TACACS
-
-# output is Created new client with id, we now need to grep the ID out of it
-TACACS_ID=$(cat NetCICD_TACACS | grep id | cut -d'"' -f 4)
-
-# Now we can add client specific roles (Clientroles)
-./kcadm.sh create clients/$TACACS_ID/roles -r netcicd -s name=TACACS-admin -s description='The admin role for FreeRADIUS'
-./kcadm.sh create clients/$TACACS_ID/roles -r netcicd -s name=TACACS-network-admin -s description='An admin role to be used for RADIUS based AAA on Cisco routers, priv 15'
-./kcadm.sh create clients/$TACACS_ID/roles -r netcicd -s name=TACACS-network-operator -s description='A role to be used for RADIUS based AAA on Cisco routers, priv 2'
-
 ./kcadm.sh create clients \
     -r netcicd \
     -s name="Portainer" \
@@ -980,4 +931,4 @@ tooltiger_id=$(cat NetCICD_TOOLTIGER | grep id | cut -d"'" -f 2)
     -n
 
 #Now delete tokens and secrets
-#rm NetCICD_*
+rm NetCICD_*

@@ -53,11 +53,6 @@ NetCICD_repo_payload='{
 curl --user $user:$pwd -X POST "http://gitea:3000/api/v1/repos/migrate" -H  "accept: application/json" -H  "Content-Type: application/json" -d "$NetCICD_repo_payload"
 echo " "
 echo "****************************************************************************************************************"
-echo " Create Develop branch "
-echo "****************************************************************************************************************"
-curl --user $user:$pwd -X POST "http://gitea:3000/api/v1/repos/infraautomator/NetCICD/branches" -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"new_branch_name\": \"develop\"}"
-echo " "
-echo "****************************************************************************************************************"
 echo " Creating webhook for the repo"
 echo "****************************************************************************************************************"
 NetCICD_webhook_payload='{
@@ -73,7 +68,7 @@ NetCICD_webhook_payload='{
 curl --user $user:$pwd -X POST "http://gitea:3000/api/v1/repos/infraautomator/NetCICD/hooks" -H  "accept: application/json" -H  "Content-Type: application/json" -d "$NetCICD_webhook_payload"
 echo " "
 echo "****************************************************************************************************************"
-echo " Creating NetCICD-development-toolbox repo under InfraAutomators organization"
+echo " Creating CICD-toolbox repo under InfraAutomators organization"
 echo "****************************************************************************************************************"
 NetCICD_repo_payload='{
     "auth_password": "string",  
@@ -95,11 +90,6 @@ NetCICD_repo_payload='{
     "wiki": false
     }'
 curl --user $user:$pwd -X POST "http://gitea:3000/api/v1/repos/migrate" -H  "accept: application/json" -H  "Content-Type: application/json" -d "$NetCICD_repo_payload"
-echo " "
-echo "****************************************************************************************************************"
-echo " Create Develop branch "
-echo "****************************************************************************************************************"
-curl --user $user:$pwd -X POST "http://gitea:3000/api/v1/repos/infraautomator/CICD-toolbox/branches" -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"new_branch_name\": \"develop\"}"
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating webhook for the repo"
@@ -146,7 +136,7 @@ echo "**************************************************************************
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netops_team_read_id/repos/infraautomator/NetCICD" -H  "accept: application/json"
 echo " "
 echo "****************************************************************************************************************"
-echo " Adding NetCICD-development-toolbox repo to gitea-netops-read team in Gitea "
+echo " Adding CICD-toolbox repo to gitea-netops-read team in Gitea "
 echo "****************************************************************************************************************"
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netops_team_read_id/repos/infraautomator/CICD-toolbox" -H  "accept: application/json"
 echo " "
@@ -207,7 +197,7 @@ echo "**************************************************************************
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netdev_team_read_id/repos/infraautomator/NetCICD" -H  "accept: application/json"
 echo " "
 echo "****************************************************************************************************************"
-echo " Adding NetCICD-development-toolbox repo to gitea-netdev-read team in Gitea "
+echo " Adding CICD-toolbox repo to gitea-netdev-read team in Gitea "
 echo "****************************************************************************************************************"
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$netdev_team_read_id/repos/infraautomator/CICD-toolbox" -H  "accept: application/json"
 echo " "
@@ -268,7 +258,7 @@ echo "**************************************************************************
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$tooling_team_read_id/repos/infraautomator/NetCICD" -H  "accept: application/json"
 echo " "
 echo "****************************************************************************************************************"
-echo " Adding NetCICD-development-toolbox repo to gitea-tooling-read team in Gitea "
+echo " Adding CICD-toolbox repo to gitea-tooling-read team in Gitea "
 echo "****************************************************************************************************************"
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$tooling_team_read_id/repos/infraautomator/CICD-toolbox" -H  "accept: application/json"
 echo " "
@@ -296,7 +286,7 @@ tooling_team_write_data=`curl -s --user $user:$pwd -X POST "http://gitea:3000/ap
 tooling_team_write_id=$( echo $tooling_team_write_data | awk -F',' '{print $(1)}' | awk -F':' '{print $2}' )
 echo " "
 echo "****************************************************************************************************************"
-echo " Adding NetCICD-development-toolbox repo to gitea-tooling-write team in Gitea "
+echo " Adding CICD-toolbox repo to gitea-tooling-write team in Gitea "
 echo "****************************************************************************************************************"
 curl --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/$tooling_team_write_id/repos/infraautomator/CICD-toolbox" -H  "accept: application/json"
 echo " "

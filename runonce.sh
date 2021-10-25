@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 
 nexus_plugin="0.4.0"
 
@@ -6,6 +6,7 @@ echo "**************************************************************************
 echo " Start clean" 
 echo "****************************************************************************************************************"
 docker-compose down --remove-orphans
+docker volume rm $(docker volume ls -q)
 rm *_token
 rm install_log/keycloak_create.log
 rm log.html
@@ -14,22 +15,9 @@ rm report.html
 rm install_log/*
 echo " " 
 echo "****************************************************************************************************************"
-echo " Cleaning Databases" 
-echo "****************************************************************************************************************"
-sudo chown $USER:$USER netcicd-db/db
-sudo rm -rf netcicd-db/db/*
-sudo rm -rf netcicd-db/db/.*
-echo " " 
-echo "****************************************************************************************************************"
 echo " Cleaning Gitea" 
 echo "****************************************************************************************************************"
 sudo rm -rf gitea/data/*
-echo " " 
-echo "****************************************************************************************************************"
-echo " Cleaning Jenkins" 
-echo "****************************************************************************************************************"
-sudo rm -rf jenkins/jenkins_home/*
-sudo rm -rf jenkins/jenkins_home/.*
 echo " " 
 echo "****************************************************************************************************************"
 echo " Cleaning Nexus" 
@@ -45,12 +33,6 @@ else
     echo " Get Nexus plugin"
     wget --directory-prefix=nexus https://github.com/flytreeleft/nexus3-keycloak-plugin/releases/download/v$nexus_plugin/nexus3-keycloak-plugin-$nexus_plugin-bundle.kar
 fi
-echo " " 
-echo "****************************************************************************************************************"
-echo " Cleaning Portainer" 
-echo "****************************************************************************************************************"
-sudo chown $USER:$USER portainer/data
-sudo rm -rf portainer/data/*
 echo " " 
 echo "****************************************************************************************************************"
 echo " Making sure all containers are reachable locally with the name in the"
