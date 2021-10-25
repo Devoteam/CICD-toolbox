@@ -14,13 +14,6 @@ rm report.html
 rm install_log/*
 echo " " 
 echo "****************************************************************************************************************"
-echo " Cleaning Databases" 
-echo "****************************************************************************************************************"
-sudo chown $USER:$USER netcicd-db/db
-sudo rm -rf netcicd-db/db/*
-sudo rm -rf netcicd-db/db/.*
-echo " " 
-echo "****************************************************************************************************************"
 echo " Cleaning Gitea" 
 echo "****************************************************************************************************************"
 sudo rm -rf gitea/data/*
@@ -45,18 +38,6 @@ else
     echo " Get Nexus plugin"
     wget --directory-prefix=nexus https://github.com/flytreeleft/nexus3-keycloak-plugin/releases/download/v$nexus_plugin/nexus3-keycloak-plugin-$nexus_plugin-bundle.kar
 fi
-echo " " 
-echo "****************************************************************************************************************"
-echo " Cleaning NodeRED" 
-echo "****************************************************************************************************************"
-sudo chown $USER:$USER nodered/data
-sudo rm -rf nodered/data/*
-echo " " 
-echo "****************************************************************************************************************"
-echo " Cleaning Jupyter Notebook" 
-echo "****************************************************************************************************************"
-sudo chown $USER:$USER jupyter/data
-sudo rm -rf jupyter/data/*
 echo " " 
 echo "****************************************************************************************************************"
 echo " Cleaning Portainer" 
