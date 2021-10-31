@@ -1,4 +1,5 @@
 DepShield: [![DepShield Badge](https://depshield.sonatype.org/badges/Devoteam/NetCICD-developer-toolbox/depshield.svg)](https://depshield.github.io)
+Cisco Devnet: [![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/Devoteam/CICD-toolbox)
 
 # Background
 When working on [NetCICD](https://github.com/Devoteam/NetCICD), again and again, tools used changed their way of use. In addition, additional functionality was needed: some sort of SSO, Jupyter Notebook, Node Red, git, etc. Adding more tools made the tool chain more brittle every time. And what was worse: building it using VM ate CPU and memory, basically limiting the size of the simulations that can be done. In short: having a dependable pipeline is one complex thing, making sure it keeps on working is another.
@@ -19,6 +20,7 @@ As you can see, the tool chain is separated from the managed environments. This 
 In every environment you'll see a jump host. This jump host is the only system that can connect back to the tool chain. It is controlled from Jenkins.
 
 By default, a setup that links to a local [CML Personal edition](https://learningnetworkstore.cisco.com/cisco-modeling-labs-personal/cisco-cml-personal) is included, the Netcicd Pipeline. if CML is installed on the same machine as the toolbox is installed upon, Jenkins starts a lab and configures the nodes of the first stage.
+### With updates on the refplat ISO in CML, you might find that some labs do not start anymore. We do try to keep things running and up-to-date, but the version difference between the Cisco CML sandbox and the latest version of CML and the refplat ISO MAY cause the labs from booting. We did try to prevent this by removing versions from the cml file, but we have occasionally encountered failing labs. 
 
 For more information on the systems used and the setup of the individual systems, look at the wiki.
 
@@ -69,19 +71,21 @@ You need to be able to run docker as non-root. See [here](https://docs.docker.co
 * Networks are preconfigured to enable the connect-back from CML
 * Running or starting twice will create failing networks and/or containers, duplicate IP addresses and all kinds of other mayhem.
 
-## Cisco Devnet Sandbox installation
-You can run the lab in a Cisco Devnet Sandbox as this also has a Cisco CML lab. 
+## Cisco Devnet Sandbox use
+You should be able to run the lab in a Cisco Devnet Sandbox. We did encounter that most of the time the pipeline does not boot as the amount of provided CPU on the Devbox prohibits the Keycloak container from booting fast enough. It times out and blocks further deployment. Install takes abount 45 mins due to this reason.
 
 * Go to: [the Devnet Sandbox](https://devnetsandbox.cisco.com/RM/Diagram/Index/685f774a-a5d6-4df5-a324-3774217d0e6b?diagramType=Topology) and log in with the credentials of your choice.
 * clone this repo: git clone https://github.com/Devoteam/CICD-toolbox.git
 * Go to the repo: cd CICD-toolbox
 * Run the startup script: ./runonce-devnet-sandbox.sh
 
-when all goes well, it installs the containers and before you know, you are **almost** good to go. Just get the rdp session going and execute the robot script:
+When you want local access to the containers, add run the **devnet-sandbox-reachability.sh** script (Linux).
+
+If all goes well, it installs the containers and you are **almost** good to go. In order to make everything work properly, get the rdp session going and execute the robot script:
 
 robot -d install_log/ finalize_install.robot
 
-to configure all kinds of default passwords. If everything works as planned, you should see browsers popping up, opening Jenkins, Gitea and Keycloak for the creation of the required keys and tokens. Fingers crossed...
+to configure all kinds of default passwords. If everything works as designed, you should see browsers popping up, opening Jenkins, Gitea and Keycloak for the creation of the required keys and tokens. But, as said, we have seen more failures than success on the sandbox due to CPU limitations...
 
 ## Users ##
 All users are configured in Keycloak. [The wiki](https://github.com/Devoteam/NetCICD-developer-toolbox/wiki/Users-and-passwords) has the complete list.
