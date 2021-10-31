@@ -25,9 +25,18 @@ By default, a setup that links to a local [CML Personal edition](https://learnin
 For more information on the systems used and the setup of the individual systems, look at the wiki.
 
 # How to install
+
 ### Work in progress!!
 Even though we try to make this work as well as we can, it is being improved daily. Master should work, Develop is the most complete.
 ## Local installation
+The local install is tested on a setup on an Ubuntu machine with VMWare Workstation installed. 
+
+### Network settings
+A vmnet1 host-only network is defined with network 10.10.20.0/24. You should be using the local address 10.10.20.50 (to do: add howto :)).
+
+The CML host should run on 10.10.20.161, just like on the Cisco Devnet Sandbox.
+
+### Software configuration
 Be aware to use the correct java version. The nexus plugin fails if anything other than openjdk8 is used :(
 
 The setup has been developed and tested on a fully updated Ubuntu 20.04.1 minimal install, 25 GB disk, 2 CPU, 4 GB memory on KVM with Internet access. As the setup also uses local networking, using the Ubuntu Desktop version is easier. During install testing the minimal install is used. 
@@ -72,20 +81,24 @@ You need to be able to run docker as non-root. See [here](https://docs.docker.co
 * Running or starting twice will create failing networks and/or containers, duplicate IP addresses and all kinds of other mayhem.
 
 ## Cisco Devnet Sandbox use
-You should be able to run the lab in a Cisco Devnet Sandbox. We did encounter that most of the time the pipeline does not boot as the amount of provided CPU on the Devbox prohibits the Keycloak container from booting fast enough. It times out and blocks further deployment. Install takes abount 45 mins due to this reason.
+You should be able to run the lab in a Cisco Devnet Sandbox. Install takes abount 1 hour due to CPU limitations.
 
 * Go to: [the Devnet Sandbox](https://devnetsandbox.cisco.com/RM/Diagram/Index/685f774a-a5d6-4df5-a324-3774217d0e6b?diagramType=Topology) and log in with the credentials of your choice.
 * clone this repo: git clone https://github.com/Devoteam/CICD-toolbox.git
 * Go to the repo: cd CICD-toolbox
 * Run the startup script: ./runonce-devnet-sandbox.sh
 
-When you want local access to the containers, add run the **devnet-sandbox-reachability.sh** script (Linux).
+You need to have a local reference to Keycloak and the other systems by name. Run the **devnet-sandbox-reachability.sh** script to accomplish this (the script is designed for use in Ubuntu Linux, there are no plans to add other versions). 
 
 If all goes well, it installs the containers and you are **almost** good to go. In order to make everything work properly, get the rdp session going and execute the robot script:
 
 robot -d install_log/ finalize_install.robot
 
-to configure all kinds of default passwords. If everything works as designed, you should see browsers popping up, opening Jenkins, Gitea and Keycloak for the creation of the required keys and tokens. But, as said, we have seen more failures than success on the sandbox due to CPU limitations...
+to configure all kinds of default passwords. If everything works as designed, you should see browsers popping up, opening Jenkins, Gitea and Keycloak for the creation of the required keys and tokens. 
+
+All steps should PASS!
+
+If you now log into Jenkins, you should see Jenkins scanning Gitea, finding two repositories, and starting a test on NetCICD. At the moment this lab fails. It is most probably due to having incorrect IP addresses in the NetCICD_agent. We are working on a fix.
 
 ## Users ##
 All users are configured in Keycloak. [The wiki](https://github.com/Devoteam/NetCICD-developer-toolbox/wiki/Users-and-passwords) has the complete list.
