@@ -44,7 +44,51 @@ echo "**************************************************************************
 echo " Making sure all containers are reachable locally with the name in the"
 echo " hosts file."
 echo " " 
-devnet-sandbox-reachability.sh > install_log/gitea_create.log
+sudo chmod o+w /etc/hosts
+if grep -q "gitea" /etc/hosts; then
+    echo " Gitea exists in /etc/hosts, removing..."
+    sudo sed -i '/gitea/d' /etc/hosts
+fi
+echo " Add Gitea to /etc/hosts"
+sudo echo "10.10.20.50   gitea" >> /etc/hosts
+
+if grep -q "jenkins" /etc/hosts; then
+    echo " Jenkins exists in /etc/hosts, removing..."
+    sudo sed -i '/jenkins/d' /etc/hosts
+fi
+echo " Add Jenkins to /etc/hosts"
+sudo echo "10.10.20.50   jenkins" >> /etc/hosts
+
+if grep -q "nexus" /etc/hosts; then
+    echo " Nexus exists in /etc/hosts, removing..."
+    sudo sed -i '/nexus/d' /etc/hosts
+fi
+echo " Add Nexus to /etc/hosts"
+sudo echo "10.10.20.50   nexus" >> /etc/hosts
+
+if grep -q "keycloak" /etc/hosts; then
+    echo " Keycloak exists in /etc/hosts, removing..."
+    sudo sed -i '/keycloak/d' /etc/hosts
+fi
+echo " Add Keycloak to /etc/hosts"
+sudo echo "10.10.20.50   keycloak" >> /etc/hosts
+
+if grep -q "portainer" /etc/hosts; then
+    echo " Portainer exists in /etc/hosts, removing..."
+    sudo sed -i '/portainer/d' /etc/hosts
+fi
+echo " Add Portainer to /etc/hosts"
+sudo echo "10.10.20.50   portainer" >> /etc/hosts
+
+if grep -q "cml" /etc/hosts; then
+    echo " Cisco Modeling Labs exists in /etc/hosts, removing..."
+    sudo sed -i '/cml/d' /etc/hosts
+fi
+echo " Add Cisco Modeling Labs to /etc/hosts"
+sudo echo "10.10.20.161   cml" >> /etc/hosts
+
+sudo chmod o-w /etc/hosts
+
 echo " " 
 echo "****************************************************************************************************************"
 echo " Cleaning Portainer" 
@@ -83,7 +127,7 @@ echo "**************************************************************************
 docker-compose up --build --remove-orphans --no-start
 docker-compose start netcicd-db
 echo "****************************************************************************************************************"
-echo " Calming down the CPU... waiting 10 seconds"
+echo " Calming down the CPU ... waiting 10 seconds"
 echo "****************************************************************************************************************"
 sleep 10
 docker-compose start keycloak
@@ -117,11 +161,10 @@ echo "**************************************************************************
 echo " Creating jenkins setup"
 echo "****************************************************************************************************************"
 #config for oic_auth plugin: only need to replace secret in casc.yaml
-jenkins_client_id=$(grep JENKINS_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
+jenkins_client_id=$(grep JENKINS_token: install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
 docker exec -it jenkins sh -c "sed -i -e 's/oic_secret/\"$jenkins_client_id\"/' /var/jenkins_conf/casc.yaml"
 echo "Reloading "
 docker restart jenkins
-echo " " 
 echo " " 
 echo "****************************************************************************************************************"
 echo " Creating nexus setup"
