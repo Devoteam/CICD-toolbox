@@ -1,4 +1,4 @@
-DepShield: [![DepShield Badge](https://depshield.sonatype.org/badges/netcicd/CICD-toolbox/depshield.svg)](https://depshield.github.io)
+[![DepShield Badge](https://depshield.sonatype.org/badges/Devoteam/CICD-toolbox/depshield.svg)](https://depshield.github.io)
 Cisco Devnet: [![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/Devoteam/CICD-toolbox)
 
 # Background
