@@ -12,6 +12,7 @@ rm log.html
 rm output.xml
 rm report.html
 rm install_log/*
+devnet-sandbox-reachability.sh > install_log/gitea_create.log
 echo " " 
 echo "****************************************************************************************************************"
 echo " Cleaning Gitea" 
@@ -73,7 +74,11 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating containers"
 echo "****************************************************************************************************************"
-docker-compose up -d --build --remove-orphans  
+docker-compose up -d --build --remove-orphans netcicd-db
+sleep 60
+docker-compose up  -d --build --remove-orphans keycloak
+sleep 180
+docker-compose up -d --build --remove-orphans
 echo " " 
 echo "****************************************************************************************************************"
 echo " Wait until keycloak is running"
