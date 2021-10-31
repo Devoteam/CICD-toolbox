@@ -12,7 +12,7 @@ rm log.html
 rm output.xml
 rm report.html
 rm install_log/*
-devnet-sandbox-reachability.sh > install_log/gitea_create.log
+
 echo " " 
 echo "****************************************************************************************************************"
 echo " Cleaning Gitea" 
@@ -39,6 +39,12 @@ else
     echo " Get Nexus plugin"
     wget --directory-prefix=nexus https://github.com/flytreeleft/nexus3-keycloak-plugin/releases/download/v$nexus_plugin/nexus3-keycloak-plugin-$nexus_plugin-bundle.kar
 fi
+echo " " 
+echo "****************************************************************************************************************"
+echo " Making sure all containers are reachable locally with the name in the"
+echo " hosts file."
+echo " " 
+devnet-sandbox-reachability.sh > install_log/gitea_create.log
 echo " " 
 echo "****************************************************************************************************************"
 echo " Cleaning Portainer" 
@@ -74,12 +80,13 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating containers"
 echo "****************************************************************************************************************"
-docker-compose up -d --build --remove-orphans netcicd-db
-sleep 60
-docker-compose up  -d --build --remove-orphans keycloak
-sleep 180
-docker-compose up -d --build --remove-orphans
-echo " " 
+docker-compose up --build --remove-orphans --no-start
+docker-compose start netcicd-db
+echo "****************************************************************************************************************"
+echo " Calming down the CPU... waiting 10 seconds"
+echo "****************************************************************************************************************"
+sleep 10
+docker-compose start keycloak
 echo "****************************************************************************************************************"
 echo " Wait until keycloak is running"
 echo "****************************************************************************************************************"
@@ -89,11 +96,15 @@ until $(curl --output /dev/null --silent --head --fail http://keycloak:8080); do
 done
 echo " "
 echo "****************************************************************************************************************"
-echo " Creating keycloak setup"
+echo " Creating keycloak setup. This will take time..."
 echo "****************************************************************************************************************"
 docker exec -it keycloak sh -c "/opt/jboss/keycloak/bin/create-realm.sh"  > install_log/keycloak_create.log
 echo " "
 cat install_log/keycloak_create.log
+echo "****************************************************************************************************************"
+echo " Booting the remainder of the containers"
+echo "****************************************************************************************************************"
+docker-compose start
 echo " " 
 echo "****************************************************************************************************************"
 echo " Creating gitea setup"

@@ -1,6 +1,13 @@
 #!/bin/bash
 #script asssumes gitea is running
-
+echo "****************************************************************************************************************"
+echo " Wait until Gitea has started"
+echo "****************************************************************************************************************"
+docker restart gitea
+until $(curl --output /dev/null --silent --head --fail http://gitea:3000); do
+    printf '.'
+    sleep 5
+done
 echo " "
 echo "****************************************************************************************************************"
 echo " Configuring Gitea"
