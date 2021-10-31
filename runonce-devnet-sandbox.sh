@@ -209,25 +209,29 @@ echo " "
 echo "****************************************************************************************************************"
 echo "Cleaning up"
 echo "****************************************************************************************************************"
-#rm *_token
-#rm install_log/keycloak_create.log
+rm *_token
+rm install_log/keycloak_create.log
 echo " "
 echo "****************************************************************************************************************"
 echo " Preparing for finalizing install via ROBOT"
 echo "****************************************************************************************************************"
-sudo pip3 install robotframework robotframework-selenium2library
+sudo pip install robotframework robotframework-selenium2library
 sudo cp geckodriver /usr/local/bin/
 echo " Manual steps..."
 echo " "
-echo " Log out and open a new terminal"
+echo " Go to the RDP session in the sandbox and open a terminal..."
 echo " "
-echo " cd NetCICD-developer-toolbox"
+echo " cd CICD-toolbox"
 echo " robot -d install_log/ finalize_install.robot"
 echo " "
 echo " The pipeline uses the default Cisco DevNet CML Sandbox credentials developer/C1sco12345 to log in to CML."
 echo " You may change this to your own credentials in:"
 echo " "
 echo " http://jenkins:8084/credentials/store/system/domain/_/credential/CML-SIM-CRED/update"
+echo " "
+echo " When everything works out as planned, Jenkins should check the repo and labs should be started automagically"
+echo " "
+echo " "
 echo " "
 echo " Due to limitations in Keycloak, do **not** use docker-compose down. Keycloak will no longer function after this."
 echo " "
