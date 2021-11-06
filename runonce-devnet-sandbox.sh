@@ -143,9 +143,8 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating keycloak setup. This will take time..."
 echo "****************************************************************************************************************"
-docker exec -it keycloak sh -c "/opt/jboss/keycloak/bin/create-realm.sh"  > install_log/keycloak_create.log
+docker exec -it keycloak sh -c "/opt/jboss/keycloak/bin/create-realm.sh" | tee install_log/keycloak_create.log
 echo " "
-cat install_log/keycloak_create.log
 echo "****************************************************************************************************************"
 echo " Booting the remainder of the containers"
 echo "****************************************************************************************************************"
@@ -154,9 +153,7 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating gitea setup"
 echo "****************************************************************************************************************"
-gitea/gitea_install.sh > install_log/gitea_create.log
-echo " " 
-cat install_log/gitea_create.log
+gitea/gitea_install.sh | tee install_log/gitea_create.log
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating jenkins setup"

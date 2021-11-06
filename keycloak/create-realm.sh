@@ -32,7 +32,7 @@ cd /opt/jboss/keycloak/bin
 # output is Created new client with id, we now need to grep the ID out of it
 GITEA_ID=$(cat NetCICD_GITEA | grep id | cut -d'"' -f 4)
 echo "Created Gitea client with ID: ${GITEA_ID}" 
-echo " "
+
 # Create Client secret
 ./kcadm.sh create clients/$GITEA_ID/client-secret -r netcicd
 
@@ -71,7 +71,7 @@ echo "GITEA_token: ${GITEA_token}"
 # output is Created new client with id, we now need to grep the ID out of it
 JENKINS_ID=$(cat NetCICD_JENKINS | grep id | cut -d'"' -f 4)
 echo "Created Jenkins client with ID: ${JENKINS_ID}" 
-echo " "
+
 # Create Client secret
 ./kcadm.sh create clients/$JENKINS_ID/client-secret -r netcicd
 
@@ -80,7 +80,7 @@ echo " "
 JENKINS_token=$(grep value NetCICD_jenkins_secret | cut -d '"' -f4)
 # Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source in Gitea for Keycloak
 echo "JENKINS_token: ${JENKINS_token}"
-echo " "
+
 
 # Now we can add client specific roles (Clientroles)
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-admin -s description='The admin role for Jenkins'
@@ -99,13 +99,11 @@ echo "Created Jenkins roles."
 ./kcadm.sh add-roles -r netcicd --uusername service-account-jenkins --cclientid realm-management --rolename view-clients --rolename view-realm --rolename view-users
 
 echo "Created Jenkins Service Account" 
-echo " "
 
 # We need to add a client scope on the realm for Jenkins in order to include the audience in the access token
 ./kcadm.sh create -x "client-scopes" -r netcicd -s name=jenkins-audience -s protocol=openid-connect &>NetCICD_JENKINS_SCOPE
 JENKINS_SCOPE_ID=$(cat NetCICD_JENKINS_SCOPE | grep id | cut -d"'" -f 2)
 echo "Created Client scope for Jenkins with id: ${JENKINS_SCOPE_ID}" 
-echo " "
 
 # Create a mapper for the audience
 ./kcadm.sh create clients/$JENKINS_ID/protocol-mappers/models \
@@ -117,13 +115,11 @@ echo " "
 	-s config="{\"included.client.audience\" : \"Jenkins\",\"id.token.claim\" : \"false\",\"access.token.claim\" : \"true\"}"
 
 echo "Created audience mapper in the Client Scope" 
-echo " "
 
 # We need to add the scope to the token
 ./kcadm.sh update clients/$JENKINS_ID -r netcicd --body "{\"defaultClientScopes\": [\"jenkins-audience\"]}"
 
 echo "Included Jenkins Audience in token" 
-echo " "
 
 ./kcadm.sh create clients/$JENKINS_ID/protocol-mappers/models \
     -r netcicd \
@@ -162,7 +158,6 @@ echo " "
 # output is Created new client with id, we now need to grep the ID out of it
 NEXUS_ID=$(cat NetCICD_NEXUS | grep id | cut -d'"' -f 4)
 echo "Created Nexus client with ID: ${NEXUS_ID}" 
-echo " "
 
 # Create Client secret
 ./kcadm.sh create clients/$NEXUS_ID/client-secret -r netcicd
@@ -176,7 +171,6 @@ echo " "
 ./kcadm.sh create clients/$NEXUS_ID/roles -r netcicd -s name=nexus-apk-read -s description='The role to be used for a NetCICD client to pull  APK packages data from Nexus'
 
 echo "Created Nexus roles." 
-echo " "
 
 # Now add the scope mappings for Nexus
 RM_ID=$( ./kcadm.sh get -r netcicd clients | grep realm-management -B1 | grep id | awk -F',' '{print $(1)}' | cut -d ' ' -f5 | cut -d '"' -f2 )
@@ -191,7 +185,6 @@ RM_ID=$( ./kcadm.sh get -r netcicd clients | grep realm-management -B1 | grep id
 ./kcadm.sh add-roles -r netcicd --uusername service-account-nexus --cclientid realm-management --rolename view-clients --rolename view-realm --rolename view-users
 
 echo "Created Nexus Service Account" 
-echo " "
 
 #download Nexus OIDC file
 ./kcadm.sh get clients/$NEXUS_ID/installation/providers/keycloak-oidc-keycloak-json -r netcicd > keycloak-nexus.json
@@ -222,12 +215,10 @@ PORTAINER_ID=$(cat NetCICD_PORTAINER | grep id | cut -d'"' -f 4)
 ./kcadm.sh create groups -r netcicd -s name="System" &>NetCICD_SYSTEM
 system_id=$(cat NetCICD_SYSTEM | grep id | cut -d"'" -f 2)
 echo "Created System Group with ID: ${system_id}" 
-echo " "
 
 ./kcadm.sh create groups/$system_id/children -r netcicd -s name="jenkins-git" &>NetCICD_J_G
 j_g_id=$(cat NetCICD_J_G | grep id | cut -d"'" -f 2)
 echo "Created jenkins-git group with ID: ${j_g_id}" 
-echo " "
 
 #adding client roles to the group
 ./kcadm.sh add-roles \
@@ -240,12 +231,10 @@ echo " "
 ./kcadm.sh create groups -r netcicd -s name="Infra" &>NetCICD_INFRA
 infra_id=$(cat NetCICD_INFRA | grep id | cut -d"'" -f 2)
 echo "Created Infra Department with ID: ${infra_id}" 
-echo " "
 
 ./kcadm.sh create groups/$infra_id/children -r netcicd -s name="Operations" &>NetCICD_OPS
 ops_id=$(cat NetCICD_OPS | grep id | cut -d"'" -f 2)
 echo "Created Operations Department with ID: ${ops_id}" 
-echo " "
 
 ./kcadm.sh create groups/$ops_id/children -r netcicd -s name="Field Services" &>NetCICD_FS
 field_services_id=$(cat NetCICD_FS | grep id | cut -d"'" -f 2)
@@ -254,7 +243,6 @@ echo "Created Field Services Department with ID: ${field_services_id}"
 ./kcadm.sh create groups/$field_services_id/children -r netcicd -s name="Field Service Engineers" &>NetCICD_FSE
 fse_id=$(cat NetCICD_FSE | grep id | cut -d"'" -f 2)
 echo "Created Field Service Engineers group within the Field Services Department with ID: ${fse_id}" 
-echo " "
 
 ./kcadm.sh create groups/$ops_id/children -r netcicd -s name="Network" &>NetCICD_NET
 network_id=$(cat NetCICD_NET | grep id | cut -d"'" -f 2)
@@ -292,7 +280,6 @@ echo "Created Campus Operator group within Campus Operations with ID: ${camops_i
     --rolename nexus-read
 
 echo "Added roles to Campus Operators."
-echo " "
 
 ./kcadm.sh create groups/$campus_id/children -r netcicd -s name="Campus-specialist" &>NetCICD_CAMSPEC
 camspec_id=$(cat NetCICD_CAMSPEC | grep id | cut -d"'" -f 2)
@@ -323,7 +310,6 @@ echo "Created Campus Specialists group within Campus Operations with ID: ${camsp
     --rolename nexus-read
      
 echo "Added roles to Operations Campus Specialists."
-echo " "
 
 ./kcadm.sh create groups/$network_id/children -r netcicd -s name="WAN" &>NetCICD_WAN
 wan_id=$(cat NetCICD_WAN | grep id | cut -d"'" -f 2)
@@ -357,7 +343,6 @@ echo "Created WAN Operator group within WAN Operations with ID: ${wanops_id}"
     --rolename nexus-read
 
 echo "Added roles to WAN Operators."
-echo " "
 
 ./kcadm.sh create groups/$wan_id/children -r netcicd -s name="WAN-specialist" &>NetCICD_WANSPEC
 wanspec_id=$(cat NetCICD_WANSPEC | grep id | cut -d"'" -f 2)
@@ -388,7 +373,6 @@ echo "Created WAN Specialists group within WAN Operations with ID: ${wanspec_id}
     --rolename nexus-read
      
 echo "Added roles to Operations WAN Specialists."
-echo " "
 
 ./kcadm.sh create groups/$network_id/children -r netcicd -s name="Datacenter" &>NetCICD_DC
 dc_id=$(cat NetCICD_DC | grep id | cut -d"'" -f 2)
@@ -422,7 +406,6 @@ echo "Created DC Operator group within DC Operations with ID: ${dcops_id}"
     --rolename nexus-read
 
 echo "Added roles to DC Operators."
-echo " "
 
 ./kcadm.sh create groups/$dc_id/children -r netcicd -s name="DC-specialist" &>NetCICD_DCSPEC
 dcspec_id=$(cat NetCICD_DCSPEC | grep id | cut -d"'" -f 2)
@@ -453,7 +436,6 @@ echo "Created DC Specialists group within DC Operations with ID: ${dcspec_id}"
     --rolename nexus-read
      
 echo "Added roles to Operations DC Specialists."
-echo " "
 
 ./kcadm.sh create groups/$infra_id/children -r netcicd -s name="Compute" &>NetCICD_COMPUTE
 compute_id=$(cat NetCICD_COMPUTE | grep id | cut -d"'" -f 2)
@@ -470,7 +452,6 @@ echo "Created Container Operator group within the Container group with ID: ${cto
 ./kcadm.sh create groups/$container_id/children -r netcicd -s name="Container-specialist" &>NetCICD_CTSPEC
 ctspec_id=$(cat NetCICD_CTSPEC | grep id | cut -d"'" -f 2)
 echo "Created Container specialist group within the Container group with ID: ${ctspec_id}" 
-echo " "
 
 ./kcadm.sh create groups/$compute_id/children -r netcicd -s name="VM" &>NetCICD_VM
 vm_id=$(cat NetCICD_VM | grep id | cut -d"'" -f 2)
@@ -483,7 +464,6 @@ echo "Created VM Operator group within the VM group with ID: ${vmops_id}"
 ./kcadm.sh create groups/$vm_id/children -r netcicd -s name="VM-specialist" &>NetCICD_VMSPEC
 vmspec_id=$(cat NetCICD_VMSPEC | grep id | cut -d"'" -f 2)
 echo "Created VM Specialist group within the VM group with ID: ${vmspec_id}" 
-echo " "
 
 ./kcadm.sh create groups/$compute_id/children -r netcicd -s name="Cloud" &>NetCICD_CL
 cl_id=$(cat NetCICD_CL | grep id | cut -d"'" -f 2)
@@ -496,12 +476,10 @@ echo "Created Cloud Operators group within the Cloud group with ID: ${clops_id}"
 ./kcadm.sh create groups/$cl_id/children -r netcicd -s name="Cloud-specialist" &>NetCICD_CLSPEC
 clspec_id=$(cat NetCICD_CLSPEC | grep id | cut -d"'" -f 2)
 echo "Created Cloud Specialist group within the Cloud group with ID: ${clspec_id}" 
-echo " "
 
 ./kcadm.sh create groups/$infra_id/children -r netcicd -s name="Storage" &>NetCICD_STORAGE
 storage_id=$(cat NetCICD_STORAGE | grep id | cut -d"'" -f 2)
 echo "Created Storage Department with ID: ${storage_id}" 
-echo " "
 
 ./kcadm.sh create groups/$infra_id/children -r netcicd -s name="Development" &>NetCICD_DEV
 dev_id=$(cat NetCICD_DEV | grep id | cut -d"'" -f 2)
@@ -536,7 +514,6 @@ echo "Created Campus Architect group within the Development Department with ID: 
     --rolename nexus-read
 
 echo "Added roles to Campus Architects."
-echo " "
 
 ./kcadm.sh create groups/$dev_id/children -r netcicd -s name="WAN-architect" &>NetCICD_WANARCH
 wanarch_id=$(cat NetCICD_WANARCH | grep id | cut -d"'" -f 2)
@@ -644,7 +621,6 @@ echo "Created Tooling Architect group within the Development Department with ID:
     --rolename nexus-read
 
 echo "Added roles to Tooling Architect."
-echo " "
 
 ./kcadm.sh create groups/$infra_id/children -r netcicd -s name="Tooling" &>NetCICD_TOOL
 tool_id=$(cat NetCICD_TOOL | grep id | cut -d"'" -f 2)
@@ -681,7 +657,6 @@ echo "Created Tooling Operations group within the Tooling Department with ID: ${
 ./kcadm.sh create groups/$tool_id/children -r netcicd -s name="Tooling Development" &>NetCICD_TOOLDEV
 tooldev_id=$(cat NetCICD_TOOLDEV | grep id | cut -d"'" -f 2)
 echo "Created Tooling Development group within the Tooling Department with ID: ${tooldev_id}" 
-echo " "
 
 #adding client roles to the group
 ./kcadm.sh add-roles \
