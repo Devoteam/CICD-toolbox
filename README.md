@@ -1,5 +1,5 @@
-DepShield: [![DepShield Badge](https://depshield.sonatype.org/badges/Devoteam/NetCICD-developer-toolbox/depshield.svg)](https://depshield.github.io)
-Cisco Devnet: [![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/Devoteam/CICD-toolbox)
+[![DepShield Badge](https://depshield.sonatype.org/badges/Devoteam/CICD-toolbox/depshield.svg)](https://depshield.github.io)
+[![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/Devoteam/CICD-toolbox)
 
 # Background
 When working on [NetCICD](https://github.com/Devoteam/NetCICD), again and again, tools used changed their way of use. In addition, additional functionality was needed: some sort of SSO, Jupyter Notebook, Node Red, git, etc. Adding more tools made the tool chain more brittle every time. And what was worse: building it using VM ate CPU and memory, basically limiting the size of the simulations that can be done. In short: having a dependable pipeline is one complex thing, making sure it keeps on working is another.
@@ -32,7 +32,7 @@ Even though we try to make this work as well as we can, it is being improved dai
 The local install is tested on a setup on an Ubuntu machine with VMWare Workstation installed. 
 
 ### Network settings
-A vmnet1 host-only network is defined with network 10.10.20.0/24. You should be using the local address 10.10.20.50 [On VMware WS](https://linuxhint.com/configure-dhcp-server-vmware-workstation-pro-16/#5) in order to be compatible with the sandbox.
+A vmnet1 host-only network is defined with network 10.10.20.0/24. You should be using the local address 10.10.20.50 [on VMware WS](https://linuxhint.com/configure-dhcp-server-vmware-workstation-pro-16/#5) in order for the toobox to work and to be compatible with the sandbox.
 
 The CML host should run on 10.10.20.161, just like on the Cisco Devnet Sandbox.
 
