@@ -7,6 +7,9 @@ echo "**************************************************************************
 echo " Start clean" 
 echo "****************************************************************************************************************"
 docker-compose down --remove-orphans
+docker volume rm netcicd_netcicd_db
+docker volume rm netcicd_portainer_data
+
 rm *_token
 rm install_log/keycloak_create.log
 rm log.html
