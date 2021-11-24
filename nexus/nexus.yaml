@@ -60,13 +60,13 @@ security:
         - nx-repository-view-docker-docker-*
         - nx-repository-view-docker-docker-proxy-*
         - nx-search-read
-    - id: Keycloak-nexus-netcicd-agent
+    - id: "ClientRole:nexus-netcicd-agent"
       enabled: true
       source: default
-      name: Keycloak-nexus-netcicd-agent
+      name: "ClientRole:nexus-netcicd-agent"
       description: "The role to be used for a Jenkins agent to push data to Nexus"
       privileges:
-        - nx-repository-admin-raw-NetCICD-hosted-*
+        - nx-repository-admin-raw-NetCICD-reports-*
     - id: repository-read-docker
       enabled: true
       source: default
