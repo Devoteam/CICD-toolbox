@@ -1,2 +1,2 @@
-FROM postgres
-COPY create-multiple-postgresql-databases.sh /docker-entrypoint-initdb.d/
+FROM postgres:buster
+COPY create-multiple-postgresql-databases.sh /docker-entrypoint-initdb.d/create-multiple-postgresql-databases.sh 

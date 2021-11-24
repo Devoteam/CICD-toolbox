@@ -1,23 +1,33 @@
-#!/bin/bash 
+#!/bin/bash
 
 nexus_plugin="0.4.0"
-
+echo "****************************************************************************************************************"
+echo " This will take about one hour!! "
 echo "****************************************************************************************************************"
 echo " Start clean" 
 echo "****************************************************************************************************************"
 docker-compose down --remove-orphans
-docker volume rm $(docker volume ls -q)
+docker volume rm netcicd_netcicd_db
+docker volume rm netcicd_portainer_data
+
 rm *_token
 rm install_log/keycloak_create.log
 rm log.html
 rm output.xml
 rm report.html
 rm install_log/*
+
 echo " " 
 echo "****************************************************************************************************************"
 echo " Cleaning Gitea" 
 echo "****************************************************************************************************************"
 sudo rm -rf gitea/data/*
+echo " " 
+echo "****************************************************************************************************************"
+echo " Cleaning Jenkins" 
+echo "****************************************************************************************************************"
+sudo rm -rf jenkins/jenkins_home/*
+sudo rm -rf jenkins/jenkins_home/.*
 echo " " 
 echo "****************************************************************************************************************"
 echo " Cleaning Nexus" 
@@ -44,35 +54,35 @@ if grep -q "gitea" /etc/hosts; then
     sudo sed -i '/gitea/d' /etc/hosts
 fi
 echo " Add Gitea to /etc/hosts"
-sudo echo "172.16.11.3   gitea" >> /etc/hosts
+sudo echo "10.10.20.50   gitea" >> /etc/hosts
 
 if grep -q "jenkins" /etc/hosts; then
     echo " Jenkins exists in /etc/hosts, removing..."
     sudo sed -i '/jenkins/d' /etc/hosts
 fi
 echo " Add Jenkins to /etc/hosts"
-sudo echo "172.16.11.8   jenkins" >> /etc/hosts
+sudo echo "10.10.20.50   jenkins" >> /etc/hosts
 
 if grep -q "nexus" /etc/hosts; then
     echo " Nexus exists in /etc/hosts, removing..."
     sudo sed -i '/nexus/d' /etc/hosts
 fi
 echo " Add Nexus to /etc/hosts"
-sudo echo "172.16.11.9   nexus" >> /etc/hosts
+sudo echo "10.10.20.50   nexus" >> /etc/hosts
 
 if grep -q "keycloak" /etc/hosts; then
     echo " Keycloak exists in /etc/hosts, removing..."
     sudo sed -i '/keycloak/d' /etc/hosts
 fi
 echo " Add Keycloak to /etc/hosts"
-sudo echo "172.16.11.11   keycloak" >> /etc/hosts
+sudo echo "10.10.20.50   keycloak" >> /etc/hosts
 
 if grep -q "portainer" /etc/hosts; then
     echo " Portainer exists in /etc/hosts, removing..."
     sudo sed -i '/portainer/d' /etc/hosts
 fi
 echo " Add Portainer to /etc/hosts"
-sudo echo "172.16.11.15   portainer" >> /etc/hosts
+sudo echo "10.10.20.50   portainer" >> /etc/hosts
 
 if grep -q "cml" /etc/hosts; then
     echo " Cisco Modeling Labs exists in /etc/hosts, removing..."
@@ -80,12 +90,31 @@ if grep -q "cml" /etc/hosts; then
 fi
 echo " Add Cisco Modeling Labs to /etc/hosts"
 sudo echo "10.10.20.161   cml" >> /etc/hosts
+
 sudo chmod o-w /etc/hosts
+
+echo " " 
+echo "****************************************************************************************************************"
+echo " Cleaning Portainer" 
+echo "****************************************************************************************************************"
+sudo chown $USER:$USER portainer/data
+sudo rm -rf portainer/data/*
 echo " " 
 echo "****************************************************************************************************************"
 echo " git clone Nexus CasC plugin and build .kar file"
 echo "****************************************************************************************************************"
 if [ ! -f ./nexus/nexus-casc* ]; then
+    echo "****************************************************************************************************************"
+    echo " Installing java, maven and curl" 
+    echo "****************************************************************************************************************"
+    sudo yum -y install java-1.8.0-openjdk curl
+    wget https://www.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz --no-check-certificate
+    sudo tar xf apache-maven-3.6.3-bin.tar.gz -C /opt
+    sudo ln -s /opt/apache-maven-3.6.3 /opt/maven
+    export M2_HOME=/opt/maven
+    export MAVEN_HOME=/opt/maven
+    export PATH=${M2_HOME}/bin:${PATH}
+    echo " " 
     git clone https://github.com/AdaptiveConsulting/nexus-casc-plugin.git
     cd nexus-casc-plugin
     mvn package
@@ -102,7 +131,7 @@ echo "**************************************************************************
 docker-compose up --build --remove-orphans --no-start
 docker-compose start netcicd-db
 echo "****************************************************************************************************************"
-echo " Calming down the CPU... waiting 10 seconds"
+echo " Calming down the CPU ... waiting 10 seconds"
 echo "****************************************************************************************************************"
 sleep 10
 docker-compose start keycloak
@@ -123,7 +152,7 @@ echo "**************************************************************************
 echo " Booting the remainder of the containers"
 echo "****************************************************************************************************************"
 docker-compose start
-echo " "
+echo " " 
 echo "****************************************************************************************************************"
 echo " Creating gitea setup"
 echo "****************************************************************************************************************"
@@ -137,7 +166,6 @@ jenkins_client_id=$(grep JENKINS_token: install_log/keycloak_create.log | cut -d
 docker exec -it jenkins sh -c "sed -i -e 's/oic_secret/\"$jenkins_client_id\"/' /var/jenkins_conf/casc.yaml"
 echo "Reloading "
 docker restart jenkins
-echo " " 
 echo " " 
 echo "****************************************************************************************************************"
 echo " Creating nexus setup"
@@ -182,25 +210,29 @@ echo " "
 echo "****************************************************************************************************************"
 echo "Cleaning up"
 echo "****************************************************************************************************************"
-#rm *_token
-#rm install_log/keycloak_create.log
+rm *_token
+rm install_log/keycloak_create.log
 echo " "
 echo "****************************************************************************************************************"
 echo " Preparing for finalizing install via ROBOT"
 echo "****************************************************************************************************************"
-sudo pip3 install robotframework robotframework-selenium2library
+sudo pip install robotframework robotframework-selenium2library
 sudo cp geckodriver /usr/local/bin/
 echo " Manual steps..."
 echo " "
-echo " Log out and open a new terminal"
+echo " Go to the RDP session in the sandbox and open a terminal..."
 echo " "
-echo " cd NetCICD-developer-toolbox"
+echo " cd CICD-toolbox"
 echo " robot -d install_log/ finalize_install.robot"
 echo " "
 echo " The pipeline uses the default Cisco DevNet CML Sandbox credentials developer/C1sco12345 to log in to CML."
 echo " You may change this to your own credentials in:"
 echo " "
 echo " http://jenkins:8084/credentials/store/system/domain/_/credential/CML-SIM-CRED/update"
+echo " "
+echo " When everything works out as planned, Jenkins should check the repo and labs should be started automagically"
+echo " "
+echo " "
 echo " "
 echo " Due to limitations in Keycloak, do **not** use docker-compose down. Keycloak will no longer function after this."
 echo " "
