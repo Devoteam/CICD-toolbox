@@ -44,12 +44,12 @@ echo "GITEA_token: ${GITEA_token}"
 
 # Now we can add client specific roles (Clientroles)
 ./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-infraautomators-admin -s description='The admin role for the Infra Automators organization'
-./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-netops-read -s description='A read-only role for network operations, intended for users/operators'
-./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-netops-write -s description='A read-write role for network operations, intended for network specialists'
-./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-netdev-read -s description='A read-only role for network development, intended for network architects'
-./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-netdev-write -s description='A read-write role for network development, intended for network senior network architects'
-./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-tooling-read -s description='A read-only role for the tooling team, intended for developers that do not alter platform specific workflows'
-./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-tooling-write -s description='A read-write role for the tooling team, intended for senior developers of the tooling team'
+./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-netcicd-read -s description='A read-only role on NetCICD'
+./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-netcicd-write -s description='A read-write role on NetCICD'
+./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-netcicd-admin -s description='A admin role on NetCICD'
+./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-cicdtoolbox-read -s description='A read-only role on the CICD toolbox'
+./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-cicdtoolbox-write -s description='A read-write role on the CICD toolbox'
+./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-cicdtoolbox-admin -s description='A read-write role on the CICD toolbox'
 
 ./kcadm.sh create clients \
     -r netcicd \
@@ -89,8 +89,8 @@ echo "JENKINS_token: ${JENKINS_token}"
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-agent -s description='The role to be used for a user that needs to create agents in Jenkins'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-run -s description='The role to be used for a user that needs to run the NetCICD pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-dev -s description='The role to be used for a user that needs to configure the NetCICD pipeline'
-./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-toolbox-run -s description='The role to be used for a user that needs to run the NetCICD-developer-toolbox pipeline'
-./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-netcicd-toolbox-dev -s description='The role to be used for a user that needs to configure the NetCICD-developer-toolbox pipeline'
+./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-cicdtoolbox-run -s description='The role to be used for a user that needs to run the NetCICD-developer-toolbox pipeline'
+./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-cicdtoolbox-dev -s description='The role to be used for a user that needs to configure the NetCICD-developer-toolbox pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r netcicd -s name=jenkins-git -s description='A role for Jenkins to work with Git'
 
 echo "Created Jenkins roles." 
@@ -270,8 +270,7 @@ echo "Created Campus Operator Group within Campus Operations Group with ID: ${ca
     -r netcicd \
     --gid $campus_ops_oper_id \
     --cclientid Gitea \
-    --rolename gitea-netops-read \
-    --rolename gitea-netdev-read 
+    --rolename gitea-netcicd-read 
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -279,7 +278,7 @@ echo "Created Campus Operator Group within Campus Operations Group with ID: ${ca
     --cclientid Jenkins \
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
-    --rolename jenkins-netcicd-toolbox-run 
+    --rolename jenkins-cicdtoolbox-run 
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -299,8 +298,7 @@ echo "Created Campus Specialists Group within Campus Operations Group with ID: $
     -r netcicd \
     --gid $campus_ops_spec_id \
     --cclientid Gitea \
-    --rolename gitea-netops-write \
-    --rolename gitea-netdev-read \
+    --rolename gitea-netcicd-write
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -309,7 +307,7 @@ echo "Created Campus Specialists Group within Campus Operations Group with ID: $
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-dev \
-    --rolename jenkins-netcicd-toolbox-run 
+    --rolename jenkins-cicdtoolbox-run 
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -333,8 +331,7 @@ echo "Created Campus LAN Designer group within the Development Department with I
     -r netcicd \
     --gid $campus_dev_lan_designer_id \
     --cclientid Gitea \
-    --rolename gitea-netops-read \
-    --rolename gitea-netdev-write \
+    --rolename gitea-netcicd-write
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -343,7 +340,7 @@ echo "Created Campus LAN Designer group within the Development Department with I
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-dev \
-    --rolename jenkins-netcicd-toolbox-run 
+    --rolename jenkins-cicdtoolbox-run 
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -363,8 +360,7 @@ echo "Created Campus wifi Designer group within the Development Department with 
     -r netcicd \
     --gid $campus_dev_wifi_designer_id \
     --cclientid Gitea \
-    --rolename gitea-netops-read \
-    --rolename gitea-netdev-write \
+    --rolename gitea-netcicd-write
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -373,7 +369,7 @@ echo "Created Campus wifi Designer group within the Development Department with 
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-dev \
-    --rolename jenkins-netcicd-toolbox-run 
+    --rolename jenkins-cicdtoolbox-run 
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -401,8 +397,7 @@ echo "Created WAN Operator Group within WAN Operations Group with ID: ${wan_ops_
     -r netcicd \
     --gid $wan_ops_oper_id \
     --cclientid Gitea \
-    --rolename gitea-netops-read \
-    --rolename gitea-netdev-read \
+    --rolename gitea-netcicd-read
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -410,7 +405,7 @@ echo "Created WAN Operator Group within WAN Operations Group with ID: ${wan_ops_
     --cclientid Jenkins \
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
-    --rolename jenkins-netcicd-toolbox-run 
+    --rolename jenkins-cicdtoolbox-run 
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -430,8 +425,7 @@ echo "Created WAN Specialists Group within WAN Operations Group with ID: ${wan_o
     -r netcicd \
     --gid $wan_ops_spec_id \
     --cclientid Gitea \
-    --rolename gitea-netops-write \
-    --rolename gitea-netdev-read \
+    --rolename gitea-netcicd-read
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -440,7 +434,7 @@ echo "Created WAN Specialists Group within WAN Operations Group with ID: ${wan_o
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-dev \
-    --rolename jenkins-netcicd-toolbox-run 
+    --rolename jenkins-cicdtoolbox-run 
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -464,8 +458,7 @@ echo "Created WAN Designer group within the WAN Development Group with ID: ${wan
     -r netcicd \
     --gid $wan_dev_designer_id \
     --cclientid Gitea \
-    --rolename gitea-netops-read \
-    --rolename gitea-netdev-write \
+    --rolename gitea-netcicd-write
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -474,7 +467,7 @@ echo "Created WAN Designer group within the WAN Development Group with ID: ${wan
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-dev \
-    --rolename jenkins-netcicd-toolbox-run 
+    --rolename jenkins-cicdtoolbox-run 
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -506,8 +499,7 @@ echo "Created Compute Operator Group within Compute Operations Group with ID: ${
     -r netcicd \
     --gid $dc_ops_comp_oper_id \
     --cclientid Gitea \
-    --rolename gitea-netops-read \
-    --rolename gitea-netdev-read \
+    --rolename gitea-netcicd-read
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -515,7 +507,7 @@ echo "Created Compute Operator Group within Compute Operations Group with ID: ${
     --cclientid Jenkins \
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
-    --rolename jenkins-netcicd-toolbox-run 
+    --rolename jenkins-cicdtoolbox-run 
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -535,8 +527,7 @@ echo "Created Compute Specialists group within Compute Operations with ID: ${dc_
     -r netcicd \
     --gid $dc_ops_comp_spec_id \
     --cclientid Gitea \
-    --rolename gitea-netops-write \
-    --rolename gitea-netdev-read \
+    --rolename gitea-netcicd-write
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -545,7 +536,7 @@ echo "Created Compute Specialists group within Compute Operations with ID: ${dc_
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-dev \
-    --rolename jenkins-netcicd-toolbox-run 
+    --rolename jenkins-cicdtoolbox-run 
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -569,8 +560,7 @@ echo "Created DC Network Operator Group within DC Network Operations Group with 
     -r netcicd \
     --gid $dc_ops_net_oper_id \
     --cclientid Gitea \
-    --rolename gitea-netops-read \
-    --rolename gitea-netdev-read \
+    --rolename gitea-netcicd-read
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -578,7 +568,7 @@ echo "Created DC Network Operator Group within DC Network Operations Group with 
     --cclientid Jenkins \
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
-    --rolename jenkins-netcicd-toolbox-run 
+    --rolename jenkins-cicdtoolbox-run 
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -598,8 +588,7 @@ echo "Created DC Network Specialists group within Compute Operations with ID: ${
     -r netcicd \
     --gid $dc_ops_net_spec_id \
     --cclientid Gitea \
-    --rolename gitea-netops-write \
-    --rolename gitea-netdev-read \
+    --rolename gitea-netcicd-write
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -608,7 +597,7 @@ echo "Created DC Network Specialists group within Compute Operations with ID: ${
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-dev \
-    --rolename jenkins-netcicd-toolbox-run 
+    --rolename jenkins-cicdtoolbox-run 
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -632,8 +621,7 @@ echo "Created Storage Operator Group within Storage Operations Group with ID: ${
     -r netcicd \
     --gid $dc_ops_stor_oper_id \
     --cclientid Gitea \
-    --rolename gitea-netops-read \
-    --rolename gitea-netdev-read \
+    --rolename gitea-netcicd-read
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -641,7 +629,7 @@ echo "Created Storage Operator Group within Storage Operations Group with ID: ${
     --cclientid Jenkins \
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
-    --rolename jenkins-netcicd-toolbox-run 
+    --rolename jenkins-cicdtoolbox-run 
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -661,8 +649,7 @@ echo "Created Storage Specialists group within Storage Operations with ID: ${dc_
     -r netcicd \
     --gid $dc_ops_stor_spec_id \
     --cclientid Gitea \
-    --rolename gitea-netops-write \
-    --rolename gitea-netdev-read \
+    --rolename gitea-netcicd-write
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -671,7 +658,7 @@ echo "Created Storage Specialists group within Storage Operations with ID: ${dc_
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-dev \
-    --rolename jenkins-netcicd-toolbox-run 
+    --rolename jenkins-cicdtoolbox-run 
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -695,8 +682,7 @@ echo "Created Compute Designer Group within the Datacenter Development Group wit
     -r netcicd \
     --gid $dc_dev_compute_designer_id \
     --cclientid Gitea \
-    --rolename gitea-netops-read \
-    --rolename gitea-netdev-write \
+    --rolename gitea-netcicd-write
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -705,7 +691,7 @@ echo "Created Compute Designer Group within the Datacenter Development Group wit
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-dev \
-    --rolename jenkins-netcicd-toolbox-run 
+    --rolename jenkins-cicdtoolbox-run 
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -725,8 +711,7 @@ echo "Created DC Network Group within the Datacenter Development Group with ID: 
     -r netcicd \
     --gid $dc_dev_network_designer_id \
     --cclientid Gitea \
-    --rolename gitea-netops-read \
-    --rolename gitea-netdev-write \
+    --rolename gitea-netcicd-write
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -735,7 +720,7 @@ echo "Created DC Network Group within the Datacenter Development Group with ID: 
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-dev \
-    --rolename jenkins-netcicd-toolbox-run 
+    --rolename jenkins-cicdtoolbox-run 
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -755,8 +740,7 @@ echo "Created DC Storage Designer Group within the Datacenter Development Group 
     -r netcicd \
     --gid $dc_dev_storage_designer_id \
     --cclientid Gitea \
-    --rolename gitea-netops-read \
-    --rolename gitea-netdev-write \
+    --rolename gitea-netcicd-write
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -765,7 +749,7 @@ echo "Created DC Storage Designer Group within the Datacenter Development Group 
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-netcicd-dev \
-    --rolename jenkins-netcicd-toolbox-run 
+    --rolename jenkins-cicdtoolbox-run 
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -805,9 +789,7 @@ echo "Created Tooling Operator group within the Tooling Operations Department wi
     -r netcicd \
     --gid $tool_ops_oper_id \
     --cclientid Gitea \
-    --rolename gitea-netops-read \
-    --rolename gitea-netdev-read \
-    --rolename gitea-tooling-read \
+    --rolename gitea-netcicd-read
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -815,7 +797,7 @@ echo "Created Tooling Operator group within the Tooling Operations Department wi
     --cclientid Jenkins \
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
-    --rolename jenkins-netcicd-toolbox-run 
+    --rolename jenkins-cicdtoolbox-run 
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -835,9 +817,7 @@ echo "Created Tooling Specialist group within the Tooling Operations Department 
     -r netcicd \
     --gid $tool_ops_spec_id \
     --cclientid Gitea \
-    --rolename gitea-netops-read \
-    --rolename gitea-netdev-read \
-    --rolename gitea-tooling-read \
+    --rolename gitea-netcicd-read
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -845,7 +825,7 @@ echo "Created Tooling Specialist group within the Tooling Operations Department 
     --cclientid Jenkins \
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
-    --rolename jenkins-netcicd-toolbox-run 
+    --rolename jenkins-cicdtoolbox-run 
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -869,16 +849,15 @@ echo "Created Tooling Designer Group within the Tooling Department with ID: ${to
     -r netcicd \
     --gid $tool_dev_designer_id \
     --cclientid Gitea \
-    --rolename gitea-netops-read \
-    --rolename gitea-netdev-read \
-    --rolename gitea-tooling-write \
+    --rolename gitea-netcicd-read \
+    --rolename gitea-cicdtoolbox-write
 
 ./kcadm.sh add-roles \
     -r netcicd \
     --gid $tool_dev_designer_id \
     --cclientid Jenkins \
     --rolename jenkins-user \
-    --rolename jenkins-netcicd-toolbox-dev 
+    --rolename jenkins-cicdtoolbox-dev 
 
 ./kcadm.sh add-roles \
     -r netcicd \
@@ -939,7 +918,7 @@ echo "Created Floor Management group within the Field Services Department with I
 
 
 ./kcadm.sh set-password -r netcicd --username git-jenkins --new-password netcicd
-./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Gitea --rolename gitea-netops-write
+./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Gitea --rolename gitea-netcicd-write
 ./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Jenkins --rolename jenkins-git
 
 ./kcadm.sh create users \
