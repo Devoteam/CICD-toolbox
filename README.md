@@ -32,7 +32,10 @@ Even though we try to make this work as well as we can, it is being improved dai
 The local install is tested on a setup on an Ubuntu machine with VMWare Workstation installed. 
 
 ### Network settings
-A vmnet1 host-only network is defined with network 10.10.20.0/24. You should be using the local address 10.10.20.50 [on VMware WS](https://linuxhint.com/configure-dhcp-server-vmware-workstation-pro-16/#5) in order for the toobox to work and to be compatible with the sandbox.
+A vmnet1 host-only network is defined with network 10.10.20.0/24. You should be using the local address 10.10.20.50 [on VMware WS](https://linuxhint.com/configure-dhcp-server-vmware-workstation-pro-16/#5) in order for the toobox to work and to be compatible with the sandbox. Use 
+### sudo ip a replace 10.10.20.50 dev vmnet1 ###
+
+if it does not work
 
 The CML host should run on 10.10.20.161, just like on the Cisco Devnet Sandbox.
 
