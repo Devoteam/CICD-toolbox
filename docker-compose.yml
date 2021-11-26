@@ -5,6 +5,12 @@ networks:
     ipam:
       config:
         - subnet: 172.16.11.0/24
+  jumphosts:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.111.0/24
+
 volumes:
   netcicd_db:
   portainer_data:
@@ -158,3 +164,37 @@ services:
         ipv4_address: 172.16.11.15
     ports:
       - '9000:9000'
+
+
+  # freeipa:
+  #   container_name: freeipa
+  #   image: freeipa/freeipa-server:centos-8
+
+  #   restart: unless-stopped
+  #   hostname: freeipa
+  #   domainname: home.lan
+  #   volumes:
+  #     - /sys/fs/cgroup:/sys/fs/cgroup:ro
+  #     - ./freeipa/data:/data:Z 
+  #   expose:
+  #     - "80"
+  #     - "443"
+  #     - "389"
+  #     - "636"
+  #     - "88"
+  #     - "464"
+  #     - "88/udp"
+  #     - "464/udp"
+  #     - "123/udp"
+#    ports:
+#      - "80:80"       # HTTP
+#      - "9444:443"      # HTTPS
+#      - "389:389"       # LDAP
+#      - "636:636"       # LDAPS
+#      - "88:88"         # Kerberos
+#      - "464:464"       # Kerberos
+#      - "88:88/udp"     # Kerberos
+#      - "464:464/udp"   # Kerberos
+#      - "123:123/udp"   # ntp
+
+# freeipa.example.com resolves via /etc/hosts
