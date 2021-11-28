@@ -41,45 +41,52 @@ echo " "
 sudo chmod o+w /etc/hosts
 if grep -q "gitea" /etc/hosts; then
     echo " Gitea exists in /etc/hosts, removing..."
-    sudo sed -i '/gitea/d' /etc/hosts
+    sudo sed -i '/gitea.tooling.test/d' /etc/hosts
 fi
 echo " Add Gitea to /etc/hosts"
-sudo echo "172.16.11.3   gitea" >> /etc/hosts
+sudo echo "172.16.11.3   gitea.tooling.test" >> /etc/hosts
 
 if grep -q "jenkins" /etc/hosts; then
     echo " Jenkins exists in /etc/hosts, removing..."
-    sudo sed -i '/jenkins/d' /etc/hosts
+    sudo sed -i '/jenkins.tooling.test/d' /etc/hosts
 fi
 echo " Add Jenkins to /etc/hosts"
-sudo echo "172.16.11.8   jenkins" >> /etc/hosts
+sudo echo "172.16.11.8   jenkins.tooling.test" >> /etc/hosts
 
 if grep -q "nexus" /etc/hosts; then
     echo " Nexus exists in /etc/hosts, removing..."
-    sudo sed -i '/nexus/d' /etc/hosts
+    sudo sed -i '/nexus.tooling.test/d' /etc/hosts
 fi
 echo " Add Nexus to /etc/hosts"
-sudo echo "172.16.11.9   nexus" >> /etc/hosts
+sudo echo "172.16.11.9   nexus.tooling.test" >> /etc/hosts
 
 if grep -q "keycloak" /etc/hosts; then
     echo " Keycloak exists in /etc/hosts, removing..."
-    sudo sed -i '/keycloak/d' /etc/hosts
+    sudo sed -i '/keycloak.tooling.test/d' /etc/hosts
 fi
 echo " Add Keycloak to /etc/hosts"
-sudo echo "172.16.11.11   keycloak" >> /etc/hosts
+sudo echo "172.16.11.11   keycloak.tooling.test" >> /etc/hosts
+
+if grep -q "freeipa" /etc/hosts; then
+    echo " FreeIPA exists in /etc/hosts, removing..."
+    sudo sed -i '/freeipa.tooling.test/d' /etc/hosts
+fi
+echo " Add FreeIPA to /etc/hosts"
+sudo echo "172.16.11.12   freeipa.tooling.test" >> /etc/hosts
 
 if grep -q "portainer" /etc/hosts; then
     echo " Portainer exists in /etc/hosts, removing..."
-    sudo sed -i '/portainer/d' /etc/hosts
+    sudo sed -i '/portainer.tooling.test/d' /etc/hosts
 fi
 echo " Add Portainer to /etc/hosts"
-sudo echo "172.16.11.15   portainer" >> /etc/hosts
+sudo echo "172.16.11.15   portainer.tooling.test" >> /etc/hosts
 
 if grep -q "cml" /etc/hosts; then
     echo " Cisco Modeling Labs exists in /etc/hosts, removing..."
-    sudo sed -i '/cml/d' /etc/hosts
+    sudo sed -i '/cml.tooling.test/d' /etc/hosts
 fi
 echo " Add Cisco Modeling Labs to /etc/hosts"
-sudo echo "10.10.20.161   cml" >> /etc/hosts
+sudo echo "10.10.20.161   cml.tooling.test" >> /etc/hosts
 sudo chmod o-w /etc/hosts
 echo " " 
 echo "****************************************************************************************************************"
@@ -105,11 +112,23 @@ echo "**************************************************************************
 echo " Calming down the CPU... waiting 10 seconds"
 echo "****************************************************************************************************************"
 sleep 10
+docker-compose start freeipa
+echo "****************************************************************************************************************"
+echo " Wait until FreeIPA is running"
+echo "****************************************************************************************************************"
+until $(curl --output /dev/null --silent --head --fail http://freeipa.tooling.test); do
+    printf '.'
+    sleep 5
+done
+echo "****************************************************************************************************************"
+echo " Calming down the CPU ... waiting 10 seconds"
+echo "****************************************************************************************************************"
+sleep 10
 docker-compose start keycloak
 echo "****************************************************************************************************************"
 echo " Wait until keycloak is running"
 echo "****************************************************************************************************************"
-until $(curl --output /dev/null --silent --head --fail http://keycloak:8080); do
+until $(curl --output /dev/null --silent --head --fail http://keycloak.tooling.test:8080); do
     printf '.'
     sleep 5
 done
@@ -146,14 +165,14 @@ docker cp keycloak:/opt/jboss/keycloak/bin/keycloak-nexus.json nexus/keycloak-ne
 docker cp nexus/keycloak-nexus.json nexus:/opt/sonatype/nexus/etc/keycloak.json
 echo "Reloading "
 docker restart nexus
-until $(curl --output /dev/null --silent --head --fail http://nexus:8081); do
+until $(curl --output /dev/null --silent --head --fail http://nexus.tooling.test:8081); do
     printf '.'
     sleep 5
 done
 echo " " 
 echo "****************************************************************************************************************"
 echo " Saving Keycloak self-signed certificate"
-openssl s_client -showcerts -connect keycloak:8443 </dev/null 2>/dev/null|openssl x509 -outform PEM >./jenkins/keystore/keycloak.pem
+openssl s_client -showcerts -connect keycloak.tooling.test:8443 </dev/null 2>/dev/null|openssl x509 -outform PEM >./jenkins/keystore/keycloak.pem
 echo " "
 echo " Copy certificate into Jenkins keystore"
 echo "****************************************************************************************************************"
@@ -163,7 +182,7 @@ keytool -import -alias Keycloak -keystore ./jenkins/keystore/cacerts -file ./jen
 docker cp ./jenkins/keystore/cacerts jenkins:/opt/java/openjdk/lib/security/cacerts
 echo "Reloading "
 docker restart jenkins
-until $(curl --output /dev/null --silent --head --fail http://jenkins:8084/whoAmI); do
+until $(curl --output /dev/null --silent --head --fail http://jenkins.tooling.test:8084/whoAmI); do
     printf '.'
     sleep 5
 done
@@ -173,11 +192,11 @@ echo "NetCICD Toolkit install done "
 echo " "
 echo "You can reach the servers on:"
 echo " "
-echo " Gitea:       http://gitea:3000"
-echo " Jenkins:     http://jenkins:8084"
-echo " Nexus:       http://nexus:8081"
-echo " Keycloak:    http://keycloak:8443"
-echo " Portainer:   http://portainer:9000"
+echo " Gitea:       http://gitea.tooling.test:3000"
+echo " Jenkins:     http://jenkins.tooling.test:8084"
+echo " Nexus:       http://nexus.tooling.test:8081"
+echo " Keycloak:    http://keycloak.tooling.test:8443"
+echo " Portainer:   http://portainer.tooling.test:9000"
 echo " "
 echo "****************************************************************************************************************"
 echo "Cleaning up"
@@ -200,10 +219,11 @@ echo " "
 echo " The pipeline uses the default Cisco DevNet CML Sandbox credentials developer/C1sco12345 to log in to CML."
 echo " You may change this to your own credentials in:"
 echo " "
-echo " http://jenkins:8084/credentials/store/system/domain/_/credential/CML-SIM-CRED/update"
+echo " http://jenkins.tooling.test:8084/credentials/store/system/domain/_/credential/CML-SIM-CRED/update"
 echo " "
 echo " Due to limitations in Keycloak, do **not** use docker-compose down. Keycloak will no longer function after this."
 echo " "
 echo " Stop the environment with ./down, start with ./up"
 echo " "
 echo "****************************************************************************************************************"
+

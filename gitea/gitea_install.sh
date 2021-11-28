@@ -25,7 +25,7 @@ function CreateRepo () {
         "uid": 0,  
         "wiki": false
         }'
-    curl -s --user $user:$pwd -X POST "http://gitea:3000/api/v1/repos/migrate" -H  "accept: application/json" -H  "Content-Type: application/json" -d "${repo_payload}"
+    curl -s --user $user:$pwd -X POST "http://gitea.tooling.test:3000/api/v1/repos/migrate" -H  "accept: application/json" -H  "Content-Type: application/json" -d "${repo_payload}"
     echo " "
     echo "****************************************************************************************************************"
     echo " Creating webhook for the ${2} repo"
@@ -35,12 +35,12 @@ function CreateRepo () {
         "branch_filter": "*",
         "config": {
             "content_type": "json",
-            "url": "http://jenkins:8084/gitea-webhook/post"
+            "url": "http://jenkins.tooling.test:8084/gitea-webhook/post"
             },
         "events": [ "push" ],
         "type": "gitea"
         }'
-    curl -s --user $user:$pwd -X POST "http://gitea:3000/api/v1/repos/${1}/${2}/hooks" -H  "accept: application/json" -H  "Content-Type: application/json" -d "${webhook_payload}"
+    curl -s --user $user:$pwd -X POST "http://gitea.tooling.test:3000/api/v1/repos/${1}/${2}/hooks" -H  "accept: application/json" -H  "Content-Type: application/json" -d "${webhook_payload}"
     echo " "    
 }
 
@@ -66,13 +66,13 @@ function CreateTeam () {
             "repo.ext_wiki" 
             ] 
         }'
-    local team_data=`curl -s --user $user:$pwd -X POST "http://gitea:3000/api/v1/orgs/${1}/teams" -H "accept: application/json" -H "Content-Type: application/json" -d "${team_payload}"`
+    local team_data=`curl -s --user $user:$pwd -X POST "http://gitea.tooling.test:3000/api/v1/orgs/${1}/teams" -H "accept: application/json" -H "Content-Type: application/json" -d "${team_payload}"`
     local team_id=$( echo $team_data | awk -F',' '{print $(1)}' | awk -F':' '{print $2}' )
     echo " "
     echo "****************************************************************************************************************"
     echo " Adding ${5} repo to ${2} team in Gitea "
     echo "****************************************************************************************************************"
-    curl -s --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/${team_id}/repos/infraautomator/${5}" -H  "accept: application/json"
+    curl -s --user $user:$pwd -X PUT "http://gitea.tooling.test:3000/api/v1/teams/${team_id}/repos/infraautomator/${5}" -H  "accept: application/json"
     echo " "
 
     team=$team_id
@@ -84,7 +84,7 @@ echo "**************************************************************************
 echo " Wait until Gitea has started"
 echo "****************************************************************************************************************"
 docker restart gitea
-until $(curl --output /dev/null --silent --head --fail http://gitea:3000); do
+until $(curl --output /dev/null --silent --head --fail http://gitea.tooling.test:3000); do
     printf '.'
     sleep 5
 done
@@ -99,7 +99,7 @@ user=gitea-admin
 pwd=netcicd
 echo " Create local gituser (admin role: $user)"
 echo "****************************************************************************************************************"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username $user --password $pwd --admin --email gitea-admin@infraautomators.example.com'"
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username $user --password $pwd --admin --email gitea-admin@tooling.test'"
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating InfraAutomators organization in Gitea "
@@ -113,7 +113,7 @@ ORG_PAYLOAD='{
     "visibility": "public", 
     "website": ""
     }'
-org_data=`curl -s --user $user:$pwd -X POST "http://gitea:3000/api/v1/orgs" -H "accept: application/json" -H "Content-Type: application/json" --data "${ORG_PAYLOAD}"`
+org_data=`curl -s --user $user:$pwd -X POST "http://gitea.tooling.test:3000/api/v1/orgs" -H "accept: application/json" -H "Content-Type: application/json" --data "${ORG_PAYLOAD}"`
 echo " "
 
 # as Gitea cannot honor groups from keycloak, we must add the users to the groups separately
@@ -121,15 +121,15 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Adding users to Gitea "
 echo "****************************************************************************************************************"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-jenkins --password netcicd --email git-jenkins@infraautomators.example.com'"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username netcicd-pipeline --password netcicd --email netcicd-pipeline@infraautomators.example.com --access-token'" > install_log/netcicd-pipeline_token
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-argos --password netcicd --email git-argos@infraautomators.example.com --access-token'" > install_log/git-argos_token
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username thedude --password thedude --email thedude@infraautomators.example.com'"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username thespecialist --password thespecialist --email thespecialist@infraautomators.example.com'"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username architect --password architect --email architect@infraautomators.example.com'"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username networkguru --password networkguru --email networkguru@infraautomators.example.com'"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username hacker --password whitehat --email hacker@infraautomators.example.com'"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username tooltiger --password tooltiger --email tooltiger@infraautomators.example.com'"
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-jenkins --password netcicd --email git-jenkins@tooling.test'"
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username netcicd-pipeline --password netcicd --email netcicd-pipeline@tooling.test --access-token'" > install_log/netcicd-pipeline_token
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-argos --password netcicd --email git-argos@tooling.test --access-token'" > install_log/git-argos_token
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username thedude --password thedude --email thedude@tooling.test'"
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username thespecialist --password thespecialist --email thespecialist@tooling.test'"
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username architect --password architect --email architect@tooling.test'"
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username networkguru --password networkguru --email networkguru@tooling.test'"
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username hacker --password whitehat --email hacker@tooling.test'"
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username tooltiger --password tooltiger --email tooltiger@tooling.test'"
 
 CreateRepo "Infraautomator" "NetCICD" "https://github.com/Devoteam/NetCICD.git" "The NetCICD pipeline"
 CreateRepo "Infraautomator" "CICD-toolbox" "https://github.com/Devoteam/CICD-toolbox.git" "The CICD-toolbox"
@@ -138,19 +138,19 @@ CreateTeam infraautomator "gitea-netcicd-read" "The NetCICD repo read role" "rea
 echo "****************************************************************************************************************"
 echo " Assigning users to gitea-netcicd-read team "
 echo "****************************************************************************************************************"
-curl -s --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/${team}/members/thedude" -H  "accept: application/json"
+curl -s --user $user:$pwd -X PUT "http://gitea.tooling.test:3000/api/v1/teams/${team}/members/thedude" -H  "accept: application/json"
 echo "thedude"
-curl -s --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/${team}/members/architect" -H  "accept: application/json"
+curl -s --user $user:$pwd -X PUT "http://gitea.tooling.test:3000/api/v1/teams/${team}/members/architect" -H  "accept: application/json"
 echo "architect"
 CreateTeam infraautomator "gitea-netcicd-write" "The NetCICD repo read-write role" "write" "NetCICD"
 echo "****************************************************************************************************************"
 echo " Assigning users to gitea-netcicd-write team "
 echo "****************************************************************************************************************"
-curl -s --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/${team}/members/git-jenkins" -H  "accept: application/json"
+curl -s --user $user:$pwd -X PUT "http://gitea.tooling.test:3000/api/v1/teams/${team}/members/git-jenkins" -H  "accept: application/json"
 echo "git-jenkins"
-curl -s --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/${team}/members/thespecialist" -H  "accept: application/json"
+curl -s --user $user:$pwd -X PUT "http://gitea.tooling.test:3000/api/v1/teams/${team}/members/thespecialist" -H  "accept: application/json"
 echo "thespecialist"
-curl -s --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/${team}/members/networkguru" -H  "accept: application/json"
+curl -s --user $user:$pwd -X PUT "http://gitea.tooling.test:3000/api/v1/teams/${team}/members/networkguru" -H  "accept: application/json"
 echo "networkguru"
 CreateTeam infraautomator "gitea-netcicd-admin" "The NetCICD repo admin role" "admin" "NetCICD"
 echo "****************************************************************************************************************"
@@ -161,15 +161,15 @@ CreateTeam infraautomator "gitea-CICDtoolbox-read" "The CICDtoolbox repo read ro
 echo "****************************************************************************************************************"
 echo " Assigning users to gitea-CICDtoolbox-read team "
 echo "****************************************************************************************************************"
-curl -s --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/${team}/members/hacker" -H  "accept: application/json"
+curl -s --user $user:$pwd -X PUT "http://gitea.tooling.test:3000/api/v1/teams/${team}/members/hacker" -H  "accept: application/json"
 echo "hacker"
 CreateTeam infraautomator "gitea-CICDtoolbox-write" "The CICDtoolbox repo read-write role" "write" "CICD-toolbox"
 echo "****************************************************************************************************************"
 echo " Assigning users to gitea-CICDtoolbox-write team "
 echo "****************************************************************************************************************"
-curl -s --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/${team}/members/git-jenkins" -H  "accept: application/json"
+curl -s --user $user:$pwd -X PUT "http://gitea.tooling.test:3000/api/v1/teams/${team}/members/git-jenkins" -H  "accept: application/json"
 echo "git-jenkins"
-curl -s --user $user:$pwd -X PUT "http://gitea:3000/api/v1/teams/${team}/members/tooltiger" -H  "accept: application/json"
+curl -s --user $user:$pwd -X PUT "http://gitea.tooling.test:3000/api/v1/teams/${team}/members/tooltiger" -H  "accept: application/json"
 echo "tooltiger"
 CreateTeam infraautomator "gitea-CICDtoolbox-admin" "The CICDtoolbox repo admin role" "admin" "CICD-toolbox"
 echo "****************************************************************************************************************"
@@ -180,13 +180,13 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Adding keycloak client key to Gitea"
 gitea_client_id=$(grep GITEA_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin auth add-oauth --name keycloak --provider openidConnect --key Gitea --secret $gitea_client_id --auto-discover-url http://keycloak:8080/auth/realms/netcicd/.well-known/openid-configuration --config=/data/gitea/conf/app.ini'"
+docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin auth add-oauth --name keycloak --provider openidConnect --key Gitea --secret $gitea_client_id --auto-discover-url http://keycloak.tooling.test:8080/auth/realms/netcicd/.well-known/openid-configuration --config=/data/gitea/conf/app.ini'"
 echo "****************************************************************************************************************"
 echo " Restarting Gitea"
 echo "****************************************************************************************************************"
 docker restart gitea
 echo " Wait until gitea is running"
-until $(curl --output /dev/null --silent --head --fail http://gitea:3000); do
+until $(curl --output /dev/null --silent --head --fail http://gitea.tooling.test:3000); do
     printf '.'
     sleep 5
 done

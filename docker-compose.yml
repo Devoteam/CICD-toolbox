@@ -10,9 +10,11 @@ networks:
     ipam:
       config:
         - subnet: 172.16.111.0/24
+  reverse-proxy:
 
 volumes:
   netcicd_db:
+  freeipa:
   portainer_data:
 
 services:
@@ -109,7 +111,7 @@ services:
     stop_grace_period: 15s
     user: nexus
     environment:
-      BASE_URL: 'http://nexus:8081'
+      BASE_URL: 'http://nexus.tooling.test:8081'
       NEXUS_SECURITY_RANDOMPASSWORD: 'false'
       NEXUS_CASC_CONFIG: /opt/nexus.yaml
     volumes:
@@ -165,36 +167,40 @@ services:
     ports:
       - '9000:9000'
 
+  freeipa:
+    container_name: freeipa
+    build: freeipa/freeipa-server:centos-8
+    restart: unless-stopped
+    hostname: freeipa
+    domainname: home.lan
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - freeipa:/data:Z 
+    expose:
+      - "80"
+      - "443"
+      - "389"
+      - "636"
+      - "88"
+      - "464"
+      - "88/udp"
+      - "464/udp"
+      - "123/udp"
+    environment:
+      - IPA_SERVER_HOSTNAME=freeipa.tooling.test
+      - IPA_SERVER_INSTALL_OPTS=-U -r tooling.test
+      - IPA_SERVER_IP=172.16.11.12
+      - DS-PASSWORD=Pa55w0rd
+      - PASSWORD=Pa55w0rd               # at least 8 characters
+      - VIRTUAL_PROTO=http
+      - VIRTUAL_HOST=freeipa.tooling.test
+      - VIRTUAL_PORT=80
+    dns:
+      - 127.0.0.1
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.12
+      reverse-proxy: 
 
-  # freeipa:
-  #   container_name: freeipa
-  #   image: freeipa/freeipa-server:centos-8
-
-  #   restart: unless-stopped
-  #   hostname: freeipa
-  #   domainname: home.lan
-  #   volumes:
-  #     - /sys/fs/cgroup:/sys/fs/cgroup:ro
-  #     - ./freeipa/data:/data:Z 
-  #   expose:
-  #     - "80"
-  #     - "443"
-  #     - "389"
-  #     - "636"
-  #     - "88"
-  #     - "464"
-  #     - "88/udp"
-  #     - "464/udp"
-  #     - "123/udp"
-#    ports:
-#      - "80:80"       # HTTP
-#      - "9444:443"      # HTTPS
-#      - "389:389"       # LDAP
-#      - "636:636"       # LDAPS
-#      - "88:88"         # Kerberos
-#      - "464:464"       # Kerberos
-#      - "88:88/udp"     # Kerberos
-#      - "464:464/udp"   # Kerberos
-#      - "123:123/udp"   # ntp
-
-# freeipa.example.com resolves via /etc/hosts

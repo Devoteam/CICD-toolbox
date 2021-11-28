@@ -3,7 +3,7 @@
 cd /opt/jboss/keycloak/bin
 
 #Create credentials
-./kcadm.sh config credentials --server http://keycloak:8080/auth --realm master --user admin --password Pa55w0rd
+./kcadm.sh config credentials --server http://keycloak.tooling.test:8080/auth --realm master --user admin --password Pa55w0rd
 
 #add realm
 ./kcadm.sh create realms \
@@ -23,10 +23,10 @@ cd /opt/jboss/keycloak/bin
     -s publicClient=false \
     -s fullScopeAllowed=true \
     -s directAccessGrantsEnabled=true \
-    -s rootUrl=http://gitea:3000 \
-    -s adminUrl=http://gitea:3000/ \
-    -s 'redirectUris=[ "http://gitea:3000/user/oauth2/keycloak/callback" ]' \
-    -s 'webOrigins=[ "http://gitea:3000/" ]' \
+    -s rootUrl=http://gitea.tooling.test:3000 \
+    -s adminUrl=http://gitea.tooling.test:3000/ \
+    -s 'redirectUris=[ "http://gitea.tooling.test:3000/user/oauth2/keycloak/callback" ]' \
+    -s 'webOrigins=[ "http://gitea.tooling.test:3000/" ]' \
     -o --fields id >NetCICD_GITEA
 
 # output is Created new client with id, we now need to grep the ID out of it
@@ -62,10 +62,10 @@ echo "GITEA_token: ${GITEA_token}"
     -s directAccessGrantsEnabled=true \
     -s serviceAccountsEnabled=true \
     -s authorizationServicesEnabled=true \
-    -s rootUrl=http://jenkins:8084 \
-    -s adminUrl=http://jenkins:8084/ \
-    -s 'redirectUris=[ "http://jenkins:8084/*" ]' \
-    -s 'webOrigins=[ "http://jenkins:8084/" ]' \
+    -s rootUrl=http://jenkins.tooling.test:8084 \
+    -s adminUrl=http://jenkins.tooling.test:8084/ \
+    -s 'redirectUris=[ "http://jenkins.tooling.test:8084/*" ]' \
+    -s 'webOrigins=[ "http://jenkins.tooling.test:8084/" ]' \
     -o --fields id >NetCICD_JENKINS
 
 # output is Created new client with id, we now need to grep the ID out of it
@@ -149,10 +149,10 @@ echo " "
     -s directAccessGrantsEnabled=true \
     -s serviceAccountsEnabled=true \
     -s authorizationServicesEnabled=true \
-    -s rootUrl=http://nexus:8081 \
-    -s adminUrl=http://nexus:8081/ \
-    -s 'redirectUris=[ "http://nexus:8081/*" ]' \
-    -s 'webOrigins=[ "http://nexus:8081/" ]' \
+    -s rootUrl=http://nexus.tooling.test:8081 \
+    -s adminUrl=http://nexus.tooling.test:8081/ \
+    -s 'redirectUris=[ "http://nexus.tooling.test:8081/*" ]' \
+    -s 'webOrigins=[ "http://nexus.tooling.test:8081/" ]' \
     -o --fields id >NetCICD_NEXUS
 
 # output is Created new client with id, we now need to grep the ID out of it
@@ -200,10 +200,10 @@ echo "Created keycloak-nexus installation json"
     -s enabled=true \
     -s publicClient=true \
     -s directAccessGrantsEnabled=true \
-    -s rootUrl=http://portainer:9000 \
-    -s adminUrl=http://portainer:9000/ \
-    -s 'redirectUris=[ "http://portainer:9000/*" ]' \
-    -s 'webOrigins=[ "http://portainer:9000/" ]' \
+    -s rootUrl=http://portainer.tooling.test:9000 \
+    -s adminUrl=http://portainer.tooling.test:9000/ \
+    -s 'redirectUris=[ "http://portainer.tooling.test:9000/*" ]' \
+    -s 'webOrigins=[ "http://portainer.tooling.test:9000/" ]' \
     -o --fields id >NetCICD_PORTAINER
 
 # output is Created new client with id, we now need to grep the ID out of it
@@ -900,7 +900,7 @@ echo "Created Floor Management group within the Field Services Department with I
     -s username=netcicd \
     -s firstName=NetCICD \
     -s lastName=Godmode \
-    -s email=netcicd@infraautomators.example.com
+    -s email=netcicd@tooling.test
 ./kcadm.sh set-password -r netcicd --username netcicd --new-password netcicd
 ./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Gitea --rolename gitea-infraautomators-admin
 ./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Jenkins --rolename jenkins-admin
@@ -914,7 +914,7 @@ echo "Created Floor Management group within the Field Services Department with I
     -s username=git-jenkins \
     -s firstName=Jenkins \
     -s lastName=gitOperator \
-    -s email=git-jenkins@infraautomators.example.com
+    -s email=git-jenkins@tooling.test
 
 
 ./kcadm.sh set-password -r netcicd --username git-jenkins --new-password netcicd
@@ -927,7 +927,7 @@ echo "Created Floor Management group within the Field Services Department with I
     -s username=jenkins-jenkins \
     -s firstName=Jenkins \
     -s lastName=Jenkins \
-    -s email=jenkins-jenkins@infraautomators.example.com
+    -s email=jenkins-jenkins@tooling.test
 
 ./kcadm.sh set-password -r netcicd --username jenkins-jenkins --new-password netcicd
 ./kcadm.sh add-roles -r netcicd  --uusername jenkins-jenkins --cclientid Jenkins --rolename jenkins-netcicd-agent
@@ -938,10 +938,11 @@ echo "Created Floor Management group within the Field Services Department with I
     -s username=netcicd-pipeline\
     -s firstName=NetCICD \
     -s lastName=Pipeline \
-    -s email=netcicd-pipeline@infraautomators.example.com
+    -s email=netcicd-pipeline@tooling.test
 
 ./kcadm.sh set-password -r netcicd --username netcicd-pipeline --new-password netcicd
 ./kcadm.sh add-roles -r netcicd  --uusername netcicd-pipeline --cclientid Nexus --rolename nexus-apk-read
+./kcadm.sh add-roles -r netcicd  --uusername netcicd-pipeline --cclientid Nexus --rolename nexus-netcicd-agent
 
 
 ./kcadm.sh create users \
@@ -950,7 +951,7 @@ echo "Created Floor Management group within the Field Services Department with I
     -s username=thedude \
     -s firstName=The \
     -s lastName=Dude \
-    -s email=thedude@infraautomators.example.com &>NetCICD_THEDUDE
+    -s email=thedude@tooling.test &>NetCICD_THEDUDE
 dude_id=$(cat NetCICD_THEDUDE | grep id | cut -d"'" -f 2)
 
 ./kcadm.sh set-password -r netcicd --username thedude --new-password thedude
@@ -982,7 +983,7 @@ dude_id=$(cat NetCICD_THEDUDE | grep id | cut -d"'" -f 2)
     -s username=thespecialist \
     -s firstName=The \
     -s lastName=Specialist \
-    -s email=boom@infraautomators.example.com &>NetCICD_THESPEC
+    -s email=boom@tooling.test &>NetCICD_THESPEC
 
 spec_id=$(cat NetCICD_THESPEC | grep id | cut -d"'" -f 2)
 
@@ -1015,7 +1016,7 @@ spec_id=$(cat NetCICD_THESPEC | grep id | cut -d"'" -f 2)
     -s username=architect \
     -s firstName=The \
     -s lastName=Architect \
-    -s email=architect@infraautomators.example.com &>NetCICD_ARCH
+    -s email=architect@tooling.test &>NetCICD_ARCH
 
 arch_id=$(cat NetCICD_ARCH | grep id | cut -d"'" -f 2)
 
@@ -1069,7 +1070,7 @@ arch_id=$(cat NetCICD_ARCH | grep id | cut -d"'" -f 2)
     -s username=hacker \
     -s firstName=Happy \
     -s lastName=Hacker \
-    -s email=whitehat@infraautomators.example.com &>NetCICD_HACKER
+    -s email=whitehat@tooling.test &>NetCICD_HACKER
 
 hack_id=$(cat NetCICD_HACKER | grep id | cut -d"'" -f 2)
 
@@ -1095,7 +1096,7 @@ hack_id=$(cat NetCICD_HACKER | grep id | cut -d"'" -f 2)
     -s username=tooltiger \
     -s firstName=Tool \
     -s lastName=Tiger \
-    -s email=tooltiger@infraautomators.example.com &>NetCICD_TOOLTIGER
+    -s email=tooltiger@tooling.test &>NetCICD_TOOLTIGER
 
 tooltiger_id=$(cat NetCICD_TOOLTIGER | grep id | cut -d"'" -f 2)
 
@@ -1110,3 +1111,46 @@ tooltiger_id=$(cat NetCICD_TOOLTIGER | grep id | cut -d"'" -f 2)
 
 #Now delete tokens and secrets
 rm NetCICD_*
+
+# Add FreeIPA integration
+./kcadm.sh create components -r netcicd \
+    -s name=freeipa \
+    -s providerId=ldap \
+    -s providerType=org.keycloak.storage.UserStorageProvider \
+#    -s parentId=3d9c572b-8f33-483f-98a6-8bb421667867  \
+    -s 'config.priority=["1"]' \ 
+    -s 'config.editMode=["READ_ONLY"]' \
+    -s 'config.syncRegistrations=["false"]' \
+    -s 'config.vendor=["Red Hat Directory Server"]' \
+    -s 'config.usernameLDAPAttribute=["uid"]' \
+    -s 'config.rdnLDAPAttribute=["uid"]' \
+    -s 'config.uuidLDAPAttribute=["ipaUniqueID"]' \
+    -s 'config.userObjectClasses=["inetOrgPerson, organizationalPerson"]' \
+#LDAPfitler missing
+    -s 'config.searchScope=["1"]' \
+    -s 'config.authType=["simple"]' \
+    -s 'config.bindDn=["uid=binduser,cn=sysaccounts,cn=etc,dc=example,dc=com"]' \
+    -s 'config.bindCredential=["secret"]' \ # Need to figure out what this is in FreeIPA
+#Advanced
+    -s 'config.useTruststoreSpi=["ldapsOnly"]' \
+    -s 'config.pagination=["true"]' \
+# Connection Pooling
+    -s 'config.connectionPooling=["true"]' \
+#kerberos intergration
+    -s 'config.allowKerberosAuthentication=["true"]' \
+    -s 'config.kerberosRealm=["infraautomator.example.com"]' \    
+    -s 'config.serverPrincipal=["http/keycloak"]' \
+    -s 'config.keyTab=["http.keytab"]' \    
+    -s 'config.debug=["true"]' \
+    -s 'config.useKerberosForPasswordAuthentication=["true"]' \
+# sync settings
+    -s 'config.batchSizeForSync=["1000"]' \
+    -s 'config.fullSyncPeriod=["-1"]' \
+    -s 'config.changedSyncPeriod=["-1"]' \
+# cache settings
+    -s 'config.cachePolicy=["DEFAULT"]' \
+    -s config.evictionDay=[] \
+    -s config.evictionHour=[] \
+    -s config.evictionMinute=[] \
+    -s config.maxLifespan=[] 
+
