@@ -151,25 +151,9 @@ services:
     depends_on:
       - netcicd-db
 
-  portainer:
-    container_name: portainer
-    image: portainer/portainer-ce
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    volumes:
-      - portainer_data:/data
-      - '/var/run/docker.sock:/var/run/docker.sock'
-    networks:
-      tooling:
-        ipv4_address: 172.16.11.15
-    ports:
-      - '9000:9000'
-
   freeipa:
     container_name: freeipa
-    build: freeipa/freeipa-server:centos-8
+    build: freeipa
     restart: unless-stopped
     hostname: freeipa
     domainname: home.lan
@@ -188,7 +172,7 @@ services:
       - "123/udp"
     environment:
       - IPA_SERVER_HOSTNAME=freeipa.tooling.test
-      - IPA_SERVER_INSTALL_OPTS=-U -r tooling.test
+      - IPA_SERVER_INSTALL_OPTS=-U -r tooling.test --no-ntp
       - IPA_SERVER_IP=172.16.11.12
       - DS-PASSWORD=Pa55w0rd
       - PASSWORD=Pa55w0rd               # at least 8 characters
@@ -203,4 +187,20 @@ services:
       tooling:
         ipv4_address: 172.16.11.12
       reverse-proxy: 
+
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce
+    restart: unless-stopped
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
+    volumes:
+      - portainer_data:/data
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    networks:
+      tooling:
+        ipv4_address: 172.16.11.15
+    ports:
+      - '9000:9000'
 

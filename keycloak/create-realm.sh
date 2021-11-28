@@ -1,4 +1,11 @@
 #!/bin/bash
+# first insert FreeeIPA CA cert into Keycloak keystore
+echo "Adding CA certificate to Java truststore..."
+cd /opt/jboss/keycloak/standalone/configuration/keystores 
+chmod 666 /opt/jboss/keycloak/standalone/configuration/keystores 
+keytool -keystore truststore -storepass password -noprompt -trustcacerts -importcert -alias freeipa-ca -file freeipa-ca.crt
+chmod 444 /opt/jboss/keycloak/standalone/configuration/keystores 
+
 # shell script to be copied into /opt/jboss/keycloak/bin
 cd /opt/jboss/keycloak/bin
 

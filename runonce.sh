@@ -120,10 +120,21 @@ until $(curl --output /dev/null --silent --head --fail http://freeipa.tooling.te
     printf '.'
     sleep 5
 done
+echo " "
+echo "****************************************************************************************************************"
+echo " Creating FreeIPA setup. This will take time..."
+echo "****************************************************************************************************************"
+docker exec -it freeipa sh -c "/root/freeipa-install.sh" | tee install_log/keycloak_create.log
 echo "****************************************************************************************************************"
 echo " Calming down the CPU ... waiting 10 seconds"
 echo "****************************************************************************************************************"
-sleep 10
+sleep 20
+echo " " 
+echo "****************************************************************************************************************"
+echo " Saving FreeIPA self-signed certificate"
+echo "****************************************************************************************************************"
+docker cp freeipa:/etc/ipa/ca.crt freeipa/ca.crt
+echo " "
 docker-compose start keycloak
 echo "****************************************************************************************************************"
 echo " Wait until keycloak is running"
@@ -133,6 +144,11 @@ until $(curl --output /dev/null --silent --head --fail http://keycloak.tooling.t
     sleep 5
 done
 echo " "
+echo "****************************************************************************************************************"
+echo " Adding FreeIPA CA certificate to Keycloak"
+echo "****************************************************************************************************************"
+echo " "
+docker cp freeipa/ca.crt keycloak:/opt/jboss/keycloak/standalone/configuration/keystores/freeipa-ca.crt
 echo "****************************************************************************************************************"
 echo " Creating keycloak setup. This will take time..."
 echo "****************************************************************************************************************"
