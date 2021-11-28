@@ -83,7 +83,7 @@ function CreateTeam () {
 echo "****************************************************************************************************************"
 echo " Wait until Gitea has started"
 echo "****************************************************************************************************************"
-docker restart gitea
+docker restart gitea.tooling.test
 until $(curl --output /dev/null --silent --head --fail http://gitea.tooling.test:3000); do
     printf '.'
     sleep 5
@@ -92,14 +92,14 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Configuring Gitea"
 echo "****************************************************************************************************************"
-docker cp gitea/app.ini gitea:/data/gitea/conf/app.ini
+docker cp gitea/app.ini gitea.tooling.test:/data/gitea/conf/app.ini
 echo " "
 echo "****************************************************************************************************************"
 user=gitea-admin
 pwd=netcicd
 echo " Create local gituser (admin role: $user)"
 echo "****************************************************************************************************************"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username $user --password $pwd --admin --email gitea-admin@tooling.test'"
+docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin user create --username $user --password $pwd --admin --email gitea-admin@tooling.test'"
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating InfraAutomators organization in Gitea "
@@ -121,15 +121,15 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Adding users to Gitea "
 echo "****************************************************************************************************************"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-jenkins --password netcicd --email git-jenkins@tooling.test'"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username netcicd-pipeline --password netcicd --email netcicd-pipeline@tooling.test --access-token'" > install_log/netcicd-pipeline_token
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-argos --password netcicd --email git-argos@tooling.test --access-token'" > install_log/git-argos_token
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username thedude --password thedude --email thedude@tooling.test'"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username thespecialist --password thespecialist --email thespecialist@tooling.test'"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username architect --password architect --email architect@tooling.test'"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username networkguru --password networkguru --email networkguru@tooling.test'"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username hacker --password whitehat --email hacker@tooling.test'"
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin user create --username tooltiger --password tooltiger --email tooltiger@tooling.test'"
+docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-jenkins --password netcicd --email git-jenkins@tooling.test'"
+docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin user create --username netcicd-pipeline --password netcicd --email netcicd-pipeline@tooling.test --access-token'" > install_log/netcicd-pipeline_token
+docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-argos --password netcicd --email git-argos@tooling.test --access-token'" > install_log/git-argos_token
+docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin user create --username thedude --password thedude --email thedude@tooling.test'"
+docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin user create --username thespecialist --password thespecialist --email thespecialist@tooling.test'"
+docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin user create --username architect --password architect --email architect@tooling.test'"
+docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin user create --username networkguru --password networkguru --email networkguru@tooling.test'"
+docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin user create --username hacker --password whitehat --email hacker@tooling.test'"
+docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin user create --username tooltiger --password tooltiger --email tooltiger@tooling.test'"
 
 CreateRepo "Infraautomator" "NetCICD" "https://github.com/Devoteam/NetCICD.git" "The NetCICD pipeline"
 CreateRepo "Infraautomator" "CICD-toolbox" "https://github.com/Devoteam/CICD-toolbox.git" "The CICD-toolbox"

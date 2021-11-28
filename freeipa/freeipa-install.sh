@@ -2,36 +2,42 @@
 
 kinit admin
 
+ipa host-add --force --ip-address=172.16.11.3 gitea.tooling.test
 ipa service-add HTTP/gitea.tooling.test
 ipa-getkeytab -p HTTP/gitea.tooling.test -s freeipa.tooling.test -k /etc/krb5-gitea.keytab
 chown root /etc/krb5-gitea.keytab
 # chgrp jboss /etc/krb5-gitea.keytab
 chmod 640 /etc/krb5-gitea.keytab
 
+ipa host-add --force --ip-address=172.16.11.8 jenkins.tooling.test
 ipa service-add HTTP/jenkins.tooling.test
 ipa-getkeytab -p HTTP/jenkins.tooling.test -s freeipa.tooling.test -k /etc/krb5-jenkins.keytab
 chown root /etc/krb5-jenkins.keytab
 # chgrp jboss /etc/krb5-jenkins.keytab
 chmod 640 /etc/krb5-jenkins.keytab
 
+ipa host-add --force --ip-address=172.16.11.9 nexus.tooling.test
 ipa service-add HTTP/nexus.tooling.test
 ipa-getkeytab -p HTTP/nexus.tooling.test -s freeipa.tooling.test -k /etc/krb5-nexus.keytab
 chown root /etc/krb5-nexus.keytab
 # chgrp jboss /etc/krb5-nexus.keytab
 chmod 640 /etc/krb5-nexus.keytab
 
+ipa host-add --force --ip-address=172.16.11.11 keycloak.tooling.test
 ipa service-add HTTP/keycloak.tooling.test
 ipa-getkeytab -p HTTP/keycloak.tooling.test -s freeipa.tooling.test -k /etc/krb5-keycloak.keytab
 chown root /etc/krb5-keycloak.keytab
 # chgrp jboss /etc/krb5-keycloak.keytab
 chmod 640 /etc/krb5-keycloak.keytab
 
+ipa host-add --force --ip-address=172.16.11.15 portainer.tooling.test
 ipa service-add HTTP/portainer.tooling.test
 ipa-getkeytab -p HTTP/portainer.tooling.test -s freeipa.tooling.test -k /etc/krb5-portainer.keytab
 chown root /etc/krb5-portainer.keytab
 # chgrp jboss /etc/krb5-portainer.keytab
 chmod 640 /etc/krb5-portainer.keytab
 
+ipa host-add --force --ip-address=10.10.20.161 cml.tooling.test
 ipa service-add HTTP/cml.tooling.test
 ipa-getkeytab -p HTTP/cml.tooling.test -s freeipa.tooling.test -k /etc/krb5-cml.keytab
 chown root /etc/krb5-cml.keytab

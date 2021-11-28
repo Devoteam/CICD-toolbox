@@ -112,7 +112,7 @@ echo "**************************************************************************
 echo " Calming down the CPU... waiting 10 seconds"
 echo "****************************************************************************************************************"
 sleep 10
-docker-compose start freeipa
+docker-compose start freeipa.tooling.test
 echo "****************************************************************************************************************"
 echo " Wait until FreeIPA is running"
 echo "****************************************************************************************************************"
@@ -124,18 +124,18 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating FreeIPA setup. This will take time..."
 echo "****************************************************************************************************************"
-docker exec -it freeipa sh -c "/root/freeipa-install.sh" | tee install_log/keycloak_create.log
+#docker exec -it freeipa sh -c "/root/freeipa-install.sh" | tee install_log/freeipa_create.log
 echo "****************************************************************************************************************"
-echo " Calming down the CPU ... waiting 10 seconds"
+echo " Calming down the CPU ... waiting 20 seconds"
 echo "****************************************************************************************************************"
 sleep 20
 echo " " 
 echo "****************************************************************************************************************"
 echo " Saving FreeIPA self-signed certificate"
 echo "****************************************************************************************************************"
-docker cp freeipa:/etc/ipa/ca.crt freeipa/ca.crt
+docker cp freeipa.tooling.test:/etc/ipa/ca.crt freeipa/ca.crt
 echo " "
-docker-compose start keycloak
+docker-compose start keycloak.tooling.test
 echo "****************************************************************************************************************"
 echo " Wait until keycloak is running"
 echo "****************************************************************************************************************"
@@ -148,11 +148,11 @@ echo "**************************************************************************
 echo " Adding FreeIPA CA certificate to Keycloak"
 echo "****************************************************************************************************************"
 echo " "
-docker cp freeipa/ca.crt keycloak:/opt/jboss/keycloak/standalone/configuration/keystores/freeipa-ca.crt
+docker cp freeipa/ca.crt keycloak.tooling.test:/opt/jboss/keycloak/standalone/configuration/keystores/freeipa-ca.crt
 echo "****************************************************************************************************************"
 echo " Creating keycloak setup. This will take time..."
 echo "****************************************************************************************************************"
-docker exec -it keycloak sh -c "/opt/jboss/keycloak/bin/create-realm.sh" | tee install_log/keycloak_create.log
+docker exec -it keycloak.tooling.test sh -c "/opt/jboss/keycloak/bin/create-realm.sh" | tee install_log/keycloak_create.log
 echo " "
 echo "****************************************************************************************************************"
 echo " Booting the remainder of the containers"
@@ -169,18 +169,18 @@ echo " Creating jenkins setup"
 echo "****************************************************************************************************************"
 #config for oic_auth plugin: only need to replace secret in casc.yaml
 jenkins_client_id=$(grep JENKINS_token: install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
-docker exec -it jenkins sh -c "sed -i -e 's/oic_secret/\"$jenkins_client_id\"/' /var/jenkins_conf/casc.yaml"
+docker exec -it jenkins.tooling.test sh -c "sed -i -e 's/oic_secret/\"$jenkins_client_id\"/' /var/jenkins_conf/casc.yaml"
 echo "Reloading "
-docker restart jenkins
+docker restart jenkins.tooling.test
 echo " " 
 echo " " 
 echo "****************************************************************************************************************"
 echo " Creating nexus setup"
 echo "****************************************************************************************************************"
-docker cp keycloak:/opt/jboss/keycloak/bin/keycloak-nexus.json nexus/keycloak-nexus.json
-docker cp nexus/keycloak-nexus.json nexus:/opt/sonatype/nexus/etc/keycloak.json
+docker cp keycloak.tooling.test:/opt/jboss/keycloak/bin/keycloak-nexus.json nexus/keycloak-nexus.json
+docker cp nexus/keycloak-nexus.json nexus.tooling.test:/opt/sonatype/nexus/etc/keycloak.json
 echo "Reloading "
-docker restart nexus
+docker restart nexus.tooling.test
 until $(curl --output /dev/null --silent --head --fail http://nexus.tooling.test:8081); do
     printf '.'
     sleep 5
@@ -192,12 +192,12 @@ openssl s_client -showcerts -connect keycloak.tooling.test:8443 </dev/null 2>/de
 echo " "
 echo " Copy certificate into Jenkins keystore"
 echo "****************************************************************************************************************"
-docker cp jenkins:/opt/java/openjdk/lib/security/cacerts ./jenkins/keystore/cacerts
+docker cp jenkins.tooling.test:/opt/java/openjdk/lib/security/cacerts ./jenkins/keystore/cacerts
 chmod +w ./jenkins/keystore/cacerts
 keytool -import -alias Keycloak -keystore ./jenkins/keystore/cacerts -file ./jenkins/keystore/keycloak.pem -storepass changeit -noprompt
-docker cp ./jenkins/keystore/cacerts jenkins:/opt/java/openjdk/lib/security/cacerts
+docker cp ./jenkins/keystore/cacerts jenkins.tooling.test:/opt/java/openjdk/lib/security/cacerts
 echo "Reloading "
-docker restart jenkins
+docker restart jenkins.tooling.test
 until $(curl --output /dev/null --silent --head --fail http://jenkins.tooling.test:8084/whoAmI); do
     printf '.'
     sleep 5
@@ -212,6 +212,7 @@ echo " Gitea:       http://gitea.tooling.test:3000"
 echo " Jenkins:     http://jenkins.tooling.test:8084"
 echo " Nexus:       http://nexus.tooling.test:8081"
 echo " Keycloak:    http://keycloak.tooling.test:8443"
+echo " Keycloak:    http://freeipa.tooling.test"
 echo " Portainer:   http://portainer.tooling.test:9000"
 echo " "
 echo "****************************************************************************************************************"

@@ -1,8 +1,8 @@
 #!/bin/bash
 # first insert FreeeIPA CA cert into Keycloak keystore
 echo "Adding CA certificate to Java truststore..."
+chmod 777 /opt/jboss/keycloak/standalone/configuration/keystores 
 cd /opt/jboss/keycloak/standalone/configuration/keystores 
-chmod 666 /opt/jboss/keycloak/standalone/configuration/keystores 
 keytool -keystore truststore -storepass password -noprompt -trustcacerts -importcert -alias freeipa-ca -file freeipa-ca.crt
 chmod 444 /opt/jboss/keycloak/standalone/configuration/keystores 
 
@@ -1124,8 +1124,7 @@ rm NetCICD_*
     -s name=freeipa \
     -s providerId=ldap \
     -s providerType=org.keycloak.storage.UserStorageProvider \
-#    -s parentId=3d9c572b-8f33-483f-98a6-8bb421667867  \
-    -s 'config.priority=["1"]' \ 
+    -s 'config.priority=["1"]' \
     -s 'config.editMode=["READ_ONLY"]' \
     -s 'config.syncRegistrations=["false"]' \
     -s 'config.vendor=["Red Hat Directory Server"]' \
@@ -1133,28 +1132,24 @@ rm NetCICD_*
     -s 'config.rdnLDAPAttribute=["uid"]' \
     -s 'config.uuidLDAPAttribute=["ipaUniqueID"]' \
     -s 'config.userObjectClasses=["inetOrgPerson, organizationalPerson"]' \
-#LDAPfitler missing
+    -s 'config.connectionUrl=["ldap://freeipa.tooling.test"]' \
+    -s 'config.usersDn=["cn=users,cn=accounts,dc=tooling,dc=test"]' \
     -s 'config.searchScope=["1"]' \
     -s 'config.authType=["simple"]' \
-    -s 'config.bindDn=["uid=binduser,cn=sysaccounts,cn=etc,dc=example,dc=com"]' \
-    -s 'config.bindCredential=["secret"]' \ # Need to figure out what this is in FreeIPA
-#Advanced
+    -s 'config.bindDn=["uid=binduser,cn=sysaccounts,cn=etc,dc=tooling,dc=test"]' \
+    -s 'config.bindCredential=["secret"]' \
     -s 'config.useTruststoreSpi=["ldapsOnly"]' \
     -s 'config.pagination=["true"]' \
-# Connection Pooling
     -s 'config.connectionPooling=["true"]' \
-#kerberos intergration
     -s 'config.allowKerberosAuthentication=["true"]' \
-    -s 'config.kerberosRealm=["infraautomator.example.com"]' \    
-    -s 'config.serverPrincipal=["http/keycloak"]' \
-    -s 'config.keyTab=["http.keytab"]' \    
-    -s 'config.debug=["true"]' \
+    -s 'config.kerberosRealm=["tooing.test"]' \
+    -s 'config.serverPrincipal=["HTTP/keycloak.tooling.test"]' \
+    -s 'config.keyTab=["/etc/krb5-keycloak.keytab"]' \
+    -s 'config.debug=["false"]' \
     -s 'config.useKerberosForPasswordAuthentication=["true"]' \
-# sync settings
     -s 'config.batchSizeForSync=["1000"]' \
     -s 'config.fullSyncPeriod=["-1"]' \
     -s 'config.changedSyncPeriod=["-1"]' \
-# cache settings
     -s 'config.cachePolicy=["DEFAULT"]' \
     -s config.evictionDay=[] \
     -s config.evictionHour=[] \

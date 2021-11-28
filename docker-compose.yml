@@ -5,11 +5,11 @@ networks:
     ipam:
       config:
         - subnet: 172.16.11.0/24
-  jumphosts:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.16.111.0/24
+#  jumphosts:
+#    driver: bridge
+#    ipam:
+#      config:
+#        - subnet: 172.16.111.0/24
   reverse-proxy:
 
 volumes:
@@ -37,8 +37,8 @@ services:
     volumes:
       - netcicd_db:/var/lib/postgresql/data
 
-  gitea:
-    container_name: gitea
+  gitea.tooling.test:
+    container_name: gitea.tooling.test
     build: gitea
     restart: unless-stopped
     init: true
@@ -68,10 +68,10 @@ services:
       - '3000:3000'
     depends_on:
       - netcicd-db
-      - keycloak
+      - keycloak.tooling.test
 
-  jenkins:
-    container_name: jenkins
+  jenkins.tooling.test:
+    container_name: jenkins.tooling.test
     build: ./jenkins
     restart: unless-stopped
     privileged: true
@@ -100,10 +100,10 @@ services:
       - '8084:8084'
       - '50000:50000'
     depends_on:
-      - keycloak
+      - keycloak.tooling.test
 
-  nexus:
-    container_name: nexus
+  nexus.tooling.test:
+    container_name: nexus.tooling.test
     build: ./nexus
     restart: unless-stopped
     init: true
@@ -126,8 +126,8 @@ services:
     ports:
       - '8081:8081'
 
-  keycloak:
-    container_name: keycloak
+  keycloak.tooling.test:
+    container_name: keycloak.tooling.test
     build: keycloak
     restart: unless-stopped
     init: true
@@ -151,12 +151,12 @@ services:
     depends_on:
       - netcicd-db
 
-  freeipa:
-    container_name: freeipa
+  freeipa.tooling.test:
+    container_name: freeipa.tooling.test
     build: freeipa
     restart: unless-stopped
     hostname: freeipa
-    domainname: home.lan
+    domainname: tooling.test
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
       - freeipa:/data:Z 
@@ -188,8 +188,8 @@ services:
         ipv4_address: 172.16.11.12
       reverse-proxy: 
 
-  portainer:
-    container_name: portainer
+  portainer.tooling.test:
+    container_name: portainer.tooling.test
     image: portainer/portainer-ce
     restart: unless-stopped
     init: true

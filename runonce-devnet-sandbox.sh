@@ -137,12 +137,12 @@ echo "**************************************************************************
 echo " Creating containers"
 echo "****************************************************************************************************************"
 docker-compose up --build --remove-orphans --no-start
-docker-compose start netcicd-db
+docker-compose start netcicd-db.tooling.test
 echo "****************************************************************************************************************"
 echo " Calming down the CPU ... waiting 10 seconds"
 echo "****************************************************************************************************************"
 sleep 10
-docker-compose start freeipa
+docker-compose start freeipa.tooling.test
 echo "****************************************************************************************************************"
 echo " Wait until FreeIPA is running"
 echo "****************************************************************************************************************"
@@ -154,7 +154,7 @@ echo "**************************************************************************
 echo " Calming down the CPU ... waiting 10 seconds"
 echo "****************************************************************************************************************"
 sleep 10
-docker-compose start keycloak
+docker-compose start keycloak.tooling.test
 echo "****************************************************************************************************************"
 echo " Wait until keycloak is running"
 echo "****************************************************************************************************************"
@@ -166,7 +166,7 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating keycloak setup. This will take time..."
 echo "****************************************************************************************************************"
-docker exec -it keycloak sh -c "/opt/jboss/keycloak/bin/create-realm.sh" | tee install_log/keycloak_create.log
+docker exec -it keycloak.tooling.test sh -c "/opt/jboss/keycloak/bin/create-realm.sh" | tee install_log/keycloak_create.log
 echo " "
 echo "****************************************************************************************************************"
 echo " Booting the remainder of the containers"
@@ -183,17 +183,17 @@ echo " Creating jenkins setup"
 echo "****************************************************************************************************************"
 #config for oic_auth plugin: only need to replace secret in casc.yaml
 jenkins_client_id=$(grep JENKINS_token: install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
-docker exec -it jenkins sh -c "sed -i -e 's/oic_secret/\"$jenkins_client_id\"/' /var/jenkins_conf/casc.yaml"
+docker exec -it jenkins.tooling.test sh -c "sed -i -e 's/oic_secret/\"$jenkins_client_id\"/' /var/jenkins_conf/casc.yaml"
 echo "Reloading "
-docker restart jenkins
+docker restart jenkins.tooling.test
 echo " " 
 echo "****************************************************************************************************************"
 echo " Creating nexus setup"
 echo "****************************************************************************************************************"
-docker cp keycloak:/opt/jboss/keycloak/bin/keycloak-nexus.json nexus/keycloak-nexus.json
-docker cp nexus/keycloak-nexus.json nexus:/opt/sonatype/nexus/etc/keycloak.json
+docker cp keycloak.tooling.test:/opt/jboss/keycloak/bin/keycloak-nexus.json nexus/keycloak-nexus.json
+docker cp nexus/keycloak-nexus.json nexus.tooling.test:/opt/sonatype/nexus/etc/keycloak.json
 echo "Reloading "
-docker restart nexus
+docker restart nexus.tooling.test
 until $(curl --output /dev/null --silent --head --fail http://nexus.tooling.test:8081); do
     printf '.'
     sleep 5
@@ -205,12 +205,12 @@ openssl s_client -showcerts -connect keycloak.tooling.test:8443 </dev/null 2>/de
 echo " "
 echo " Copy certificate into Jenkins keystore"
 echo "****************************************************************************************************************"
-docker cp jenkins:/opt/java/openjdk/lib/security/cacerts ./jenkins/keystore/cacerts
+docker cp jenkins.tooling.test:/opt/java/openjdk/lib/security/cacerts ./jenkins/keystore/cacerts
 chmod +w ./jenkins/keystore/cacerts
 keytool -import -alias Keycloak -keystore ./jenkins/keystore/cacerts -file ./jenkins/keystore/keycloak.pem -storepass changeit -noprompt
-docker cp ./jenkins/keystore/cacerts jenkins:/opt/java/openjdk/lib/security/cacerts
+docker cp ./jenkins/keystore/cacerts jenkins.tooling.test:/opt/java/openjdk/lib/security/cacerts
 echo "Reloading "
-docker restart jenkins
+docker restart jenkins.tooling.test
 until $(curl --output /dev/null --silent --head --fail http://jenkins.tooling.test:8084/whoAmI); do
     printf '.'
     sleep 5
