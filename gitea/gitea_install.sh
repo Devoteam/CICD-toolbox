@@ -180,11 +180,11 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Adding keycloak client key to Gitea"
 gitea_client_id=$(grep GITEA_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
-docker exec -it gitea sh -c "su git -c '/usr/local/bin/gitea admin auth add-oauth --name keycloak --provider openidConnect --key Gitea --secret $gitea_client_id --auto-discover-url http://keycloak.tooling.test:8080/auth/realms/netcicd/.well-known/openid-configuration --config=/data/gitea/conf/app.ini'"
+docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin auth add-oauth --name keycloak --provider openidConnect --key Gitea --secret $gitea_client_id --auto-discover-url http://keycloak.tooling.test:8080/auth/realms/netcicd/.well-known/openid-configuration --config=/data/gitea/conf/app.ini'"
 echo "****************************************************************************************************************"
 echo " Restarting Gitea"
 echo "****************************************************************************************************************"
-docker restart gitea
+docker restart gitea.tooling.test
 echo " Wait until gitea is running"
 until $(curl --output /dev/null --silent --head --fail http://gitea.tooling.test:3000); do
     printf '.'

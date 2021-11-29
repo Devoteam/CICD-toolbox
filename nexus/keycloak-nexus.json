@@ -1,11 +1,11 @@
 {
   "realm" : "netcicd",
-  "auth-server-url" : "http://keycloak:8080/auth/",
+  "auth-server-url" : "http://keycloak.tooling.test:8080/auth/",
   "ssl-required" : "external",
   "resource" : "Nexus",
   "verify-token-audience" : true,
   "credentials" : {
-    "secret" : "3dcdcd5b-ffec-489f-b20a-9bf94a5b36d5"
+    "secret" : "0c86d569-f718-49c6-a4eb-3b6a1d77aa85"
   },
   "use-resource-role-mappings" : true,
   "confidential-port" : 0,

@@ -180,7 +180,7 @@ services:
       - VIRTUAL_HOST=freeipa.tooling.test
       - VIRTUAL_PORT=80
     dns:
-      - 127.0.0.1
+      - 127.0.0.11
     sysctls:
       - net.ipv6.conf.all.disable_ipv6=0
     networks:

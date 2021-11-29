@@ -33,12 +33,6 @@ ipa-getkeytab -p HTTP/portainer.tooling.test -s freeipa.tooling.test -k /etc/krb
 chown root /etc/krb5-portainer.keytab
 chmod 640 /etc/krb5-portainer.keytab
 
-ipa host-add --force --ip-address=10.10.20.161 cml.tooling.test
-ipa service-add HTTP/cml.tooling.test
-ipa-getkeytab -p HTTP/cml.tooling.test -s freeipa.tooling.test -k /etc/krb5-cml.keytab
-chown root /etc/krb5-cml.keytab
-chmod 640 /etc/krb5-cml.keytab
-
 # Add Groups
 ipa group-add iam_ops --desc="IAM Operations"
 ipa group-add iam_ops_oper --desc="IAM Operations - Operators"
@@ -46,7 +40,7 @@ ipa group-add iam_ops_spec --desc="IAM Operations - Specialists"
 ipa group-add-member iam_ops --groups=iam_ops_oper --groups=iam_ops_spec
 ipa group-add iam_dev --desc="IAM Development"
 ipa group-add iam --desc="IAM"
-ipa group-add-member iam --groups=iam_ops,iam_dev
+ipa group-add-member iam --groups=iam_ops --groups=iam_dev
 
 ipa group-add office_ops --desc="Office Operations"
 ipa group-add office_ops_oper --desc="IAM Operations - Operators"
@@ -54,7 +48,7 @@ ipa group-add office_ops_spec --desc="IAM Operations - Specialists"
 ipa group-add-member office_ops --groups=office_ops_oper --groups=office_ops_spec
 ipa group-add office_dev --desc="Office Development"
 ipa group-add office --desc="Office"
-ipa group-add-member office --groups=office_ops,office_dev
+ipa group-add-member office --groups=office_ops --groups=office_dev
 
 ipa group-add campus_ops --desc="Campus Operations"
 ipa group-add campus_ops_oper --desc="Campus Operations - Operators"
