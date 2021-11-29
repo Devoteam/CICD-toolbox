@@ -172,7 +172,7 @@ services:
       - "123/udp"
     environment:
       - IPA_SERVER_HOSTNAME=freeipa.tooling.test
-      - IPA_SERVER_INSTALL_OPTS=-U -r tooling.test --no-ntp
+      - IPA_SERVER_INSTALL_OPTS=-U -r tooling.test --ntp-pool=pool.ntp.org
       - IPA_SERVER_IP=172.16.11.12
       - DS-PASSWORD=Pa55w0rd
       - PASSWORD=Pa55w0rd               # at least 8 characters

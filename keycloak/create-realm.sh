@@ -244,6 +244,14 @@ echo "Created Identity and Access Management Domain with ID: ${dom_iam_id}"
 iam_ops_id=$(cat IAM_OPS | grep id | cut -d"'" -f 2)
 echo "Created IAM Operations Group with ID: ${iam_ops_id}" 
 
+./kcadm.sh create groups/$iam_ops_id/children -r netcicd -s name="IAM Operators" &>IAM_OPS_OPER
+iam_ops_oper_id=$(cat IAM_OPS_OPER | grep id | cut -d"'" -f 2)
+echo "Created IAM Operator Group within IAM Operations Group with ID: ${iam_ops_oper_id}" 
+
+./kcadm.sh create groups/$iam_ops_id/children -r netcicd -s name="IAM Specialists" &>IAM_OPS_SPEC
+iam_ops_spec_id=$(cat IAM_OPS_OPER | grep id | cut -d"'" -f 2)
+echo "Created IAM Operator Group within IAM Operations Group with ID: ${iam_ops_oper_id}" 
+
 ./kcadm.sh create groups/$dom_iam_id/children -r netcicd -s name="2 - IAM Development" &>IAM_DEV
 iam_dev_id=$(cat IAM_DEV | grep id | cut -d"'" -f 2)
 echo "Created IAM Development Group with ID: ${iam_dev_id}" 
@@ -255,6 +263,14 @@ echo "Created Office Domain with ID: ${dom_office_id}"
 ./kcadm.sh create groups/$dom_office_id/children -r netcicd -s name="1 - Office Operations" &>OFFICE_OPS
 office_ops_id=$(cat OFFICE_OPS | grep id | cut -d"'" -f 2)
 echo "Created Office Operations Group with ID: ${office_ops_id}" 
+
+./kcadm.sh create groups/$office_ops_id/children -r netcicd -s name="Office Operators" &>OFFICE_OPS_OPER
+office_ops_oper_id=$(cat OFFICE_OPS_OPER | grep id | cut -d"'" -f 2)
+echo "Created Office Operator Group within Office Operations Group with ID: ${office_ops_oper_id}" 
+
+./kcadm.sh create groups/$office_ops_id/children -r netcicd -s name="Office Specialists" &>OFFICE_OPS_SPEC
+office_ops_spec_id=$(cat OFFICE_OPS_OPER | grep id | cut -d"'" -f 2)
+echo "Created Office Operator Group within Office Operations Group with ID: ${office_ops_oper_id}" 
 
 ./kcadm.sh create groups/$dom_office_id/children -r netcicd -s name="2 - Office Development" &>OFFICE_DEV
 office_dev_id=$(cat OFFICE_DEV | grep id | cut -d"'" -f 2)
@@ -920,7 +936,7 @@ echo "Created Floor Management group within the Field Services Department with I
     -s enabled=true \
     -s username=git-jenkins \
     -s firstName=Jenkins \
-    -s lastName=gitOperator \
+    -s lastName=Butler \
     -s email=git-jenkins@tooling.test
 
 
@@ -990,7 +1006,7 @@ dude_id=$(cat NetCICD_THEDUDE | grep id | cut -d"'" -f 2)
     -s username=thespecialist \
     -s firstName=The \
     -s lastName=Specialist \
-    -s email=boom@tooling.test &>NetCICD_THESPEC
+    -s email=thespecialist@tooling.test &>NetCICD_THESPEC
 
 spec_id=$(cat NetCICD_THESPEC | grep id | cut -d"'" -f 2)
 
@@ -1020,10 +1036,10 @@ spec_id=$(cat NetCICD_THESPEC | grep id | cut -d"'" -f 2)
 ./kcadm.sh create users \
     -r netcicd \
     -s enabled=true \
-    -s username=architect \
+    -s username=thearchitect \
     -s firstName=The \
     -s lastName=Architect \
-    -s email=architect@tooling.test &>NetCICD_ARCH
+    -s email=thearchitect@tooling.test &>NetCICD_ARCH
 
 arch_id=$(cat NetCICD_ARCH | grep id | cut -d"'" -f 2)
 
@@ -1074,10 +1090,10 @@ arch_id=$(cat NetCICD_ARCH | grep id | cut -d"'" -f 2)
 ./kcadm.sh create users \
     -r netcicd \
     -s enabled=true \
-    -s username=hacker \
+    -s username=happyhacker \
     -s firstName=Happy \
     -s lastName=Hacker \
-    -s email=whitehat@tooling.test &>NetCICD_HACKER
+    -s email=happyhacker@tooling.test &>NetCICD_HACKER
 
 hack_id=$(cat NetCICD_HACKER | grep id | cut -d"'" -f 2)
 
