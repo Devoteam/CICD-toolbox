@@ -171,3 +171,14 @@ ipa user-add mechanicjoe --first=Joe --last=Mechanic --email=mechanicjoe@tooling
 ipa group-add-member fs_fse --user=mechanicjoe
 ipa user-add patchhero --first=Patch --last=Hero --email=patchhero@tooling.test
 ipa group-add-member fs_fm --user=patchhero
+
+ldapmodify -x -D 'cn=Directory Manager' -w Pa55w0rd -v 
+dn: uid=system,cn=sysaccounts,cn=etc,dc=tooling,dc=test
+changetype: add
+objectclass: account
+objectclass: simplesecurityobject
+uid: system
+userPassword: Pa55w0rd
+passwordExpirationTime: 20380119031407Z
+nsIdleTimeout: 0
+<blank line>

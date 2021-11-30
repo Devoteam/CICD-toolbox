@@ -1143,7 +1143,7 @@ rm NetCICD_*
     -s 'config.priority=["1"]' \
     -s 'config.editMode=["READ_ONLY"]' \
     -s 'config.syncRegistrations=["false"]' \
-    -s 'config.vendor=["Red Hat Directory Server"]' \
+    -s 'config.vendor=["rhds"]' \
     -s 'config.usernameLDAPAttribute=["uid"]' \
     -s 'config.rdnLDAPAttribute=["uid"]' \
     -s 'config.uuidLDAPAttribute=["ipaUniqueID"]' \
@@ -1158,7 +1158,7 @@ rm NetCICD_*
     -s 'config.pagination=["true"]' \
     -s 'config.connectionPooling=["true"]' \
     -s 'config.allowKerberosAuthentication=["true"]' \
-    -s 'config.kerberosRealm=["tooing.test"]' \
+    -s 'config.kerberosRealm=["TOOLING.TEST"]' \
     -s 'config.serverPrincipal=["HTTP/keycloak.tooling.test"]' \
     -s 'config.keyTab=["/etc/krb5-keycloak.keytab"]' \
     -s 'config.debug=["false"]' \
