@@ -122,10 +122,6 @@ until $(curl --output /dev/null --silent --head --fail http://freeipa.tooling.te
 done
 echo " "
 echo "****************************************************************************************************************"
-echo " Creating FreeIPA setup. This will take time..."
-echo "****************************************************************************************************************"
-docker exec -it freeipa sh -c "/root/freeipa-install.sh" | tee install_log/freeipa_create.log
-echo "****************************************************************************************************************"
 echo " Calming down the CPU ... waiting 20 seconds"
 echo "****************************************************************************************************************"
 sleep 20
@@ -157,7 +153,7 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating FreeIPA setup. This will take time..."
 echo "****************************************************************************************************************"
-docker exec -it freeipa sh -c "/root/freeipa-install.sh" | tee install_log/freeipa_create.log
+docker exec -it freeipa.tooling.test sh -c "/root/freeipa-install.sh" | tee install_log/freeipa_create.log
 echo "****************************************************************************************************************"
 echo " Booting the remainder of the containers"
 echo "****************************************************************************************************************"
