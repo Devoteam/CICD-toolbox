@@ -124,7 +124,7 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating FreeIPA setup. This will take time..."
 echo "****************************************************************************************************************"
-#docker exec -it freeipa sh -c "/root/freeipa-install.sh" | tee install_log/freeipa_create.log
+docker exec -it freeipa sh -c "/root/freeipa-install.sh" | tee install_log/freeipa_create.log
 echo "****************************************************************************************************************"
 echo " Calming down the CPU ... waiting 20 seconds"
 echo "****************************************************************************************************************"

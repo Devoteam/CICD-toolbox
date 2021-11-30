@@ -1135,40 +1135,40 @@ tooltiger_id=$(cat NetCICD_TOOLTIGER | grep id | cut -d"'" -f 2)
 #Now delete tokens and secrets
 rm NetCICD_*
 
-# Add FreeIPA integration
-./kcadm.sh create components -r netcicd \
-    -s name=freeipa \
-    -s providerId=ldap \
-    -s providerType=org.keycloak.storage.UserStorageProvider \
-    -s 'config.priority=["1"]' \
-    -s 'config.editMode=["READ_ONLY"]' \
-    -s 'config.syncRegistrations=["false"]' \
-    -s 'config.vendor=["rhds"]' \
-    -s 'config.usernameLDAPAttribute=["uid"]' \
-    -s 'config.rdnLDAPAttribute=["uid"]' \
-    -s 'config.uuidLDAPAttribute=["ipaUniqueID"]' \
-    -s 'config.userObjectClasses=["inetOrgPerson, organizationalPerson"]' \
-    -s 'config.connectionUrl=["ldap://freeipa.tooling.test"]' \
-    -s 'config.usersDn=["cn=users,cn=accounts,dc=tooling,dc=test"]' \
-    -s 'config.searchScope=["1"]' \
-    -s 'config.authType=["simple"]' \
-    -s 'config.bindDn=["uid=binduser,cn=sysaccounts,cn=etc,dc=tooling,dc=test"]' \
-    -s 'config.bindCredential=["secret"]' \
-    -s 'config.useTruststoreSpi=["ldapsOnly"]' \
-    -s 'config.pagination=["true"]' \
-    -s 'config.connectionPooling=["true"]' \
-    -s 'config.allowKerberosAuthentication=["true"]' \
-    -s 'config.kerberosRealm=["TOOLING.TEST"]' \
-    -s 'config.serverPrincipal=["HTTP/keycloak.tooling.test"]' \
-    -s 'config.keyTab=["/etc/krb5-keycloak.keytab"]' \
-    -s 'config.debug=["false"]' \
-    -s 'config.useKerberosForPasswordAuthentication=["true"]' \
-    -s 'config.batchSizeForSync=["1000"]' \
-    -s 'config.fullSyncPeriod=["-1"]' \
-    -s 'config.changedSyncPeriod=["-1"]' \
-    -s 'config.cachePolicy=["DEFAULT"]' \
-    -s config.evictionDay=[] \
-    -s config.evictionHour=[] \
-    -s config.evictionMinute=[] \
-    -s config.maxLifespan=[] 
+# # Add FreeIPA integration
+# ./kcadm.sh create components -r netcicd \
+#     -s name=freeipa \
+#     -s providerId=ldap \
+#     -s providerType=org.keycloak.storage.UserStorageProvider \
+#     -s 'config.priority=["1"]' \
+#     -s 'config.editMode=["READ_ONLY"]' \
+#     -s 'config.syncRegistrations=["false"]' \
+#     -s 'config.vendor=["rhds"]' \
+#     -s 'config.usernameLDAPAttribute=["uid"]' \
+#     -s 'config.rdnLDAPAttribute=["uid"]' \
+#     -s 'config.uuidLDAPAttribute=["ipaUniqueID"]' \
+#     -s 'config.userObjectClasses=["inetOrgPerson, organizationalPerson"]' \
+#     -s 'config.connectionUrl=["ldap://freeipa.tooling.test"]' \
+#     -s 'config.usersDn=["cn=users,cn=accounts,dc=tooling,dc=test"]' \
+#     -s 'config.searchScope=["1"]' \
+#     -s 'config.authType=["simple"]' \
+#     -s 'config.bindDn=["uid=binduser,cn=sysaccounts,cn=etc,dc=tooling,dc=test"]' \
+#     -s 'config.bindCredential=["secret"]' \
+#     -s 'config.useTruststoreSpi=["ldapsOnly"]' \
+#     -s 'config.pagination=["true"]' \
+#     -s 'config.connectionPooling=["true"]' \
+#     -s 'config.allowKerberosAuthentication=["true"]' \
+#     -s 'config.kerberosRealm=["TOOLING.TEST"]' \
+#     -s 'config.serverPrincipal=["HTTP/keycloak.tooling.test"]' \
+#     -s 'config.keyTab=["/etc/krb5-keycloak.keytab"]' \
+#     -s 'config.debug=["false"]' \
+#     -s 'config.useKerberosForPasswordAuthentication=["true"]' \
+#     -s 'config.batchSizeForSync=["1000"]' \
+#     -s 'config.fullSyncPeriod=["-1"]' \
+#     -s 'config.changedSyncPeriod=["-1"]' \
+#     -s 'config.cachePolicy=["DEFAULT"]' \
+#     -s config.evictionDay=[] \
+#     -s config.evictionHour=[] \
+#     -s config.evictionMinute=[] \
+#     -s config.maxLifespan=[] 
 
