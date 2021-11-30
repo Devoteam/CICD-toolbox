@@ -155,6 +155,10 @@ echo "**************************************************************************
 docker exec -it keycloak.tooling.test sh -c "/opt/jboss/keycloak/bin/create-realm.sh" | tee install_log/keycloak_create.log
 echo " "
 echo "****************************************************************************************************************"
+echo " Creating FreeIPA setup. This will take time..."
+echo "****************************************************************************************************************"
+docker exec -it freeipa sh -c "/root/freeipa-install.sh" | tee install_log/freeipa_create.log
+echo "****************************************************************************************************************"
 echo " Booting the remainder of the containers"
 echo "****************************************************************************************************************"
 docker-compose start

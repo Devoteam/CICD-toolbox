@@ -1043,7 +1043,7 @@ spec_id=$(cat NetCICD_THESPEC | grep id | cut -d"'" -f 2)
 
 arch_id=$(cat NetCICD_ARCH | grep id | cut -d"'" -f 2)
 
-./kcadm.sh set-password -r netcicd --username architect --new-password architect
+./kcadm.sh set-password -r netcicd --username thearchitect --new-password architect
 
 ./kcadm.sh update users/$arch_id/groups/$dc_dev_compute_designer_id \
     -r netcicd \
@@ -1097,7 +1097,7 @@ arch_id=$(cat NetCICD_ARCH | grep id | cut -d"'" -f 2)
 
 hack_id=$(cat NetCICD_HACKER | grep id | cut -d"'" -f 2)
 
-./kcadm.sh set-password -r netcicd --username hacker --new-password whitehat
+./kcadm.sh set-password -r netcicd --username happyhacker --new-password whitehat
 
 ./kcadm.sh update users/$hack_id/groups/$tool_ops_oper_id \
     -r netcicd \
@@ -1153,7 +1153,7 @@ rm NetCICD_*
 #     -s 'config.searchScope=["1"]' \
 #     -s 'config.authType=["simple"]' \
 #     -s 'config.bindDn=["uid=binduser,cn=sysaccounts,cn=etc,dc=tooling,dc=test"]' \
-#     -s 'config.bindCredential=["secret"]' \
+#     -s 'config.bindCredential=["Pa55w0rd"]' \
 #     -s 'config.useTruststoreSpi=["ldapsOnly"]' \
 #     -s 'config.pagination=["true"]' \
 #     -s 'config.connectionPooling=["true"]' \
