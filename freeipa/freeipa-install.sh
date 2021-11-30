@@ -2,7 +2,7 @@
 echo "Pa55w0rd" | kinit admin
 
 # Add hosts
-ipa host-add --force --ip-address=172.16.11.5 bla.tooling.test --no-reverse
+ipa host-add --force --ip-address=172.16.11.5 gitea.tooling.test --no-reverse
 ipa service-add HTTP/gitea.tooling.test
 ipa-getkeytab -p HTTP/gitea.tooling.test -s freeipa.tooling.test -k /etc/krb5-gitea.keytab
 chown root /etc/krb5-gitea.keytab
