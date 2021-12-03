@@ -2,37 +2,41 @@
 echo "Pa55w0rd" | kinit admin
 
 # Add hosts
-ipa host-add --force --ip-address=172.16.11.5 gitea.tooling.test --no-reverse
+ipa host-add --force --ip-address=172.16.11.5 gitea.tooling.test
 ipa service-add HTTP/gitea.tooling.test
 ipa-getkeytab -p HTTP/gitea.tooling.test -s freeipa.tooling.test -k /etc/krb5-gitea.keytab
 chown root /etc/krb5-gitea.keytab
 chmod 640 /etc/krb5-gitea.keytab
 
-ipa host-add --force --ip-address=172.16.11.8 jenkins.tooling.test --no-reverse
+ipa host-add --force --ip-address=172.16.11.8 jenkins.tooling.test
 ipa service-add HTTP/jenkins.tooling.test
 ipa-getkeytab -p HTTP/jenkins.tooling.test -s freeipa.tooling.test -k /etc/krb5-jenkins.keytab
 chown root /etc/krb5-jenkins.keytab
 chmod 640 /etc/krb5-jenkins.keytab
 
-ipa host-add --force --ip-address=172.16.11.9 nexus.tooling.test --no-reverse
+ipa host-add --force --ip-address=172.16.11.9 nexus.tooling.test
 ipa service-add HTTP/nexus.tooling.test
 ipa-getkeytab -p HTTP/nexus.tooling.test -s freeipa.tooling.test -k /etc/krb5-nexus.keytab
 chown root /etc/krb5-nexus.keytab
 chmod 640 /etc/krb5-nexus.keytab
 
-ipa host-add --force --ip-address=172.16.11.11 keycloak.tooling.test --no-reverse
+ipa host-add --force --ip-address=172.16.11.11 keycloak.tooling.test
 ipa service-add HTTP/keycloak.tooling.test
 ipa-getkeytab -p HTTP/keycloak.tooling.test -s freeipa.tooling.test -k /etc/krb5-keycloak.keytab
 chown root /etc/krb5-keycloak.keytab
 chmod 640 /etc/krb5-keycloak.keytab
 
-ipa host-add --force --ip-address=172.16.11.15 portainer.tooling.test --no-reverse
+ipa host-add --force --ip-address=172.16.11.15 portainer.tooling.test
 ipa service-add HTTP/portainer.tooling.test
 ipa-getkeytab -p HTTP/portainer.tooling.test -s freeipa.tooling.test -k /etc/krb5-portainer.keytab
 chown root /etc/krb5-portainer.keytab
 chmod 640 /etc/krb5-portainer.keytab
 
 # Add Groups
+ipa group-add toolbox_admin --desc="Toolbox Admins"
+ipa group-add netcicd_agents --desc="NetCICD-agents"
+ipa group-add git_from_jenkins --desc="Group that is permitted to read git to update repo's from Jenkins"
+
 ipa group-add iam_ops --desc="IAM Operations"
 ipa group-add iam_ops_oper --desc="IAM Operations - Operators"
 ipa group-add iam_ops_spec --desc="IAM Operations - Specialists"
@@ -126,10 +130,17 @@ ipa group-add fs_fm --desc="Field Services Floor Management"
 ipa group-add-member fs --groups=fs_fse --groups=fs_fm
 
 # Add users
-ipa user-add netcicd --first=NetCICD --last=Godmode --email=netcicd@tooling.test
-ipa user-add git-jenkins --first=Git --last=Jenkins --email=git-jenkins@tooling.test
-ipa user-add jenkins-jenkins --first=Jenkins --last=Jenkins --email=jenkins-jenkins@tooling.test
-ipa user-add netcicd-pipeline --first=NetCICD --last=Pipeline --email=netcicd-pipeline@tooling.test
+echo "netcicd" | ipa user-add netcicd --first=NetCICD --last=Godmode --email=netcicd@tooling.test
+ipa group-add-member toolbox_admin --user=netcicd
+
+echo "netcicd" | ipa user-add git-jenkins --first=Git --last=Jenkins --email=git-jenkins@tooling.test
+ipa group-add-member git_from_jenkins --user=git-jenkins
+
+echo "netcicd" | ipa user-add jenkins-jenkins --first=Jenkins --last=Jenkins --email=jenkins-jenkins@tooling.test
+ipa group-add-member netcicd_agents --user=jenkins-jenkins
+
+echo "netcicd" | ipa user-add netcicd-pipeline --first=NetCICD --last=Pipeline --email=netcicd-pipeline@tooling.test
+
 #IAM, Office, Campus, WAN
 ipa user-add compudude --first=Compu --last=Dude --email=compudude@tooling.test
 ipa group-add-member dc_ops_compute_oper --user=compudude

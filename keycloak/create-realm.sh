@@ -50,7 +50,7 @@ GITEA_token=$(grep value NetCICD_gitea_secret | cut -d '"' -f4)
 echo "GITEA_token: ${GITEA_token}"
 
 # Now we can add client specific roles (Clientroles)
-./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-infraautomators-admin -s description='The admin role for the Infra Automators organization'
+./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-admin -s description='The admin role for the Infra Automators organization'
 ./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-netcicd-read -s description='A read-only role on NetCICD'
 ./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-netcicd-write -s description='A read-write role on NetCICD'
 ./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-netcicd-admin -s description='A admin role on NetCICD'
@@ -235,7 +235,44 @@ echo "Created jenkins-git group with ID: ${j_g_id}"
     --cclientid Jenkins \
     --rolename jenkins-git
 
-#add groups - we start at the ICT infra level, which implements the capacity layer of the MyREFerence model
+#add groups 
+./kcadm.sh create groups -r netcicd -s name="Toolbox admins" &>TOOLBOX_ADMIN
+toolbox_admin_id=$(cat TOOLBOX_ADMIN | grep id | cut -d"'" -f 2)
+echo "Created Toolbox Admins group with ID: ${toolbox_admin_id}" 
+
+#adding client roles to the group
+./kcadm.sh add-roles \
+    -r netcicd \
+    --gid $toolbox_admin_id \
+    --cclientid Gitea \
+    --rolename gitea-admin 
+
+./kcadm.sh add-roles \
+    -r netcicd \
+    --gid $toolbox_admin_id \
+    --cclientid Jenkins \
+    --rolename jenkins-admin 
+
+./kcadm.sh add-roles \
+    -r netcicd \
+    --gid $toolbox_admin_id \
+    --cclientid Nexus \
+    --rolename nexus-admin
+
+./kcadm.sh create groups -r netcicd -s name="NetCICD-agents" &>NETCICD_AGENTS
+netcicd_agents_id=$(cat NETCICD_AGENTS | grep id | cut -d"'" -f 2)
+echo "Created NetCICD Agents with ID: ${netcicd_agents_id}" 
+
+#adding client roles to the group
+./kcadm.sh add-roles \
+    -r netcicd \
+    --gid $netcicd_agents_id \
+    --cclientid Jenkins \
+    --rolename jenkins-netcicd-agent 
+
+
+
+#Now - we start at the ICT infra level, which implements the capacity layer of the MyREFerence model
 ./kcadm.sh create groups -r netcicd -s name="Identity and Access Management" &>DOM_IAM
 dom_iam_id=$(cat DOM_IAM | grep id | cut -d"'" -f 2)
 echo "Created Identity and Access Management Domain with ID: ${dom_iam_id}" 

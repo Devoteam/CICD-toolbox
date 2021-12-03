@@ -172,7 +172,7 @@ services:
       - "123/udp"
     environment:
       - IPA_SERVER_HOSTNAME=freeipa.tooling.test
-      - IPA_SERVER_INSTALL_OPTS=-d -r tooling.test --ntp-pool=pool.ntp.org --domain=tooling.test -p Pa55w0rd -a Pa55w0rd --no-host-dns --setup-dns --no-forwarders --ip-address 172.16.11.12 -U
+      - IPA_SERVER_INSTALL_OPTS=-d -r tooling.test --ntp-pool=pool.ntp.org --domain=tooling.test --reverse-zone=16.172.in-addr.arpa -p Pa55w0rd -a Pa55w0rd --no-host-dns --setup-dns --no-forwarders --ip-address 172.16.11.12 -U
       - IPA_SERVER_IP=172.16.11.12
       - VIRTUAL_PROTO=http
       - VIRTUAL_HOST=freeipa.tooling.test

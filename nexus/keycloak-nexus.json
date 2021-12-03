@@ -5,7 +5,7 @@
   "resource" : "Nexus",
   "verify-token-audience" : true,
   "credentials" : {
-    "secret" : "8a6a97f2-fea0-404e-9572-552f7e55cc07"
+    "secret" : "5503a883-dd5f-4db3-a6f3-36a4c0bf60d1"
   },
   "use-resource-role-mappings" : true,
   "confidential-port" : 0,

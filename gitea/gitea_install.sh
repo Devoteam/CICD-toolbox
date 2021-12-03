@@ -95,11 +95,11 @@ echo "**************************************************************************
 docker cp gitea/app.ini gitea.tooling.test:/data/gitea/conf/app.ini
 echo " "
 echo "****************************************************************************************************************"
-user=gitea-admin
+user=gitea-local-admin
 pwd=netcicd
 echo " Create local gituser (admin role: $user)"
 echo "****************************************************************************************************************"
-docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin user create --username $user --password $pwd --admin --email gitea-admin@tooling.test'"
+docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin user create --username $user --password $pwd --admin --email gitea-local-admin@tooling.test'"
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating InfraAutomators organization in Gitea "
