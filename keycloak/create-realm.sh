@@ -915,260 +915,43 @@ echo "Created Field Service Engineers group within the Field Services Department
 fs_fm_id=$(cat FS_FM | grep id | cut -d"'" -f 2)
 echo "Created Floor Management group within the Field Services Department with ID: ${fs_fm_id}" 
 
-
-#add users
-./kcadm.sh create users \
-    -r netcicd \
-    -s enabled=true \
-    -s username=netcicd \
-    -s firstName=NetCICD \
-    -s lastName=Godmode \
-    -s email=netcicd@tooling.test
-./kcadm.sh set-password -r netcicd --username netcicd --new-password netcicd
-./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Gitea --rolename gitea-infraautomators-admin
-./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Jenkins --rolename jenkins-admin
-./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Nexus --rolename nexus-admin
-./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Nexus --rolename nexus-docker-pull
-./kcadm.sh add-roles -r netcicd --uusername netcicd --cclientid Nexus --rolename nexus-docker-push
-
-./kcadm.sh create users \
-    -r netcicd \
-    -s enabled=true \
-    -s username=git-jenkins \
-    -s firstName=Jenkins \
-    -s lastName=Butler \
-    -s email=git-jenkins@tooling.test
-
-
-./kcadm.sh set-password -r netcicd --username git-jenkins --new-password netcicd
-./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Gitea --rolename gitea-netcicd-write
-./kcadm.sh add-roles -r netcicd  --uusername git-jenkins --cclientid Jenkins --rolename jenkins-git
-
-./kcadm.sh create users \
-    -r netcicd \
-    -s enabled=true \
-    -s username=jenkins-jenkins \
-    -s firstName=Jenkins \
-    -s lastName=Jenkins \
-    -s email=jenkins-jenkins@tooling.test
-
-./kcadm.sh set-password -r netcicd --username jenkins-jenkins --new-password netcicd
-./kcadm.sh add-roles -r netcicd  --uusername jenkins-jenkins --cclientid Jenkins --rolename jenkins-netcicd-agent
-
-./kcadm.sh create users \
-    -r netcicd \
-    -s enabled=true \
-    -s username=netcicd-pipeline\
-    -s firstName=NetCICD \
-    -s lastName=Pipeline \
-    -s email=netcicd-pipeline@tooling.test
-
-./kcadm.sh set-password -r netcicd --username netcicd-pipeline --new-password netcicd
-./kcadm.sh add-roles -r netcicd  --uusername netcicd-pipeline --cclientid Nexus --rolename nexus-apk-read
-./kcadm.sh add-roles -r netcicd  --uusername netcicd-pipeline --cclientid Nexus --rolename nexus-netcicd-agent
-
-
-./kcadm.sh create users \
-    -r netcicd \
-    -s enabled=true \
-    -s username=thedude \
-    -s firstName=The \
-    -s lastName=Dude \
-    -s email=thedude@tooling.test &>NetCICD_THEDUDE
-dude_id=$(cat NetCICD_THEDUDE | grep id | cut -d"'" -f 2)
-
-./kcadm.sh set-password -r netcicd --username thedude --new-password thedude
-
-./kcadm.sh update users/$dude_id/groups/$campus_ops_oper_id \
-    -r netcicd \
-    -s realm=netcicd \
-    -s userId=$dude_id \
-    -s groupId=$campus_ops_oper_id \
-    -n
-
-./kcadm.sh update users/$dude_id/groups/$wan_ops_oper_id \
-    -r netcicd \
-    -s realm=netcicd \
-    -s userId=$dude_id \
-    -s groupId=$wan_ops_oper_id \
-    -n
-
-./kcadm.sh update users/$dude_id/groups/$dc_ops_net_oper_id \
-    -r netcicd \
-    -s realm=netcicd \
-    -s userId=$dude_id \
-    -s groupId=$dc_ops_net_oper_id \
-    -n
-
-./kcadm.sh create users \
-    -r netcicd \
-    -s enabled=true \
-    -s username=thespecialist \
-    -s firstName=The \
-    -s lastName=Specialist \
-    -s email=thespecialist@tooling.test &>NetCICD_THESPEC
-
-spec_id=$(cat NetCICD_THESPEC | grep id | cut -d"'" -f 2)
-
-./kcadm.sh set-password -r netcicd --username thespecialist --new-password thespecialist
-
-./kcadm.sh update users/$spec_id/groups/$campus_ops_spec_id \
-    -r netcicd \
-    -s realm=netcicd \
-    -s userId=$spec_id \
-    -s groupId=$campus_ops_spec_id \
-    -n
-
-./kcadm.sh update users/$spec_id/groups/$wan_ops_spec_id \
-    -r netcicd \
-    -s realm=netcicd \
-    -s userId=$spec_id \
-    -s groupId=$wan_ops_spec_id \
-    -n
-
-./kcadm.sh update users/$spec_id/groups/$dc_ops_net_spec_id \
-    -r netcicd \
-    -s realm=netcicd \
-    -s userId=$spec_id \
-    -s groupId=$dc_ops_net_spec_id \
-    -n
-
-./kcadm.sh create users \
-    -r netcicd \
-    -s enabled=true \
-    -s username=thearchitect \
-    -s firstName=The \
-    -s lastName=Architect \
-    -s email=thearchitect@tooling.test &>NetCICD_ARCH
-
-arch_id=$(cat NetCICD_ARCH | grep id | cut -d"'" -f 2)
-
-./kcadm.sh set-password -r netcicd --username thearchitect --new-password architect
-
-./kcadm.sh update users/$arch_id/groups/$dc_dev_compute_designer_id \
-    -r netcicd \
-    -s realm=netcicd \
-    -s userId=$arch_id \
-    -s groupId=$dc_dev_compute_designer_id \
-    -n
-
-./kcadm.sh update users/$arch_id/groups/$dc_dev_network_designer_id \
-    -r netcicd \
-    -s realm=netcicd \
-    -s userId=$arch_id \
-    -s groupId=$dc_dev_network_designer_id \
-    -n
-
-./kcadm.sh update users/$arch_id/groups/$campus_dev_lan_designer_id \
-    -r netcicd \
-    -s realm=netcicd \
-    -s userId=$arch_id \
-    -s groupId=$campus_dev_lan_designer_id \
-    -n
-
-./kcadm.sh update users/$arch_id/groups/$campus_dev_wifi_designer_id \
-    -r netcicd \
-    -s realm=netcicd \
-    -s userId=$arch_id \
-    -s groupId=$campus_dev_wifi_designer_id \
-    -n
-
-./kcadm.sh update users/$arch_id/groups/$wan_dev_designer_id \
-    -r netcicd \
-    -s realm=netcicd \
-    -s userId=$arch_id \
-    -s groupId=$wan_dev_designer_id \
-    -n
-
-./kcadm.sh update users/$arch_id/groups/$dc_dev_storage_designer_id \
-    -r netcicd \
-    -s realm=netcicd \
-    -s userId=$arch_id \
-    -s groupId=$dc_dev_storage_designer_id \
-    -n
-
-./kcadm.sh create users \
-    -r netcicd \
-    -s enabled=true \
-    -s username=happyhacker \
-    -s firstName=Happy \
-    -s lastName=Hacker \
-    -s email=happyhacker@tooling.test &>NetCICD_HACKER
-
-hack_id=$(cat NetCICD_HACKER | grep id | cut -d"'" -f 2)
-
-./kcadm.sh set-password -r netcicd --username happyhacker --new-password whitehat
-
-./kcadm.sh update users/$hack_id/groups/$tool_ops_oper_id \
-    -r netcicd \
-    -s realm=netcicd \
-    -s userId=$hack_id \
-    -s groupId=$tool_ops_oper_id \
-    -n
-
-./kcadm.sh update users/$hack_id/groups/$tool_ops_spec_id \
-    -r netcicd \
-    -s realm=netcicd \
-    -s userId=$hack_id \
-    -s groupId=$tool_ops_spec_id \
-    -n
-
-./kcadm.sh create users \
-    -r netcicd \
-    -s enabled=true \
-    -s username=tooltiger \
-    -s firstName=Tool \
-    -s lastName=Tiger \
-    -s email=tooltiger@tooling.test &>NetCICD_TOOLTIGER
-
-tooltiger_id=$(cat NetCICD_TOOLTIGER | grep id | cut -d"'" -f 2)
-
-./kcadm.sh set-password -r netcicd --username tooltiger --new-password tooltiger
-
-./kcadm.sh update users/$tooltiger_id/groups/$tool_dev_designer_id \
-    -r netcicd \
-    -s realm=netcicd \
-    -s userId=$tooltiger_id \
-    -s groupId=$tool_dev_designer_id \
-    -n
-
 #Now delete tokens and secrets
 rm NetCICD_*
 
-# # Add FreeIPA integration
-# ./kcadm.sh create components -r netcicd \
-#     -s name=freeipa \
-#     -s providerId=ldap \
-#     -s providerType=org.keycloak.storage.UserStorageProvider \
-#     -s 'config.priority=["1"]' \
-#     -s 'config.editMode=["READ_ONLY"]' \
-#     -s 'config.syncRegistrations=["false"]' \
-#     -s 'config.vendor=["rhds"]' \
-#     -s 'config.usernameLDAPAttribute=["uid"]' \
-#     -s 'config.rdnLDAPAttribute=["uid"]' \
-#     -s 'config.uuidLDAPAttribute=["ipaUniqueID"]' \
-#     -s 'config.userObjectClasses=["inetOrgPerson, organizationalPerson"]' \
-#     -s 'config.connectionUrl=["ldap://freeipa.tooling.test"]' \
-#     -s 'config.usersDn=["cn=users,cn=accounts,dc=tooling,dc=test"]' \
-#     -s 'config.searchScope=["1"]' \
-#     -s 'config.authType=["simple"]' \
-#     -s 'config.bindDn=["uid=binduser,cn=sysaccounts,cn=etc,dc=tooling,dc=test"]' \
-#     -s 'config.bindCredential=["Pa55w0rd"]' \
-#     -s 'config.useTruststoreSpi=["ldapsOnly"]' \
-#     -s 'config.pagination=["true"]' \
-#     -s 'config.connectionPooling=["true"]' \
-#     -s 'config.allowKerberosAuthentication=["true"]' \
-#     -s 'config.kerberosRealm=["TOOLING.TEST"]' \
-#     -s 'config.serverPrincipal=["HTTP/keycloak.tooling.test"]' \
-#     -s 'config.keyTab=["/etc/krb5-keycloak.keytab"]' \
-#     -s 'config.debug=["false"]' \
-#     -s 'config.useKerberosForPasswordAuthentication=["true"]' \
-#     -s 'config.batchSizeForSync=["1000"]' \
-#     -s 'config.fullSyncPeriod=["-1"]' \
-#     -s 'config.changedSyncPeriod=["-1"]' \
-#     -s 'config.cachePolicy=["DEFAULT"]' \
-#     -s config.evictionDay=[] \
-#     -s config.evictionHour=[] \
-#     -s config.evictionMinute=[] \
-#     -s config.maxLifespan=[] 
+# Add FreeIPA integration
+./kcadm.sh create components -r netcicd \
+    -s name=freeipa \
+    -s providerId=ldap \
+    -s providerType=org.keycloak.storage.UserStorageProvider \
+    -s 'config.priority=["1"]' \
+    -s 'config.editMode=["READ_ONLY"]' \
+    -s 'config.syncRegistrations=["true"]' \
+    -s 'config.vendor=["rhds"]' \
+    -s 'config.usernameLDAPAttribute=["uid"]' \
+    -s 'config.rdnLDAPAttribute=["uid"]' \
+    -s 'config.uuidLDAPAttribute=["ipaUniqueID"]' \
+    -s 'config.userObjectClasses=["inetOrgPerson, organizationalPerson"]' \
+    -s 'config.connectionUrl=["ldap://freeipa.tooling.test"]' \
+    -s 'config.usersDn=["cn=users,cn=accounts,dc=tooling,dc=test"]' \
+    -s 'config.searchScope=["1"]' \
+    -s 'config.authType=["simple"]' \
+    -s 'config.bindDn=["uid=admin,cn=users,cn=accounts,dc=tooling,dc=test"]' \
+    -s 'config.bindCredential=["Pa55w0rd"]' \
+    -s 'config.useTruststoreSpi=["ldapsOnly"]' \
+    -s 'config.pagination=["true"]' \
+    -s 'config.connectionPooling=["true"]' \
+    -s 'config.allowKerberosAuthentication=["false"]' \
+    -s 'config.kerberosRealm=["TOOLING.TEST"]' \
+    -s 'config.serverPrincipal=["HTTP/keycloak.tooling.test"]' \
+    -s 'config.keyTab=["/etc/krb5-keycloak.keytab"]' \
+    -s 'config.debug=["false"]' \
+    -s 'config.useKerberosForPasswordAuthentication=["true"]' \
+    -s 'config.batchSizeForSync=["1000"]' \
+    -s 'config.fullSyncPeriod=["-1"]' \
+    -s 'config.changedSyncPeriod=["-1"]' \
+    -s 'config.cachePolicy=["DEFAULT"]' \
+    -s config.evictionDay=[] \
+    -s config.evictionHour=[] \
+    -s config.evictionMinute=[] \
+    -s config.maxLifespan=[] 
 
