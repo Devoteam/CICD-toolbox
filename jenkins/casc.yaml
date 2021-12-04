@@ -12,22 +12,28 @@ credentials:
           description: "Credentials to be used to log into Gitea from Jenkins to retrieve\
             \ the NetCICD repo."
           id: "git-jenkins"
-          password: "netcicd"
+          password: ${GIT_JENKINS_PASSWORD}
           scope: GLOBAL
           username: "git-jenkins"
       - usernamePassword:
           description: "Credentials to be used to log into Jenkins from Jenkins to configure\
             \ the NetCICD agent."
           id: "jenkins-jenkins"
-          password: "netcicd"
+          password: ${JENKINS_JENKINS_PASSWORD}
           scope: GLOBAL
           username: "jenkins-jenkins"
       - usernamePassword:
           description: "Credentials to be used to log into Nexus from Jenkins."
           id: "jenkins-nexus"
-          password: "netcicd"
+          password: ${NEXUS_JENKINS_PASSWORD}
           scope: GLOBAL
-          username: "netcicd"
+          username: "jenkins-nexus"
+      - usernamePassword:
+          description: "Credentials to be used to log into Argos from Jenkins."
+          id: "jenkins-argos"
+          password: ${ARGOS_JENKINS_PASSWORD}
+          scope: GLOBAL
+          username: "jenkins-argos"
 jenkins:
   authorizationStrategy:
     roleBased:

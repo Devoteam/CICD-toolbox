@@ -1,5 +1,5 @@
 # pulling offical image
-FROM sonatype/nexus3:latest
+FROM sonatype/nexus3:3.34.0
 
 COPY nexus.properties nexus-data/etc/nexus.properties
 COPY *.kar /opt/sonatype/nexus/deploy/ 

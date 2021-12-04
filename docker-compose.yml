@@ -89,11 +89,10 @@ services:
       - GITEA_IP=10.10.20.50
       - JENKINS_IP=10.10.20.50
       - NEXUS_IP=10.10.20.50
+      - JENKINS_JENKINS_PASSWORD=netcicd
       - GIT_JENKINS_PASSWORD=netcicd
       - NEXUS_JENKINS_PASSWORD=netcicd
       - ARGOS_JENKINS_PASSWORD=netcicd
-      - JENKINS_AGENT_CREATOR=netcicd
-      - JENKINS_AGENT_CREATOR_KEY=somekey
     volumes:
       - './jenkins/keystore:/var/jenkins_home/keystore'
     ports:

@@ -33,8 +33,8 @@ chown root /etc/krb5-portainer.keytab
 chmod 640 /etc/krb5-portainer.keytab
 
 # Add Groups
-ipa group-add toolbox_admin --desc="Toolbox Admins"
-ipa group-add netcicd_agents --desc="NetCICD-agents"
+ipa group-add Toolbox_admin --desc="Toolbox-Admins"
+ipa group-add NetCICD_agents --desc="NetCICD-agents"
 ipa group-add git_from_jenkins --desc="Group that is permitted to read git to update repo's from Jenkins"
 
 ipa group-add iam_ops --desc="IAM Operations"
@@ -130,54 +130,54 @@ ipa group-add fs_fm --desc="Field Services Floor Management"
 ipa group-add-member fs --groups=fs_fse --groups=fs_fm
 
 # Add users
-echo "netcicd" | ipa user-add netcicd --first=NetCICD --last=Godmode --email=netcicd@tooling.test
+echo "netcicd" | ipa user-add netcicd --first=NetCICD --last=Godmode --email=netcicd@tooling.test --user-auth-type='password' --password
 ipa group-add-member toolbox_admin --user=netcicd
 
-echo "netcicd" | ipa user-add git-jenkins --first=Git --last=Jenkins --email=git-jenkins@tooling.test
+echo "netcicd" | ipa user-add git-jenkins --first=Git --last=Jenkins --email=git-jenkins@tooling.test --user-auth-type='password' --password
 ipa group-add-member git_from_jenkins --user=git-jenkins
 
-echo "netcicd" | ipa user-add jenkins-jenkins --first=Jenkins --last=Jenkins --email=jenkins-jenkins@tooling.test
+echo "netcicd" | ipa user-add jenkins-jenkins --first=Jenkins --last=Jenkins --email=jenkins-jenkins@tooling.test --user-auth-type='password' --password
 ipa group-add-member netcicd_agents --user=jenkins-jenkins
 
-echo "netcicd" | ipa user-add netcicd-pipeline --first=NetCICD --last=Pipeline --email=netcicd-pipeline@tooling.test
+echo "netcicd" | ipa user-add netcicd-pipeline --first=NetCICD --last=Pipeline --email=netcicd-pipeline@tooling.test --user-auth-type='password' --password
 
 #IAM, Office, Campus, WAN
-ipa user-add compudude --first=Compu --last=Dude --email=compudude@tooling.test
+echo "netcicd" | ipa user-add compudude --first=Compu --last=Dude --email=compudude@tooling.test --user-auth-type='password' --password
 ipa group-add-member dc_ops_compute_oper --user=compudude
-ipa user-add compuspecialist --first=Compu --last=Specialist --email=compuspecialist@tooling.test
+echo "netcicd" | ipa user-add compuspecialist --first=Compu --last=Specialist --email=compuspecialist@tooling.test --user-auth-type='password' --password
 ipa group-add-member dc_ops_compute_spec --user=compuspecialist
-ipa user-add compuarchitect --first=Compu --last=Architect --email=compuarchitect@tooling.test
+echo "netcicd" | ipa user-add compuarchitect --first=Compu --last=Architect --email=compuarchitect@tooling.test --user-auth-type='password' --password
 ipa group-add-member dc_dev_compute --user=compuarchitect
 
-ipa user-add netdude --first=Net --last=Dude --email=netdude@tooling.test
+echo "netcicd" | ipa user-add netdude --first=Net --last=Dude --email=netdude@tooling.test --user-auth-type='password' --password
 ipa group-add-member dc_ops_network_oper --user=netdude
-ipa user-add netspecialist --first=Net --last=Specialist --email=netspecialist@tooling.test
+echo "netcicd" | ipa user-add netspecialist --first=Net --last=Specialist --email=netspecialist@tooling.test --user-auth-type='password' --password
 ipa group-add-member dc_ops_network_spec --user=netspecialist
-ipa user-add netarchitect --first=Net --last=Architect --email=netarchitect@tooling.test
+echo "netcicd" | ipa user-add netarchitect --first=Net --last=Architect --email=netarchitect@tooling.test --user-auth-type='password' --password
 ipa group-add-member dc_dev_network --user=netarchitect
 
-ipa user-add diskdude --first=Disk --last=Dude --email=diskdude@tooling.test
+echo "netcicd" | ipa user-add diskdude --first=Disk --last=Dude --email=diskdude@tooling.test --user-auth-type='password' --password
 ipa group-add-member dc_ops_storage_oper --user=diskdude
-ipa user-add diskspecialist --first=Disk --last=Specialist --email=diskspecialist@tooling.test
+echo "netcicd" | ipa user-add diskspecialist --first=Disk --last=Specialist --email=diskspecialist@tooling.test --user-auth-type='password' --password
 ipa group-add-member dc_ops_storage_spec --user=diskspecialist
-ipa user-add diskarchitect --first=Disk --last=Architect --email=diskarchitect@tooling.test
+echo "netcicd" | ipa user-add diskarchitect --first=Disk --last=Architect --email=diskarchitect@tooling.test --user-auth-type='password' --password
 ipa group-add-member dc_dev_storage --user=diskarchitect
 #app
-ipa user-add tooltiger --first=Tool --last=Tiger --email=tooltiger@tooling.test
+echo "netcicd" | ipa user-add tooltiger --first=Tool --last=Tiger --email=tooltiger@tooling.test --user-auth-type='password' --password
 ipa group-add-member tool_ops_oper --user=tooltiger
-ipa user-add toolmaster --first=Tool --last=Master --email=toolmaster@tooling.test
+echo "netcicd" | ipa user-add toolmaster --first=Tool --last=Master --email=toolmaster@tooling.test --user-auth-type='password' --password
 ipa group-add-member tool_ops_spec --user=toolmaster
-ipa user-add blacksmith --first=Black --last=Smith --email=blacksmith@tooling.test
+echo "netcicd" | ipa user-add blacksmith --first=Black --last=Smith --email=blacksmith@tooling.test --user-auth-type='password' --password
 ipa group-add-member tool_dev --user=blacksmith
 
-ipa user-add happyhacker --first=Happy --last=Hacker --email=happyhacker@tooling.test
+echo "netcicd" | ipa user-add happyhacker --first=Happy --last=Hacker --email=happyhacker@tooling.test --user-auth-type='password' --password
 ipa group-add-member sec_ops_oper --user=happyhacker
-ipa user-add whitehat --first=Hat --last=White --email=whitehat@tooling.test
+echo "netcicd" | ipa user-add whitehat --first=Hat --last=White --email=whitehat@tooling.test --user-auth-type='password' --password
 ipa group-add-member sec_ops_spec --user=whitehat
-ipa user-add blackhat --first=Hat --last=Black --email=blackhat@tooling.test
+echo "netcicd" | ipa user-add blackhat --first=Hat --last=Black --email=blackhat@tooling.test --user-auth-type='password' --password
 ipa group-add-member sec_dev --user=blackhat
 
-ipa user-add mechanicjoe --first=Joe --last=Mechanic --email=mechanicjoe@tooling.test
+echo "netcicd" | ipa user-add mechanicjoe --first=Joe --last=Mechanic --email=mechanicjoe@tooling.test --user-auth-type='password' --password
 ipa group-add-member fs_fse --user=mechanicjoe
-ipa user-add patchhero --first=Patch --last=Hero --email=patchhero@tooling.test
+echo "netcicd" | ipa user-add patchhero --first=Patch --last=Hero --email=patchhero@tooling.test --user-auth-type='password' --password
 ipa group-add-member fs_fm --user=patchhero

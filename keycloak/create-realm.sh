@@ -236,7 +236,7 @@ echo "Created jenkins-git group with ID: ${j_g_id}"
     --rolename jenkins-git
 
 #add groups 
-./kcadm.sh create groups -r netcicd -s name="Toolbox admins" &>TOOLBOX_ADMIN
+./kcadm.sh create groups -r netcicd -s name="Toolbox_admin" &>TOOLBOX_ADMIN
 toolbox_admin_id=$(cat TOOLBOX_ADMIN | grep id | cut -d"'" -f 2)
 echo "Created Toolbox Admins group with ID: ${toolbox_admin_id}" 
 
@@ -259,7 +259,7 @@ echo "Created Toolbox Admins group with ID: ${toolbox_admin_id}"
     --cclientid Nexus \
     --rolename nexus-admin
 
-./kcadm.sh create groups -r netcicd -s name="NetCICD-agents" &>NETCICD_AGENTS
+./kcadm.sh create groups -r netcicd -s name="NetCICD_agents" &>NETCICD_AGENTS
 netcicd_agents_id=$(cat NETCICD_AGENTS | grep id | cut -d"'" -f 2)
 echo "Created NetCICD Agents with ID: ${netcicd_agents_id}" 
 
@@ -985,7 +985,7 @@ rm NetCICD_*
     -s 'config.useKerberosForPasswordAuthentication=["true"]' \
     -s 'config.batchSizeForSync=["1000"]' \
     -s 'config.fullSyncPeriod=["-1"]' \
-    -s 'config.changedSyncPeriod=["-1"]' \
+    -s 'config.changedSyncPeriod=["10"]' \
     -s 'config.cachePolicy=["DEFAULT"]' \
     -s config.evictionDay=[] \
     -s config.evictionHour=[] \
