@@ -1,6 +1,11 @@
 #!/bin/bash 
 
 nexus_plugin="0.5.0"
+netcicd_pwd="netcicd"
+keycloak_pwd="Pa55w0rd"
+keycloak_storepass="password"
+freeipa_pwd="Pa55w0rd"
+jenkins_storepass="changeit"
 
 echo "****************************************************************************************************************"
 echo " Start clean" 
@@ -148,12 +153,12 @@ docker cp freeipa/ca.crt keycloak.tooling.test:/opt/jboss/keycloak/standalone/co
 echo "****************************************************************************************************************"
 echo " Creating keycloak setup. This will take time..."
 echo "****************************************************************************************************************"
-docker exec -it keycloak.tooling.test sh -c "/opt/jboss/keycloak/bin/create-realm.sh" | tee install_log/keycloak_create.log
+docker exec -it keycloak.tooling.test sh -c "/opt/jboss/keycloak/bin/create-realm.sh ${keycloak_pwd} ${keycloak_storepass} ${freeipa_pwd}" | tee install_log/keycloak_create.log
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating FreeIPA setup. This will take time..."
 echo "****************************************************************************************************************"
-docker exec -it freeipa.tooling.test sh -c "/root/freeipa-install.sh" | tee install_log/freeipa_create.log
+docker exec -it freeipa.tooling.test sh -c "/root/freeipa-install.sh ${netcicd_pwd} ${freeipa_pwd}" | tee install_log/freeipa_create.log
 echo "****************************************************************************************************************"
 echo " Restarting Keycloak "
 echo "****************************************************************************************************************"
@@ -174,7 +179,7 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating gitea setup"
 echo "****************************************************************************************************************"
-gitea/gitea_install.sh | tee install_log/gitea_create.log
+gitea/gitea_install.sh ${netcicd_pwd} | tee install_log/gitea_create.log
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating jenkins setup"
@@ -206,7 +211,7 @@ echo " Copy certificate into Jenkins keystore"
 echo "****************************************************************************************************************"
 docker cp jenkins.tooling.test:/opt/java/openjdk/lib/security/cacerts ./jenkins/keystore/cacerts
 chmod +w ./jenkins/keystore/cacerts
-keytool -import -alias Keycloak -keystore ./jenkins/keystore/cacerts -file ./jenkins/keystore/keycloak.pem -storepass changeit -noprompt
+keytool -import -alias Keycloak -keystore ./jenkins/keystore/cacerts -file ./jenkins/keystore/keycloak.pem -storepass ${jenkins_storepass} -noprompt
 docker cp ./jenkins/keystore/cacerts jenkins.tooling.test:/opt/java/openjdk/lib/security/cacerts
 echo "Reloading "
 docker restart jenkins.tooling.test
@@ -243,7 +248,7 @@ echo " "
 echo " Log out and open a new terminal"
 echo " "
 echo " cd NetCICD-developer-toolbox"
-echo " robot -d install_log/ finalize_install.robot"
+echo " robot --variable VALID_PASSWORD:${netcicd_pwd} -d install_log/ finalize_install.robot"
 echo " "
 echo " The pipeline uses the default Cisco DevNet CML Sandbox credentials developer/C1sco12345 to log in to CML."
 echo " You may change this to your own credentials in:"

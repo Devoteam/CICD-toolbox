@@ -90,9 +90,9 @@ services:
       - JENKINS_IP=10.10.20.50
       - NEXUS_IP=10.10.20.50
       - JENKINS_JENKINS_PASSWORD=netcicd
-      - GIT_JENKINS_PASSWORD=netcicd
-      - NEXUS_JENKINS_PASSWORD=netcicd
-      - ARGOS_JENKINS_PASSWORD=netcicd
+      - JENKINS_GIT_PASSWORD=netcicd
+      - JENKINS_NEXUS_PASSWORD=netcicd
+      - JENKINS_ARGOS_PASSWORD=netcicd
     volumes:
       - './jenkins/keystore:/var/jenkins_home/keystore'
     ports:

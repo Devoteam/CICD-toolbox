@@ -1,4 +1,7 @@
 #!/bin/bash
+user=gitea-local-admin
+pwd=$1
+
 #First define functions
 
 function CreateRepo () {   
@@ -95,8 +98,6 @@ echo "**************************************************************************
 docker cp gitea/app.ini gitea.tooling.test:/data/gitea/conf/app.ini
 echo " "
 echo "****************************************************************************************************************"
-user=gitea-local-admin
-pwd=netcicd
 echo " Create local gituser (admin role: $user)"
 echo "****************************************************************************************************************"
 docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin user create --username $user --password $pwd --admin --email gitea-local-admin@tooling.test'"

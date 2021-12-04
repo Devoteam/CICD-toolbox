@@ -11,10 +11,10 @@ credentials:
       - usernamePassword:
           description: "Credentials to be used to log into Gitea from Jenkins to retrieve\
             \ the NetCICD repo."
-          id: "git-jenkins"
-          password: ${GIT_JENKINS_PASSWORD}
+          id: "jenkins-git"
+          password: ${JENKINS_GIT_PASSWORD}
           scope: GLOBAL
-          username: "git-jenkins"
+          username: "jenkins-git"
       - usernamePassword:
           description: "Credentials to be used to log into Jenkins from Jenkins to configure\
             \ the NetCICD agent."
@@ -25,13 +25,13 @@ credentials:
       - usernamePassword:
           description: "Credentials to be used to log into Nexus from Jenkins."
           id: "jenkins-nexus"
-          password: ${NEXUS_JENKINS_PASSWORD}
+          password: ${JENKINS_NEXUS_PASSWORD}
           scope: GLOBAL
           username: "jenkins-nexus"
       - usernamePassword:
           description: "Credentials to be used to log into Argos from Jenkins."
           id: "jenkins-argos"
-          password: ${ARGOS_JENKINS_PASSWORD}
+          password: ${JENKINS_ARGOS_PASSWORD}
           scope: GLOBAL
           username: "jenkins-argos"
 jenkins:

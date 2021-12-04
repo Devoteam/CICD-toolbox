@@ -3,14 +3,14 @@
 echo "Adding CA certificate to Java truststore..."
 chmod 777 /opt/jboss/keycloak/standalone/configuration/keystores 
 cd /opt/jboss/keycloak/standalone/configuration/keystores 
-keytool -keystore truststore -storepass password -noprompt -trustcacerts -importcert -alias freeipa-ca -file freeipa-ca.crt
+keytool -keystore truststore -storepass $2 -noprompt -trustcacerts -importcert -alias freeipa-ca -file freeipa-ca.crt
 chmod 444 /opt/jboss/keycloak/standalone/configuration/keystores 
 
 # shell script to be copied into /opt/jboss/keycloak/bin
 cd /opt/jboss/keycloak/bin
 
 #Create credentials
-./kcadm.sh config credentials --server http://keycloak.tooling.test:8080/auth --realm master --user admin --password Pa55w0rd
+./kcadm.sh config credentials --server http://keycloak.tooling.test:8080/auth --realm master --user admin --password $1
 
 #add realm
 ./kcadm.sh create realms \
@@ -137,13 +137,6 @@ echo "Included Jenkins Audience in token"
 	-s config="{\"multivalued\" : \"true\",\"userinfo.token.claim\" : \"true\",\"id.token.claim\" : \"false\",\"access.token.claim\" : \"false\",\"claim.name\" : \"group-membership\",\"jsonType.label\" : \"String\",\"usermodel.clientRoleMapping.clientId\" : \"Jenkins\"}"
 
 echo "Created role-group mapper in the Client Scope" 
-echo " "
-
-#download Jenkins OIDC file
-#./kcadm.sh get clients/$JENKINS_ID/installation/providers/keycloak-oidc-keycloak-json -r netcicd > keycloak-jenkins.json
-
-#echo "Created keycloak-jenkins installation json" 
-#
 
 ./kcadm.sh create clients \
     -r netcicd \
@@ -217,26 +210,14 @@ echo "Created keycloak-nexus installation json"
 PORTAINER_ID=$(cat NetCICD_PORTAINER | grep id | cut -d'"' -f 4)
 
 # Now we can add client specific roles (Clientroles)
-./kcadm.sh create clients/$PORTAINER_ID/roles -r netcicd -s name=PORTAINER-admin -s description='The admin role for FreeRADIUS'
+./kcadm.sh create clients/$PORTAINER_ID/roles -r netcicd -s name=PORTAINER-admin -s description='The admin role for Portainer'
 
-#add groups - we start at the system level, which implements the groups related to service accounts
-./kcadm.sh create groups -r netcicd -s name="System" &>NetCICD_SYSTEM
-system_id=$(cat NetCICD_SYSTEM | grep id | cut -d"'" -f 2)
-echo "Created System Group with ID: ${system_id}" 
+#add groups - we start at the toolbox level, which implements the groups related to service accounts
+./kcadm.sh create groups -r netcicd -s name="toolbox" &>NetCICD_TOOLBOX
+toolbox_id=$(cat NetCICD_TOOLBOX | grep id | cut -d"'" -f 2)
+echo "Created Toolbox Group with ID: ${toolbox_id}" 
 
-./kcadm.sh create groups/$system_id/children -r netcicd -s name="jenkins-git" &>NetCICD_J_G
-j_g_id=$(cat NetCICD_J_G | grep id | cut -d"'" -f 2)
-echo "Created jenkins-git group with ID: ${j_g_id}" 
-
-#adding client roles to the group
-./kcadm.sh add-roles \
-    -r netcicd \
-    --gid $j_g_id \
-    --cclientid Jenkins \
-    --rolename jenkins-git
-
-#add groups 
-./kcadm.sh create groups -r netcicd -s name="Toolbox_admin" &>TOOLBOX_ADMIN
+./kcadm.sh create groups/$toolbox_id/children -r netcicd -s name="toolbox_admin" &>TOOLBOX_ADMIN
 toolbox_admin_id=$(cat TOOLBOX_ADMIN | grep id | cut -d"'" -f 2)
 echo "Created Toolbox Admins group with ID: ${toolbox_admin_id}" 
 
@@ -259,7 +240,7 @@ echo "Created Toolbox Admins group with ID: ${toolbox_admin_id}"
     --cclientid Nexus \
     --rolename nexus-admin
 
-./kcadm.sh create groups -r netcicd -s name="NetCICD_agents" &>NETCICD_AGENTS
+./kcadm.sh create groups/$toolbox_id/children -r netcicd -s name="netcicd_agents" &>NETCICD_AGENTS
 netcicd_agents_id=$(cat NETCICD_AGENTS | grep id | cut -d"'" -f 2)
 echo "Created NetCICD Agents with ID: ${netcicd_agents_id}" 
 
@@ -270,58 +251,72 @@ echo "Created NetCICD Agents with ID: ${netcicd_agents_id}"
     --cclientid Jenkins \
     --rolename jenkins-netcicd-agent 
 
+./kcadm.sh create groups/$toolbox_id/children -r netcicd -s name="git_from_jenkins" &>NetCICD_J_G
+j_g_id=$(cat NetCICD_J_G | grep id | cut -d"'" -f 2)
+echo "Created git_from_jenkins group with ID: ${j_g_id}" 
+
+#adding client roles to the group
+./kcadm.sh add-roles \
+    -r netcicd \
+    --gid $j_g_id \
+    --cclientid Jenkins \
+    --rolename jenkins-git
 
 
 #Now - we start at the ICT infra level, which implements the capacity layer of the MyREFerence model
-./kcadm.sh create groups -r netcicd -s name="Identity and Access Management" &>DOM_IAM
+./kcadm.sh create groups -r netcicd -s name="iam" &>DOM_IAM
 dom_iam_id=$(cat DOM_IAM | grep id | cut -d"'" -f 2)
 echo "Created Identity and Access Management Domain with ID: ${dom_iam_id}" 
 
-./kcadm.sh create groups/$dom_iam_id/children -r netcicd -s name="1 - IAM Operations" &>IAM_OPS
+./kcadm.sh create groups/$dom_iam_id/children -r netcicd -s name="iam_ops" &>IAM_OPS
 iam_ops_id=$(cat IAM_OPS | grep id | cut -d"'" -f 2)
 echo "Created IAM Operations Group with ID: ${iam_ops_id}" 
 
-./kcadm.sh create groups/$iam_ops_id/children -r netcicd -s name="IAM Operators" &>IAM_OPS_OPER
+./kcadm.sh create groups/$iam_ops_id/children -r netcicd -s name="iam_ops_oper" &>IAM_OPS_OPER
 iam_ops_oper_id=$(cat IAM_OPS_OPER | grep id | cut -d"'" -f 2)
 echo "Created IAM Operator Group within IAM Operations Group with ID: ${iam_ops_oper_id}" 
 
-./kcadm.sh create groups/$iam_ops_id/children -r netcicd -s name="IAM Specialists" &>IAM_OPS_SPEC
+./kcadm.sh create groups/$iam_ops_id/children -r netcicd -s name="iam_ops_spec" &>IAM_OPS_SPEC
 iam_ops_spec_id=$(cat IAM_OPS_OPER | grep id | cut -d"'" -f 2)
-echo "Created IAM Operator Group within IAM Operations Group with ID: ${iam_ops_oper_id}" 
+echo "Created IAM Specialist Group within IAM Operations Group with ID: ${iam_ops_spec_id}" 
 
-./kcadm.sh create groups/$dom_iam_id/children -r netcicd -s name="2 - IAM Development" &>IAM_DEV
+./kcadm.sh create groups/$dom_iam_id/children -r netcicd -s name="iam_dev" &>IAM_DEV
 iam_dev_id=$(cat IAM_DEV | grep id | cut -d"'" -f 2)
 echo "Created IAM Development Group with ID: ${iam_dev_id}" 
 
-./kcadm.sh create groups -r netcicd -s name="Office" &>DOM_OFFICE
+./kcadm.sh create groups -r netcicd -s name="office" &>DOM_OFFICE
 dom_office_id=$(cat DOM_OFFICE | grep id | cut -d"'" -f 2)
 echo "Created Office Domain with ID: ${dom_office_id}" 
 
-./kcadm.sh create groups/$dom_office_id/children -r netcicd -s name="1 - Office Operations" &>OFFICE_OPS
+./kcadm.sh create groups/$dom_office_id/children -r netcicd -s name="office_ops" &>OFFICE_OPS
 office_ops_id=$(cat OFFICE_OPS | grep id | cut -d"'" -f 2)
 echo "Created Office Operations Group with ID: ${office_ops_id}" 
 
-./kcadm.sh create groups/$office_ops_id/children -r netcicd -s name="Office Operators" &>OFFICE_OPS_OPER
-office_ops_oper_id=$(cat OFFICE_OPS_OPER | grep id | cut -d"'" -f 2)
-echo "Created Office Operator Group within Office Operations Group with ID: ${office_ops_oper_id}" 
-
-./kcadm.sh create groups/$office_ops_id/children -r netcicd -s name="Office Specialists" &>OFFICE_OPS_SPEC
-office_ops_spec_id=$(cat OFFICE_OPS_OPER | grep id | cut -d"'" -f 2)
-echo "Created Office Operator Group within Office Operations Group with ID: ${office_ops_oper_id}" 
-
-./kcadm.sh create groups/$dom_office_id/children -r netcicd -s name="2 - Office Development" &>OFFICE_DEV
+./kcadm.sh create groups/$dom_office_id/children -r netcicd -s name="office_dev" &>OFFICE_DEV
 office_dev_id=$(cat OFFICE_DEV | grep id | cut -d"'" -f 2)
 echo "Created Office Development Group with ID: ${office_dev_id}" 
 
-./kcadm.sh create groups -r netcicd -s name="Campus" &>DOM_CAMPUS
+./kcadm.sh create groups/$office_ops_id/children -r netcicd -s name="office_ops_oper" &>OFFICE_OPS_OPER
+office_ops_oper_id=$(cat OFFICE_OPS_OPER | grep id | cut -d"'" -f 2)
+echo "Created Office Operator Group within Office Operations Group with ID: ${office_ops_oper_id}" 
+
+./kcadm.sh create groups/$office_ops_id/children -r netcicd -s name="office_ops_spec" &>OFFICE_OPS_SPEC
+office_ops_spec_id=$(cat OFFICE_OPS_OPER | grep id | cut -d"'" -f 2)
+echo "Created Office Specialist Group within Office Operations Group with ID: ${office_ops_spec_id}" 
+
+./kcadm.sh create groups -r netcicd -s name="campus" &>DOM_CAMPUS
 dom_campus_id=$(cat DOM_CAMPUS | grep id | cut -d"'" -f 2)
 echo "Created Campus Domain with ID: ${dom_campus_id}" 
 
-./kcadm.sh create groups/$dom_campus_id/children -r netcicd -s name="1 - Campus Operations" &>CAMPUS_OPS
+./kcadm.sh create groups/$dom_campus_id/children -r netcicd -s name="campus_ops" &>CAMPUS_OPS
 campus_ops_id=$(cat CAMPUS_OPS | grep id | cut -d"'" -f 2)
 echo "Created Campus Operations Group with ID: ${campus_ops_id}" 
 
-./kcadm.sh create groups/$campus_ops_id/children -r netcicd -s name="Campus Operators" &>CAMPUS_OPS_OPER
+./kcadm.sh create groups/$dom_campus_id/children -r netcicd -s name="campus_dev" &>CAMPUS_DEV
+campus_dev_id=$(cat CAMPUS_DEV | grep id | cut -d"'" -f 2)
+echo "Created Campus Development Group with ID: ${campus_dev_id}" 
+
+./kcadm.sh create groups/$campus_ops_id/children -r netcicd -s name="campus_ops_oper" &>CAMPUS_OPS_OPER
 campus_ops_oper_id=$(cat CAMPUS_OPS_OPER | grep id | cut -d"'" -f 2)
 echo "Created Campus Operator Group within Campus Operations Group with ID: ${campus_ops_oper_id}" 
 
@@ -349,7 +344,7 @@ echo "Created Campus Operator Group within Campus Operations Group with ID: ${ca
 
 echo "Added roles to Campus Operators."
 
-./kcadm.sh create groups/$campus_ops_id/children -r netcicd -s name="Campus Specialist" &>CAMPUS_OPS_SPEC
+./kcadm.sh create groups/$campus_ops_id/children -r netcicd -s name="campus_ops_spec" &>CAMPUS_OPS_SPEC
 campus_ops_spec_id=$(cat CAMPUS_OPS_SPEC | grep id | cut -d"'" -f 2)
 echo "Created Campus Specialists Group within Campus Operations Group with ID: ${campus_ops_spec_id}" 
 
@@ -378,11 +373,7 @@ echo "Created Campus Specialists Group within Campus Operations Group with ID: $
      
 echo "Added roles to Operations Campus Specialists."
 
-./kcadm.sh create groups/$dom_campus_id/children -r netcicd -s name="2 - Campus Development" &>CAMPUS_DEV
-campus_dev_id=$(cat CAMPUS_DEV | grep id | cut -d"'" -f 2)
-echo "Created Campus Development Group with ID: ${campus_dev_id}" 
-
-./kcadm.sh create groups/$campus_dev_id/children -r netcicd -s name="Campus LAN Designer" &>CAMPUS_DEV_LAN_DESIGNER
+./kcadm.sh create groups/$campus_dev_id/children -r netcicd -s name="campus_dev_lan" &>CAMPUS_DEV_LAN_DESIGNER
 campus_dev_lan_designer_id=$(cat CAMPUS_DEV_LAN_DESIGNER | grep id | cut -d"'" -f 2)
 echo "Created Campus LAN Designer group within the Development Department with ID: ${campus_dev_lan_designer_id}" 
 
@@ -409,9 +400,9 @@ echo "Created Campus LAN Designer group within the Development Department with I
     --rolename nexus-docker-pull \
     --rolename nexus-read
 
-echo "Added roles to Campus Designers."
+echo "Added roles to Campus LAN Designers."
 
-./kcadm.sh create groups/$campus_dev_id/children -r netcicd -s name="Campus wifi Designer" &>CAMPUS_DEV_WIFI_DESIGNER
+./kcadm.sh create groups/$campus_dev_id/children -r netcicd -s name="campus_dev_wifi" &>CAMPUS_DEV_WIFI_DESIGNER
 campus_dev_wifi_designer_id=$(cat CAMPUS_DEV_WIFI_DESIGNER | grep id | cut -d"'" -f 2)
 echo "Created Campus wifi Designer group within the Development Department with ID: ${campus_dev_wifi_designer_id}" 
 
@@ -438,17 +429,21 @@ echo "Created Campus wifi Designer group within the Development Department with 
     --rolename nexus-docker-pull \
     --rolename nexus-read
 
-echo "Added roles to Campus Designers."
+echo "Added roles to Campus WIFI Designers."
 
-./kcadm.sh create groups -r netcicd -s name="WAN" &>DOM_WAN
+./kcadm.sh create groups -r netcicd -s name="wan" &>DOM_WAN
 dom_wan_id=$(cat DOM_WAN | grep id | cut -d"'" -f 2)
 echo "Created WAN Domain with ID: ${dom_wan_id}" 
 
-./kcadm.sh create groups/$dom_wan_id/children -r netcicd -s name="1 - WAN Operations" &>WAN_OPS
+./kcadm.sh create groups/$dom_wan_id/children -r netcicd -s name="wan_ops" &>WAN_OPS
 wan_ops_id=$(cat WAN_OPS | grep id | cut -d"'" -f 2)
 echo "Created WAN Operations Group with ID: ${wan_ops_id}" 
 
-./kcadm.sh create groups/$wan_ops_id/children -r netcicd -s name="WAN Operators" &>WAN_OPS_OPER
+./kcadm.sh create groups/$dom_wan_id/children -r netcicd -s name="wan_dev" &>WAN_DEV
+wan_dev_id=$(cat WAN_DEV | grep id | cut -d"'" -f 2)
+echo "Created WAN Development Group with ID: ${wan_dev_id}" 
+
+./kcadm.sh create groups/$wan_ops_id/children -r netcicd -s name="wan_ops_oper" &>WAN_OPS_OPER
 wan_ops_oper_id=$(cat WAN_OPS_OPER | grep id | cut -d"'" -f 2)
 echo "Created WAN Operator Group within WAN Operations Group with ID: ${wan_ops_oper_id}" 
 
@@ -476,7 +471,7 @@ echo "Created WAN Operator Group within WAN Operations Group with ID: ${wan_ops_
 
 echo "Added roles to WAN Operators."
 
-./kcadm.sh create groups/$wan_ops_id/children -r netcicd -s name="WAN Specialist" &>WAN_OPS_SPEC
+./kcadm.sh create groups/$wan_ops_id/children -r netcicd -s name="wan_ops_spec" &>WAN_OPS_SPEC
 wan_ops_spec_id=$(cat WAN_OPS_SPEC | grep id | cut -d"'" -f 2)
 echo "Created WAN Specialists Group within WAN Operations Group with ID: ${wan_ops_spec_id}" 
 
@@ -505,11 +500,7 @@ echo "Created WAN Specialists Group within WAN Operations Group with ID: ${wan_o
      
 echo "Added roles to Operations WAN Specialists."
 
-./kcadm.sh create groups/$dom_wan_id/children -r netcicd -s name="2 - WAN Development" &>WAN_DEV
-wan_dev_id=$(cat WAN_DEV | grep id | cut -d"'" -f 2)
-echo "Created WAN Development Group with ID: ${wan_dev_id}" 
-
-./kcadm.sh create groups/$wan_dev_id/children -r netcicd -s name="WAN Designer" &>WAN_DEV_DESIGNER
+./kcadm.sh create groups/$wan_dev_id/children -r netcicd -s name="wan_dev_design" &>WAN_DEV_DESIGNER
 wan_dev_designer_id=$(cat WAN_DEV_DESIGNER | grep id | cut -d"'" -f 2)
 echo "Created WAN Designer group within the WAN Development Group with ID: ${wan_dev_designer_id}" 
 
@@ -538,19 +529,23 @@ echo "Created WAN Designer group within the WAN Development Group with ID: ${wan
 
 echo "Added roles to WAN Designer."
 
-./kcadm.sh create groups -r netcicd -s name="Datacenter" &>DOM_DC
+./kcadm.sh create groups -r netcicd -s name="dc" &>DOM_DC
 dom_dc_id=$(cat DOM_DC | grep id | cut -d"'" -f 2)
 echo "Created Datacenter Domain with ID: ${dom_dc_id}" 
 
-./kcadm.sh create groups/$dom_dc_id/children -r netcicd -s name="1 - Datacenter Operations" &>DC_OPS
+./kcadm.sh create groups/$dom_dc_id/children -r netcicd -s name="dc_ops" &>DC_OPS
 dc_ops_id=$(cat DC_OPS | grep id | cut -d"'" -f 2)
 echo "Created Datacenter Operations Group with ID: ${dc_ops_id}" 
 
-./kcadm.sh create groups/$dc_ops_id/children -r netcicd -s name="1 - Compute" &>DC_OPS_COMP
+./kcadm.sh create groups/$dom_dc_id/children -r netcicd -s name="dc_dev" &>DC_DEV
+dc_dev_id=$(cat DC_DEV | grep id | cut -d"'" -f 2)
+echo "Created Datacenter Development Group with ID: ${dc_dev_id}" 
+
+./kcadm.sh create groups/$dc_ops_id/children -r netcicd -s name="dc_ops_compute" &>DC_OPS_COMP
 dc_ops_comp_id=$(cat DC_OPS_COMP | grep id | cut -d"'" -f 2)
 echo "Created Datacenter Operations Compute Group with ID: ${dc_ops_comp_id}" 
 
-./kcadm.sh create groups/$dc_ops_comp_id/children -r netcicd -s name="Compute Operators" &>DC_OPS_COMP_OPER
+./kcadm.sh create groups/$dc_ops_comp_id/children -r netcicd -s name="dc_ops_compute_oper" &>DC_OPS_COMP_OPER
 dc_ops_comp_oper_id=$(cat DC_OPS_COMP_OPER | grep id | cut -d"'" -f 2)
 echo "Created Compute Operator Group within Compute Operations Group with ID: ${dc_ops_comp_oper_id}" 
 
@@ -578,7 +573,7 @@ echo "Created Compute Operator Group within Compute Operations Group with ID: ${
 
 echo "Added roles to Compute Operators."
 
-./kcadm.sh create groups/$dc_ops_comp_id/children -r netcicd -s name="Compute Specialist" &>DC_OPS_COMP_SPEC
+./kcadm.sh create groups/$dc_ops_comp_id/children -r netcicd -s name="dc_ops_compute_spec" &>DC_OPS_COMP_SPEC
 dc_ops_comp_spec_id=$(cat DC_OPS_COMP_SPEC | grep id | cut -d"'" -f 2)
 echo "Created Compute Specialists group within Compute Operations with ID: ${dc_ops_comp_spec_id}" 
 
@@ -607,11 +602,11 @@ echo "Created Compute Specialists group within Compute Operations with ID: ${dc_
      
 echo "Added roles to Compute Specialists."
 
-./kcadm.sh create groups/$dc_ops_id/children -r netcicd -s name="2 - Network" &>DC_OPS_NET
+./kcadm.sh create groups/$dc_ops_id/children -r netcicd -s name="dc_ops_network" &>DC_OPS_NET
 dc_ops_net_id=$(cat DC_OPS_NET | grep id | cut -d"'" -f 2)
 echo "Created Datacenter Network Operations Group with ID: ${dc_ops_net_id}" 
 
-./kcadm.sh create groups/$dc_ops_net_id/children -r netcicd -s name="DC Network Operators" &>DC_OPS_NET_OPER
+./kcadm.sh create groups/$dc_ops_net_id/children -r netcicd -s name="dc_ops_network_oper" &>DC_OPS_NET_OPER
 dc_ops_net_oper_id=$(cat DC_OPS_NET_OPER | grep id | cut -d"'" -f 2)
 echo "Created DC Network Operator Group within DC Network Operations Group with ID: ${dc_ops_net_oper_id}" 
 
@@ -639,7 +634,7 @@ echo "Created DC Network Operator Group within DC Network Operations Group with 
 
 echo "Added roles to DC Network Operators."
 
-./kcadm.sh create groups/$dc_ops_net_id/children -r netcicd -s name="DC Network Specialist" &>DC_OPS_NET_SPEC
+./kcadm.sh create groups/$dc_ops_net_id/children -r netcicd -s name="dc_ops_network_spec" &>DC_OPS_NET_SPEC
 dc_ops_net_spec_id=$(cat DC_OPS_NET_SPEC | grep id | cut -d"'" -f 2)
 echo "Created DC Network Specialists group within Compute Operations with ID: ${dc_ops_net_spec_id}" 
 
@@ -668,11 +663,11 @@ echo "Created DC Network Specialists group within Compute Operations with ID: ${
      
 echo "Added roles to DC Network Specialists."
 
-./kcadm.sh create groups/$dc_ops_id/children -r netcicd -s name="3 - Storage" &>DC_OPS_STOR
+./kcadm.sh create groups/$dc_ops_id/children -r netcicd -s name="dc_ops_storage" &>DC_OPS_STOR
 dc_ops_stor_id=$(cat DC_OPS_STOR | grep id | cut -d"'" -f 2)
 echo "Created Datacenter Operations Group with ID: ${dc_ops_stor_id}" 
 
-./kcadm.sh create groups/$dc_ops_stor_id/children -r netcicd -s name="Storage Operators" &>DC_OPS_STOR_OPER
+./kcadm.sh create groups/$dc_ops_stor_id/children -r netcicd -s name="dc_ops_storage_oper" &>DC_OPS_STOR_OPER
 dc_ops_stor_oper_id=$(cat DC_OPS_STOR_OPER | grep id | cut -d"'" -f 2)
 echo "Created Storage Operator Group within Storage Operations Group with ID: ${dc_ops_stor_oper_id}" 
 
@@ -700,7 +695,7 @@ echo "Created Storage Operator Group within Storage Operations Group with ID: ${
 
 echo "Added roles to Storage Operators."
 
-./kcadm.sh create groups/$dc_ops_stor_id/children -r netcicd -s name="Storage Specialist" &>DC_OPS_STOR_SPEC
+./kcadm.sh create groups/$dc_ops_stor_id/children -r netcicd -s name="dc_ops_storage_spec" &>DC_OPS_STOR_SPEC
 dc_ops_stor_spec_id=$(cat DC_OPS_STOR_SPEC | grep id | cut -d"'" -f 2)
 echo "Created Storage Specialists group within Storage Operations with ID: ${dc_ops_stor_spec_id}" 
 
@@ -729,11 +724,7 @@ echo "Created Storage Specialists group within Storage Operations with ID: ${dc_
      
 echo "Added roles to Storage Specialists."
 
-./kcadm.sh create groups/$dom_dc_id/children -r netcicd -s name="2 - Datacenter Development" &>DC_DEV
-dc_dev_id=$(cat DC_DEV | grep id | cut -d"'" -f 2)
-echo "Created Datacenter Development Group with ID: ${dc_dev_id}" 
-
-./kcadm.sh create groups/$dc_dev_id/children -r netcicd -s name="DC Compute Designer" &>DC_DEV_COMPUTE_DESIGNER
+./kcadm.sh create groups/$dc_dev_id/children -r netcicd -s name="dc_dev_compute" &>DC_DEV_COMPUTE_DESIGNER
 dc_dev_compute_designer_id=$(cat DC_DEV_COMPUTE_DESIGNER | grep id | cut -d"'" -f 2)
 echo "Created Compute Designer Group within the Datacenter Development Group with ID: ${dc_dev_compute_designer_id}" 
 
@@ -762,7 +753,7 @@ echo "Created Compute Designer Group within the Datacenter Development Group wit
 
 echo "Added roles to DC Compute Designers."
 
-./kcadm.sh create groups/$dc_dev_id/children -r netcicd -s name="DC Network Designer" &>DC_DEV_NETWORK_DESIGNER
+./kcadm.sh create groups/$dc_dev_id/children -r netcicd -s name="dc_dev_network" &>DC_DEV_NETWORK_DESIGNER
 dc_dev_network_designer_id=$(cat DC_DEV_NETWORK_DESIGNER | grep id | cut -d"'" -f 2)
 echo "Created DC Network Group within the Datacenter Development Group with ID: ${dc_dev_network_designer_id}" 
 
@@ -791,7 +782,7 @@ echo "Created DC Network Group within the Datacenter Development Group with ID: 
 
 echo "Added roles to DC Network Designers."
 
-./kcadm.sh create groups/$dc_dev_id/children -r netcicd -s name="DC Storage Designer" &>DC_DEV_STORAGE_DESIGNER
+./kcadm.sh create groups/$dc_dev_id/children -r netcicd -s name="dc_dev_storage" &>DC_DEV_STORAGE_DESIGNER
 dc_dev_storage_designer_id=$(cat DC_DEV_STORAGE_DESIGNER | grep id | cut -d"'" -f 2)
 echo "Created DC Storage Designer Group within the Datacenter Development Group with ID: ${dc_dev_storage_designer_id}" 
 
@@ -820,27 +811,31 @@ echo "Created DC Storage Designer Group within the Datacenter Development Group 
 
 echo "Added roles to DC Network Designers."
 
-./kcadm.sh create groups -r netcicd -s name="Aplications" &>DOM_APPS
+./kcadm.sh create groups -r netcicd -s name="app" &>DOM_APPS
 dom_apps_id=$(cat DOM_APPS | grep id | cut -d"'" -f 2)
 echo "Created Applications Domain with ID: ${dom_apps_id}" 
 
-./kcadm.sh create groups/$dom_apps_id/children -r netcicd -s name="1 - Application Operations" &>APP_OPS
+./kcadm.sh create groups/$dom_apps_id/children -r netcicd -s name="app_ops" &>APP_OPS
 app_ops_id=$(cat APP_OPS | grep id | cut -d"'" -f 2)
 echo "Created Application Operations Group with ID: ${app_ops_id}" 
 
-./kcadm.sh create groups/$dom_apps_id/children -r netcicd -s name="2 - Application Development" &>APP_DEV
+./kcadm.sh create groups/$dom_apps_id/children -r netcicd -s name="app_dev" &>APP_DEV
 app_dev_id=$(cat APP_DEV | grep id | cut -d"'" -f 2)
 echo "Created Application Development Group with ID: ${app_dev_id}" 
 
-./kcadm.sh create groups -r netcicd -s name="Tooling" &>DOM_TOOLING
+./kcadm.sh create groups -r netcicd -s name="tooling" &>DOM_TOOLING
 dom_tooling_id=$(cat DOM_TOOLING | grep id | cut -d"'" -f 2)
 echo "Created Tooling Domain with ID: ${dom_tooling_id}" 
 
-./kcadm.sh create groups/$dom_tooling_id/children -r netcicd -s name="1 - Tooling Operations" &>TOOL_OPS
+./kcadm.sh create groups/$dom_tooling_id/children -r netcicd -s name="tooling_ops" &>TOOL_OPS
 tool_ops_id=$(cat TOOL_OPS | grep id | cut -d"'" -f 2)
 echo "Created Tooling Operations Group with ID: ${tool_ops_id}" 
 
-./kcadm.sh create groups/$tool_ops_id/children -r netcicd -s name="Tooling Operator" &>TOOL_OPS_OPER
+./kcadm.sh create groups/$dom_tooling_id/children -r netcicd -s name="tooling_dev" &>TOOL_DEV
+tool_dev_id=$(cat TOOL_DEV | grep id | cut -d"'" -f 2)
+echo "Created Tooling Development Group with ID: ${tool_dev_id}" 
+
+./kcadm.sh create groups/$tool_ops_id/children -r netcicd -s name="tooling_ops_oper" &>TOOL_OPS_OPER
 tool_ops_oper_id=$(cat TOOL_OPS_OPER | grep id | cut -d"'" -f 2)
 echo "Created Tooling Operator group within the Tooling Operations Department with ID: ${tool_ops_oper_id}" 
 
@@ -868,7 +863,7 @@ echo "Created Tooling Operator group within the Tooling Operations Department wi
 
 echo "Added roles to Tooling Operator."
 
-./kcadm.sh create groups/$tool_ops_id/children -r netcicd -s name="Tooling Specialist" &>TOOL_OPS_SPEC
+./kcadm.sh create groups/$tool_ops_id/children -r netcicd -s name="tooling_ops_spec" &>TOOL_OPS_SPEC
 tool_ops_spec_id=$(cat TOOL_OPS_SPEC | grep id | cut -d"'" -f 2)
 echo "Created Tooling Specialist group within the Tooling Operations Department with ID: ${tool_ops_spec_id}" 
 
@@ -894,13 +889,9 @@ echo "Created Tooling Specialist group within the Tooling Operations Department 
     --rolename nexus-docker-pull \
     --rolename nexus-read
 
-echo "Added roles to Tooling Operator."
+echo "Added roles to Tooling Specialist."
 
-./kcadm.sh create groups/$dom_tooling_id/children -r netcicd -s name="2 - Tooling Development" &>TOOL_DEV
-tool_dev_id=$(cat TOOL_DEV | grep id | cut -d"'" -f 2)
-echo "Created Tooling Development Group with ID: ${tool_dev_id}" 
-
-./kcadm.sh create groups/$tool_dev_id/children -r netcicd -s name="Tooling Designer" &>TOOL_DEV_DESIGNER
+./kcadm.sh create groups/$tool_dev_id/children -r netcicd -s name="tooling_dev_design" &>TOOL_DEV_DESIGNER
 tool_dev_designer_id=$(cat TOOL_DEV_DESIGNER | grep id | cut -d"'" -f 2)
 echo "Created Tooling Designer Group within the Tooling Department with ID: ${tool_dev_designer_id}" 
 
@@ -928,27 +919,27 @@ echo "Created Tooling Designer Group within the Tooling Department with ID: ${to
 
 echo "Added roles to Tooling Designer."
 
-./kcadm.sh create groups -r netcicd -s name="Security" &>DOM_SEC
+./kcadm.sh create groups -r netcicd -s name="security" &>DOM_SEC
 dom_sec_id=$(cat DOM_SEC | grep id | cut -d"'" -f 2)
 echo "Created Security Domain with ID: ${dom_sec_id}" 
 
-./kcadm.sh create groups/$dom_sec_id/children -r netcicd -s name="1 - Security Operations" &>SEC_OPS
+./kcadm.sh create groups/$dom_sec_id/children -r netcicd -s name="security_ops" &>SEC_OPS
 sec_ops_id=$(cat SEC_OPS | grep id | cut -d"'" -f 2)
 echo "Created Security Operations Group with ID: ${sec_ops_id}" 
 
-./kcadm.sh create groups/$dom_sec_id/children -r netcicd -s name="2 - Security Development" &>SEC_DEV
+./kcadm.sh create groups/$dom_sec_id/children -r netcicd -s name="security_dev" &>SEC_DEV
 sec_dev_id=$(cat SEC_DEV | grep id | cut -d"'" -f 2)
 echo "Created Security Development Group with ID: ${sec_dev_id}" 
 
-./kcadm.sh create groups -r netcicd -s name="Field Services" &>DOM_FS
+./kcadm.sh create groups -r netcicd -s name="field_services" &>DOM_FS
 dom_fs_id=$(cat DOM_FS | grep id | cut -d"'" -f 2)
 echo "Created Field Services Domain with ID: ${dom_fs_id}" 
 
-./kcadm.sh create groups/$dom_fs_id/children -r netcicd -s name="1 - Field Service Engineers" &>FS_FSE
+./kcadm.sh create groups/$dom_fs_id/children -r netcicd -s name="field_services_eng" &>FS_FSE
 fs_fse_id=$(cat FS_FSE | grep id | cut -d"'" -f 2)
 echo "Created Field Service Engineers group within the Field Services Department with ID: ${fs_fse_id}" 
 
-./kcadm.sh create groups/$dom_fs_id/children -r netcicd -s name="2 - Floor Management" &>FS_FM
+./kcadm.sh create groups/$dom_fs_id/children -r netcicd -s name="field_services_floor_management" &>FS_FM
 fs_fm_id=$(cat FS_FM | grep id | cut -d"'" -f 2)
 echo "Created Floor Management group within the Field Services Department with ID: ${fs_fm_id}" 
 
@@ -973,7 +964,7 @@ rm NetCICD_*
     -s 'config.searchScope=["1"]' \
     -s 'config.authType=["simple"]' \
     -s 'config.bindDn=["uid=admin,cn=users,cn=accounts,dc=tooling,dc=test"]' \
-    -s 'config.bindCredential=["Pa55w0rd"]' \
+    -s 'config.bindCredential=[$3]' \
     -s 'config.useTruststoreSpi=["ldapsOnly"]' \
     -s 'config.pagination=["true"]' \
     -s 'config.connectionPooling=["true"]' \
@@ -990,5 +981,22 @@ rm NetCICD_*
     -s config.evictionDay=[] \
     -s config.evictionHour=[] \
     -s config.evictionMinute=[] \
-    -s config.maxLifespan=[] 
+    -s config.maxLifespan=[] &>FREEIPA_LDAP
 
+freeipa_ldap_id=$(cat FREEIPA_LDAP | grep id | cut -d"'" -f 2)
+./kcadm.sh create components -r netcicd \
+    -s name=FreeIPA-group-mapper \
+    -s providerId=group-ldap-mapper \
+    -s providerType=org.keycloak.storage.ldap.mappers.LDAPStorageMapper \
+    -s parentId=${freeipa_ldap_id} \
+    -s 'config."groups.dn"=["cn=groups,cn=accounts,dc=tooling,dc=test"]' \
+    -s 'config."group.name.ldap.attribute"=["cn"]' \
+    -s 'config."group.object.classes"=["groupOfNames"]' \
+    -s 'config."preserve.group.inheritance"=["true"]' \
+    -s 'config."membership.ldap.attribute"=["member"]' \
+    -s 'config."membership.attribute.type"=["DN"]' \
+    -s 'config."groups.ldap.filter"=[]' \
+    -s 'config.mode=["READ_ONLY"]' \
+    -s 'config."user.roles.retrieve.strategy"=["GET_GROUPS_FROM_USER_MEMBEROF_ATTRIBUTE"]' \
+    -s 'config."mapped.group.attributes"=[]' \
+    -s 'config."drop.non.existing.groups.during.sync"=["true"]' 

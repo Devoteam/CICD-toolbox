@@ -9,7 +9,7 @@ capabilities:
   - type: OutreachManagementCapability
     enabled: false
 security:
-  anonymousAccess: true
+  anonymousAccess: false
   pruneUsers: true
   realms:
     - name: "org.github.flytreeleft.nexus3.keycloak.plugin.KeycloakAuthenticatingRealm"

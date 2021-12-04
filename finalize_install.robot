@@ -15,7 +15,7 @@ Enter Jenkins token in credentials
     Click Jenkins Logout Link
 
 Enable Jenkins to log into git
-    Login to Gitea as git-jenkins
+    Login to Gitea as jenkins-git
 
 Close browsers
     Close Browser
@@ -23,9 +23,7 @@ Close browsers
 *** Variables ***
 
 ${BROWSER1}         Firefox
-${BROWSER2}         Chrome
 ${DELAY}            0
-${VALID PASSWORD}   netcicd
 ${JENKINS URL}      http://jenkins.tooling.test:8084/
 ${JENKINS LOGOUT}   http://jenkins.tooling.test:8084/logout 
 ${GITEA URL}        http://gitea.tooling.test:3000
@@ -39,7 +37,7 @@ Log into Jenkins as jenkins-jenkins
     Set Selenium Speed          ${DELAY}
     Keycloak Page Should Be Open
     Input Text                  username              jenkins-jenkins
-    Input Text                  password              ${VALID PASSWORD}
+    Input Text                  password              ${VALID_PASSWORD}
     Submit Credentials
     Jenkins Page Should Be Open
 
@@ -54,7 +52,7 @@ Create jenkins-jenkins token
 Log into Jenkins as netcicd
     Keycloak Page Should Be Open
     Input Text                  username              netcicd
-    Input Text                  password              ${VALID PASSWORD}
+    Input Text                  password              ${VALID_PASSWORD}
     Submit Credentials
     Jenkins Page Should Be Open
 
@@ -68,14 +66,14 @@ Login to Gitea as git-jenkins
     Go To                       ${GITEA LOGIN}
     Click Image                 class:openidConnect
     Keycloak Page Should Be Open
-    Input Text                  username              git-jenkins
-    Input Text                  password              ${VALID PASSWORD}
+    Input Text                  username              jenkins-git
+    Input Text                  password              ${VALID_PASSWORD}
     Submit Credentials
     Location Should Contain     ${GITEA URL}     
-    Input Text                  password              ${VALID PASSWORD}
+    Input Text                  password              ${VALID_PASSWORD}
     Click Button                Link Account
-    Input Text                  password              ${VALID PASSWORD}
-    Input Text                  retype                ${VALID PASSWORD}
+    Input Text                  password              ${VALID_PASSWORD}
+    Input Text                  retype                ${VALID_PASSWORD}
     Click Button                Update Password
 
 Keycloak Page Should Be Open
@@ -87,7 +85,7 @@ Jenkins Page Should Be Open
 
 Gitea Page Should Be Open
     Location Should Contain     ${GITEA URL}
-    Title Should Be             git-jenkins - Dashboard
+    Title Should Be             jenkins-git - Dashboard
 
 Click Jenkins Logout Link
     Go To                       ${JENKINS LOGOUT}
