@@ -964,7 +964,7 @@ rm NetCICD_*
     -s 'config.searchScope=["1"]' \
     -s 'config.authType=["simple"]' \
     -s 'config.bindDn=["uid=admin,cn=users,cn=accounts,dc=tooling,dc=test"]' \
-    -s 'config.bindCredential=[$3]' \
+    -s 'config.bindCredential=["'$3'"]' \
     -s 'config.useTruststoreSpi=["ldapsOnly"]' \
     -s 'config.pagination=["true"]' \
     -s 'config.connectionPooling=["true"]' \

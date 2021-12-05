@@ -122,7 +122,7 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Adding users to Gitea "
 echo "****************************************************************************************************************"
-docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-jenkins --password netcicd --email git-jenkins@tooling.test'"
+docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin user create --username jenkins-git --password netcicd --email jenkins-git@tooling.test'"
 docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin user create --username netcicd-pipeline --password netcicd --email netcicd-pipeline@tooling.test --access-token'" > install_log/netcicd-pipeline_token
 docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin user create --username git-argos --password netcicd --email git-argos@tooling.test --access-token'" > install_log/git-argos_token
 docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin user create --username thedude --password thedude --email thedude@tooling.test'"

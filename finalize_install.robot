@@ -62,7 +62,7 @@ Change jenkins-jenkins credentials
     Input Text                  class:complex-password-field.hidden-password-field.setting-input               ${TOKEN}
     Click Button                Save
 
-Login to Gitea as git-jenkins
+Login to Gitea as jenkins-git
     Go To                       ${GITEA LOGIN}
     Click Image                 class:openidConnect
     Keycloak Page Should Be Open
