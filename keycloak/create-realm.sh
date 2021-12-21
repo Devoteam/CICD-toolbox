@@ -10,7 +10,7 @@ chmod 444 /opt/jboss/keycloak/standalone/configuration/keystores
 cd /opt/jboss/keycloak/bin
 
 #Create credentials
-./kcadm.sh config credentials --server http://keycloak.tooling.test:8080/auth --realm master --user admin --password $1
+./kcadm.sh config credentials --server http://keycloak.tooling.test:8080/auth --realm master --user $4 --password $1
 
 #add realm
 ./kcadm.sh create realms \
@@ -182,7 +182,7 @@ RM_ID=$( ./kcadm.sh get -r netcicd clients | grep realm-management -B1 | grep id
 
 # Service account
 ./kcadm.sh add-roles -r netcicd --uusername service-account-nexus --cclientid account --rolename manage-account --rolename manage-account-links --rolename view-profile
-./kcadm.sh add-roles -r netcicd --uusername service-account-nexus --cclientid Nexus --rolename uma_protection
+./kcadm.sh add-roles -r netcicd --uusername service-account-nexus --cclientid Nexus --rolename uma_protection nexus-admin
 ./kcadm.sh add-roles -r netcicd --uusername service-account-nexus --cclientid realm-management --rolename view-clients --rolename view-realm --rolename view-users
 
 echo "Created Nexus Service Account" 
@@ -712,7 +712,6 @@ echo "Created Storage Specialists group within Storage Operations with ID: ${dc_
     --cclientid Jenkins \
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
-    --rolename jenkins-netcicd-dev \
     --rolename jenkins-cicdtoolbox-run 
 
 ./kcadm.sh add-roles \
@@ -741,7 +740,6 @@ echo "Created Compute Designer Group within the Datacenter Development Group wit
     --cclientid Jenkins \
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
-    --rolename jenkins-netcicd-dev \
     --rolename jenkins-cicdtoolbox-run 
 
 ./kcadm.sh add-roles \
@@ -799,7 +797,6 @@ echo "Created DC Storage Designer Group within the Datacenter Development Group 
     --cclientid Jenkins \
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
-    --rolename jenkins-netcicd-dev \
     --rolename jenkins-cicdtoolbox-run 
 
 ./kcadm.sh add-roles \

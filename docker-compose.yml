@@ -80,7 +80,7 @@ services:
       tooling:
         ipv4_address: 172.16.11.8
     environment:
-      - JENKINS_ADMIN_ID=jenkins_admin
+      - JENKINS_ADMIN_ID=local-admin
       - JENKINS_ADMIN_PASSWORD=netcicd
       - NETCICD_PASSWORD=netcicd
       - CML_USER=developer
@@ -103,7 +103,7 @@ services:
 
   nexus.tooling.test:
     container_name: nexus.tooling.test
-    build: ./nexus
+    build: nexus
     restart: unless-stopped
     init: true
     stop_signal: SIGINT
@@ -139,7 +139,7 @@ services:
       DB_USER: keycloak
       DB_SCHEMA: public
       DB_PASSWORD: keycloak
-      KEYCLOAK_USER: admin
+      KEYCLOAK_USER: local-admin
       KEYCLOAK_PASSWORD: Pa55w0rd
     networks:
       tooling:

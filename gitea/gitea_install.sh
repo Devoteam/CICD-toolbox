@@ -1,5 +1,5 @@
 #!/bin/bash
-user=gitea-local-admin
+user=$2
 pwd=$1
 
 #First define functions
@@ -147,7 +147,7 @@ CreateTeam infraautomator "gitea-netcicd-write" "The NetCICD repo read-write rol
 echo "****************************************************************************************************************"
 echo " Assigning users to gitea-netcicd-write team "
 echo "****************************************************************************************************************"
-curl -s --user $user:$pwd -X PUT "http://gitea.tooling.test:3000/api/v1/teams/${team}/members/git-jenkins" -H  "accept: application/json"
+curl -s --user $user:$pwd -X PUT "http://gitea.tooling.test:3000/api/v1/teams/${team}/members/jenkins-git" -H  "accept: application/json"
 echo "git-jenkins"
 curl -s --user $user:$pwd -X PUT "http://gitea.tooling.test:3000/api/v1/teams/${team}/members/thespecialist" -H  "accept: application/json"
 echo "thespecialist"
@@ -168,7 +168,7 @@ CreateTeam infraautomator "gitea-CICDtoolbox-write" "The CICDtoolbox repo read-w
 echo "****************************************************************************************************************"
 echo " Assigning users to gitea-CICDtoolbox-write team "
 echo "****************************************************************************************************************"
-curl -s --user $user:$pwd -X PUT "http://gitea.tooling.test:3000/api/v1/teams/${team}/members/git-jenkins" -H  "accept: application/json"
+curl -s --user $user:$pwd -X PUT "http://gitea.tooling.test:3000/api/v1/teams/${team}/members/jenkins-git" -H  "accept: application/json"
 echo "git-jenkins"
 curl -s --user $user:$pwd -X PUT "http://gitea.tooling.test:3000/api/v1/teams/${team}/members/tooltiger" -H  "accept: application/json"
 echo "tooltiger"

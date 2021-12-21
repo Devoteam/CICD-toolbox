@@ -1,6 +1,8 @@
 #!/bin/bash 
 
-nexus_plugin="0.5.0"
+local_admin_user="localadmin"
+nexus_keycloak_plugin="0.5.0"
+nexus_apk_plugin="0.0.23"
 netcicd_pwd="netcicd"
 keycloak_pwd="Pa55w0rd"
 keycloak_storepass="password"
@@ -28,20 +30,7 @@ echo "**************************************************************************
 echo " Cleaning Nexus" 
 echo "****************************************************************************************************************"
 sudo rm -rf nexus/data/*
-echo " " 
-echo "****************************************************************************************************************"
-echo " Collecting Nexus Keycloak plugin jar files" 
-echo "****************************************************************************************************************"
-if [ -f "nexus/nexus3-keycloak-plugin-$nexus_plugin-bundle.kar" ]; then
-    echo " Nexus plugin exists"
-else
-    echo " Get Nexus plugin"
-    wget --directory-prefix=nexus https://github.com/flytreeleft/nexus3-keycloak-plugin/releases/download/v$nexus_plugin/nexus3-keycloak-plugin-$nexus_plugin-bundle.kar
-fi
-echo " " 
-echo "****************************************************************************************************************"
-echo " Making sure all containers are reachable locally with the name in the"
-echo " hosts file."
+sudo rm -rf nexus/*.kar
 echo " " 
 sudo chmod o+w /etc/hosts
 if grep -q "gitea" /etc/hosts; then
@@ -95,6 +84,30 @@ sudo echo "10.10.20.161   cml.tooling.test" >> /etc/hosts
 sudo chmod o-w /etc/hosts
 echo " " 
 echo "****************************************************************************************************************"
+echo " Collecting Nexus Keycloak plugin" 
+echo "****************************************************************************************************************"
+if [ -f "nexus/nexus3-keycloak-plugin-$nexus_keycloak_plugin-bundle.kar" ]; then
+    echo " Nexus Keycloak plugin exists"
+else
+    echo " Get Nexus Keycloak plugin"
+    wget --directory-prefix=nexus https://github.com/flytreeleft/nexus3-keycloak-plugin/releases/download/v$nexus_keycloak_plugin/nexus3-keycloak-plugin-$nexus_keycloak_plugin-bundle.kar
+fi
+echo " " 
+echo "****************************************************************************************************************"
+echo " Making sure all containers are reachable locally with the name in the"
+echo " hosts file."
+echo " " 
+echo "****************************************************************************************************************"
+echo " Collecting Nexus APK plugin and build .kar file"
+echo "****************************************************************************************************************"
+if [ -f "nexus/nexus-repository-apk-$nexus_apk_plugin-bundle.kar" ]; then
+    echo " Nexus apk plugin exists"
+else
+    echo " Get Nexus apk plugin"
+    wget --directory-prefix=nexus https://search.maven.org/remotecontent?filepath=org/sonatype/nexus/plugins/nexus-repository-apk/$nexus_apk_plugin/nexus-repository-apk-$nexus_apk_plugin-bundle.kar
+fi
+echo " " 
+echo "****************************************************************************************************************"
 echo " git clone Nexus CasC plugin and build .kar file"
 echo "****************************************************************************************************************"
 if [ ! -f ./nexus/nexus-casc* ]; then
@@ -105,7 +118,7 @@ if [ ! -f ./nexus/nexus-casc* ]; then
     cd ..
     rm -rf nexus-casc-plugin/
 else
-    echo "Plugin exists, no need to build"
+    echo "Casc plugin exists, no need to build"
 fi
 echo " " 
 echo "****************************************************************************************************************"
@@ -153,7 +166,7 @@ docker cp freeipa/ca.crt keycloak.tooling.test:/opt/jboss/keycloak/standalone/co
 echo "****************************************************************************************************************"
 echo " Creating keycloak setup. This will take time..."
 echo "****************************************************************************************************************"
-docker exec -it keycloak.tooling.test sh -c "/opt/jboss/keycloak/bin/create-realm.sh ${keycloak_pwd} ${keycloak_storepass} ${freeipa_pwd}" | tee install_log/keycloak_create.log
+docker exec -it keycloak.tooling.test sh -c "/opt/jboss/keycloak/bin/create-realm.sh ${keycloak_pwd} ${keycloak_storepass} ${freeipa_pwd} ${local_admin_user}" | tee install_log/keycloak_create.log
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating FreeIPA setup. This will take time..."
@@ -179,7 +192,7 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating gitea setup"
 echo "****************************************************************************************************************"
-gitea/gitea_install.sh ${netcicd_pwd} | tee install_log/gitea_create.log
+gitea/gitea_install.sh ${netcicd_pwd} ${local_admin_user} | tee install_log/gitea_create.log
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating jenkins setup"
