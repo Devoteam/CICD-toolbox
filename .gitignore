@@ -21,3 +21,8 @@ argos/application.yml
 geckodriver
 install_log/
 freeipa/ca.crt
+selenium-screenshot*
+geckodriver*
+report.html
+output.xml
+log.html
