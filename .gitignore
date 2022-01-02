@@ -15,7 +15,6 @@ keycloak/standalone.xml
 .access^
 wget-log
 nexus/nexus-casc-plugin*
-nexus/keycloak-nexus.json
 jenkins/keycloak-jenkins.json
 argos/application.yml
 geckodriver
@@ -26,3 +25,4 @@ geckodriver*
 report.html
 output.xml
 log.html
+output.xml

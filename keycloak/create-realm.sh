@@ -17,8 +17,8 @@ cd /opt/jboss/keycloak/bin
     -s realm=netcicd \
     -s id=netcicd \
     -s enabled=true \
-    -s displayName="Welcome to the Infrastructure Development Toolkit" \
-    -s displayNameHtml="<b>Welcome to the Infrastructure Development Toolkit</b>"
+    -s displayName="Welcome to the Development Toolkit" \
+    -s displayNameHtml="<b>Welcome to the Development Toolkit</b>"
 
 #add clients
 ./kcadm.sh create clients \

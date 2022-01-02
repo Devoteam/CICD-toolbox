@@ -70,14 +70,12 @@ Login to Gitea as jenkins-git
     Input Text                  password              ${VALID_PASSWORD}
     Submit Credentials
     Location Should Contain     ${GITEA URL}     
-    Input Text                  password              ${VALID_PASSWORD}
-    Click Button                Link Account
-    Input Text                  password              ${VALID_PASSWORD}
-    Input Text                  retype                ${VALID_PASSWORD}
-    Click Button                Update Password
+    Click Button                Complete Account
+    Click Image                 class:openidConnect
+    Gitea Page Should Be Open
 
 Keycloak Page Should Be Open
-    Title Should Be    Sign in to Welcome to the Infrastructure Development Toolkit
+    Title Should Be    Sign in to Welcome to the Development Toolkit
 
 Jenkins Page Should Be Open
     Location Should Contain     ${JENKINS URL}
@@ -85,7 +83,7 @@ Jenkins Page Should Be Open
 
 Gitea Page Should Be Open
     Location Should Contain     ${GITEA URL}
-    Title Should Be             jenkins-git - Dashboard
+    Title Should Be             jenkins-git - Dashboard - Gitea: Git with a cup of tea
 
 Click Jenkins Logout Link
     Go To                       ${JENKINS LOGOUT}

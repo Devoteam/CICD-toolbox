@@ -1,0 +1,13 @@
+{
+  "realm" : "netcicd",
+  "auth-server-url" : "http://keycloak.tooling.test:8080/auth/",
+  "ssl-required" : "external",
+  "resource" : "Nexus",
+  "verify-token-audience" : true,
+  "credentials" : {
+    "secret" : "fb992610-c392-4737-83a9-fc273c9fdcbb"
+  },
+  "use-resource-role-mappings" : true,
+  "confidential-port" : 0,
+  "policy-enforcer" : { }
+}

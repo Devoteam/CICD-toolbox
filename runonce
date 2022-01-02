@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-local_admin_user="localadmin"
+local_admin_user="local-admin"
 nexus_keycloak_plugin="0.5.0"
 nexus_apk_plugin="0.0.23"
 netcicd_pwd="netcicd"
@@ -15,10 +15,11 @@ echo "**************************************************************************
 docker-compose down --remove-orphans
 docker volume rm $(docker volume ls -q)
 rm *_token
-rm install_log/keycloak_create.log
-rm log.html
-rm output.xml
-rm report.html
+rm install_tests/log.html
+rm install_tests/output.xml
+rm install_tests/report.html
+rm install_tests/*.png
+rm install_tests/*.log
 rm install_log/*
 echo " " 
 echo "****************************************************************************************************************"
@@ -122,9 +123,10 @@ else
 fi
 echo " " 
 echo "****************************************************************************************************************"
-echo " Creating containers"
+echo " Creating database"
 echo "****************************************************************************************************************"
-docker-compose up --build --remove-orphans --no-start
+docker-compose pull 
+docker-compose up --build --remove-orphans --no-start 
 docker-compose start netcicd-db
 echo "****************************************************************************************************************"
 echo " Calming down the CPU... waiting 10 seconds"
@@ -209,7 +211,7 @@ echo " Creating nexus setup"
 echo "****************************************************************************************************************"
 docker cp keycloak.tooling.test:/opt/jboss/keycloak/bin/keycloak-nexus.json nexus/keycloak-nexus.json
 docker cp nexus/keycloak-nexus.json nexus.tooling.test:/opt/sonatype/nexus/etc/keycloak.json
-echo "Reloading "
+echo "Reloading Nexus"
 docker restart nexus.tooling.test
 until $(curl --output /dev/null --silent --head --fail http://nexus.tooling.test:8081); do
     printf '.'
@@ -234,35 +236,14 @@ until $(curl --output /dev/null --silent --head --fail http://jenkins.tooling.te
 done
 echo " " 
 echo "****************************************************************************************************************"
-echo "NetCICD Toolkit install done "
-echo " "
-echo "You can reach the servers on:"
-echo " "
-echo " Gitea:       http://gitea.tooling.test:3000"
-echo " Jenkins:     http://jenkins.tooling.test:8084"
-echo " Nexus:       http://nexus.tooling.test:8081"
-echo " Keycloak:    http://keycloak.tooling.test:8443"
-echo " Keycloak:    http://freeipa.tooling.test"
-echo " Portainer:   http://portainer.tooling.test:9000"
-echo " "
-echo "****************************************************************************************************************"
-echo "Cleaning up"
-echo "****************************************************************************************************************"
-#rm *_token
-#rm install_log/keycloak_create.log
-echo " "
-echo "****************************************************************************************************************"
 echo " Preparing for finalizing install via ROBOT"
 echo "****************************************************************************************************************"
 sudo pip3 install robotframework robotframework-selenium2library
 sudo cp geckodriver /usr/local/bin/
-echo " Manual steps..."
-echo " "
-echo " Log out and open a new terminal"
-echo " "
-echo " cd NetCICD-developer-toolbox"
-echo " robot --variable VALID_PASSWORD:${netcicd_pwd} -d install_log/ finalize_install.robot"
-echo " "
+source ~/.bashrc
+robot --variable VALID_PASSWORD:${netcicd_pwd} -d install_log/ finalize_install.robot
+robot --variable VALID_PASSWORD:${netcicd_pwd} -d install_tests/ install_tests
+echo "****************************************************************************************************************"
 echo " The pipeline uses the default Cisco DevNet CML Sandbox credentials developer/C1sco12345 to log in to CML."
 echo " You may change this to your own credentials in:"
 echo " "
@@ -273,4 +254,21 @@ echo " "
 echo " Stop the environment with ./down, start with ./up"
 echo " "
 echo "****************************************************************************************************************"
-
+echo "NetCICD Toolkit install done "
+echo " "
+echo "You can read the install test report in install_tests/report.html"
+echo " "
+echo "You can reach the servers on:"
+echo " "
+echo " Gitea:       http://gitea.tooling.test:3000"
+echo " Jenkins:     http://jenkins.tooling.test:8084"
+echo " Nexus:       http://nexus.tooling.test:8081"
+echo " Keycloak:    http://keycloak.tooling.test:8443"
+echo " FreeIPA:     http://freeipa.tooling.test"
+echo " Portainer:   http://portainer.tooling.test:9000"
+echo " "
+echo "****************************************************************************************************************"
+echo "Cleaning up"
+echo "****************************************************************************************************************"
+rm *_token
+rm install_log/keycloak_create.log
