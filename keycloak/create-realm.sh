@@ -182,7 +182,7 @@ RM_ID=$( ./kcadm.sh get -r netcicd clients | grep realm-management -B1 | grep id
 
 # Service account
 ./kcadm.sh add-roles -r netcicd --uusername service-account-nexus --cclientid account --rolename manage-account --rolename manage-account-links --rolename view-profile
-./kcadm.sh add-roles -r netcicd --uusername service-account-nexus --cclientid Nexus --rolename uma_protection nexus-admin
+./kcadm.sh add-roles -r netcicd --uusername service-account-nexus --cclientid Nexus --rolename uma_protection --rolename nexus-admin
 ./kcadm.sh add-roles -r netcicd --uusername service-account-nexus --cclientid realm-management --rolename view-clients --rolename view-realm --rolename view-users
 
 echo "Created Nexus Service Account" 
