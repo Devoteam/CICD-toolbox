@@ -94,7 +94,7 @@ Are assigned roles present
     Open Browser                ${GITEA URL}          ${BROWSER1}
     Log into Gitea as user      ${USERNAME}             ${PASSWORD}
     Test given roles            ${USERNAME}             ${PASSWORD}             ${OK_ROLES}                 ${FAIL_ROLES}
-    Close Browser
+    Close Browsers
 
 Log into Gitea as user
     [Arguments]  ${USERNAME}  ${PASSWORD}
@@ -116,9 +116,6 @@ Create user in Gitea
     ELSE
         Log To Console              User existed already
     END
-
-Keycloak Page Should Be Open
-    Title Should Be    Sign in to Welcome to the Development Toolkit
 
 Gitea Page Should Be Open
     [Arguments]  ${USERNAME}

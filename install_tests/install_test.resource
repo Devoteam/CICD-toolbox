@@ -9,7 +9,7 @@ ${DELAY}            0
 
 *** Keywords ***
 Keycloak Page Should Be Open
-    Title Should Be    Sign in to Welcome to the Infrastructure Development Toolkit
+    Title Should Be    Sign in to Welcome to the Development Toolkit
 
 Submit Credentials
     Click Button                kc-login
