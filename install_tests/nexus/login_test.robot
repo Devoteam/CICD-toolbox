@@ -12,72 +12,58 @@ Documentation       Validating login for each LDAP group
 
 Test Template    Login with correct role provides correct authorization
 
-*** Test Cases ***                              USERNAME            PASSWORD                ROLES                                                                               NOT_ROLES
-baduser is not a user                           baduser             wrongpassword           --                                                                                  --
-netcicd is admin user                           netcicd             ${VALID_PASSWORD}       NetCICD-reports                                                                     Nexus-user  
-Nexus-git cannot login to Nexus                 jenkins-git         ${VALID_PASSWORD}       --                                                                                  --
-jenkins-jenkins can login to Nexus              jenkins-jenkins     ${VALID_PASSWORD}       Nexus-user                                                                          Nexus-admin
-netcicd-pipeline cannot login to Nexus          netcicd-pipeline    ${VALID_PASSWORD}       --                                                                                  --
+*** Test Cases ***                                      USERNAME            PASSWORD                ROLES                                                                               NOT_ROLES
+baduser cannot login                                    baduser             wrongpassword           --                                                                                  --
+toolbox_admin group can login                           netcicd             ${VALID_PASSWORD}       NetCICD-reports                                                                     Nexus-user    
+git_from_jenkins group can login                        jenkins-git         ${VALID_PASSWORD}       --                                                                                  --
+cicd_agents group can login                             jenkins-jenkins     ${VALID_PASSWORD}       Nexus-user                                                                          Nexus-admin
 # IAM: no users
 # Office: no users
-# Campus: no users
+# CAMPUS
 # CAMPUS_OPS
-# CAMPUS_OPS_OPER can login to Nexus                                  ${VALID_PASSWORD}       docker,docker-proxy                                                      NetCICD-reports
-# CAMPUS_OPS_SPEC can login to Nexus                                  ${VALID_PASSWORD}       docker,docker-proxy                                                      --
-# CAMPUS_DEV_LAN_DESIGNER can login to Nexus                          ${VALID_PASSWORD}       docker,docker-proxy                                                      --
-# CAMPUS_DEV_WIFI_DESIGNER can login to Nexus                         ${VALID_PASSWORD}       docker,docker-proxy                                                      --
-# WAN: no users
-# WAN_OPS_OPER can login to Nexus                                     ${VALID_PASSWORD}       docker,docker-proxy                                                      --
-# WAN_OPS_SPEC can login to Nexus                                     ${VALID_PASSWORD}       docker,docker-proxy                                                      --
+campus_ops_oper group can login                         campusoper          ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
+campus_ops_spec group can login                         campusspec          ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
+# CAMPUS_DEV
+campus_dev_lan group can login                          campuslandev        ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
+campus_dev_wifi group can login                         campuswifidev       ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
+# WAN
+wan_ops_oper group can login                            wanoper             ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
+wan_ops_spec group can login                            wanspec             ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
 # WAN_DEV
-# WAN_DEV_SPEC can login to Nexus                                     ${VALID_PASSWORD}       docker,docker-proxy                                                      --
+wan_dev_design group can login                          corearchitect       ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
 # DC
 # DC_OPS
 # DC_OPS_COMP
-# DC_OPS_COMP_OPER 
-compudude can login to Nexus                    compudude           ${VALID_PASSWORD}       docker,docker-proxy                                                      --
-# DC_OPS_COMP_SPEC  
-compuspecialist can login to Nexus              compuspecialist     ${VALID_PASSWORD}       docker,docker-proxy                                                      --
-# DC_OPS_COMP_SPEC
+dc_ops_compute_oper group can login                     compudude           ${VALID_PASSWORD}       docker,docker-proxy                                                                 --
+dc_ops_compute_spec group can login                     compuspecialist     ${VALID_PASSWORD}       docker,docker-proxy                                                                 --
 # DC_OPS_NET
-# DC_OPS_NET_OPER 
-netdude can login to Nexus                      netdude             ${VALID_PASSWORD}       docker,docker-proxy                                                      --
-# DC_OPS_NET_SPEC
-netspecialist can login to Nexus                netspecialist       ${VALID_PASSWORD}       docker,docker-proxy                                                      --
+dc_ops_network_oper group can login                     netdude             ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
+dc_ops_network_spec group can login                     netspecialist       ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
 # DC_OPS_STOR
-# DC_OPS_STOR_OPER 
-diskdude can login to Nexus                     diskdude            ${VALID_PASSWORD}       docker,docker-proxy                                                      --
-# DC_OPS_STOR_SPEC
-diskspecialist can login to Nexus               diskspecialist      ${VALID_PASSWORD}       docker,docker-proxy                                                      --
+dc_ops_storage_oper group can login                     diskdude            ${VALID_PASSWORD}       docker,docker-proxy                                                                 --
+dc_ops_storage_spec group can login                     diskspecialist      ${VALID_PASSWORD}       docker,docker-proxy                                                                 --
 # DC_DEV
-compuarchitect can login to Nexus               compuarchitect      ${VALID_PASSWORD}       docker,docker-proxy                                                      --
-diskarchitect can login to Nexus                diskarchitect       ${VALID_PASSWORD}       docker,docker-proxy                                                      --     
-netarchitect can login to Nexus                 netarchitect        ${VALID_PASSWORD}       docker,docker-proxy                                                      --
+dc_dev_compute group can login                          compuarchitect      ${VALID_PASSWORD}       docker,docker-proxy                                                                 --
+dc_dev_network group can login                          netarchitect        ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
+dc_dev_storage group can login                          diskarchitect       ${VALID_PASSWORD}       docker,docker-proxy                                                                 --
 # App
 # APP_OPS
 # APP_DEV
 # TOOL
 # TOOL_OPS
-# TOOL_OPS_OPER
-tooltiger can login to Nexus                    tooltiger           ${VALID_PASSWORD}       docker,docker-proxy                                                      --
-# TOOL_OPS_SPEC
-toolmaster can login to Nexus                   toolmaster          ${VALID_PASSWORD}       docker,docker-proxy                                                      --
+tooling_ops_oper group can login                        tooltiger           ${VALID_PASSWORD}       docker,docker-proxy                                                                 --
+tooling_ops_spec group can login                        toolmaster          ${VALID_PASSWORD}       docker,docker-proxy                                                                 --
 # TOOL_DEV
-blacksmith can login to Nexus                   blacksmith          ${VALID_PASSWORD}       docker,docker-proxy                                                      --
+tooling_dev_design group can login                      blacksmith          ${VALID_PASSWORD}       docker,docker-proxy                                                                 --
 # SEC
 # SEC_OPS
-# SEC_OPS_OPER
-happyhacker can login to Nexus                  happyhacker         ${VALID_PASSWORD}       docker,docker-proxy                                                      --
-# SEC_OPS_SPEC
-whitehat can login to Nexus                     whitehat            ${VALID_PASSWORD}       docker,docker-proxy                                                      --
+security_ops_oper group can login                       happyhacker         ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
+security_ops_spec group can login                       whitehat            ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
 # SEC_DEV
-blackhat can login to Nexus                     blackhat            ${VALID_PASSWORD}       docker,docker-proxy                                                      --
-# FS
-# FS_ENG
-mechanicjoe can login to Nexus                  mechanicjoe         ${VALID_PASSWORD}       docker,docker-proxy                                                      --
-# FS
-# FS_FM
-patchhero can login to Nexus                    patchhero           ${VALID_PASSWORD}       docker,docker-proxy                                                      --
+security_dev_design group can login                     blackhat            ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
+# FS 
+field_services_eng group can login                      mechanicjoe         ${VALID_PASSWORD}       docker,docker-proxy                                                                 --
+field_services_floor_management group can login         patchhero           ${VALID_PASSWORD}       docker,docker-proxy                                                                 --
 
 *** Variables ***
 ${Nexus URL}      http://nexus.tooling.test:8081/

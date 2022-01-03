@@ -75,7 +75,7 @@ Login to Gitea as jenkins-git
     Gitea Page Should Be Open
 
 Keycloak Page Should Be Open
-    Title Should Be    Sign in to Welcome to the Development Toolkit
+    Title Should Be    Sign in to Welcome to your Development Toolkit
 
 Jenkins Page Should Be Open
     Location Should Contain     ${JENKINS URL}

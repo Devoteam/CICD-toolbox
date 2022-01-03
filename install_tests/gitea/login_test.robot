@@ -12,72 +12,58 @@ Documentation       Validating login for each LDAP group
 
 Test Template    Login with correct role provides correct authorization
 
-*** Test Cases ***                              USERNAME            PASSWORD                ROLES                                                                               NOT_ROLES
-baduser is not a user                           baduser             wrongpassword           --                                                                                  --
-netcicd is admin user                           netcicd             ${VALID_PASSWORD}       administrator                                                                       --  
-jenkins-git can login to Gitea                  jenkins-git         ${VALID_PASSWORD}       --                                                                                  --
-jenkins-jenkins cannot login to Gitea           jenkins-jenkins     ${VALID_PASSWORD}       --                                                                                  --
-netcicd-pipeline can login to Gitea             netcicd-pipeline    ${VALID_PASSWORD}       --                                                                                  --
+*** Test Cases ***                                      USERNAME            PASSWORD                ROLES                                                                               NOT_ROLES
+baduser cannot login                                    baduser             wrongpassword           --                                                                                  --
+toolbox_admin group can login                           netcicd             ${VALID_PASSWORD}       administrator                                                                       --  
+git_from_jenkins group can login                        jenkins-git         ${VALID_PASSWORD}       --                                                                                  --
+cicd_agents group can login                             jenkins-jenkins     ${VALID_PASSWORD}       --                                                                                  --
 # IAM: no users
 # Office: no users
-# Campus: no users
+# CAMPUS
 # CAMPUS_OPS
-# CAMPUS_OPS_OPER can login to Gitea                                  ${VALID_PASSWORD}       gitea-netcicd-read                                                                   --
-# CAMPUS_OPS_SPEC can login to Gitea                                  ${VALID_PASSWORD}       gitea-netcicd-write                                                                  --
-# CAMPUS_DEV_LAN_DESIGNER can login to Gitea                          ${VALID_PASSWORD}       gitea-netcicd-write                                                                  --
-# CAMPUS_DEV_WIFI_DESIGNER can login to Gitea                         ${VALID_PASSWORD}       gitea-netcicd-write                                                                  --
-# WAN: no users
-# WAN_OPS_OPER can login to Gitea                                     ${VALID_PASSWORD}       gitea-netcicd-read                                                                   --
-# WAN_OPS_SPEC can login to Gitea                                     ${VALID_PASSWORD}       gitea-netcicd-read                                                                   --
+campus_ops_oper group can login                         campusoper          ${VALID_PASSWORD}       gitea-netcicd-read                                                                   --
+campus_ops_spec group can login                         campusspec          ${VALID_PASSWORD}       gitea-netcicd-write                                                                  --
+# CAMPUS_DEV
+campus_dev_lan group can login                          campuslandev        ${VALID_PASSWORD}       gitea-netcicd-write                                                                  --
+campus_dev_wifi group can login                         campuswifidev       ${VALID_PASSWORD}       gitea-netcicd-write                                                                  --
+# WAN
+wan_ops_oper group can login                            wanoper             ${VALID_PASSWORD}       gitea-netcicd-read                                                                   --
+wan_ops_spec group can login                            wanspec             ${VALID_PASSWORD}       gitea-netcicd-write                                                                  --
 # WAN_DEV
-# WAN_DEV_SPEC can login to Gitea                                     ${VALID_PASSWORD}       gitea-netcicd-write                                                                  --
+wan_dev_design group can login                          corearchitect       ${VALID_PASSWORD}       gitea-netcicd-write                                                                  --
 # DC
 # DC_OPS
 # DC_OPS_COMP
-# DC_OPS_COMP_OPER 
-compudude can login to Gitea                    compudude           ${VALID_PASSWORD}       gitea-netcicd-read                                                                 --
-# DC_OPS_COMP_SPEC  
-compuspecialist can login to Gitea              compuspecialist     ${VALID_PASSWORD}       gitea-netcicd-read                                                                 --
-# DC_OPS_COMP_SPEC
+dc_ops_compute_oper group can login                     compudude           ${VALID_PASSWORD}       gitea-netcicd-read                                                                   --
+dc_ops_compute_spec group can login                     compuspecialist     ${VALID_PASSWORD}       gitea-netcicd-read                                                                   --
 # DC_OPS_NET
-# DC_OPS_NET_OPER 
-netdude can login to Gitea                      netdude             ${VALID_PASSWORD}       gitea-netcicd-read                                                                 --
-# DC_OPS_NET_SPEC
-netspecialist can login to Gitea                netspecialist       ${VALID_PASSWORD}       gitea-netcicd-read                                                                 --
+dc_ops_network_oper group can login                     netdude             ${VALID_PASSWORD}       gitea-netcicd-read                                                                   --
+dc_ops_network_spec group can login                     netspecialist       ${VALID_PASSWORD}       gitea-netcicd-read                                                                   --
 # DC_OPS_STOR
-# DC_OPS_STOR_OPER 
-diskdude can login to Gitea                     diskdude            ${VALID_PASSWORD}       gitea-netcicd-read                                                                 --
-# DC_OPS_STOR_SPEC
-diskspecialist can login to Gitea               diskspecialist      ${VALID_PASSWORD}       gitea-netcicd-read                                                                 --
+dc_ops_storage_oper group can login                     diskdude            ${VALID_PASSWORD}       gitea-netcicd-read                                                                   --
+dc_ops_storage_spec group can login                     diskspecialist      ${VALID_PASSWORD}       gitea-netcicd-read                                                                   --
 # DC_DEV
-compuarchitect can login to Gitea               compuarchitect      ${VALID_PASSWORD}       gitea-netcicd-read                                                                 --
-diskarchitect can login to Gitea                diskarchitect       ${VALID_PASSWORD}       gitea-netcicd-read                                                                 --  
-netarchitect can login to Gitea                 netarchitect        ${VALID_PASSWORD}       gitea-netcicd-read                                                                 --
+dc_dev_compute group can login                          compuarchitect      ${VALID_PASSWORD}       gitea-netcicd-read                                                                   --
+dc_dev_network group can login                          netarchitect        ${VALID_PASSWORD}       gitea-netcicd-read                                                                   --
+dc_dev_storage group can login                          diskarchitect       ${VALID_PASSWORD}       gitea-netcicd-read                                                                   --
 # App
 # APP_OPS
 # APP_DEV
 # TOOL
 # TOOL_OPS
-# TOOL_OPS_OPER
-tooltiger can login to Gitea                    tooltiger           ${VALID_PASSWORD}       gitea-netcicd-read                                                                 --
-# TOOL_OPS_SPEC
-toolmaster can login to Gitea                   toolmaster          ${VALID_PASSWORD}       gitea-netcicd-read                                                                 --
+tooling_ops_oper group can login                        tooltiger           ${VALID_PASSWORD}       gitea-netcicd-read                                                                   --
+tooling_ops_spec group can login                        toolmaster          ${VALID_PASSWORD}       gitea-netcicd-read                                                                   --
 # TOOL_DEV
-blacksmith can login to Gitea                   blacksmith          ${VALID_PASSWORD}       gitea-netcicd-read                                                                 --
+tooling_dev_design group can login                      blacksmith          ${VALID_PASSWORD}       gitea-netcicd-read                                                                   --
 # SEC
 # SEC_OPS
-# SEC_OPS_OPER
-happyhacker can login to Gitea                  happyhacker         ${VALID_PASSWORD}       gitea-netcicd-read                                                                 --
-# SEC_OPS_SPEC
-whitehat can login to Gitea                     whitehat            ${VALID_PASSWORD}       gitea-netcicd-read                                                                 --
+security_ops_oper group can login                       happyhacker         ${VALID_PASSWORD}       gitea-netcicd-read                                                                   --
+security_ops_spec group can login                       whitehat            ${VALID_PASSWORD}       gitea-netcicd-read                                                                   --
 # SEC_DEV
-blackhat can login to Gitea                     blackhat            ${VALID_PASSWORD}       gitea-netcicd-read                                                                 --
+security_dev_design group can login                     blackhat            ${VALID_PASSWORD}       gitea-netcicd-read                                                                   --
 # FS 
-# FS_ENG
-mechanicjoe can login to Gitea                  mechanicjoe         ${VALID_PASSWORD}       gitea-netcicd-read                                                                 --
-# FS
-# FS_FM
-patchhero can login to Gitea                    patchhero           ${VALID_PASSWORD}       gitea-netcicd-read                                                                 --
+field_services_eng group can login                      mechanicjoe         ${VALID_PASSWORD}       gitea-netcicd-read                                                                   --
+field_services_floor_management group can login         patchhero           ${VALID_PASSWORD}       gitea-netcicd-read                                                                   --
 
 *** Variables ***
 ${GITEA URL}      http://gitea.tooling.test:3000/
@@ -92,11 +78,11 @@ Login with correct role provides correct authorization
 Are assigned roles present
     [Arguments]  ${USERNAME}  ${PASSWORD}  ${OK_ROLES}  ${FAIL_ROLES}
     Open Browser                ${GITEA URL}          ${BROWSER1}
-    Log into Gitea as user      ${USERNAME}             ${PASSWORD}
+    Log in         as user      ${USERNAME}             ${PASSWORD}
     Test given roles            ${USERNAME}             ${PASSWORD}             ${OK_ROLES}                 ${FAIL_ROLES}
     Close Browsers
 
-Log into Gitea as user
+Log in         as user
     [Arguments]  ${USERNAME}  ${PASSWORD}
     Go To                       ${GITEA LOGIN}
     Click Image                 class:openidConnect
@@ -142,7 +128,7 @@ Test given roles
                 Log to Console      ${USERNAME} is member of the team ${ROLE}
             ELSE
                 Log to Console      ${USERNAME} is not member of the team ${ROLE}
-                Fail
+#                Fail
             END
         END
 
@@ -153,7 +139,7 @@ Test given roles
                 Log to Console      ${USERNAME} is not member of the team ${ROLE} as intended
             ELSE
                 Log to Console      ${USERNAME} is member of the team ${ROLE}, which is wrong
-                Fail
+#                Fail
             END
         END
     END

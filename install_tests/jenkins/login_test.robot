@@ -12,72 +12,58 @@ Documentation       Validating login for each LDAP group
 
 Test Template    Login with correct role provides correct authorization
 
-*** Test Cases ***                              USERNAME            PASSWORD                ROLES                                                                               NOT_ROLES
-baduser is not a user                           baduser             wrongpassword           --                                                                                  --
-netcicd is admin user                           netcicd             ${VALID_PASSWORD}       jenkins-admin                                                                       jenkins-user  
-jenkins-git cannot login to Jenkins             jenkins-git         ${VALID_PASSWORD}       --                                                                                  --
-jenkins-jenkins can login to Jenkins            jenkins-jenkins     ${VALID_PASSWORD}       jenkins-user                                                                        jenkins-admin
-netcicd-pipeline cannot login to Jenkins        netcicd-pipeline    ${VALID_PASSWORD}       --                                                                                  --
+*** Test Cases ***                                      USERNAME            PASSWORD                ROLES                                                                               NOT_ROLES
+baduser cannot login                                    baduser             wrongpassword           --                                                                                  --
+toolbox_admin group can login                           netcicd             ${VALID_PASSWORD}       jenkins-admin                                                                       jenkins-user 
+git_from_jenkins group can login                        jenkins-git         ${VALID_PASSWORD}       --                                                                                  --
+cicd_agents group can login                             jenkins-jenkins     ${VALID_PASSWORD}       jenkins-user                                                                        jenkins-admin
 # IAM: no users
 # Office: no users
-# Campus: no users
+# CAMPUS
 # CAMPUS_OPS
-# CAMPUS_OPS_OPER can login to Jenkins                                ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-cicdtoolbox-run                            --
-# CAMPUS_OPS_SPEC can login to Jenkins                                ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-netcicd-dev,jenkins-cicdtoolbox-run        --
-# CAMPUS_DEV_LAN_DESIGNER can login to Jenkins                        ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-netcicd-dev,jenkins-cicdtoolbox-run        --
-# CAMPUS_DEV_WIFI_DESIGNER can login to Jenkins                       ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-netcicd-dev,jenkins-cicdtoolbox-run        --
-# WAN: no users
-# WAN_OPS_OPER can login to Jenkins                                   ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-cicdtoolbox-run                            --
-# WAN_OPS_SPEC can login to Jenkins                                   ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-netcicd-dev,jenkins-cicdtoolbox-run        --
+campus_ops_oper group can login                         campusoper          ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-cicdtoolbox-run                            --
+campus_ops_spec group can login                         campusspec          ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-netcicd-dev,jenkins-cicdtoolbox-run        --
+# CAMPUS_DEV
+campus_dev_lan group can login                          campuslandev        ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-netcicd-dev,jenkins-cicdtoolbox-run        --
+campus_dev_wifi group can login                         campuswifidev       ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-netcicd-dev,jenkins-cicdtoolbox-run        --
+# WAN
+wan_ops_oper group can login                            wanoper             ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-netcicd-dev,jenkins-cicdtoolbox-run        --
+wan_ops_spec group can login                            wanspec             ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-netcicd-dev,jenkins-cicdtoolbox-run        --
 # WAN_DEV
-# WAN_DEV_SPEC can login to Jenkins                                   ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-netcicd-dev,jenkins-cicdtoolbox-run        --
+wan_dev_design group can login                          corearchitect       ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-netcicd-dev,jenkins-cicdtoolbox-run        --
 # DC
 # DC_OPS
 # DC_OPS_COMP
-# DC_OPS_COMP_OPER 
-compudude can login to Jenkins                  compudude           ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-cicdtoolbox-run                            jenkins-netcicd-dev,jenkins-cicdtoolbox-dev
-# DC_OPS_COMP_SPEC  
-compuspecialist can login to Jenkins            compuspecialist     ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-cicdtoolbox-run                            jenkins-netcicd-dev,jenkins-cicdtoolbox-dev
-# DC_OPS_COMP_SPEC
+dc_ops_compute_oper group can login                     compudude           ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-cicdtoolbox-run                            jenkins-netcicd-dev,jenkins-cicdtoolbox-dev
+dc_ops_compute_spec group can login                     compuspecialist     ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-cicdtoolbox-run                            jenkins-netcicd-dev,jenkins-cicdtoolbox-dev
 # DC_OPS_NET
-# DC_OPS_NET_OPER 
-netdude can login to Jenkins                    netdude             ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-cicdtoolbox-run                            jenkins-netcicd-dev,jenkins-cicdtoolbox-dev
-# DC_OPS_NET_SPEC
-netspecialist can login to Jenkins              netspecialist       ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-netcicd-dev, jenkins-cicdtoolbox-run       jenkins-cicdtoolbox-dev
+dc_ops_network_oper group can login                     netdude             ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-cicdtoolbox-run                            jenkins-netcicd-dev,jenkins-cicdtoolbox-dev
+dc_ops_network_spec group can login                     netspecialist       ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-netcicd-dev, jenkins-cicdtoolbox-run       jenkins-cicdtoolbox-dev
 # DC_OPS_STOR
-# DC_OPS_STOR_OPER 
-diskdude can login to Jenkins                   diskdude            ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-cicdtoolbox-run                            jenkins-netcicd-dev,jenkins-cicdtoolbox-dev
-# DC_OPS_STOR_SPEC
-diskspecialist can login to Jenkins             diskspecialist      ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-cicdtoolbox-run                            jenkins-netcicd-dev,jenkins-cicdtoolbox-dev
+dc_ops_storage_oper group can login                     diskdude            ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-cicdtoolbox-run                            jenkins-netcicd-dev,jenkins-cicdtoolbox-dev
+dc_ops_storage_spec group can login                     diskspecialist      ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-cicdtoolbox-run                            jenkins-netcicd-dev,jenkins-cicdtoolbox-dev
 # DC_DEV
-compuarchitect can login to Jenkins             compuarchitect      ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-cicdtoolbox-run                            jenkins-netcicd-dev,jenkins-cicdtoolbox-dev
-diskarchitect can login to Jenkins              diskarchitect       ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-cicdtoolbox-run                            jenkins-netcicd-dev,jenkins-cicdtoolbox-dev     
-netarchitect can login to Jenkins               netarchitect        ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-netcicd-dev,jenkins-cicdtoolbox-run        jenkins-cicdtoolbox-dev
+dc_dev_compute group can login                          compuarchitect      ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-cicdtoolbox-run                            jenkins-netcicd-dev,jenkins-cicdtoolbox-dev
+dc_dev_network group can login                          netarchitect        ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-cicdtoolbox-run                            jenkins-netcicd-dev,jenkins-cicdtoolbox-dev
+dc_dev_storage group can login                          diskarchitect       ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-netcicd-dev, jenkins-cicdtoolbox-run       jenkins-cicdtoolbox-dev
 # App
 # APP_OPS
 # APP_DEV
 # TOOL
 # TOOL_OPS
-# TOOL_OPS_OPER
-tooltiger can login to Jenkins                  tooltiger           ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-cicdtoolbox-run                            jenkins-netcicd-dev,jenkins-cicdtoolbox-dev
-# TOOL_OPS_SPEC
-toolmaster can login to Jenkins                 toolmaster          ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-cicdtoolbox-run,jenkins-cicdtoolbox-dev    jenkins-netcicd-dev
+tooling_ops_oper group can login                        tooltiger           ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-cicdtoolbox-run                            jenkins-netcicd-dev,jenkins-cicdtoolbox-dev
+tooling_ops_spec group can login                        toolmaster          ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-cicdtoolbox-run,jenkins-cicdtoolbox-dev    jenkins-netcicd-dev
 # TOOL_DEV
-blacksmith can login to Jenkins                 blacksmith          ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-cicdtoolbox-run,jenkins-cicdtoolbox-dev    jenkins-netcicd-dev
+tooling_dev_design group can login                      blacksmith          ${VALID_PASSWORD}       jenkins-user,jenkins-netcicd-run,jenkins-cicdtoolbox-run,jenkins-cicdtoolbox-dev    jenkins-netcicd-dev
 # SEC
 # SEC_OPS
-# SEC_OPS_OPER
-happyhacker can login to jenkins                happyhacker         ${VALID_PASSWORD}       jenkins-user                                                                        jenkins-netcicd-run,jenkins-netcicd-dev,jenkins-cicdtoolbox-run,jenkins-cicdtoolbox-dev
-# SEC_OPS_SPEC
-whitehat can login to jenkins                   whitehat            ${VALID_PASSWORD}       jenkins-user                                                                        jenkins-netcicd-run,jenkins-netcicd-dev,jenkins-cicdtoolbox-run,jenkins-cicdtoolbox-dev
+security_ops_oper group can login                       happyhacker         ${VALID_PASSWORD}       jenkins-user                                                                        jenkins-netcicd-run,jenkins-netcicd-dev,jenkins-cicdtoolbox-run,jenkins-cicdtoolbox-dev
+security_ops_spec group can login                       whitehat            ${VALID_PASSWORD}       jenkins-user                                                                        jenkins-netcicd-run,jenkins-netcicd-dev,jenkins-cicdtoolbox-run,jenkins-cicdtoolbox-dev
 # SEC_DEV
-blackhat can login to jenkins                   blackhat            ${VALID_PASSWORD}       jenkins-user                                                                        jenkins-netcicd-run,jenkins-netcicd-dev,jenkins-cicdtoolbox-run,jenkins-cicdtoolbox-dev
-# FS
-# FS_ENG
-mechanicjoe can login to jenkins                mechanicjoe         ${VALID_PASSWORD}       jenkins-user                                                                        jenkins-netcicd-run,jenkins-netcicd-dev,jenkins-cicdtoolbox-run,jenkins-cicdtoolbox-dev
-# FS
-# FS_FM
-patchhero can login to jenkins                  patchhero           ${VALID_PASSWORD}       jenkins-user                                                                        jenkins-netcicd-run,jenkins-netcicd-dev,jenkins-cicdtoolbox-run,jenkins-cicdtoolbox-dev
+security_dev_design group can login                     blackhat            ${VALID_PASSWORD}       jenkins-user                                                                        jenkins-netcicd-run,jenkins-netcicd-dev,jenkins-cicdtoolbox-run,jenkins-cicdtoolbox-dev
+# FS 
+field_services_eng group can login                      mechanicjoe         ${VALID_PASSWORD}       jenkins-user                                                                        jenkins-netcicd-run,jenkins-netcicd-dev,jenkins-cicdtoolbox-run,jenkins-cicdtoolbox-dev
+field_services_floor_management group can login         patchhero           ${VALID_PASSWORD}       jenkins-user                                                                        jenkins-netcicd-run,jenkins-netcicd-dev,jenkins-cicdtoolbox-run,jenkins-cicdtoolbox-dev
 
 *** Variables ***
 ${JENKINS URL}      http://jenkins.tooling.test:8084/
