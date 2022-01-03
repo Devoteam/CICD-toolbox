@@ -340,7 +340,8 @@ echo "Created Campus Operator Group within Campus Operations Group with ID: ${ca
     --gid $campus_ops_oper_id \
     --cclientid Nexus \
     --rolename nexus-docker-pull \
-    --rolename nexus-read
+    --rolename nexus-read \
+    --rolename jenkins-netcicd-agent
 
 echo "Added roles to Campus Operators."
 
@@ -369,7 +370,8 @@ echo "Created Campus Specialists Group within Campus Operations Group with ID: $
     --gid $campus_ops_spec_id \
     --cclientid Nexus \
     --rolename nexus-docker-pull \
-    --rolename nexus-read
+    --rolename nexus-read \
+    --rolename jenkins-netcicd-agent
      
 echo "Added roles to Operations Campus Specialists."
 
@@ -398,7 +400,8 @@ echo "Created Campus LAN Designer group within the Development Department with I
     --gid $campus_dev_lan_designer_id \
     --cclientid Nexus \
     --rolename nexus-docker-pull \
-    --rolename nexus-read
+    --rolename nexus-read \
+    --rolename jenkins-netcicd-agent
 
 echo "Added roles to Campus LAN Designers."
 
@@ -427,7 +430,8 @@ echo "Created Campus wifi Designer group within the Development Department with 
     --gid $campus_dev_wifi_designer_id \
     --cclientid Nexus \
     --rolename nexus-docker-pull \
-    --rolename nexus-read
+    --rolename nexus-read \
+    --rolename jenkins-netcicd-agent
 
 echo "Added roles to Campus WIFI Designers."
 
@@ -467,7 +471,8 @@ echo "Created WAN Operator Group within WAN Operations Group with ID: ${wan_ops_
     --gid $wan_ops_oper_id \
     --cclientid Nexus \
     --rolename nexus-docker-pull \
-    --rolename nexus-read
+    --rolename nexus-read \
+    --rolename jenkins-netcicd-agent
 
 echo "Added roles to WAN Operators."
 
@@ -496,7 +501,8 @@ echo "Created WAN Specialists Group within WAN Operations Group with ID: ${wan_o
     --gid $wan_ops_spec_id \
     --cclientid Nexus \
     --rolename nexus-docker-pull \
-    --rolename nexus-read
+    --rolename nexus-read \
+    --rolename jenkins-netcicd-agent
      
 echo "Added roles to Operations WAN Specialists."
 
@@ -525,7 +531,8 @@ echo "Created WAN Designer group within the WAN Development Group with ID: ${wan
     --gid $wan_dev_designer_id \
     --cclientid Nexus \
     --rolename nexus-docker-pull \
-    --rolename nexus-read
+    --rolename nexus-read \
+    --rolename jenkins-netcicd-agent
 
 echo "Added roles to WAN Designer."
 
@@ -630,7 +637,8 @@ echo "Created DC Network Operator Group within DC Network Operations Group with 
     --gid $dc_ops_net_oper_id \
     --cclientid Nexus \
     --rolename nexus-docker-pull \
-    --rolename nexus-read
+    --rolename nexus-read \
+    --rolename jenkins-netcicd-agent
 
 echo "Added roles to DC Network Operators."
 
@@ -659,7 +667,8 @@ echo "Created DC Network Specialists group within Compute Operations with ID: ${
     --gid $dc_ops_net_spec_id \
     --cclientid Nexus \
     --rolename nexus-docker-pull \
-    --rolename nexus-read
+    --rolename nexus-read \
+    --rolename jenkins-netcicd-agent
      
 echo "Added roles to DC Network Specialists."
 
@@ -776,7 +785,8 @@ echo "Created DC Network Group within the Datacenter Development Group with ID: 
     --gid $dc_dev_network_designer_id \
     --cclientid Nexus \
     --rolename nexus-docker-pull \
-    --rolename nexus-read
+    --rolename nexus-read \
+    --rolename jenkins-netcicd-agent
 
 echo "Added roles to DC Network Designers."
 

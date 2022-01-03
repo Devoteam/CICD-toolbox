@@ -77,12 +77,12 @@ Login with correct role provides correct authorization
 
 Are assigned roles present
     [Arguments]  ${USERNAME}  ${PASSWORD}  ${OK_ROLES}  ${FAIL_ROLES}
-    Open Browser                ${GITEA URL}          ${BROWSER1}
-    Log in         as user      ${USERNAME}             ${PASSWORD}
+    Open Browser                ${GITEA URL}            ${BROWSER1}
+    Log in as user              ${USERNAME}             ${PASSWORD}
     Test given roles            ${USERNAME}             ${PASSWORD}             ${OK_ROLES}                 ${FAIL_ROLES}
-    Close Browsers
+    Close Browser
 
-Log in         as user
+Log in as user
     [Arguments]  ${USERNAME}  ${PASSWORD}
     Go To                       ${GITEA LOGIN}
     Click Image                 class:openidConnect
