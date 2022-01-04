@@ -96,7 +96,7 @@ Create user in Gitea
     ${user_not_created}=        Run Keyword And Return Status    Page Should Contain        Complete Account
     IF  ${user_not_created}
         Click Button                Complete Account
-        Click Image                 class:openidConnect
+        Click Image                 openidConnect oauth-login-image
         Gitea Page Should Be Open   ${USERNAME}
         Log To Console              User created
     ELSE
