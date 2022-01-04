@@ -136,8 +136,8 @@ docker-compose start freeipa.tooling.test
 echo "****************************************************************************************************************"
 echo " Wait until FreeIPA is running"
 echo "****************************************************************************************************************"
-until $(curl --output /dev/null --silent --head --fail --show-error http://freeipa.tooling.test); do
-    printf 'Retrying.. \n'
+until $(curl --output /dev/null --silent --head --fail http://freeipa.tooling.test); do
+    printf '.'
     sleep 5
 done
 echo " "
@@ -155,8 +155,8 @@ docker-compose start keycloak.tooling.test
 echo "****************************************************************************************************************"
 echo " Wait until keycloak is running"
 echo "****************************************************************************************************************"
-until $(curl --output /dev/null --silent --head --fail --show-error http://keycloak.tooling.test:8080); do
-    printf 'Retrying.. \n'
+until $(curl --output /dev/null --silent --head --fail http://keycloak.tooling.test:8080); do
+    printf '.'
     sleep 5
 done
 echo " "
@@ -181,8 +181,8 @@ docker restart keycloak.tooling.test
 echo "****************************************************************************************************************"
 echo " Wait until keycloak is running"
 echo "****************************************************************************************************************"
-until $(curl --output /dev/null --silent --head --fail --show-error http://keycloak.tooling.test:8080); do
-    printf 'Retrying.. \n'
+until $(curl --output /dev/null --silent --head --fail http://keycloak.tooling.test:8080); do
+    printf '.'
     sleep 5
 done
 echo " "
@@ -213,8 +213,8 @@ docker cp keycloak.tooling.test:/opt/jboss/keycloak/bin/keycloak-nexus.json nexu
 docker cp nexus/keycloak-nexus.json nexus.tooling.test:/opt/sonatype/nexus/etc/keycloak.json
 echo "Reloading Nexus"
 docker restart nexus.tooling.test
-until $(curl --output /dev/null --silent --head --fail --show-error http://nexus.tooling.test:8081); do
-    printf 'Retrying.. \n'
+until $(curl --output /dev/null --silent --head --fail http://nexus.tooling.test:8081); do
+    printf '.'
     sleep 5
 done
 echo " " 
@@ -230,8 +230,8 @@ keytool -import -alias Keycloak -keystore ./jenkins/keystore/cacerts -file ./jen
 docker cp ./jenkins/keystore/cacerts jenkins.tooling.test:/opt/java/openjdk/lib/security/cacerts
 echo "Reloading "
 docker restart jenkins.tooling.test
-until $(curl --output /dev/null --silent --head --fail --show-error http://jenkins.tooling.test:8084/whoAmI); do
-    printf 'Retrying.. \n'
+until $(curl --output /dev/null --silent --head --fail http://jenkins.tooling.test:8084/whoAmI); do
+    printf '.'
     sleep 5
 done
 echo " " 
@@ -254,7 +254,7 @@ echo " "
 echo " Stop the environment with ./down, start with ./up"
 echo " "
 echo "****************************************************************************************************************"
-echo "CICD Toolbox install done "
+echo "NetCICD Toolkit install done "
 echo " "
 echo "You can read the install test report in install_tests/report.html"
 echo " "
