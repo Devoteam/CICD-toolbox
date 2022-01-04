@@ -64,14 +64,14 @@ Change jenkins-jenkins credentials
 
 Login to Gitea as jenkins-git
     Go To                       ${GITEA LOGIN}
-    Click Image                 openidConnect oauth-login-image
+    Click Image                 openid_connect.svg
     Keycloak Page Should Be Open
     Input Text                  username              jenkins-git
     Input Text                  password              ${VALID_PASSWORD}
     Submit Credentials
     Location Should Contain     ${GITEA URL}     
     Click Button                Complete Account
-    Click Image                 openidConnect oauth-login-image
+    Click Image                 openid_connect.svg
     Gitea Page Should Be Open
 
 Keycloak Page Should Be Open
