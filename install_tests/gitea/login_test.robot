@@ -84,8 +84,7 @@ Are assigned roles present
 
 Log in as user
     [Arguments]  ${USERNAME}  ${PASSWORD}
-    Go To                       ${GITEA LOGIN}
-    Click Image                 class:openidConnect
+    Go To                       http://gitea.tooling.test:3000/user/oauth2/keycloak
     Keycloak Page Should Be Open
     Input Text                  username                ${USERNAME}
     Input Text                  password                ${PASSWORD}
@@ -96,7 +95,7 @@ Create user in Gitea
     ${user_not_created}=        Run Keyword And Return Status    Page Should Contain        Complete Account
     IF  ${user_not_created}
         Click Button                Complete Account
-        Click Image                 openidConnect oauth-login-image
+        Go To                       http://gitea.tooling.test:3000/user/oauth2/keycloak
         Gitea Page Should Be Open   ${USERNAME}
         Log To Console              User created
     ELSE
