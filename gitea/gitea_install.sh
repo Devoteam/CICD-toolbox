@@ -128,8 +128,10 @@ CreateTeam infraautomator "gitea-CICDtoolbox-write" "The CICDtoolbox repo read-w
 CreateTeam infraautomator "gitea-CICDtoolbox-admin" "The CICDtoolbox repo admin role" "admin" "CICD-toolbox"
 echo "****************************************************************************************************************"
 echo " Adding keycloak client key to Gitea"
+echo "****************************************************************************************************************"
 gitea_client_id=$(grep GITEA_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
 docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin auth add-oauth --name keycloak --provider openidConnect --key Gitea --secret $gitea_client_id --auto-discover-url http://keycloak.tooling.test:8080/auth/realms/netcicd/.well-known/openid-configuration --config=/data/gitea/conf/app.ini'"
+#docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin auth update-oauth --name keycloak --admin-group gitea-admin'"'"
 echo "****************************************************************************************************************"
 echo " Restarting Gitea"
 echo "****************************************************************************************************************"

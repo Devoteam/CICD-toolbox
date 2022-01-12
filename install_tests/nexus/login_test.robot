@@ -84,12 +84,12 @@ Are assigned roles present
 
 Log into Nexus as user
     [Arguments]  ${USERNAME}  ${PASSWORD}
-    Sleep                       2s
-    Click Link                  Sign in
-    Input Text                  username                ${USERNAME}
-    Input Text                  password                ${PASSWORD}
-    Sleep                       2s
-    Click Element               xpath=//*[@class='x-btn-inner x-btn-inner-nx-primary-small' and contains(text(),'Sign in')]
+    Wait Until Element Is Not Visible   loading-mask 
+    Click Link                          Sign in
+    Input Text                          username                ${USERNAME}
+    Input Text                          password                ${PASSWORD}
+    Click Element                       ext-element-1
+    Click Element                       xpath=//*[@class='x-btn-inner x-btn-inner-nx-primary-small' and contains(text(),'Sign in')]
 
 Test given roles
     [Arguments]     ${USERNAME}     ${OK_ROLES}     ${FAIL_ROLES}

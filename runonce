@@ -195,13 +195,16 @@ echo "**************************************************************************
 echo " Creating gitea setup"
 echo "****************************************************************************************************************"
 gitea/gitea_install.sh ${netcicd_pwd} ${local_admin_user} | tee install_log/gitea_create.log
+gitea/gitea_users.sh ${netcicd_pwd} ${local_admin_user} | tee install_log/gitea_users.log
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating jenkins setup"
 echo "****************************************************************************************************************"
-#config for oic_auth plugin: only need to replace secret in casc.yaml
+#config for oic_auth plugin: need to replace secrets in casc.yaml
 jenkins_client_id=$(grep JENKINS_token: install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
 docker exec -it jenkins.tooling.test sh -c "sed -i -e 's/oic_secret/\"$jenkins_client_id\"/' /var/jenkins_conf/casc.yaml"
+#sa_jenkins_token=$(grep token install_log/gitea-service-account-jenkins_token | cut -d' ' -f6 | tr -d '\r' )
+#docker exec -it jenkins.tooling.test sh -c "sed -i -e 's/sa-jenkins/\"$sa_jenkins_token\"/' /var/jenkins_conf/casc.yaml"
 echo "Reloading "
 docker restart jenkins.tooling.test
 echo " " 
@@ -241,7 +244,6 @@ echo "**************************************************************************
 sudo pip3 install robotframework robotframework-selenium2library
 sudo cp geckodriver /usr/local/bin/
 source ~/.bashrc
-robot --variable VALID_PASSWORD:${netcicd_pwd} -d install_log/ finalize_install.robot
 robot --variable VALID_PASSWORD:${netcicd_pwd} -d install_tests/ install_tests
 echo "****************************************************************************************************************"
 echo " The pipeline uses the default Cisco DevNet CML Sandbox credentials developer/C1sco12345 to log in to CML."
@@ -270,5 +272,5 @@ echo " "
 echo "****************************************************************************************************************"
 echo "Cleaning up"
 echo "****************************************************************************************************************"
-rm *_token
-rm install_log/keycloak_create.log
+#rm *_token
+#rm install_log/keycloak_create.log

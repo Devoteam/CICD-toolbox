@@ -103,7 +103,16 @@ echo "JENKINS_token: ${JENKINS_token}"
 echo "Created Jenkins roles." 
 
 # Now we need a service account for other systems to log into Jenkins
-./kcadm.sh add-roles -r netcicd --uusername service-account-jenkins --cclientid realm-management --rolename view-clients --rolename view-realm --rolename view-users
+./kcadm.sh add-roles -r netcicd \
+    --uusername service-account-jenkins \
+    --cclientid realm-management \
+    --rolename view-clients \
+    --rolename view-realm \
+    --rolename view-users \
+    --rolename gitea-netcicd-read \
+    --rolename gitea-netcicd-write \
+    --rolename gitea-cicdtoolbox-read \
+    --rolename gitea-cicdtoolbox-write &>NetCICD_JENKINS_SCOPE
 
 echo "Created Jenkins Service Account" 
 

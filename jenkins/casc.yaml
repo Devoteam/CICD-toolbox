@@ -23,17 +23,11 @@ credentials:
           scope: GLOBAL
           username: "jenkins-jenkins"
       - usernamePassword:
-          description: "Credentials to be used to log into Nexus from Jenkins."
-          id: "jenkins-nexus"
-          password: ${JENKINS_NEXUS_PASSWORD}
+          description: "Credentials to be used to get an access token from Keycloak."
+          id: "jenkins-git"
+          password: "sa-jenkins"
           scope: GLOBAL
-          username: "jenkins-nexus"
-      - usernamePassword:
-          description: "Credentials to be used to log into Argos from Jenkins."
-          id: "jenkins-argos"
-          password: ${JENKINS_ARGOS_PASSWORD}
-          scope: GLOBAL
-          username: "jenkins-argos"
+          username: "service-account-jenkins"
 jenkins:
   authorizationStrategy:
     roleBased:
@@ -55,6 +49,7 @@ jenkins:
           permissions:
           - "Overall/Read"
           - "Credentials/View"
+          - "Credentials/Update"
           - "Job/Read"
           - "Job/ViewStatus"
           - "View/Read"

@@ -47,9 +47,9 @@
   <disabled>false</disabled>
   <navigators>
     <org.jenkinsci.plugin.gitea.GiteaSCMNavigator plugin="gitea@1.2.1">
-      <serverUrl>http://gitea:3000</serverUrl>
+      <serverUrl>http://gitea.tooling.test:3000</serverUrl>
       <repoOwner>Infraautomator</repoOwner>
-      <credentialsId>git-jenkins</credentialsId>
+      <credentialsId>jenkins-git</credentialsId>
       <traits>
         <org.jenkinsci.plugin.gitea.BranchDiscoveryTrait>
           <strategyId>1</strategyId>

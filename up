@@ -2,15 +2,15 @@
 
 docker-compose start freeipa.tooling.test
 echo "Waiting for FreeIPA to come online"
-until $(curl --output /dev/null --silent --head --fail --show-error http://freeipa.tooling.test:8080); do
-    printf 'Retrying.. \n'
+until $(curl --output /dev/null --silent --head --fail http://freeipa.tooling.test:8080); do
+    printf '.'
     sleep 5
 done
 
 docker-compose start netcicd-db keycloak.tooling.test
 echo "Waiting for Keycloak to come online"
-until $(curl --output /dev/null --silent --head --fail --show-error http://keycloak.tooling.test:8080); do
-    printf 'Retrying.. \n'
+until $(curl --output /dev/null --silent --head --fail http://keycloak.tooling.test:8080); do
+    printf '.'
     sleep 5
 done
 docker-compose start 

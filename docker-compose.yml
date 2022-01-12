@@ -47,8 +47,8 @@ services:
     environment:
       - USER_UID=1000
       - USER_GID=1000
-      - DOMAIN=gitea
-      - SSH_DOMAIN=gitea
+      - DOMAIN=gitea.tooling.test
+      - SSH_DOMAIN=gitea.tooling.test
       - DB_TYPE=postgres
       - 'DB_HOST=netcicd-db:5432'
       - DB_NAME=gitea
@@ -86,9 +86,9 @@ services:
       - CML_USER=developer
       - CML_PASSWORD=C1sco12345
       - 'CML_URL=https://10.10.20.161'
-      - GITEA_IP=10.10.20.50
-      - JENKINS_IP=10.10.20.50
-      - NEXUS_IP=10.10.20.50
+      - GITEA_IP=172.16.11.3
+      - JENKINS_IP=172.16.11.8
+      - NEXUS_IP=172.16.11.9
       - JENKINS_JENKINS_PASSWORD=netcicd
       - JENKINS_GIT_PASSWORD=netcicd
       - JENKINS_NEXUS_PASSWORD=netcicd
