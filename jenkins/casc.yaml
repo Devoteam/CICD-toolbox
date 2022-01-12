@@ -132,7 +132,7 @@ jenkins:
         - assignments:
           - "jenkins-netcicd-dev"
           name: "NetCICD-dev"
-          pattern: "^NetCICD$"
+          pattern: "^jenkins-netcicd-dev$"
           permissions:
           - "Credentials/Create"
           - "Credentials/Delete"
@@ -153,7 +153,7 @@ jenkins:
         - assignments:
           - "jenkins-cicdtoolbox-dev"
           name: "CICD-toolbox-dev"
-          pattern: "^CICD-toolbox$"
+          pattern: "^jenkins-cicdtoolbox-dev$"
           permissions:
           - "Credentials/Create"
           - "Credentials/Delete"
@@ -174,16 +174,16 @@ jenkins:
         - assignments:
           - "jenkins-netcicd-run"
           name: "NetCICD-run"
-          pattern: "^NetCICD$"
+          pattern: "^jenkins-netcicd-run$"
           permissions:
           - "Credentials/View"
           - "Job/Build"
           - "Run/Update"
           - "SCM/Tag"
         - assignments:
-          - "jenkins-netcicd-toolbox-run"
+          - "jenkins-cicdtoolbox-run"
           name: "CICD-toolbox-run"
-          pattern: "^NetCICD-developer-toolbox$"
+          pattern: "^jenkins-cicdtoolbox-run$"
           permissions:
           - "Credentials/View"
           - "Job/Build"
