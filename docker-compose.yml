@@ -90,7 +90,6 @@ services:
       - JENKINS_IP=172.16.11.8
       - NEXUS_IP=172.16.11.9
       - JENKINS_JENKINS_PASSWORD=netcicd
-      - JENKINS_GIT_PASSWORD=netcicd
       - JENKINS_NEXUS_PASSWORD=netcicd
       - JENKINS_ARGOS_PASSWORD=netcicd
     volumes:
