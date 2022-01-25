@@ -58,6 +58,27 @@ echo "GITEA_token: ${GITEA_token}"
 ./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-cicdtoolbox-write -s description='A read-write role on the CICD toolbox'
 ./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-cicdtoolbox-admin -s description='A read-write role on the CICD toolbox'
 
+
+# We need to add the gitea-admin claim and gitea-group claim to the token
+
+./kcadm.sh create clients/$JENKINS_ID/protocol-mappers/models \
+    -r netcicd \
+	-s name=role-group-mapper \
+    -s protocol=openid-connect \
+	-s protocolMapper=oidc-usermodel-client-role-mapper \
+    -s consentRequired=false \
+	-s config="{\"multivalued\" : \"true\",\"userinfo.token.claim\" : \"true\",\"id.token.claim\" : \"true\",\"access.token.claim\" : \"true\",\"claim.name\" : \"gitea-admin\",\"jsonType.label\" : \"String\",\"usermodel.clientRoleMapping.clientId\" : \"Gitea\"}"
+
+./kcadm.sh create clients/$JENKINS_ID/protocol-mappers/models \
+    -r netcicd \
+	-s name=role-group-mapper \
+    -s protocol=openid-connect \
+	-s protocolMapper=oidc-usermodel-client-role-mapper \
+    -s consentRequired=false \
+	-s config="{\"multivalued\" : \"true\",\"userinfo.token.claim\" : \"true\",\"id.token.claim\" : \"true\",\"access.token.claim\" : \"true\",\"claim.name\" : \"gitea-groups\",\"jsonType.label\" : \"String\",\"usermodel.clientRoleMapping.clientId\" : \"Gitea\"}"
+
+echo "Created role-group mapper in the Client Scope" 
+
 ./kcadm.sh create clients \
     -r netcicd \
     -s name="Jenkins" \
@@ -179,6 +200,7 @@ echo " "
 ./kcadm.sh create clients/$NEXUS_ID/roles -r netcicd -s name=nexus-docker-push -s description='The role to be used in order to push to the Docker mirror on Nexus'
 ./kcadm.sh create clients/$NEXUS_ID/roles -r netcicd -s name=nexus-read -s description='The role to be used for a Jenkins agent to push data to Nexus'
 ./kcadm.sh create clients/$NEXUS_ID/roles -r netcicd -s name=nexus-apk-read -s description='The role to be used for a NetCICD client to pull  APK packages data from Nexus'
+./kcadm.sh create clients/$NEXUS_ID/roles -r netcicd -s name=nexus-apt-ubuntu-read -s description='The role to be used for a NetCICD client to pull Ubuntu based apt packages data from Nexus'
 
 echo "Created Nexus roles." 
 
@@ -350,7 +372,8 @@ echo "Created Campus Operator Group within Campus Operations Group with ID: ${ca
     --cclientid Nexus \
     --rolename nexus-docker-pull \
     --rolename nexus-read \
-    --rolename jenkins-netcicd-agent
+    --rolename jenkins-netcicd-agent \
+    --rolename nexus-apt-ubuntu-read
 
 echo "Added roles to Campus Operators."
 
@@ -380,7 +403,8 @@ echo "Created Campus Specialists Group within Campus Operations Group with ID: $
     --cclientid Nexus \
     --rolename nexus-docker-pull \
     --rolename nexus-read \
-    --rolename jenkins-netcicd-agent
+    --rolename jenkins-netcicd-agent \
+    --rolename nexus-apt-ubuntu-read
      
 echo "Added roles to Operations Campus Specialists."
 
@@ -410,7 +434,8 @@ echo "Created Campus LAN Designer group within the Development Department with I
     --cclientid Nexus \
     --rolename nexus-docker-pull \
     --rolename nexus-read \
-    --rolename jenkins-netcicd-agent
+    --rolename jenkins-netcicd-agent  \
+    --rolename nexus-apt-ubuntu-read
 
 echo "Added roles to Campus LAN Designers."
 
@@ -440,7 +465,8 @@ echo "Created Campus wifi Designer group within the Development Department with 
     --cclientid Nexus \
     --rolename nexus-docker-pull \
     --rolename nexus-read \
-    --rolename jenkins-netcicd-agent
+    --rolename jenkins-netcicd-agent \
+    --rolename nexus-apt-ubuntu-read
 
 echo "Added roles to Campus WIFI Designers."
 
@@ -481,7 +507,8 @@ echo "Created WAN Operator Group within WAN Operations Group with ID: ${wan_ops_
     --cclientid Nexus \
     --rolename nexus-docker-pull \
     --rolename nexus-read \
-    --rolename jenkins-netcicd-agent
+    --rolename jenkins-netcicd-agent \
+    --rolename nexus-apt-ubuntu-read
 
 echo "Added roles to WAN Operators."
 
@@ -511,7 +538,8 @@ echo "Created WAN Specialists Group within WAN Operations Group with ID: ${wan_o
     --cclientid Nexus \
     --rolename nexus-docker-pull \
     --rolename nexus-read \
-    --rolename jenkins-netcicd-agent
+    --rolename jenkins-netcicd-agent \
+    --rolename nexus-apt-ubuntu-read
      
 echo "Added roles to Operations WAN Specialists."
 
@@ -541,7 +569,8 @@ echo "Created WAN Designer group within the WAN Development Group with ID: ${wan
     --cclientid Nexus \
     --rolename nexus-docker-pull \
     --rolename nexus-read \
-    --rolename jenkins-netcicd-agent
+    --rolename jenkins-netcicd-agent \
+    --rolename nexus-apt-ubuntu-read
 
 echo "Added roles to WAN Designer."
 
@@ -585,7 +614,8 @@ echo "Created Compute Operator Group within Compute Operations Group with ID: ${
     --gid $dc_ops_comp_oper_id \
     --cclientid Nexus \
     --rolename nexus-docker-pull \
-    --rolename nexus-read
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
 
 echo "Added roles to Compute Operators."
 
@@ -614,7 +644,8 @@ echo "Created Compute Specialists group within Compute Operations with ID: ${dc_
     --gid $dc_ops_comp_spec_id \
     --cclientid Nexus \
     --rolename nexus-docker-pull \
-    --rolename nexus-read
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
      
 echo "Added roles to Compute Specialists."
 
@@ -647,7 +678,8 @@ echo "Created DC Network Operator Group within DC Network Operations Group with 
     --cclientid Nexus \
     --rolename nexus-docker-pull \
     --rolename nexus-read \
-    --rolename jenkins-netcicd-agent
+    --rolename jenkins-netcicd-agent \
+    --rolename nexus-apt-ubuntu-read
 
 echo "Added roles to DC Network Operators."
 
@@ -677,7 +709,8 @@ echo "Created DC Network Specialists group within Compute Operations with ID: ${
     --cclientid Nexus \
     --rolename nexus-docker-pull \
     --rolename nexus-read \
-    --rolename jenkins-netcicd-agent
+    --rolename jenkins-netcicd-agent \
+    --rolename nexus-apt-ubuntu-read
      
 echo "Added roles to DC Network Specialists."
 
@@ -709,7 +742,8 @@ echo "Created Storage Operator Group within Storage Operations Group with ID: ${
     --gid $dc_ops_stor_oper_id \
     --cclientid Nexus \
     --rolename nexus-docker-pull \
-    --rolename nexus-read
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
 
 echo "Added roles to Storage Operators."
 
@@ -737,7 +771,8 @@ echo "Created Storage Specialists group within Storage Operations with ID: ${dc_
     --gid $dc_ops_stor_spec_id \
     --cclientid Nexus \
     --rolename nexus-docker-pull \
-    --rolename nexus-read
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
      
 echo "Added roles to Storage Specialists."
 
@@ -765,7 +800,8 @@ echo "Created Compute Designer Group within the Datacenter Development Group wit
     --gid $dc_dev_compute_designer_id \
     --cclientid Nexus \
     --rolename nexus-docker-pull \
-    --rolename nexus-read
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
 
 echo "Added roles to DC Compute Designers."
 
@@ -795,7 +831,8 @@ echo "Created DC Network Group within the Datacenter Development Group with ID: 
     --cclientid Nexus \
     --rolename nexus-docker-pull \
     --rolename nexus-read \
-    --rolename jenkins-netcicd-agent
+    --rolename jenkins-netcicd-agent \
+    --rolename nexus-apt-ubuntu-read
 
 echo "Added roles to DC Network Designers."
 
@@ -823,7 +860,8 @@ echo "Created DC Storage Designer Group within the Datacenter Development Group 
     --gid $dc_dev_storage_designer_id \
     --cclientid Nexus \
     --rolename nexus-docker-pull \
-    --rolename nexus-read
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
 
 echo "Added roles to DC Network Designers."
 
@@ -875,7 +913,8 @@ echo "Created Tooling Operator group within the Tooling Operations Department wi
     --gid $tool_ops_oper_id \
     --cclientid Nexus \
     --rolename nexus-docker-pull \
-    --rolename nexus-read
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
 
 echo "Added roles to Tooling Operator."
 
@@ -903,7 +942,8 @@ echo "Created Tooling Specialist group within the Tooling Operations Department 
     --gid $tool_ops_spec_id \
     --cclientid Nexus \
     --rolename nexus-docker-pull \
-    --rolename nexus-read
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
 
 echo "Added roles to Tooling Specialist."
 
@@ -931,7 +971,8 @@ echo "Created Tooling Designer Group within the Tooling Department with ID: ${to
     --gid $tool_dev_designer_id \
     --cclientid Nexus \
     --rolename nexus-docker-pull \
-    --rolename nexus-read
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
 
 echo "Added roles to Tooling Designer."
 

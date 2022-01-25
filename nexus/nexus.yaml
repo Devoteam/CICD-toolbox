@@ -67,6 +67,10 @@ security:
       description: "The role to be used for a Jenkins agent to push data to Nexus"
       privileges:
         - nx-repository-admin-raw-NetCICD-reports-*
+        - nx-repository-view-apt-apt-ubuntu-main-proxy-read
+        - nx-repository-view-apt-apt-ubuntu-community-proxy-read
+        - nx-repository-view-apt-apt-ubuntu-testing-proxy-read
+        - nx-repository-admin-pypi-pypi-hosted-read
     - id: repository-read-docker
       enabled: true
       source: default
@@ -83,12 +87,23 @@ security:
       enabled: true
       source: default
       name: ClientRole:nexus-apk-read
-      description: "APK Anonymous Access for public proxy / group repositories"
+      description: "APK (Alpine) Anonymous Access for public proxy / group repositories"
       privileges:
         - nx-healthcheck-read
         - nx-repository-view-apk-apk-main-proxy-read
         - nx-repository-view-apk-apk-community-proxy-read
         - nx-repository-view-apk-apk-testing-proxy-read
+        - nx-search-read
+    - id: ClientRole:nexus-apt-ubuntu-read
+      enabled: true
+      source: default
+      name: ClientRole:nexus-apt-ubuntu-read
+      description: "APT (Ubuntu based) Anonymous Access for public proxy / group repositories"
+      privileges:
+        - nx-healthcheck-read
+        - nx-repository-view-apt-apt-ubuntu-main-proxy-read
+        - nx-repository-view-apt-apt-ubuntu-community-proxy-read
+        - nx-repository-view-apt-apt-ubuntu-testing-proxy-read
         - nx-search-read
     - id: repository-read-all
       enabled: true
@@ -149,6 +164,14 @@ repository:
         blobStoreQuotaConfig:
           quotaLimitBytes: 10240000000
           quotaType: spaceUsedQuota
+    - name: apt
+      type: File
+      attributes:
+        file:
+          path: apt
+        blobStoreQuotaConfig:
+          quotaLimitBytes: 10240000000
+          quotaType: spaceUsedQuota
     - name: maven
       type: File
       attributes:
@@ -174,6 +197,11 @@ repository:
         lastDownloaded: 864000
     - name: cleanup-apk-proxy
       format: apk
+      notes: ''
+      criteria:
+        lastDownloaded: 864000
+    - name: cleanup-apt-proxy
+      format: apt
       notes: ''
       criteria:
         lastDownloaded: 864000
@@ -397,6 +425,26 @@ repository:
         cleanup:
           policyName:
             - cleanup-apk-proxy
+    - name: apt-ubuntu
+      online: true
+      recipeName: apt-proxy
+      attributes:
+        apt:
+          distribution: focal
+        aptSigning:
+          keypair: "${file:/run/secrets/gpg_key_example}"
+          passphrase: "${file:/run/secrets/gpg_passphrase_example}"
+        proxy:
+          contentMaxAge: -1
+          remoteUrl: https://archive.ubuntu.com/ubuntu/
+          metadataMaxAge: 1440
+        storage:
+          blobStoreName: apt
+          strictContentTypeValidation: true
+          writePolicy: ALLOW_ONCE
+        cleanup:
+          policyName:
+            - cleanup-apt-proxy
     - name: pypi-proxy
       online: true
       recipeName: pypi-proxy

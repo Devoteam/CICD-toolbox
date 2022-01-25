@@ -105,7 +105,7 @@ Create user in Gitea
 Gitea Page Should Be Open
     [Arguments]  ${USERNAME}
     Location Should Contain     ${GITEA URL}
-    Title Should Be             ${USERNAME} - Dashboard - Gitea: Git with a cup of tea
+    Title Should Be             ${USERNAME} - Dashboard - Our single source of truth
 
 Test given roles
     [Arguments]     ${USERNAME}        ${PASSWORD}     ${OK_ROLES}     ${FAIL_ROLES}

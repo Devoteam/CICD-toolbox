@@ -93,14 +93,10 @@ until $(curl --output /dev/null --silent --head --fail http://gitea.tooling.test
 done
 echo " "
 echo "****************************************************************************************************************"
-echo " Configuring Gitea"
-echo "****************************************************************************************************************"
-docker cp gitea/app.ini gitea.tooling.test:/data/gitea/conf/app.ini
-echo " "
-echo "****************************************************************************************************************"
 echo " Create local gituser (admin role: $user)"
 echo "****************************************************************************************************************"
 docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin user create --username $user --password $pwd --admin --email gitea-local-admin@tooling.test'"
+docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin auth update-oauth --id 1 --required-claim-name gitea-admin --admin-group gitea-admin --group-claim-name gitea-groups'"
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating InfraAutomators organization in Gitea "

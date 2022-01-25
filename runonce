@@ -13,6 +13,7 @@ echo "**************************************************************************
 echo " Start clean" 
 echo "****************************************************************************************************************"
 docker-compose down --remove-orphans
+docker-compose rm -f
 docker volume rm $(docker volume ls -q)
 rm *_token
 rm install_tests/log.html
