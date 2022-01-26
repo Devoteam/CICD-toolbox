@@ -61,17 +61,17 @@ echo "GITEA_token: ${GITEA_token}"
 
 # We need to add the gitea-admin claim and gitea-group claim to the token
 
-./kcadm.sh create clients/$JENKINS_ID/protocol-mappers/models \
+./kcadm.sh create clients/$GITEA_ID/protocol-mappers/models \
     -r netcicd \
-	-s name=role-group-mapper \
+	-s name=admin-mapper \
     -s protocol=openid-connect \
 	-s protocolMapper=oidc-usermodel-client-role-mapper \
     -s consentRequired=false \
 	-s config="{\"multivalued\" : \"true\",\"userinfo.token.claim\" : \"true\",\"id.token.claim\" : \"true\",\"access.token.claim\" : \"true\",\"claim.name\" : \"gitea-admin\",\"jsonType.label\" : \"String\",\"usermodel.clientRoleMapping.clientId\" : \"Gitea\"}"
 
-./kcadm.sh create clients/$JENKINS_ID/protocol-mappers/models \
+./kcadm.sh create clients/$GITEA_ID/protocol-mappers/models \
     -r netcicd \
-	-s name=role-group-mapper \
+	-s name=group-mapper \
     -s protocol=openid-connect \
 	-s protocolMapper=oidc-usermodel-client-role-mapper \
     -s consentRequired=false \
