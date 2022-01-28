@@ -56,16 +56,9 @@ services:
     environment:
       - USER_UID=1000
       - USER_GID=1000
-      - DOMAIN=gitea.tooling.test
-      - SSH_DOMAIN=gitea.tooling.test
-      - DB_TYPE=postgres
-      - 'DB_HOST=netcicd-db:5432'
-      - DB_NAME=gitea
-      - DB_USER=gitea
-      - DB_PASSWD=gitea
-      - INSTALL_LOCK=true
-      - SECRET_KEY=z5sRR3DQ4ZxJ5EcFSM8amg9eEfyLffxssDcO14bs2JlZRLwPl3E3PQ24xDMGB56j
-      - REQUIRE_SIGNIN_VIEW=true
+      - GITEA__server__DOMAIN=gitea.tooling.test
+      - GITEA__database__USER=gitea
+      - GITEA__database__PASSWD=gitea
     networks:
       tooling:
         ipv4_address: 172.16.11.3
