@@ -50,32 +50,23 @@ GITEA_token=$(grep value NetCICD_gitea_secret | cut -d '"' -f4)
 echo "GITEA_token: ${GITEA_token}"
 
 # Now we can add client specific roles (Clientroles)
-./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-admin -s description='The admin role for the Infra Automators organization'
-./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-netcicd-read -s description='A read-only role on NetCICD'
-./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-netcicd-write -s description='A read-write role on NetCICD'
-./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-netcicd-admin -s description='A admin role on NetCICD'
-./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-cicdtoolbox-read -s description='A read-only role on the CICD toolbox'
-./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-cicdtoolbox-write -s description='A read-write role on the CICD toolbox'
-./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=gitea-cicdtoolbox-admin -s description='A read-write role on the CICD toolbox'
+./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name=giteaAdmin -s description='The admin role for the Infra Automators organization'
+./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name='infraautomator:gitea-netcicd-read' -s description='A read-only role on NetCICD'
+./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name='infraautomator:gitea-netcicd-write' -s description='A read-write role on NetCICD'
+./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name='infraautomator:gitea-netcicd-admin' -s description='A admin role on NetCICD'
+./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name='infraautomator:gitea-cicdtoolbox-read' -s description='A read-only role on the CICD toolbox'
+./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name='infraautomator:gitea-cicdtoolbox-write' -s description='A read-write role on the CICD toolbox'
+./kcadm.sh create clients/$GITEA_ID/roles -r netcicd -s name='infraautomator:gitea-cicdtoolbox-admin' -s description='A read-write role on the CICD toolbox'
 
 
 # We need to add the gitea-admin claim and gitea-group claim to the token
-
-./kcadm.sh create clients/$GITEA_ID/protocol-mappers/models \
-    -r netcicd \
-	-s name=admin-mapper \
-    -s protocol=openid-connect \
-	-s protocolMapper=oidc-usermodel-client-role-mapper \
-    -s consentRequired=false \
-	-s config="{\"multivalued\" : \"true\",\"userinfo.token.claim\" : \"true\",\"id.token.claim\" : \"true\",\"access.token.claim\" : \"true\",\"claim.name\" : \"gitea-admin\",\"jsonType.label\" : \"String\",\"usermodel.clientRoleMapping.clientId\" : \"Gitea\"}"
-
 ./kcadm.sh create clients/$GITEA_ID/protocol-mappers/models \
     -r netcicd \
 	-s name=group-mapper \
     -s protocol=openid-connect \
 	-s protocolMapper=oidc-usermodel-client-role-mapper \
     -s consentRequired=false \
-	-s config="{\"multivalued\" : \"true\",\"userinfo.token.claim\" : \"true\",\"id.token.claim\" : \"true\",\"access.token.claim\" : \"true\",\"claim.name\" : \"gitea-groups\",\"jsonType.label\" : \"String\",\"usermodel.clientRoleMapping.clientId\" : \"Gitea\"}"
+	-s config="{\"multivalued\" : \"true\",\"userinfo.token.claim\" : \"true\",\"id.token.claim\" : \"true\",\"access.token.claim\" : \"true\",\"claim.name\" : \"giteaGroups\",\"jsonType.label\" : \"String\",\"usermodel.clientRoleMapping.clientId\" : \"Gitea\"}"
 
 echo "Created role-group mapper in the Client Scope" 
 

@@ -4,6 +4,6 @@ FROM gitea/gitea:1.16.0-rc1
 
 COPY app.ini /data/gitea/conf/app.ini
 
-USER git
-RUN mkdir templates
+RUN mkdir /data/gitea/templates
 COPY home.tmpl /data/gitea/templates/home.tmpl
+#RUN chown git:git -R /data/gitea/templates
