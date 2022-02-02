@@ -15,13 +15,23 @@ echo "**************************************************************************
 docker-compose down --remove-orphans
 docker-compose rm -f
 docker volume rm $(docker volume ls -q)
-rm *_token
-rm install_tests/log.html
-rm install_tests/output.xml
-rm install_tests/report.html
-rm install_tests/*.png
-rm install_tests/*.log
-rm install_log/*
+rm -f *_token
+rm -f install_tests/log.html
+rm -f install_tests/output.xml
+rm -f install_tests/report.html
+rm -f install_tests/*.png
+rm -f install_tests/*.log
+rm -f install_log/*
+rm -f gitea/*.csr
+rm -f gitea/*.key
+rm -f jenkins/*.csr
+rm -f jenkins/*.key
+rm -f keycloak/*.csr
+rm -f keycloak/*.key
+rm -f nexus/*.csr
+rm -f nexus/*.key
+rm -f portainer/*.csr
+rm -f portainer/*.key
 echo " " 
 echo "****************************************************************************************************************"
 echo " Cleaning Gitea" 
@@ -33,6 +43,11 @@ echo " Cleaning Nexus"
 echo "****************************************************************************************************************"
 sudo rm -rf nexus/data/*
 sudo rm -rf nexus/*.kar
+echo " " 
+echo "****************************************************************************************************************"
+echo " Making sure all containers are reachable locally with the name in the"
+echo " hosts file."
+echo "****************************************************************************************************************"
 echo " " 
 sudo chmod o+w /etc/hosts
 if grep -q "gitea" /etc/hosts; then
@@ -96,10 +111,6 @@ else
 fi
 echo " " 
 echo "****************************************************************************************************************"
-echo " Making sure all containers are reachable locally with the name in the"
-echo " hosts file."
-echo " " 
-echo "****************************************************************************************************************"
 echo " Collecting Nexus APK plugin and build .kar file"
 echo "****************************************************************************************************************"
 if [ -f "nexus/nexus-repository-apk-$nexus_apk_plugin-bundle.kar" ]; then
@@ -122,17 +133,25 @@ if [ ! -f ./nexus/nexus-casc* ]; then
 else
     echo "Casc plugin exists, no need to build"
 fi
-echo " " 
+# echo " " 
+# echo "****************************************************************************************************************"
+# echo " Creating user certificate if none exists" 
+# echo "****************************************************************************************************************"
+
 echo "****************************************************************************************************************"
-echo " Creating database"
+echo " Creating CSR for all containers, so they can be copied in in the Dockerfile" 
+echo "****************************************************************************************************************"
+freeipa/create-certificates.sh netcicd-db
+freeipa/create-certificates.sh gitea
+freeipa/create-certificates.sh jenkins
+freeipa/create-certificates.sh keycloak
+freeipa/create-certificates.sh nexus
+freeipa/create-certificates.sh portainer
+echo "****************************************************************************************************************"
+echo " Creating freeIPA"
 echo "****************************************************************************************************************"
 docker-compose pull 
 docker-compose up --build --remove-orphans --no-start 
-docker-compose start netcicd-db
-echo "****************************************************************************************************************"
-echo " Calming down the CPU... waiting 10 seconds"
-echo "****************************************************************************************************************"
-sleep 10
 docker-compose start freeipa.tooling.test
 echo "****************************************************************************************************************"
 echo " Wait until FreeIPA is running"
@@ -152,6 +171,16 @@ echo " Saving FreeIPA self-signed certificate"
 echo "****************************************************************************************************************"
 docker cp freeipa.tooling.test:/etc/ipa/ca.crt freeipa/ca.crt
 echo " "
+echo "****************************************************************************************************************"
+echo " Creating database"
+echo "****************************************************************************************************************"
+docker-compose pull 
+docker-compose up --build --remove-orphans --no-start 
+docker-compose start netcicd-db
+echo "****************************************************************************************************************"
+echo " Calming down the CPU... waiting 10 seconds"
+echo "****************************************************************************************************************"
+sleep 10
 docker-compose start keycloak.tooling.test
 echo "****************************************************************************************************************"
 echo " Wait until keycloak is running"

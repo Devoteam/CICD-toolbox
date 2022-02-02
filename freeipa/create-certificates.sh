@@ -33,15 +33,5 @@ echo "Creating CSR"
 openssl req -new -key $domain.key -out $domain.csr -passin pass:$password \
     -subj "/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$commonname/emailAddress=$email"
 
-echo "---------------------------"
-echo "-----Below is your CSR-----"
-echo "---------------------------"
-echo
-cat $domain.csr
-
-echo
-echo "---------------------------"
-echo "-----Below is your Key-----"
-echo "---------------------------"
-echo
-cat $domain.key
+mv $domain.csr freeipa/certs/$domain.csr
+mv $domain.key freeipa/certs/$domain.key
