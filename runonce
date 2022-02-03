@@ -22,16 +22,6 @@ rm -f install_tests/report.html
 rm -f install_tests/*.png
 rm -f install_tests/*.log
 rm -f install_log/*
-rm -f gitea/*.csr
-rm -f gitea/*.key
-rm -f jenkins/*.csr
-rm -f jenkins/*.key
-rm -f keycloak/*.csr
-rm -f keycloak/*.key
-rm -f nexus/*.csr
-rm -f nexus/*.key
-rm -f portainer/*.csr
-rm -f portainer/*.key
 echo " " 
 echo "****************************************************************************************************************"
 echo " Cleaning Gitea" 
@@ -170,6 +160,12 @@ echo "**************************************************************************
 echo " Saving FreeIPA self-signed certificate"
 echo "****************************************************************************************************************"
 docker cp freeipa.tooling.test:/etc/ipa/ca.crt freeipa/ca.crt
+echo " " 
+echo "****************************************************************************************************************"
+echo " Saving host certificates"
+echo "****************************************************************************************************************"
+docker cp freeipa.tooling.test:/tmp/hostcerts freeipa/
+docker exec freeipa.tooling.test rm -rf /tmp/host*
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating database"
@@ -204,6 +200,11 @@ echo "**************************************************************************
 echo " Creating FreeIPA setup. This will take time..."
 echo "****************************************************************************************************************"
 docker exec -it freeipa.tooling.test sh -c "/root/freeipa-install.sh ${netcicd_pwd} ${freeipa_pwd}" | tee install_log/freeipa_create.log
+echo " " 
+echo "****************************************************************************************************************"
+echo " Saving host certificates"
+echo "****************************************************************************************************************"
+docker cp freeipa:/root/hostcerts/*.cer freeipa/
 echo "****************************************************************************************************************"
 echo " Restarting Keycloak "
 echo "****************************************************************************************************************"

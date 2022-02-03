@@ -28,3 +28,4 @@ log.html
 output.xml
 nexus/remotecontent?filepath=org%2Fsonatype%2Fnexus%2Fplugins%2Fnexus-repository-apk%2F0.0.23%2Fnexus-repository-apk-0.0.23-bundle.kar
 /freeipa/certs/
+freeipa/hostcerts/

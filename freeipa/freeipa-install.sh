@@ -202,27 +202,32 @@ ipa service-add HTTP/gitea.tooling.test
 ipa-getkeytab -p HTTP/gitea.tooling.test -s freeipa.tooling.test -k /etc/krb5-gitea.keytab
 chown root /etc/krb5-gitea.keytab
 chmod 640 /etc/krb5-gitea.keytab
+ipa cert-request /root/hostcerts/gitea.tooling.test.csr --principal=host/gitea.tooling.test --chain --certificate-out=/root/hostcerts/gitea.tooling.test.cer
 
 ipa host-add --force --ip-address=172.16.11.8 jenkins.tooling.test
 ipa service-add HTTP/jenkins.tooling.test
 ipa-getkeytab -p HTTP/jenkins.tooling.test -s freeipa.tooling.test -k /etc/krb5-jenkins.keytab
 chown root /etc/krb5-jenkins.keytab
 chmod 640 /etc/krb5-jenkins.keytab
+ipa cert-request /root/hostcerts/jenkins.tooling.test.csr --principal=host/jenkins.tooling.test --chain --certificate-out=/root/hostcerts/jenkins.tooling.test.cer
 
 ipa host-add --force --ip-address=172.16.11.9 nexus.tooling.test
 ipa service-add HTTP/nexus.tooling.test
 ipa-getkeytab -p HTTP/nexus.tooling.test -s freeipa.tooling.test -k /etc/krb5-nexus.keytab
 chown root /etc/krb5-nexus.keytab
 chmod 640 /etc/krb5-nexus.keytab
+ipa cert-request /root/hostcerts/nexus.tooling.test.csr --principal=host/nexus.tooling.test --chain --certificate-out=/root/hostcerts/nexus.tooling.test.cer
 
 ipa host-add --force --ip-address=172.16.11.11 keycloak.tooling.test
 ipa service-add HTTP/keycloak.tooling.test
 ipa-getkeytab -p HTTP/keycloak.tooling.test -s freeipa.tooling.test -k /etc/krb5-keycloak.keytab
 chown root /etc/krb5-keycloak.keytab
 chmod 640 /etc/krb5-keycloak.keytab
+ipa cert-request /root/hostcerts/keycloak.tooling.test.csr --principal=host/keycloak.tooling.test --chain --certificate-out=/root/hostcerts/keycloak.tooling.test.cer
 
 ipa host-add --force --ip-address=172.16.11.15 portainer.tooling.test
 ipa service-add HTTP/portainer.tooling.test
 ipa-getkeytab -p HTTP/portainer.tooling.test -s freeipa.tooling.test -k /etc/krb5-portainer.keytab
 chown root /etc/krb5-portainer.keytab
 chmod 640 /etc/krb5-portainer.keytab
+ipa cert-request /root/hostcerts/portainer.tooling.test.csr --principal=host/portainer.tooling.test --chain --certificate-out=/root/hostcerts/portainer.tooling.test.cer
