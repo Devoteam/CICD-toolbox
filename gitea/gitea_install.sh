@@ -19,7 +19,7 @@ function CreateRepo () {
         "labels": false,  
         "milestones": false,  
         "mirror": false,  
-        "private": false,  
+        "private": true,  
         "pull_requests": false,  
         "releases": false,  
         "repo_name": "'$2'",  
@@ -28,7 +28,7 @@ function CreateRepo () {
         "uid": 0,  
         "wiki": false
         }'
-    curl -s --user $user:$pwd -X POST "http://gitea.tooling.test:3000/api/v1/repos/migrate" -H  "accept: application/json" -H  "Content-Type: application/json" -d "${repo_payload}"
+    curl -s --insecure --user $user:$pwd -X POST "https://gitea.tooling.test:3000/api/v1/repos/migrate" -H  "accept: application/json" -H  "Content-Type: application/json" -d "${repo_payload}"
     echo " "
     echo "****************************************************************************************************************"
     echo " Creating webhook for the ${2} repo"
@@ -38,12 +38,12 @@ function CreateRepo () {
         "branch_filter": "*",
         "config": {
             "content_type": "json",
-            "url": "http://jenkins.tooling.test:8084/gitea-webhook/post"
+            "url": "https://jenkins.tooling.test:8084/gitea-webhook/post"
             },
         "events": [ "push" ],
         "type": "gitea"
         }'
-    curl -s --user $user:$pwd -X POST "http://gitea.tooling.test:3000/api/v1/repos/${1}/${2}/hooks" -H  "accept: application/json" -H  "Content-Type: application/json" -d "${webhook_payload}"
+    curl -s --insecure --user $user:$pwd -X POST "https://gitea.tooling.test:3000/api/v1/repos/${1}/${2}/hooks" -H  "accept: application/json" -H  "Content-Type: application/json" -d "${webhook_payload}"
     echo " "    
 }
 
@@ -69,25 +69,30 @@ function CreateTeam () {
             "repo.ext_wiki" 
             ] 
         }'
-    local team_data=`curl -s --user $user:$pwd -X POST "http://gitea.tooling.test:3000/api/v1/orgs/${1}/teams" -H "accept: application/json" -H "Content-Type: application/json" -d "${team_payload}"`
+    local team_data=`curl -s --insecure --user $user:$pwd -X POST "https://gitea.tooling.test:3000/api/v1/orgs/${1}/teams" -H "accept: application/json" -H "Content-Type: application/json" -d "${team_payload}"`
     local team_id=$( echo $team_data | awk -F',' '{print $(1)}' | awk -F':' '{print $2}' )
     echo " "
     echo "****************************************************************************************************************"
     echo " Adding ${5} repo to ${2} team in Gitea "
     echo "****************************************************************************************************************"
-    curl -s --user $user:$pwd -X PUT "http://gitea.tooling.test:3000/api/v1/teams/${team_id}/repos/infraautomator/${5}" -H  "accept: application/json"
+    curl -s --insecure --user $user:$pwd -X PUT "https://gitea.tooling.test:3000/api/v1/teams/${team_id}/repos/infraautomator/${5}" -H  "accept: application/json"
     echo " "
 
     team=$team_id
 }
 
-
 #script asssumes gitea is running
+echo "****************************************************************************************************************"
+echo " Installing certificates..."
+echo "****************************************************************************************************************"
+docker cp freeipa/certs/gitea.tooling.test.key gitea.tooling.test:/data/gitea/gitea.tooling.test.key
+docker cp freeipa/certs/gitea.tooling.test.pem gitea.tooling.test:/data/gitea/gitea.tooling.test.pem
+echo " "
 echo "****************************************************************************************************************"
 echo " Wait until Gitea has started"
 echo "****************************************************************************************************************"
 docker restart gitea.tooling.test
-until $(curl --output /dev/null --silent --head --fail http://gitea.tooling.test:3000); do
+until $(curl --output /dev/null --silent --head --insecure --fail https://gitea.tooling.test:3000); do
     printf '.'
     sleep 5
 done
@@ -109,7 +114,7 @@ ORG_PAYLOAD='{
     "visibility": "public", 
     "website": ""
     }'
-org_data=`curl -s --user $user:$pwd -X POST "http://gitea.tooling.test:3000/api/v1/orgs" -H "accept: application/json" -H "Content-Type: application/json" --data "${ORG_PAYLOAD}"`
+org_data=`curl -s --insecure --user $user:$pwd -X POST "https://gitea.tooling.test:3000/api/v1/orgs" -H "accept: application/json" -H "Content-Type: application/json" --data "${ORG_PAYLOAD}"`
 echo " "
 
 CreateRepo "Infraautomator" "NetCICD" "https://github.com/Devoteam/NetCICD.git" "The NetCICD pipeline"
@@ -125,7 +130,7 @@ echo "**************************************************************************
 echo " Adding keycloak client key to Gitea"
 echo "****************************************************************************************************************"
 gitea_client_id=$(grep GITEA_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
-docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin auth add-oauth --name keycloak --provider openidConnect --key Gitea --secret $gitea_client_id --auto-discover-url http://keycloak.tooling.test:8080/auth/realms/cicdtoolbox/.well-known/openid-configuration --config=/data/gitea/conf/app.ini'"
+docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin auth add-oauth --name keycloak --provider openidConnect --key Gitea --secret $gitea_client_id --auto-discover-url https://keycloak.tooling.test:8443/auth/realms/cicdtoolbox/.well-known/openid-configuration --config=/data/gitea/conf/app.ini'"
 # required claim name contains the claim name required to be able to use the claim, admin-group is the claim value for admin.
 docker exec -it gitea.tooling.test sh -c "su git -c '/usr/local/bin/gitea admin auth update-oauth --id 1 --required-claim-name giteaGroups --admin-group giteaAdmin --group-claim-name giteaGroups --skip-local-2fa'"
 echo "****************************************************************************************************************"
@@ -133,7 +138,7 @@ echo " Restarting Gitea"
 echo "****************************************************************************************************************"
 docker restart gitea.tooling.test
 echo " Wait until gitea is running"
-until $(curl --output /dev/null --silent --head --fail http://gitea.tooling.test:3000); do
+until $(curl --output /dev/null --silent --head --insecure --fail https://gitea.tooling.test:3000); do
     printf '.'
     sleep 5
 done

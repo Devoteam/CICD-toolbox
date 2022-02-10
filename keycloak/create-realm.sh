@@ -1,10 +1,4 @@
 #!/bin/bash
-# first insert FreeeIPA CA cert into Keycloak keystore
-echo "Adding CA certificate to Java truststore..."
-chmod 777 /opt/jboss/keycloak/standalone/configuration/keystores 
-cd /opt/jboss/keycloak/standalone/configuration/keystores 
-keytool -keystore truststore -storepass $2 -noprompt -trustcacerts -importcert -alias freeipa-ca -file freeipa-ca.crt
-chmod 444 /opt/jboss/keycloak/standalone/configuration/keystores 
 
 # shell script to be copied into /opt/jboss/keycloak/bin
 cd /opt/jboss/keycloak/bin
@@ -28,12 +22,12 @@ cd /opt/jboss/keycloak/bin
     -s clientId=Gitea \
     -s enabled=true \
     -s publicClient=false \
-    -s fullScopeAllowed=true \
+    -s fullScopeAllowed=false \
     -s directAccessGrantsEnabled=true \
-    -s rootUrl=http://gitea.tooling.test:3000 \
-    -s adminUrl=http://gitea.tooling.test:3000/ \
-    -s 'redirectUris=[ "http://gitea.tooling.test:3000/user/oauth2/keycloak/callback" ]' \
-    -s 'webOrigins=[ "http://gitea.tooling.test:3000/" ]' \
+    -s rootUrl=https://gitea.tooling.test:3000 \
+    -s adminUrl=https://gitea.tooling.test:3000/ \
+    -s 'redirectUris=[ "https://gitea.tooling.test:3000/user/oauth2/keycloak/callback" ]' \
+    -s 'webOrigins=[ "https://gitea.tooling.test:3000/" ]' \
     -o --fields id >cicdtoolbox_GITEA
 
 # output is Created new client with id, we now need to grep the ID out of it
@@ -249,7 +243,8 @@ echo "Created Toolbox Admins group with ID: ${toolbox_admin_id}"
     -r cicdtoolbox \
     --gid $toolbox_admin_id \
     --cclientid Gitea \
-    --rolename gitea-admin 
+    --rolename infraautomator \
+    --rolename giteaAdmin 
 
 ./kcadm.sh add-roles \
     -r cicdtoolbox \

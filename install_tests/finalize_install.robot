@@ -28,8 +28,8 @@ ${BROWSER1}         Firefox
 ${DELAY}            0
 ${JENKINS URL}      http://jenkins.tooling.test:8084/
 ${JENKINS LOGOUT}   http://jenkins.tooling.test:8084/logout 
-${GITEA URL}        http://gitea.tooling.test:3000
-${GITEA LOGIN}      http://gitea.tooling.test:3000/user/login?redirect_to=%2f
+${GITEA URL}        https://gitea.tooling.test:3000
+${GITEA LOGIN}      https://gitea.tooling.test:3000/user/login?redirect_to=%2f
 
 *** Keywords ***
 Log into Jenkins as jenkins-jenkins
@@ -68,7 +68,7 @@ Change jenkins-jenkins credentials
     Log to Console              jenkins-jenkins credentials changed in Jenkins
 
 Login to Gitea as Jenkins
-    Go To                       http://gitea.tooling.test:3000/user/login?redirect_to=%2f
+    Go To                       ${GITEA LOGIN}
     Input Text                  user_name             Jenkins
     Input Text                  password              ${VALID_PASSWORD}
     Click Button                Sign In
@@ -78,14 +78,14 @@ Login to Gitea as Jenkins
     Log to Console              Jenkins changed password to token
 
 Create Jenkins token in Gitea
-    Go To                       http://gitea.tooling.test:3000/user/settings/applications
+    Go To                       https://gitea.tooling.test:3000/user/settings/applications
     Input Text                  name                    Jenkins
     Click Button                Generate Token
     ${SA_TOKEN_text}            Get Text                xpath:/html/body/div/div[2]/div[2]/div[2]/p
     Set Global Variable         ${SA_TOKEN_text}
     Log to Console              Jenkins token created in Gitea
 
-    Go To                       http://gitea.tooling.test:3000/user/settings/account
+    Go To                       https://gitea.tooling.test:3000/user/settings/account
     Input Text                  old_password            netcicd
     Input Text                  password                ${SA_TOKEN_text}
     Input Text                  retype                  ${SA_TOKEN_text}

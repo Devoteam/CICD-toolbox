@@ -22,6 +22,8 @@ rm -f install_tests/report.html
 rm -f install_tests/*.png
 rm -f install_tests/*.log
 rm -f install_log/*
+rm -f freeipa/certs/*
+rm -f freeipa/hostcerts/*
 echo " " 
 echo "****************************************************************************************************************"
 echo " Cleaning Gitea" 
@@ -123,10 +125,12 @@ if [ ! -f ./nexus/nexus-casc* ]; then
 else
     echo "Casc plugin exists, no need to build"
 fi
-# echo " " 
-# echo "****************************************************************************************************************"
-# echo " Creating user certificate if none exists" 
-# echo "****************************************************************************************************************"
+if ! command -v trivy &> /dev/null
+    trivy fs --security-checks vuln,config .
+then
+    echo "trivy is not installed"
+    exit
+fi
 
 echo "****************************************************************************************************************"
 echo " Creating CSR for all containers, so they can be copied in in the Dockerfile" 
@@ -141,8 +145,7 @@ echo "**************************************************************************
 echo " Creating freeIPA"
 echo "****************************************************************************************************************"
 docker-compose pull 
-docker-compose up --build --remove-orphans --no-start 
-docker-compose start freeipa.tooling.test
+docker-compose up -d --build --remove-orphans freeipa.tooling.test
 echo "****************************************************************************************************************"
 echo " Wait until FreeIPA is running"
 echo "****************************************************************************************************************"
@@ -152,32 +155,39 @@ until $(curl --output /dev/null --silent --head --fail http://freeipa.tooling.te
 done
 echo " "
 echo "****************************************************************************************************************"
-echo " Calming down the CPU ... waiting 20 seconds"
+echo " Calming down the CPU and waiting for FreeIPA to get ready... waiting 3+ more minutes"
 echo "****************************************************************************************************************"
-sleep 20
-echo " " 
+sleep 200
+echo " "
 echo "****************************************************************************************************************"
 echo " Saving FreeIPA self-signed certificate"
 echo "****************************************************************************************************************"
 docker cp freeipa.tooling.test:/etc/ipa/ca.crt freeipa/ca.crt
+echo "****************************************************************************************************************"
+echo " Copy csr files to FreeIPA for signing"
+echo "****************************************************************************************************************"
+docker cp freeipa/cert* freeipa.tooling.test:/tmp
+echo "****************************************************************************************************************"
+echo " Creating FreeIPA setup. This will take time..."
+echo "****************************************************************************************************************"
+docker exec -it freeipa.tooling.test sh -c "/root/freeipa-install.sh ${netcicd_pwd} ${freeipa_pwd}" | tee install_log/freeipa_create.log
 echo " " 
 echo "****************************************************************************************************************"
 echo " Saving host certificates"
 echo "****************************************************************************************************************"
-docker cp freeipa.tooling.test:/tmp/hostcerts freeipa/
+docker cp freeipa.tooling.test:/tmp/certs freeipa/
 docker exec freeipa.tooling.test rm -rf /tmp/host*
+mv freeipa/certs/keycloak.* keycloak/
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating database"
 echo "****************************************************************************************************************"
-docker-compose pull 
-docker-compose up --build --remove-orphans --no-start 
-docker-compose start netcicd-db
+docker-compose up -d --build --remove-orphans netcicd-db
+echo " " 
 echo "****************************************************************************************************************"
-echo " Calming down the CPU... waiting 10 seconds"
+echo " Starting Keycloak "
 echo "****************************************************************************************************************"
-sleep 10
-docker-compose start keycloak.tooling.test
+docker-compose up -d --build --remove-orphans keycloak.tooling.test
 echo "****************************************************************************************************************"
 echo " Wait until keycloak is running"
 echo "****************************************************************************************************************"
@@ -187,27 +197,10 @@ until $(curl --output /dev/null --silent --head --fail http://keycloak.tooling.t
 done
 echo " "
 echo "****************************************************************************************************************"
-echo " Adding FreeIPA CA certificate to Keycloak"
-echo "****************************************************************************************************************"
-echo " "
-docker cp freeipa/ca.crt keycloak.tooling.test:/opt/jboss/keycloak/standalone/configuration/keystores/freeipa-ca.crt
-echo "****************************************************************************************************************"
 echo " Creating keycloak setup. This will take time..."
 echo "****************************************************************************************************************"
 docker exec -it keycloak.tooling.test sh -c "/opt/jboss/keycloak/bin/create-realm.sh ${keycloak_pwd} ${keycloak_storepass} ${freeipa_pwd} ${local_admin_user}" | tee install_log/keycloak_create.log
 echo " "
-echo "****************************************************************************************************************"
-echo " Creating FreeIPA setup. This will take time..."
-echo "****************************************************************************************************************"
-docker exec -it freeipa.tooling.test sh -c "/root/freeipa-install.sh ${netcicd_pwd} ${freeipa_pwd}" | tee install_log/freeipa_create.log
-echo " " 
-echo "****************************************************************************************************************"
-echo " Saving host certificates"
-echo "****************************************************************************************************************"
-docker cp freeipa:/root/hostcerts/*.cer freeipa/
-echo "****************************************************************************************************************"
-echo " Restarting Keycloak "
-echo "****************************************************************************************************************"
 docker restart keycloak.tooling.test
 echo "****************************************************************************************************************"
 echo " Wait until keycloak is running"
@@ -220,7 +213,10 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Booting the remainder of the containers"
 echo "****************************************************************************************************************"
-docker-compose start
+docker-compose up -d --build --remove-orphans gitea.tooling.test
+docker-compose up -d --build --remove-orphans jenkins.tooling.test
+docker-compose up -d --build --remove-orphans nexus.tooling.test
+docker-compose up -d --build --remove-orphans portainer.tooling.test
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating gitea setup"
@@ -293,7 +289,7 @@ echo "You can read the install test report in install_tests/report.html"
 echo " "
 echo "You can reach the servers on:"
 echo " "
-echo " Gitea:       http://gitea.tooling.test:3000"
+echo " Gitea:       https://gitea.tooling.test:3000"
 echo " Jenkins:     http://jenkins.tooling.test:8084"
 echo " Nexus:       http://nexus.tooling.test:8081"
 echo " Keycloak:    http://keycloak.tooling.test:8443"

@@ -5,27 +5,20 @@ networks:
     ipam:
       config:
         - subnet: 172.16.11.0/24
-#  jumphosts:
-#    driver: bridge
-#    ipam:
-#      config:
-#        - subnet: 172.16.111.0/24
-  reverse-proxy:
-
+  reverse-proxy: null
 volumes:
-  netcicd_db:
+  netcicd_db: null
   gitea:
     driver: local
-  jenkins_certs:
-  jenkins_data:
-  jenkins_conf:
-  freeipa:
-  portainer_data:
-  sonarqube_data:
-  sonarqube_extensions:
-  sonarqube_logs:
-  sonarqube_temp:
-
+  jenkins_certs: null
+  jenkins_data: null
+  jenkins_conf: null
+  freeipa: null
+  portainer_data: null
+  sonarqube_data: null
+  sonarqube_extensions: null
+  sonarqube_logs: null
+  sonarqube_temp: null
 services:
   netcicd-db:
     container_name: netcicd-db
@@ -44,8 +37,7 @@ services:
     expose:
       - '5432'
     volumes:
-      - netcicd_db:/var/lib/postgresql/data
-
+      - 'netcicd_db:/var/lib/postgresql/data'
   gitea.tooling.test:
     container_name: gitea.tooling.test
     build: gitea
@@ -63,35 +55,14 @@ services:
       tooling:
         ipv4_address: 172.16.11.3
     volumes:
-      - gitea:/data
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
+      - 'gitea:/data'
+      - '/etc/timezone:/etc/timezone:ro'
+      - '/etc/localtime:/etc/localtime:ro'
     ports:
       - '3000:3000'
     depends_on:
       - netcicd-db
       - keycloak.tooling.test
-
-  # sonarqube:
-  #   image: sonarqube:8.2-community
-  #   environment:
-  #     SONAR_JDBC_URL: jdbc:postgresql://netcicd-db:5432/sonar
-  #     SONAR_JDBC_USERNAME: sonar
-  #     SONAR_JDBC_PASSWORD: sonar
-  #   networks:
-  #     tooling:
-  #       ipv4_address: 172.16.11.4
-  #   volumes:
-  #     - sonarqube_data:/opt/sonarqube/data
-  #     - sonarqube_extensions:/opt/sonarqube/extensions
-  #     - sonarqube_logs:/opt/sonarqube/logs
-  #     - sonarqube_temp:/opt/sonarqube/temp
-  #   ports:
-  #     - '9001:9000'
-  #   depends_on:
-  #     - netcicd-db
-  #     - keycloak.tooling.test
-
   jenkins.tooling.test:
     container_name: jenkins.tooling.test
     build: ./jenkins
@@ -115,15 +86,14 @@ services:
       - JENKINS_NEXUS_PASSWORD=netcicd
       - JENKINS_ARGOS_PASSWORD=netcicd
     volumes:
-      - jenkins_certs:/certs/client
-      - jenkins_data:/var/jenkins_home
-      - jenkins_conf:/var/jenkins_conf
+      - 'jenkins_certs:/certs/client'
+      - 'jenkins_data:/var/jenkins_home'
+      - 'jenkins_conf:/var/jenkins_conf'
     ports:
       - '8084:8084'
       - '50000:50000'
     depends_on:
       - keycloak.tooling.test
-
   nexus.tooling.test:
     container_name: nexus.tooling.test
     build: nexus
@@ -147,7 +117,6 @@ services:
         ipv4_address: 172.16.11.9
     ports:
       - '8081:8081'
-
   keycloak.tooling.test:
     container_name: keycloak.tooling.test
     build: keycloak
@@ -180,21 +149,21 @@ services:
     hostname: freeipa
     domainname: tooling.test
     volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-      - freeipa:/data:Z 
+      - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
+      - 'freeipa:/data:Z'
     expose:
-      - "80"
-      - "443"
-      - "389"
-      - "636"
-      - "88"
-      - "464"
-      - "88/udp"
-      - "464/udp"
-      - "123/udp"
+      - '80'
+      - '443'
+      - '389'
+      - '636'
+      - '88'
+      - '464'
+      - 88/udp
+      - 464/udp
+      - 123/udp
     environment:
       - IPA_SERVER_HOSTNAME=freeipa.tooling.test
-      - IPA_SERVER_INSTALL_OPTS=-d -r tooling.test --ntp-pool=pool.ntp.org --domain=tooling.test --reverse-zone=16.172.in-addr.arpa -p Pa55w0rd -a Pa55w0rd --no-host-dns --setup-dns --no-forwarders --ip-address 172.16.11.12 -U
+      - IPA_SERVER_INSTALL_OPTS=-d -r tooling.test --ntp-pool=pool.ntp.org --domain=tooling.test --reverse-zone=16.172.in-addr.arpa -p Pa55w0rd -a Pa55w0rd --no-host-dns --setup-dns --no-forwarders --ip-address 172.16.11.12 --pki-config-override=/etc/pki/pki.conf -U
       - IPA_SERVER_IP=172.16.11.12
       - VIRTUAL_PROTO=http
       - VIRTUAL_HOST=freeipa.tooling.test
@@ -206,8 +175,7 @@ services:
     networks:
       tooling:
         ipv4_address: 172.16.11.12
-      reverse-proxy: 
-
+      reverse-proxy: null
   portainer.tooling.test:
     container_name: portainer.tooling.test
     image: portainer/portainer-ce
@@ -216,11 +184,10 @@ services:
     stop_signal: SIGINT
     stop_grace_period: 15s
     volumes:
-      - portainer_data:/data
+      - 'portainer_data:/data'
       - '/var/run/docker.sock:/var/run/docker.sock'
     networks:
       tooling:
         ipv4_address: 172.16.11.15
     ports:
       - '9000:9000'
-
