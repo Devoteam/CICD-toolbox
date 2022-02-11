@@ -125,13 +125,7 @@ if [ ! -f ./nexus/nexus-casc* ]; then
 else
     echo "Casc plugin exists, no need to build"
 fi
-if ! command -v trivy &> /dev/null
-    trivy fs --security-checks vuln,config .
-then
-    echo "trivy is not installed"
-    exit
-fi
-
+echo " " 
 echo "****************************************************************************************************************"
 echo " Creating CSR for all containers, so they can be copied in in the Dockerfile" 
 echo "****************************************************************************************************************"
@@ -177,17 +171,16 @@ echo " Saving host certificates"
 echo "****************************************************************************************************************"
 docker cp freeipa.tooling.test:/tmp/certs freeipa/
 docker exec freeipa.tooling.test rm -rf /tmp/host*
-mv freeipa/certs/keycloak.* keycloak/
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating database"
 echo "****************************************************************************************************************"
-docker-compose up -d --build --remove-orphans netcicd-db
+docker-compose up -d netcicd-db
 echo " " 
 echo "****************************************************************************************************************"
 echo " Starting Keycloak "
 echo "****************************************************************************************************************"
-docker-compose up -d --build --remove-orphans keycloak.tooling.test
+docker-compose up -d keycloak.tooling.test
 echo "****************************************************************************************************************"
 echo " Wait until keycloak is running"
 echo "****************************************************************************************************************"
@@ -213,10 +206,10 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Booting the remainder of the containers"
 echo "****************************************************************************************************************"
-docker-compose up -d --build --remove-orphans gitea.tooling.test
-docker-compose up -d --build --remove-orphans jenkins.tooling.test
-docker-compose up -d --build --remove-orphans nexus.tooling.test
-docker-compose up -d --build --remove-orphans portainer.tooling.test
+docker-compose up -d gitea.tooling.test
+docker-compose up -d jenkins.tooling.test
+docker-compose up -d nexus.tooling.test
+docker-compose up -d portainer.tooling.test
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating gitea setup"
@@ -272,6 +265,23 @@ sudo pip3 install robotframework robotframework-selenium2library
 sudo cp geckodriver /usr/local/bin/
 source ~/.bashrc
 robot --variable VALID_PASSWORD:${netcicd_pwd} -d install_tests/ install_tests
+echo " " 
+echo "****************************************************************************************************************"
+echo " Running trivy vulnerability scanner (https://github.com/aquasecurity/trivy)" 
+echo "****************************************************************************************************************"
+if command -v trivy &> /dev/null
+then
+    trivy fs --security-checks vuln,config . | tee install_log/trivy_create.log
+    trivy image freeipa/freeipa-server:centos-8-stream | tee -a install_log/trivy_create.log
+    trivy image gitea/gitea:rootless | tee -a install_log/trivy_create.log
+    trivy image jenkins/jenkins:lts | tee -a install_log/trivy_create.log
+    trivy image jboss/keycloak:latest | tee -a install_log/trivy_create.log
+    trivy image postgres:latest | tee -a install_log/trivy_create.log
+    trivy image sonatype/nexus3:latest | tee -a install_log/trivy_create.log
+    trivy image portainer/portainer-ce | tee -a install_log/trivy_create.log
+else
+    echo "trivy is not installed"
+fi
 echo "****************************************************************************************************************"
 echo " The pipeline uses the default Cisco DevNet CML Sandbox credentials developer/C1sco12345 to log in to CML."
 echo " You may change this to your own credentials in:"
@@ -299,5 +309,3 @@ echo " "
 echo "****************************************************************************************************************"
 echo "Cleaning up"
 echo "****************************************************************************************************************"
-#rm *_token
-#rm install_log/keycloak_create.log

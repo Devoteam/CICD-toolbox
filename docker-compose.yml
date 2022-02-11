@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.8'
 networks:
   tooling:
     driver: bridge
@@ -6,6 +6,7 @@ networks:
       config:
         - subnet: 172.16.11.0/24
   reverse-proxy: null
+
 volumes:
   netcicd_db: null
   gitea:
@@ -19,6 +20,13 @@ volumes:
   sonarqube_extensions: null
   sonarqube_logs: null
   sonarqube_temp: null
+
+secrets:
+  keycloak_key:
+    file: ./freeipa/certs/keycloak.tooling.test.key
+  keycloak_crt:
+    file: ./freeipa/certs/keycloak.tooling.test.pem
+
 services:
   netcicd-db:
     container_name: netcicd-db
@@ -38,6 +46,7 @@ services:
       - '5432'
     volumes:
       - 'netcicd_db:/var/lib/postgresql/data'
+
   gitea.tooling.test:
     container_name: gitea.tooling.test
     build: gitea
@@ -63,6 +72,7 @@ services:
     depends_on:
       - netcicd-db
       - keycloak.tooling.test
+
   jenkins.tooling.test:
     container_name: jenkins.tooling.test
     build: ./jenkins
@@ -94,6 +104,7 @@ services:
       - '50000:50000'
     depends_on:
       - keycloak.tooling.test
+
   nexus.tooling.test:
     container_name: nexus.tooling.test
     build: nexus
@@ -117,6 +128,7 @@ services:
         ipv4_address: 172.16.11.9
     ports:
       - '8081:8081'
+
   keycloak.tooling.test:
     container_name: keycloak.tooling.test
     build: keycloak
@@ -133,6 +145,11 @@ services:
       DB_PASSWORD: keycloak
       KEYCLOAK_USER: local-admin
       KEYCLOAK_PASSWORD: Pa55w0rd
+    secrets:
+      - source: keycloak_key
+        target: /etc/x509/https/tls.key
+      - source: keycloak_key
+        target: /etc/x509/https/tls.crt
     networks:
       tooling:
         ipv4_address: 172.16.11.11
@@ -176,6 +193,7 @@ services:
       tooling:
         ipv4_address: 172.16.11.12
       reverse-proxy: null
+      
   portainer.tooling.test:
     container_name: portainer.tooling.test
     image: portainer/portainer-ce

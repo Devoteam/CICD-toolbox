@@ -1,6 +1,6 @@
 # pulling offical image
 #FROM gitea/gitea:latest
-FROM gitea/gitea:dev
+FROM gitea/gitea:1.16.1
 
 COPY app.ini /data/gitea/conf/app.ini
 
