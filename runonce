@@ -9,6 +9,20 @@ keycloak_storepass="password"
 freeipa_pwd="Pa55w0rd"
 jenkins_storepass="changeit"
 
+sp="/-\|"
+sc=0
+spin() {
+   printf -- "${sp:sc++:1}  ( ${t} sec.) \r"
+   ((sc==${#sp})) && sc=0
+   sleep 1
+   let t+=1
+}
+
+endspin() {
+   printf "\r%s\n" "$@"
+}
+
+
 echo "****************************************************************************************************************"
 echo " Start clean" 
 echo "****************************************************************************************************************"
@@ -141,22 +155,29 @@ echo "**************************************************************************
 docker-compose pull 
 docker-compose up -d --build --remove-orphans freeipa.tooling.test
 echo "****************************************************************************************************************"
-echo " Wait until FreeIPA is running"
+echo " Wait until FreeIPA is running (~200 sec)"
 echo "****************************************************************************************************************"
+t=0
 until $(curl --output /dev/null --silent --head --fail http://freeipa.tooling.test); do
-    printf '.'
-    sleep 5
+    spin
 done
+endspin
 echo " "
 echo "****************************************************************************************************************"
-echo " Calming down the CPU and waiting for FreeIPA to get ready... waiting 3+ more minutes"
+echo " Calming down the CPU and waiting for FreeIPA to get ready... waiting 5 more minutes"
 echo "****************************************************************************************************************"
-sleep 200
+t=0
+until  docker logs freeipa.tooling.test | grep "ipa-server-install command was successful"; do
+    echo "hallo"
+    spin
+done
+endspin
 echo " "
 echo "****************************************************************************************************************"
 echo " Saving FreeIPA self-signed certificate"
 echo "****************************************************************************************************************"
-docker cp freeipa.tooling.test:/etc/ipa/ca.crt freeipa/ca.crt
+docker cp freeipa.tooling.test:/etc/ipa/ca.crt ca.crt
+cp ca.crt gitea/ca.crt
 echo "****************************************************************************************************************"
 echo " Copy csr files to FreeIPA for signing"
 echo "****************************************************************************************************************"
@@ -170,6 +191,7 @@ echo "**************************************************************************
 echo " Saving host certificates"
 echo "****************************************************************************************************************"
 docker cp freeipa.tooling.test:/tmp/certs freeipa/
+chmod 644 freeipa/certs/*
 docker exec freeipa.tooling.test rm -rf /tmp/host*
 echo " "
 echo "****************************************************************************************************************"
@@ -271,13 +293,37 @@ echo " Running trivy vulnerability scanner (https://github.com/aquasecurity/triv
 echo "****************************************************************************************************************"
 if command -v trivy &> /dev/null
 then
+echo "****************************************************************************************************************"
+echo " Toolbox files" 
+echo "****************************************************************************************************************"
     trivy fs --security-checks vuln,config . | tee install_log/trivy_create.log
+echo "****************************************************************************************************************"
+echo " FreeIPA" 
+echo "****************************************************************************************************************"
     trivy image freeipa/freeipa-server:centos-8-stream | tee -a install_log/trivy_create.log
+echo "****************************************************************************************************************"
+echo " Gitea" 
+echo "****************************************************************************************************************"
     trivy image gitea/gitea:rootless | tee -a install_log/trivy_create.log
+echo "****************************************************************************************************************"
+echo " Jenkins" 
+echo "****************************************************************************************************************"
     trivy image jenkins/jenkins:lts | tee -a install_log/trivy_create.log
+echo "****************************************************************************************************************"
+echo " Keycloak" 
+echo "****************************************************************************************************************"
     trivy image jboss/keycloak:latest | tee -a install_log/trivy_create.log
+echo "****************************************************************************************************************"
+echo " PostgreSQL" 
+echo "****************************************************************************************************************"
     trivy image postgres:latest | tee -a install_log/trivy_create.log
+echo "****************************************************************************************************************"
+echo " Nexus" 
+echo "****************************************************************************************************************"
     trivy image sonatype/nexus3:latest | tee -a install_log/trivy_create.log
+echo "****************************************************************************************************************"
+echo " Portainer" 
+echo "****************************************************************************************************************"
     trivy image portainer/portainer-ce | tee -a install_log/trivy_create.log
 else
     echo "trivy is not installed"

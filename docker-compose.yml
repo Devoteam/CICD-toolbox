@@ -22,6 +22,8 @@ volumes:
   sonarqube_temp: null
 
 secrets:
+  ca_crt:
+    file: ./ca.crt
   keycloak_key:
     file: ./freeipa/certs/keycloak.tooling.test.key
   keycloak_crt:
@@ -60,6 +62,9 @@ services:
       - GITEA__server__DOMAIN=gitea.tooling.test
       - GITEA__database__USER=gitea
       - GITEA__database__PASSWD=gitea
+    # secrets:
+    #   - source: ca_crt
+    #     target: /usr/local/share/ca-certificates/ca.crt
     networks:
       tooling:
         ipv4_address: 172.16.11.3
@@ -148,7 +153,7 @@ services:
     secrets:
       - source: keycloak_key
         target: /etc/x509/https/tls.key
-      - source: keycloak_key
+      - source: keycloak_crt
         target: /etc/x509/https/tls.crt
     networks:
       tooling:
