@@ -155,20 +155,10 @@ echo "**************************************************************************
 docker-compose pull 
 docker-compose up -d --build --remove-orphans freeipa.tooling.test
 echo "****************************************************************************************************************"
-echo " Wait until FreeIPA is running (~200 sec)"
-echo "****************************************************************************************************************"
-t=0
-until $(curl --output /dev/null --silent --head --fail http://freeipa.tooling.test); do
-    spin
-done
-endspin
-echo " "
-echo "****************************************************************************************************************"
-echo " Calming down the CPU and waiting for FreeIPA to get ready... waiting 5 more minutes"
+echo " Wait until FreeIPA is running (~1000 sec)"
 echo "****************************************************************************************************************"
 t=0
 until  docker logs freeipa.tooling.test | grep "ipa-server-install command was successful"; do
-    echo "hallo"
     spin
 done
 endspin
