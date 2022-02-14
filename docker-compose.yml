@@ -62,9 +62,9 @@ services:
       - GITEA__server__DOMAIN=gitea.tooling.test
       - GITEA__database__USER=gitea
       - GITEA__database__PASSWD=gitea
-    # secrets:
-    #   - source: ca_crt
-    #     target: /usr/local/share/ca-certificates/ca.crt
+    secrets:
+      - source: ca_crt
+        target: /usr/local/share/ca-certificates/CICD-toolbox-ca.crt
     networks:
       tooling:
         ipv4_address: 172.16.11.3
