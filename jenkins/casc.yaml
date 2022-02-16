@@ -240,7 +240,7 @@ unclassified:
     servers:
     - displayName: "Gitea"
       manageHooks: false
-      serverUrl: "http://gitea.tooling.test:3000"
+      serverUrl: "https://gitea.tooling.test:3000"
   timestamper:
     allPipelines: true
     elapsedTimeFormat: "'<b>'HH:mm:ss.S'</b> '"

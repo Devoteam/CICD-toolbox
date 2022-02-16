@@ -256,14 +256,11 @@ done
 endspin
 echo " " 
 echo "****************************************************************************************************************"
-echo " Saving Keycloak self-signed certificate"
-openssl s_client -showcerts -connect keycloak.tooling.test:8443 </dev/null 2>/dev/null|openssl x509 -outform PEM >./jenkins/keystore/keycloak.pem
-echo " "
-echo " Copy certificate into Jenkins keystore"
+echo " Copy certificates into Jenkins keystore"
 echo "****************************************************************************************************************"
 docker cp jenkins.tooling.test:/opt/java/openjdk/lib/security/cacerts ./jenkins/keystore/cacerts
 chmod +w ./jenkins/keystore/cacerts
-keytool -import -alias Keycloak -keystore ./jenkins/keystore/cacerts -file ./jenkins/keystore/keycloak.pem -storepass ${jenkins_storepass} -noprompt
+keytool -import -alias Keycloak -keystore ./jenkins/keystore/cacerts -file ./ca.crt -storepass ${jenkins_storepass} -noprompt
 docker cp ./jenkins/keystore/cacerts jenkins.tooling.test:/opt/java/openjdk/lib/security/cacerts
 echo "Reloading "
 docker restart jenkins.tooling.test
