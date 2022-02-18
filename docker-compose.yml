@@ -94,10 +94,6 @@ services:
     environment:
       - JENKINS_ADMIN_ID=local-admin
       - JENKINS_ADMIN_PASSWORD=netcicd
-      # - JENKINS_PORT=-1
-      # - JENKINS_HTTPS_PORT=8443
-      # - JENKINS_HTTPS_KEYSTORE=/var/jenkins_home/jenkins_keystore.jks
-      # - JENKINS_HTTPS_KEYSTORE_PASSWORD=netcicd
       - NETCICD_PASSWORD=netcicd
       - CML_USER=developer
       - CML_PASSWORD=C1sco12345
@@ -108,13 +104,17 @@ services:
       - JENKINS_JENKINS_PASSWORD=netcicd
       - JENKINS_NEXUS_PASSWORD=netcicd
       - JENKINS_ARGOS_PASSWORD=netcicd
+    secrets:
+      - source: jenkins_key
+        target: /var/jenkins_home/jenkins.tooling.test.key
+      - source: jenkins_crt
+        target: /var/jenkins_home/jenkins.tooling.test.pem
     volumes:
       - 'jenkins_certs:/certs/client'
       - 'jenkins_data:/var/jenkins_home'
       - 'jenkins_conf:/var/jenkins_conf'
     ports:
-      - '8448:8443'
-      - '8084:8084'
+      - '8084:8084'   
       - '50000:50000'
     depends_on:
       - keycloak.tooling.test

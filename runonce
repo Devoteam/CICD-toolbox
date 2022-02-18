@@ -229,18 +229,6 @@ echo " Creating gitea setup"
 echo "****************************************************************************************************************"
 gitea/gitea_install.sh ${netcicd_pwd} ${local_admin_user} | tee install_log/gitea_create.log
 gitea/gitea_users.sh ${netcicd_pwd} ${local_admin_user} | tee install_log/gitea_users.log
-echo " "
-echo "****************************************************************************************************************"
-echo " Creating jenkins setup"
-echo "****************************************************************************************************************"
-#config for oic_auth plugin: need to replace secrets in casc.yaml
-jenkins_client_id=$(grep JENKINS_token: install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
-docker exec -it jenkins.tooling.test sh -c "sed -i -e 's/oic_secret/\"$jenkins_client_id\"/' /var/jenkins_conf/casc.yaml"
-#sa_jenkins_token=$(grep token install_log/gitea-service-account-jenkins_token | cut -d' ' -f6 | tr -d '\r' )
-#docker exec -it jenkins.tooling.test sh -c "sed -i -e 's/sa-jenkins/\"$sa_jenkins_token\"/' /var/jenkins_conf/casc.yaml"
-echo "Reloading "
-docker restart jenkins.tooling.test
-echo " " 
 echo " " 
 echo "****************************************************************************************************************"
 echo " Creating nexus setup"
@@ -250,22 +238,30 @@ docker cp nexus/keycloak-nexus.json nexus.tooling.test:/opt/sonatype/nexus/etc/k
 echo "Reloading Nexus"
 docker restart nexus.tooling.test
 let t=0
-until $(curl --output /dev/null --silent --head --fail http://nexus.tooling.test:8081); do
+until $(curl --output /dev/null --insecure --silent --head --fail http://nexus.tooling.test:8081); do
     spin
 done
 endspin
+echo " "
+echo "****************************************************************************************************************"
+echo " Creating jenkins setup"
+echo "****************************************************************************************************************"
+#config for oic_auth plugin: need to replace secrets in casc.yaml
+jenkins_client_id=$(grep JENKINS_token: install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
+docker exec -it jenkins.tooling.test sh -c "sed -i -e 's/oic_secret/\"$jenkins_client_id\"/' /var/jenkins_conf/casc.yaml"
 echo " " 
 echo "****************************************************************************************************************"
 echo " Copy certificates into Jenkins keystore"
 echo "****************************************************************************************************************"
+#Add CA to keystore
 docker cp jenkins.tooling.test:/opt/java/openjdk/lib/security/cacerts ./jenkins/keystore/cacerts
 chmod +w ./jenkins/keystore/cacerts
-keytool -import -alias Keycloak -keystore ./jenkins/keystore/cacerts -file ./ca.crt -storepass ${jenkins_storepass} -noprompt
+keytool -import -alias freeipa.tooling.test -keystore ./jenkins/keystore/cacerts -file ./ca.crt -storepass ${jenkins_storepass} -noprompt
 docker cp ./jenkins/keystore/cacerts jenkins.tooling.test:/opt/java/openjdk/lib/security/cacerts
 echo "Reloading "
 docker restart jenkins.tooling.test
 let t=0
-until $(curl --output /dev/null --silent --head --fail http://jenkins.tooling.test:8084/whoAmI); do
+until $(curl --output /dev/null --insecure --silent --head --fail https://jenkins.tooling.test:8084/whoAmI); do
     spin
 done
 endspin

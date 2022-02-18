@@ -198,10 +198,10 @@ jenkins:
     oic:
       clientId: "Jenkins"
       clientSecret: oic_secret
-      wellKnownOpenIDConfigurationUrl: "http://keycloak.tooling.test:8080/auth/realms/cicdtoolbox/.well-known/openid-configuration"
-      tokenServerUrl: "http://keycloak.tooling.test:8080/auth/realms/cicdtoolbox/protocol/openid-connect/token"
-      authorizationServerUrl: "http://keycloak.tooling.test:8080/auth/realms/cicdtoolbox/protocol/openid-connect/auth"
-      userInfoServerUrl: "http://keycloak.tooling.test:8080/auth/realms/cicdtoolbox/protocol/openid-connect/userinfo"
+      wellKnownOpenIDConfigurationUrl: "https://keycloak.tooling.test:8443/auth/realms/cicdtoolbox/.well-known/openid-configuration"
+      tokenServerUrl: "https://keycloak.tooling.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/token"
+      authorizationServerUrl: "https://keycloak.tooling.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/auth"
+      userInfoServerUrl: "https://keycloak.tooling.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/userinfo"
       userNameField: "preferred_username"
       fullNameFieldName: "name"
       emailFieldName: "email"
@@ -209,8 +209,8 @@ jenkins:
       scopes: "web-origins address phone openid offline_access profile roles microprofile-jwt email"
       disableSslVerification: false
       logoutFromOpenidProvider: true
-      endSessionEndpoint: "http://keycloak.tooling.test:8080/auth/realms/cicdtoolbox/protocol/openid-connect/logout"
-      postLogoutRedirectUrl: "http://jenkins.tooling.test:8084"
+      endSessionEndpoint: "https://keycloak.tooling.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/logout"
+      postLogoutRedirectUrl: "https://jenkins.tooling.test:8084"
       escapeHatchEnabled: true
       escapeHatchGroup: "local-admin"
       escapeHatchSecret: ${JENKINS_ADMIN_PASSWORD}
@@ -235,7 +235,7 @@ security:
     - "staticMethod jenkins.model.Jenkins getInstance"
 unclassified:
   location:
-    url: http://jenkins.tooling.test:8084/
+    url: https://jenkins.tooling.test:8084/
   giteaServers:
     servers:
     - displayName: "Gitea"

@@ -76,10 +76,10 @@ echo "Created role-group mapper in the Client Scope"
     -s directAccessGrantsEnabled=true \
     -s serviceAccountsEnabled=true \
     -s authorizationServicesEnabled=true \
-    -s rootUrl=http://jenkins.tooling.test:8084 \
-    -s adminUrl=http://jenkins.tooling.test:8084/ \
-    -s 'redirectUris=[ "http://jenkins.tooling.test:8084/*" ]' \
-    -s 'webOrigins=[ "http://jenkins.tooling.test:8084/" ]' \
+    -s rootUrl=https://jenkins.tooling.test:8084 \
+    -s adminUrl=https://jenkins.tooling.test:8084/ \
+    -s 'redirectUris=[ "https://jenkins.tooling.test:8084/*" ]' \
+    -s 'webOrigins=[ "https://jenkins.tooling.test:8084/" ]' \
     -o --fields id >cicdtoolbox_JENKINS
 
 # output is Created new client with id, we now need to grep the ID out of it
@@ -359,7 +359,6 @@ echo "Created Campus Operator Group within Campus Operations Group with ID: ${ca
     --cclientid Nexus \
     --rolename nexus-docker-pull \
     --rolename nexus-read \
-    --rolename jenkins-netcicd-agent \
     --rolename nexus-apt-ubuntu-read
 
 echo "Added roles to Campus Operators."
@@ -390,7 +389,6 @@ echo "Created Campus Specialists Group within Campus Operations Group with ID: $
     --cclientid Nexus \
     --rolename nexus-docker-pull \
     --rolename nexus-read \
-    --rolename jenkins-netcicd-agent \
     --rolename nexus-apt-ubuntu-read
      
 echo "Added roles to Operations Campus Specialists."
@@ -421,7 +419,6 @@ echo "Created Campus LAN Designer group within the Development Department with I
     --cclientid Nexus \
     --rolename nexus-docker-pull \
     --rolename nexus-read \
-    --rolename jenkins-netcicd-agent  \
     --rolename nexus-apt-ubuntu-read
 
 echo "Added roles to Campus LAN Designers."
@@ -452,7 +449,6 @@ echo "Created Campus wifi Designer group within the Development Department with 
     --cclientid Nexus \
     --rolename nexus-docker-pull \
     --rolename nexus-read \
-    --rolename jenkins-netcicd-agent \
     --rolename nexus-apt-ubuntu-read
 
 echo "Added roles to Campus WIFI Designers."
@@ -494,7 +490,6 @@ echo "Created WAN Operator Group within WAN Operations Group with ID: ${wan_ops_
     --cclientid Nexus \
     --rolename nexus-docker-pull \
     --rolename nexus-read \
-    --rolename jenkins-netcicd-agent \
     --rolename nexus-apt-ubuntu-read
 
 echo "Added roles to WAN Operators."
@@ -525,7 +520,6 @@ echo "Created WAN Specialists Group within WAN Operations Group with ID: ${wan_o
     --cclientid Nexus \
     --rolename nexus-docker-pull \
     --rolename nexus-read \
-    --rolename jenkins-netcicd-agent \
     --rolename nexus-apt-ubuntu-read
      
 echo "Added roles to Operations WAN Specialists."
@@ -556,7 +550,6 @@ echo "Created WAN Designer group within the WAN Development Group with ID: ${wan
     --cclientid Nexus \
     --rolename nexus-docker-pull \
     --rolename nexus-read \
-    --rolename jenkins-netcicd-agent \
     --rolename nexus-apt-ubuntu-read
 
 echo "Added roles to WAN Designer."
@@ -665,7 +658,6 @@ echo "Created DC Network Operator Group within DC Network Operations Group with 
     --cclientid Nexus \
     --rolename nexus-docker-pull \
     --rolename nexus-read \
-    --rolename jenkins-netcicd-agent \
     --rolename nexus-apt-ubuntu-read
 
 echo "Added roles to DC Network Operators."
@@ -696,7 +688,6 @@ echo "Created DC Network Specialists group within Compute Operations with ID: ${
     --cclientid Nexus \
     --rolename nexus-docker-pull \
     --rolename nexus-read \
-    --rolename jenkins-netcicd-agent \
     --rolename nexus-apt-ubuntu-read
      
 echo "Added roles to DC Network Specialists."
@@ -818,7 +809,6 @@ echo "Created DC Network Group within the Datacenter Development Group with ID: 
     --cclientid Nexus \
     --rolename nexus-docker-pull \
     --rolename nexus-read \
-    --rolename jenkins-netcicd-agent \
     --rolename nexus-apt-ubuntu-read
 
 echo "Added roles to DC Network Designers."

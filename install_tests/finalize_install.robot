@@ -26,8 +26,8 @@ Close browsers
 
 ${BROWSER1}         Firefox
 ${DELAY}            0
-${JENKINS URL}      http://jenkins.tooling.test:8084/
-${JENKINS LOGOUT}   http://jenkins.tooling.test:8084/logout 
+${JENKINS URL}      https://jenkins.tooling.test:8084/
+${JENKINS LOGOUT}   https://jenkins.tooling.test:8084/logout 
 ${GITEA URL}        https://gitea.tooling.test:3000
 ${GITEA LOGIN}      https://gitea.tooling.test:3000/user/login?redirect_to=%2f
 
@@ -45,7 +45,7 @@ Log into Jenkins as jenkins-jenkins
     Log to Console              Successfully logged in to Jenkins as jenkins-jenkins
 
 Create jenkins-jenkins token
-    Go To                       http://jenkins.tooling.test:8084/user/jenkins-jenkins/configure
+    Go To                       https://jenkins.tooling.test:8084/user/jenkins-jenkins/configure
     Click Button                Add new Token
     Click Button                Generate
     ${TOKEN}                    Get Text             class:new-token-value.visible
@@ -61,7 +61,7 @@ Log into Jenkins as netcicd
     Jenkins Page Should Be Open
 
 Change jenkins-jenkins credentials 
-    Go To                       http://jenkins.tooling.test:8084/credentials/store/system/domain/_/credential/jenkins-jenkins/update
+    Go To                       https://jenkins.tooling.test:8084/credentials/store/system/domain/_/credential/jenkins-jenkins/update
     Click Button                Change Password
     Input Text                  class:complex-password-field.hidden-password-field.setting-input               ${TOKEN}
     Click Button                Save
@@ -95,7 +95,7 @@ Create Jenkins token in Gitea
 Enter Jenkins token in Jenkins credentials
     Go To                       ${JENKINS URL}
     Log into Jenkins as netcicd
-    Go To                       http://jenkins.tooling.test:8084/credentials/store/system/domain/_/credential/jenkins-git/update
+    Go To                       https://jenkins.tooling.test:8084/credentials/store/system/domain/_/credential/jenkins-git/update
     Click Button                Change Password
     Input Text                  class:complex-password-field.hidden-password-field.setting-input               ${SA_TOKEN_text}
     Click Button                Save

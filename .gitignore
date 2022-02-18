@@ -31,3 +31,4 @@ nexus/remotecontent?filepath=org%2Fsonatype%2Fnexus%2Fplugins%2Fnexus-repository
 freeipa/hostcerts/
 keycloak/keycloak.tooling.test.*
 ca.crt
+jenkins/keystore/jenkins_keystore.jks
