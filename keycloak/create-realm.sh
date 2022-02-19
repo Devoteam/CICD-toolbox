@@ -184,7 +184,7 @@ echo " "
 ./kcadm.sh create clients/$NEXUS_ID/roles -r cicdtoolbox -s name=nexus-netcicd-agent -s description='The role to be used for a Jenkins agent to push data to Nexus'
 ./kcadm.sh create clients/$NEXUS_ID/roles -r cicdtoolbox -s name=nexus-docker-pull -s description='The role to be used in order to pull from the Docker mirror on Nexus'
 ./kcadm.sh create clients/$NEXUS_ID/roles -r cicdtoolbox -s name=nexus-docker-push -s description='The role to be used in order to push to the Docker mirror on Nexus'
-./kcadm.sh create clients/$NEXUS_ID/roles -r cicdtoolbox -s name=nexus-read -s description='The role to be used for a Jenkins agent to push data to Nexus'
+./kcadm.sh create clients/$NEXUS_ID/roles -r cicdtoolbox -s name=nexus-read -s description='The role to be used to read data on Nexus'
 ./kcadm.sh create clients/$NEXUS_ID/roles -r cicdtoolbox -s name=nexus-apk-read -s description='The role to be used for a NetCICD client to pull  APK packages data from Nexus'
 ./kcadm.sh create clients/$NEXUS_ID/roles -r cicdtoolbox -s name=nexus-apt-ubuntu-read -s description='The role to be used for a NetCICD client to pull Ubuntu based apt packages data from Nexus'
 

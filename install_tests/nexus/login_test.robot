@@ -14,37 +14,37 @@ Test Template    Login with correct role provides correct authorization
 
 *** Test Cases ***                                      USERNAME            PASSWORD                ROLES                                                                               NOT_ROLES
 baduser cannot login                                    baduser             wrongpassword           --                                                                                  --
-toolbox_admin group can login                           netcicd             ${VALID_PASSWORD}       NetCICD-reports                                                                     Nexus-user    
+toolbox_admin group can login                           netcicd             ${VALID_PASSWORD}       NetCICD_reports                                                                     Nexus-user    
 git_from_jenkins group can login                        jenkins-git         ${VALID_PASSWORD}       --                                                                                  --
 cicd_agents group can login                             jenkins-jenkins     ${VALID_PASSWORD}       Nexus-user                                                                          Nexus-admin
 # IAM: no users
 # Office: no users
 # CAMPUS
 # CAMPUS_OPS
-campus_ops_oper group can login                         campusoper          ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
-campus_ops_spec group can login                         campusspec          ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
+campus_ops_oper group can login                         campusoper          ${VALID_PASSWORD}       docker,docker-proxy,NetCICD_reports                                                 --
+campus_ops_spec group can login                         campusspec          ${VALID_PASSWORD}       docker,docker-proxy,NetCICD_reports                                                 --
 # CAMPUS_DEV
-campus_dev_lan group can login                          campuslandev        ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
-campus_dev_wifi group can login                         campuswifidev       ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
+campus_dev_lan group can login                          campuslandev        ${VALID_PASSWORD}       docker,docker-proxy,NetCICD_reports                                                 --
+campus_dev_wifi group can login                         campuswifidev       ${VALID_PASSWORD}       docker,docker-proxy,NetCICD_reports                                                 --
 # WAN
-wan_ops_oper group can login                            wanoper             ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
-wan_ops_spec group can login                            wanspec             ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
+wan_ops_oper group can login                            wanoper             ${VALID_PASSWORD}       docker,docker-proxy,NetCICD_reports                                                 --
+wan_ops_spec group can login                            wanspec             ${VALID_PASSWORD}       docker,docker-proxy,NetCICD_reports                                                 --
 # WAN_DEV
-wan_dev_design group can login                          corearchitect       ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
+wan_dev_design group can login                          corearchitect       ${VALID_PASSWORD}       docker,docker-proxy,NetCICD_reports                                                 --
 # DC
 # DC_OPS
 # DC_OPS_COMP
 dc_ops_compute_oper group can login                     compudude           ${VALID_PASSWORD}       docker,docker-proxy                                                                 --
 dc_ops_compute_spec group can login                     compuspecialist     ${VALID_PASSWORD}       docker,docker-proxy                                                                 --
 # DC_OPS_NET
-dc_ops_network_oper group can login                     netdude             ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
-dc_ops_network_spec group can login                     netspecialist       ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
+dc_ops_network_oper group can login                     netdude             ${VALID_PASSWORD}       docker,docker-proxy,NetCICD_reports                                                 --
+dc_ops_network_spec group can login                     netspecialist       ${VALID_PASSWORD}       docker,docker-proxy,NetCICD_reports                                                 --
 # DC_OPS_STOR
 dc_ops_storage_oper group can login                     diskdude            ${VALID_PASSWORD}       docker,docker-proxy                                                                 --
 dc_ops_storage_spec group can login                     diskspecialist      ${VALID_PASSWORD}       docker,docker-proxy                                                                 --
 # DC_DEV
 dc_dev_compute group can login                          compuarchitect      ${VALID_PASSWORD}       docker,docker-proxy                                                                 --
-dc_dev_network group can login                          netarchitect        ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
+dc_dev_network group can login                          netarchitect        ${VALID_PASSWORD}       docker,docker-proxy,NetCICD_reports                                                 --
 dc_dev_storage group can login                          diskarchitect       ${VALID_PASSWORD}       docker,docker-proxy                                                                 --
 # App
 # APP_OPS
@@ -57,10 +57,10 @@ tooling_ops_spec group can login                        toolmaster          ${VA
 tooling_dev_design group can login                      blacksmith          ${VALID_PASSWORD}       docker,docker-proxy                                                                 --
 # SEC
 # SEC_OPS
-security_ops_oper group can login                       happyhacker         ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
-security_ops_spec group can login                       whitehat            ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
+security_ops_oper group can login                       happyhacker         ${VALID_PASSWORD}       docker,docker-proxy,NetCICD_reports                                                 --
+security_ops_spec group can login                       whitehat            ${VALID_PASSWORD}       docker,docker-proxy,NetCICD_reports                                                 --
 # SEC_DEV
-security_dev_design group can login                     blackhat            ${VALID_PASSWORD}       docker,docker-proxy,NetCICD-reports                                                 --
+security_dev_design group can login                     blackhat            ${VALID_PASSWORD}       docker,docker-proxy,NetCICD_reports                                                 --
 # FS 
 field_services_eng group can login                      mechanicjoe         ${VALID_PASSWORD}       docker,docker-proxy                                                                 --
 field_services_floor_management group can login         patchhero           ${VALID_PASSWORD}       docker,docker-proxy                                                                 --

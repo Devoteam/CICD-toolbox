@@ -38,6 +38,14 @@ security:
       description: "ClientRole: The admin role for Nexus"
       privileges:
         - nx-all
+    - id: ClientRole:nexus-read
+      enabled: true
+      source: default
+      name: ClientRole:nexus-read
+      description: "The role to be used to read data on Nexus"
+      privileges:
+        - nx-repository-view-*-*-read
+        - nx-repository-view-*-*-browse
     - id: "ClientRole:nexus-docker-pull"
       enabled: true
       source: default
@@ -66,7 +74,7 @@ security:
       name: "ClientRole:nexus-netcicd-agent"
       description: "The role to be used for a Jenkins agent to push data to Nexus"
       privileges:
-        - nx-repository-admin-raw-NetCICD-reports-*
+        - nx-repository-admin-raw-NetCICD_reports-*
         - nx-repository-view-apt-apt-ubuntu-main-proxy-read
         - nx-repository-view-apt-apt-ubuntu-community-proxy-read
         - nx-repository-view-apt-apt-ubuntu-testing-proxy-read
@@ -223,7 +231,7 @@ repository:
   pruneRepositories: true
   repositories:
     # https://help.sonatype.com/repomanager3/formats/docker-registry
-    - name: NetCICD-reports
+    - name: NetCICD_reports
       online: true
       recipeName: raw-hosted
       attributes:
