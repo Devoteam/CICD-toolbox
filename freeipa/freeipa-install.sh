@@ -197,6 +197,13 @@ ipa group-add-member field_services_floor_management --user=patchhero
 ipa group-add-member field_services --groups=field_services_eng --groups=field_services_floor_management
 
 # Add hosts
+ipa host-add --force --ip-address=172.16.11.2 cicdtoolbox-db.tooling.test
+ipa service-add HTTP/cicdtoolbox-db.tooling.test
+ipa-getkeytab -p HTTP/cicdtoolbox-db.tooling.test -s freeipa.tooling.test -k /etc/krb5-cicdtoolbox-db.keytab
+chown root /etc/krb5-cicdtoolbox-db.keytab
+chmod 640 /etc/krb5-cicdtoolbox-db.keytab
+ipa cert-request /tmp/certs/cicdtoolbox-db.tooling.test.csr --principal=host/cicdtoolbox-db.tooling.test --chain --certificate-out=/tmp/certs/cicdtoolbox-db.tooling.test.pem
+
 ipa host-add --force --ip-address=172.16.11.5 gitea.tooling.test
 ipa service-add HTTP/gitea.tooling.test
 ipa-getkeytab -p HTTP/gitea.tooling.test -s freeipa.tooling.test -k /etc/krb5-gitea.keytab

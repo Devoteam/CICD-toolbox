@@ -66,8 +66,8 @@ field_services_eng group can login                      mechanicjoe         ${VA
 field_services_floor_management group can login         patchhero           ${VALID_PASSWORD}       docker,docker-proxy                                                                 --
 
 *** Variables ***
-${Nexus URL}      http://nexus.tooling.test:8081/
-${Nexus browse}   http://nexus.tooling.test:8081/#browse/browse
+${Nexus URL}      https://nexus.tooling.test:8081/
+${Nexus browse}   https://nexus.tooling.test:8081/#browse/browse
 
 *** Keywords ***
 Login with correct role provides correct authorization

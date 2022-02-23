@@ -4,7 +4,8 @@ USER root
 RUN mkdir /etc/x509
 RUN mkdir /etc/x509/https
 RUN chmod 777 /etc/x509/https
-
+COPY ca.crt /etc/pki/ca-trust/source/anchors/ca.crt
+RUN update-ca-trust
 USER 1000
 
 COPY create-realm.sh /opt/jboss/keycloak/bin/create-realm.sh

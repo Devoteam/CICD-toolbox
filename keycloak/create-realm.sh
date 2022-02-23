@@ -4,7 +4,7 @@
 cd /opt/jboss/keycloak/bin
 
 #Create credentials
-./kcadm.sh config credentials --server http://keycloak.tooling.test:8080/auth --realm master --user $4 --password $1
+./kcadm.sh config credentials --server https://keycloak.tooling.test:8443/auth --realm master --user $4 --password $1
 
 #add realm
 ./kcadm.sh create realms \
@@ -165,10 +165,10 @@ echo "Created role-group mapper in the Client Scope"
     -s directAccessGrantsEnabled=true \
     -s serviceAccountsEnabled=true \
     -s authorizationServicesEnabled=true \
-    -s rootUrl=http://nexus.tooling.test:8081 \
-    -s adminUrl=http://nexus.tooling.test:8081/ \
-    -s 'redirectUris=[ "http://nexus.tooling.test:8081/*" ]' \
-    -s 'webOrigins=[ "http://nexus.tooling.test:8081/" ]' \
+    -s rootUrl=https://nexus.tooling.test:8443 \
+    -s adminUrl=https://nexus.tooling.test:8443/ \
+    -s 'redirectUris=[ "https://nexus.tooling.test:8443/*" ]' \
+    -s 'webOrigins=[ "https://nexus.tooling.test:8443/" ]' \
     -o --fields id >cicdtoolbox_NEXUS
 
 # output is Created new client with id, we now need to grep the ID out of it
@@ -993,7 +993,7 @@ rm cicdtoolbox_*
     -s 'config.rdnLDAPAttribute=["uid"]' \
     -s 'config.uuidLDAPAttribute=["ipaUniqueID"]' \
     -s 'config.userObjectClasses=["inetOrgPerson, organizationalPerson"]' \
-    -s 'config.connectionUrl=["ldap://freeipa.tooling.test"]' \
+    -s 'config.connectionUrl=["ldaps://freeipa.tooling.test"]' \
     -s 'config.usersDn=["cn=users,cn=accounts,dc=tooling,dc=test"]' \
     -s 'config.searchScope=["1"]' \
     -s 'config.authType=["simple"]' \

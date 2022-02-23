@@ -8,6 +8,7 @@ keycloak_pwd="Pa55w0rd"
 keycloak_storepass="password"
 freeipa_pwd="Pa55w0rd"
 jenkins_storepass="changeit"
+nexus_storepass="password"
 
 sp="/-\|"
 sc=0
@@ -38,6 +39,8 @@ rm -f install_tests/*.log
 rm -f install_log/*
 rm -f freeipa/certs/*
 rm -f freeipa/hostcerts/*
+rm -f nexus/keystore.jks
+rm -f cicdtoolbox-db/cicdtoolbox-db.*
 echo " " 
 echo "****************************************************************************************************************"
 echo " Cleaning Gitea" 
@@ -143,7 +146,7 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating CSR for all containers, so they can be copied in in the Dockerfile" 
 echo "****************************************************************************************************************"
-freeipa/create-certificates.sh netcicd-db
+freeipa/create-certificates.sh cicdtoolbox-db
 freeipa/create-certificates.sh gitea
 freeipa/create-certificates.sh jenkins
 freeipa/create-certificates.sh keycloak
@@ -167,6 +170,9 @@ echo "**************************************************************************
 echo " Saving FreeIPA self-signed certificate"
 echo "****************************************************************************************************************"
 docker cp freeipa.tooling.test:/etc/ipa/ca.crt ca.crt
+cp ca.crt keycloak/ca.crt
+cp ca.crt nexus/ca.crt
+cp ca.crt cicdtoolbox-db/ca.crt
 echo "****************************************************************************************************************"
 echo " Copy csr files to FreeIPA for signing"
 echo "****************************************************************************************************************"
@@ -181,12 +187,13 @@ echo " Saving host certificates"
 echo "****************************************************************************************************************"
 docker cp freeipa.tooling.test:/tmp/certs freeipa/
 chmod 644 freeipa/certs/*
+cp freeipa/certs/cicdtoolbox-db* cicdtoolbox-db/
 docker exec freeipa.tooling.test rm -rf /tmp/host*
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating database"
 echo "****************************************************************************************************************"
-docker-compose up -d --build netcicd-db
+docker-compose up -d --build cicdtoolbox-db
 echo " " 
 echo "****************************************************************************************************************"
 echo " Starting Keycloak "
@@ -196,7 +203,7 @@ echo "**************************************************************************
 echo " Wait until keycloak is running (~45 sec.)"
 echo "****************************************************************************************************************"
 let t=0
-until $(curl --output /dev/null --silent --head --fail http://keycloak.tooling.test:8080); do
+until $(curl --output /dev/null --insecure --silent --head --fail https://keycloak.tooling.test:8443); do
     spin
 done
 endspin
@@ -211,7 +218,7 @@ echo "**************************************************************************
 echo " Wait until keycloak is running (~5 sec.)"
 echo "****************************************************************************************************************"
 let t=0
-until $(curl --output /dev/null --silent --head --fail http://keycloak.tooling.test:8080); do
+until $(curl --output /dev/null --insecure --silent --head --fail https://keycloak.tooling.test:8443); do
     spin
 done
 endspin
@@ -235,6 +242,8 @@ echo " Creating nexus setup"
 echo "****************************************************************************************************************"
 docker cp keycloak.tooling.test:/opt/jboss/keycloak/bin/keycloak-nexus.json nexus/keycloak-nexus.json
 docker cp nexus/keycloak-nexus.json nexus.tooling.test:/opt/sonatype/nexus/etc/keycloak.json
+keytool -import -alias nexus.tooling.test -keystore ./nexus/keystore.jks -file ./freeipa/certs/nexus.tooling.test.pem -storepass ${nexus_storepass} -noprompt
+docker cp ./nexus/keystore.jks nexus.tooling.test:/nexus-data/etc/ssl/keystore.jks
 echo "Reloading Nexus"
 docker restart nexus.tooling.test
 let t=0

@@ -32,11 +32,15 @@ secrets:
     file: ./freeipa/certs/jenkins.tooling.test.key
   jenkins_crt:
     file: ./freeipa/certs/jenkins.tooling.test.pem
+  nexus_key:
+    file: ./freeipa/certs/nexus.tooling.test.key
+  nexus_crt:
+    file: ./freeipa/certs/nexus.tooling.test.pem
 
 services:
-  netcicd-db:
-    container_name: netcicd-db
-    build: netcicd-db
+  cicdtoolbox-db:
+    container_name: cicdtoolbox-db.tooling.test
+    build: cicdtoolbox-db
     restart: unless-stopped
     init: true
     stop_signal: SIGINT
@@ -79,7 +83,7 @@ services:
     ports:
       - '3000:3000'
     depends_on:
-      - netcicd-db
+      - cicdtoolbox-db
       - keycloak.tooling.test
 
   jenkins.tooling.test:
@@ -128,9 +132,16 @@ services:
     stop_grace_period: 15s
     user: nexus
     environment:
-      BASE_URL: 'http://nexus.tooling.test:8081'
+      BASE_URL: 'https://nexus.tooling.test:8443'
       NEXUS_SECURITY_RANDOMPASSWORD: 'false'
       NEXUS_CASC_CONFIG: /opt/nexus.yaml
+    secrets:
+      - source: nexus_key
+        target: /nexus-data/etc/ssl/jenkins.tooling.test.key
+      - source: nexus_crt
+        target: /nexus-data/etc/ssl/jenkins.tooling.test.pem
+      - source: ca_crt
+        target: /nexus-data/etc/ssl/ca.crt
     volumes:
       - './nexus/data:/sonatype-work'
     ulimits:
@@ -152,7 +163,7 @@ services:
     stop_grace_period: 15s
     environment:
       DB_VENDOR: POSTGRES
-      DB_ADDR: netcicd-db
+      DB_ADDR: cicdtoolbox-db
       DB_DATABASE: keycloak
       DB_USER: keycloak
       DB_SCHEMA: public
@@ -171,7 +182,7 @@ services:
       - '8080:8080'
       - '8443:8443'
     depends_on:
-      - netcicd-db
+      - cicdtoolbox-db
 
   freeipa.tooling.test:
     container_name: freeipa.tooling.test
