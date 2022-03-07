@@ -8,12 +8,14 @@ networks:
   reverse-proxy: null
 
 volumes:
-  netcicd_db: null
+  cicdtoolbox_db: null
   gitea:
     driver: local
   jenkins_certs: null
   jenkins_data: null
   jenkins_conf: null
+  nexus_work: null
+  nexus_db: null
   freeipa: null
   portainer_data: null
   sonarqube_data: null
@@ -41,6 +43,10 @@ services:
   cicdtoolbox-db:
     container_name: cicdtoolbox-db.tooling.test
     build: cicdtoolbox-db
+    command: >
+      -c ssl=on 
+      -c ssl_cert_file=/var/lib/postgresql/server.crt
+      -c ssl_key_file=/var/lib/postgresql/server.key
     restart: unless-stopped
     init: true
     stop_signal: SIGINT
@@ -55,7 +61,7 @@ services:
     expose:
       - '5432'
     volumes:
-      - 'netcicd_db:/var/lib/postgresql/data'
+      - 'cicdtoolbox_db:/var/lib/postgresql/data'
 
   gitea.tooling.test:
     container_name: gitea.tooling.test
@@ -137,13 +143,14 @@ services:
       NEXUS_CASC_CONFIG: /opt/nexus.yaml
     secrets:
       - source: nexus_key
-        target: /nexus-data/etc/ssl/jenkins.tooling.test.key
+        target: /nexus-data/etc/ssl/nexus.key
       - source: nexus_crt
-        target: /nexus-data/etc/ssl/jenkins.tooling.test.pem
+        target: /nexus-data/etc/ssl/nexus.pem
       - source: ca_crt
         target: /nexus-data/etc/ssl/ca.crt
     volumes:
-      - './nexus/data:/sonatype-work'
+      - 'nexus_work:/sonatype-work'
+      - 'nexus_db:/nexus-data'
     ulimits:
       nofile:
         soft: 65536

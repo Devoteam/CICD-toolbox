@@ -94,6 +94,13 @@ fi
 echo " Add FreeIPA to /etc/hosts"
 sudo echo "172.16.11.12   freeipa.tooling.test" >> /etc/hosts
 
+if grep -q "ipa-ca" /etc/hosts; then
+    echo " ipa-ca exists in /etc/hosts, removing..."
+    sudo sed -i '/ipa-ca.tooling.test/d' /etc/hosts
+fi
+echo " Add ipa-ca /etc/hosts"
+sudo echo "172.16.11.12   ipa-ca.tooling.test" >> /etc/hosts
+
 if grep -q "portainer" /etc/hosts; then
     echo " Portainer exists in /etc/hosts, removing..."
     sudo sed -i '/portainer.tooling.test/d' /etc/hosts
@@ -126,7 +133,7 @@ if [ -f "nexus/nexus-repository-apk-$nexus_apk_plugin-bundle.kar" ]; then
     echo " Nexus apk plugin exists"
 else
     echo " Get Nexus apk plugin"
-    wget --directory-prefix=nexus https://search.maven.org/remotecontent?filepath=org/sonatype/nexus/plugins/nexus-repository-apk/$nexus_apk_plugin/nexus-repository-apk-$nexus_apk_plugin-bundle.kar
+    wget -O nexus/nexus-repository-apk-$nexus_apk_plugin-bundle.kar https://search.maven.org/remotecontent?filepath=org/sonatype/nexus/plugins/nexus-repository-apk/$nexus_apk_plugin/nexus-repository-apk-$nexus_apk_plugin-bundle.kar
 fi
 echo " " 
 echo "****************************************************************************************************************"
@@ -193,12 +200,15 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating database"
 echo "****************************************************************************************************************"
-docker-compose up -d --build cicdtoolbox-db
+DOCKER_BUILDKIT=1 docker-compose up -d --build cicdtoolbox-db
+sleep 10
+docker cp ca.crt /usr/local/share/ca-certificates/ca.crt
+# RUN update-ca-certificates
 echo " " 
 echo "****************************************************************************************************************"
 echo " Starting Keycloak "
 echo "****************************************************************************************************************"
-docker-compose up -d --build keycloak.tooling.test
+docker-compose up -d --build --no-deps keycloak.tooling.test
 echo "****************************************************************************************************************"
 echo " Wait until keycloak is running (~45 sec.)"
 echo "****************************************************************************************************************"
@@ -226,10 +236,10 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Booting the remainder of the containers"
 echo "****************************************************************************************************************"
-docker-compose up -d --build gitea.tooling.test
-docker-compose up -d --build jenkins.tooling.test
-docker-compose up -d --build nexus.tooling.test
-docker-compose up -d --build portainer.tooling.test
+docker-compose up -d --build --no-deps gitea.tooling.test
+docker-compose up -d --build --no-deps jenkins.tooling.test
+docker-compose up -d --build --no-deps nexus.tooling.test
+docker-compose up -d --build --no-deps portainer.tooling.test
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating gitea setup"
@@ -283,46 +293,46 @@ sudo cp geckodriver /usr/local/bin/
 source ~/.bashrc
 robot --variable VALID_PASSWORD:${netcicd_pwd} -d install_tests/ install_tests
 echo " " 
-# echo "****************************************************************************************************************"
-# echo " Running trivy vulnerability scanner (https://github.com/aquasecurity/trivy)" 
-# echo "****************************************************************************************************************"
-# if command -v trivy &> /dev/null
-# then
-# echo "****************************************************************************************************************"
-# echo " Toolbox files" 
-# echo "****************************************************************************************************************"
-#     trivy fs --security-checks vuln,config . | tee install_log/trivy_create.log
-# echo "****************************************************************************************************************"
-# echo " FreeIPA" 
-# echo "****************************************************************************************************************"
-#     trivy image freeipa/freeipa-server:centos-8-stream | tee -a install_log/trivy_create.log
-# echo "****************************************************************************************************************"
-# echo " Gitea" 
-# echo "****************************************************************************************************************"
-#     trivy image gitea/gitea:rootless | tee -a install_log/trivy_create.log
-# echo "****************************************************************************************************************"
-# echo " Jenkins" 
-# echo "****************************************************************************************************************"
-#     trivy image jenkins/jenkins:lts | tee -a install_log/trivy_create.log
-# echo "****************************************************************************************************************"
-# echo " Keycloak" 
-# echo "****************************************************************************************************************"
-#     trivy image jboss/keycloak:latest | tee -a install_log/trivy_create.log
-# echo "****************************************************************************************************************"
-# echo " PostgreSQL" 
-# echo "****************************************************************************************************************"
-#     trivy image postgres:latest | tee -a install_log/trivy_create.log
-# echo "****************************************************************************************************************"
-# echo " Nexus" 
-# echo "****************************************************************************************************************"
-#     trivy image sonatype/nexus3:latest | tee -a install_log/trivy_create.log
-# echo "****************************************************************************************************************"
-# echo " Portainer" 
-# echo "****************************************************************************************************************"
-#     trivy image portainer/portainer-ce | tee -a install_log/trivy_create.log
-# else
-#     echo "trivy is not installed"
-# fi
+echo "****************************************************************************************************************"
+echo " Running trivy vulnerability scanner (https://github.com/aquasecurity/trivy)" 
+echo "****************************************************************************************************************"
+if command -v trivy &> /dev/null
+then
+echo "****************************************************************************************************************"
+echo " Toolbox files" 
+echo "****************************************************************************************************************"
+    trivy fs --security-checks vuln,config . | tee install_log/trivy_create.log
+echo "****************************************************************************************************************"
+echo " FreeIPA" 
+echo "****************************************************************************************************************"
+    trivy image freeipa/freeipa-server:centos-8-stream | tee -a install_log/trivy_create.log
+echo "****************************************************************************************************************"
+echo " Gitea" 
+echo "****************************************************************************************************************"
+    trivy image gitea/gitea:rootless | tee -a install_log/trivy_create.log
+echo "****************************************************************************************************************"
+echo " Jenkins" 
+echo "****************************************************************************************************************"
+    trivy image jenkins/jenkins:lts | tee -a install_log/trivy_create.log
+echo "****************************************************************************************************************"
+echo " Keycloak" 
+echo "****************************************************************************************************************"
+    trivy image jboss/keycloak:latest | tee -a install_log/trivy_create.log
+echo "****************************************************************************************************************"
+echo " PostgreSQL" 
+echo "****************************************************************************************************************"
+    trivy image postgres:latest | tee -a install_log/trivy_create.log
+echo "****************************************************************************************************************"
+echo " Nexus" 
+echo "****************************************************************************************************************"
+    trivy image sonatype/nexus3:latest | tee -a install_log/trivy_create.log
+echo "****************************************************************************************************************"
+echo " Portainer" 
+echo "****************************************************************************************************************"
+    trivy image portainer/portainer-ce | tee -a install_log/trivy_create.log
+else
+    echo "trivy is not installed"
+fi
 echo "****************************************************************************************************************"
 echo " The pipeline uses the default Cisco DevNet CML Sandbox credentials developer/C1sco12345 to log in to CML."
 echo " You may change this to your own credentials in:"
