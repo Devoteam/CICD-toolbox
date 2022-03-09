@@ -259,7 +259,7 @@ docker exec --user root -it nexus.tooling.test sh -c "/usr/bin/keytool -importke
 echo "Reloading Nexus"
 docker restart nexus.tooling.test
 let t=0
-until $(curl --output /dev/null --insecure --silent --head --fail http://nexus.tooling.test:8081); do
+until $(curl --output /dev/null --insecure --silent --head --fail https://nexus.tooling.test:8443); do
     spin
 done
 endspin
