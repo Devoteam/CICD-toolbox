@@ -63,7 +63,7 @@ Log into Jenkins as netcicd
 Change jenkins-jenkins credentials 
     Go To                       https://jenkins.tooling.test:8084/credentials/store/system/domain/_/credential/jenkins-jenkins/update
     Click Button                Change Password
-    Input Text                  class:complex-password-field.hidden-password-field.setting-input               ${TOKEN}
+    Input Text                  name:_.password       ${TOKEN}
     Click Button                Save
     Log to Console              jenkins-jenkins credentials changed in Jenkins
 
@@ -97,14 +97,16 @@ Enter Jenkins token in Jenkins credentials
     Log into Jenkins as netcicd
     Go To                       https://jenkins.tooling.test:8084/credentials/store/system/domain/_/credential/jenkins-git/update
     Click Button                Change Password
-    Input Text                  class:complex-password-field.hidden-password-field.setting-input               ${SA_TOKEN_text}
+    Input Text                  name:_.password         ${SA_TOKEN_text}
     Click Button                Save
     Log to Console              jenkins-git changed credentials to login to Gitea
 
 Keycloak Page Should Be Open
+    Sleep                       1
     Title Should Be    Sign in to Welcome to your Development Toolkit
 
 Jenkins Page Should Be Open
+    Sleep                       1
     Location Should Contain     ${JENKINS URL}
     Title Should Be             Dashboard [Jenkins]
 

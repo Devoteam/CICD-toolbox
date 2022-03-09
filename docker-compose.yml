@@ -139,13 +139,9 @@ services:
     user: nexus
     environment:
       BASE_URL: 'https://nexus.tooling.test:8443'
-      NEXUS_SECURITY_RANDOMPASSWORD: 'false'
+      NEXUS_SECURITY_RANDOMPASSWORD: 'true'
       NEXUS_CASC_CONFIG: /opt/nexus.yaml
     secrets:
-      - source: nexus_key
-        target: /nexus-data/etc/ssl/nexus.key
-      - source: nexus_crt
-        target: /nexus-data/etc/ssl/nexus.pem
       - source: ca_crt
         target: /nexus-data/etc/ssl/ca.crt
     volumes:

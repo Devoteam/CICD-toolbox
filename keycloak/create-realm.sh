@@ -295,7 +295,7 @@ iam_ops_oper_id=$(cat IAM_OPS_OPER | grep id | cut -d"'" -f 2)
 echo "Created IAM Operator Group within IAM Operations Group with ID: ${iam_ops_oper_id}" 
 
 ./kcadm.sh create groups/$iam_ops_id/children -r cicdtoolbox -s name="iam_ops_spec" &>IAM_OPS_SPEC
-iam_ops_spec_id=$(cat IAM_OPS_OPER | grep id | cut -d"'" -f 2)
+iam_ops_spec_id=$(cat IAM_OPS_SPEC | grep id | cut -d"'" -f 2)
 echo "Created IAM Specialist Group within IAM Operations Group with ID: ${iam_ops_spec_id}" 
 
 ./kcadm.sh create groups/$dom_iam_id/children -r cicdtoolbox -s name="iam_dev" &>IAM_DEV
@@ -319,7 +319,7 @@ office_ops_oper_id=$(cat OFFICE_OPS_OPER | grep id | cut -d"'" -f 2)
 echo "Created Office Operator Group within Office Operations Group with ID: ${office_ops_oper_id}" 
 
 ./kcadm.sh create groups/$office_ops_id/children -r cicdtoolbox -s name="office_ops_spec" &>OFFICE_OPS_SPEC
-office_ops_spec_id=$(cat OFFICE_OPS_OPER | grep id | cut -d"'" -f 2)
+office_ops_spec_id=$(cat OFFICE_OPS_SPEC | grep id | cut -d"'" -f 2)
 echo "Created Office Specialist Group within Office Operations Group with ID: ${office_ops_spec_id}" 
 
 ./kcadm.sh create groups -r cicdtoolbox -s name="campus" &>DOM_CAMPUS

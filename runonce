@@ -248,12 +248,14 @@ gitea/gitea_install.sh ${netcicd_pwd} ${local_admin_user} | tee install_log/gite
 gitea/gitea_users.sh ${netcicd_pwd} ${local_admin_user} | tee install_log/gitea_users.log
 echo " " 
 echo "****************************************************************************************************************"
-echo " Creating nexus setup"
+echo " Creating nexus setup (~ 115 sec.)"
 echo "****************************************************************************************************************"
 docker cp keycloak.tooling.test:/opt/jboss/keycloak/bin/keycloak-nexus.json nexus/keycloak-nexus.json
 docker cp nexus/keycloak-nexus.json nexus.tooling.test:/opt/sonatype/nexus/etc/keycloak.json
-keytool -import -alias nexus.tooling.test -keystore ./nexus/keystore.jks -file ./freeipa/certs/nexus.tooling.test.pem -storepass ${nexus_storepass} -noprompt
-docker cp ./nexus/keystore.jks nexus.tooling.test:/nexus-data/etc/ssl/keystore.jks
+openssl pkcs12 -export -in ./freeipa/certs/nexus.tooling.test.pem -inkey ./freeipa/certs/nexus.tooling.test.key -name nexus.tooling.test -out ./nexus/nexus.p12 -password pass:${nexus_storepass}
+chmod 644 ./nexus/nexus.p12
+docker cp nexus/nexus.p12 nexus.tooling.test:/nexus-data/etc/nexus.p12
+docker exec --user root -it nexus.tooling.test sh -c "/usr/bin/keytool -importkeystore -deststorepass ${nexus_storepass} -destkeystore /nexus-data/etc/ssl/keystore.jks -srckeystore /nexus-data/etc/nexus.p12 -srcstoretype PKCS12 -srcstorepass ${nexus_storepass} -deststoretype pkcs12"
 echo "Reloading Nexus"
 docker restart nexus.tooling.test
 let t=0
@@ -305,31 +307,31 @@ echo "**************************************************************************
 echo "****************************************************************************************************************"
 echo " FreeIPA" 
 echo "****************************************************************************************************************"
-    trivy image freeipa/freeipa-server:centos-8-stream | tee -a install_log/trivy_create.log
+#    trivy image freeipa/freeipa-server:centos-8-stream | tee -a install_log/trivy_create.log
 echo "****************************************************************************************************************"
 echo " Gitea" 
 echo "****************************************************************************************************************"
-    trivy image gitea/gitea:rootless | tee -a install_log/trivy_create.log
+#    trivy image gitea/gitea:rootless | tee -a install_log/trivy_create.log
 echo "****************************************************************************************************************"
 echo " Jenkins" 
 echo "****************************************************************************************************************"
-    trivy image jenkins/jenkins:lts | tee -a install_log/trivy_create.log
+#    trivy image jenkins/jenkins:lts | tee -a install_log/trivy_create.log
 echo "****************************************************************************************************************"
 echo " Keycloak" 
 echo "****************************************************************************************************************"
-    trivy image jboss/keycloak:latest | tee -a install_log/trivy_create.log
+#    trivy image jboss/keycloak:latest | tee -a install_log/trivy_create.log
 echo "****************************************************************************************************************"
 echo " PostgreSQL" 
 echo "****************************************************************************************************************"
-    trivy image postgres:latest | tee -a install_log/trivy_create.log
+#    trivy image postgres:latest | tee -a install_log/trivy_create.log
 echo "****************************************************************************************************************"
 echo " Nexus" 
 echo "****************************************************************************************************************"
-    trivy image sonatype/nexus3:latest | tee -a install_log/trivy_create.log
+#    trivy image sonatype/nexus3:latest | tee -a install_log/trivy_create.log
 echo "****************************************************************************************************************"
 echo " Portainer" 
 echo "****************************************************************************************************************"
-    trivy image portainer/portainer-ce | tee -a install_log/trivy_create.log
+#    trivy image portainer/portainer-ce | tee -a install_log/trivy_create.log
 else
     echo "trivy is not installed"
 fi

@@ -9,6 +9,7 @@ ${DELAY}            0
 
 *** Keywords ***
 Keycloak Page Should Be Open
+    Sleep                       1
     Title Should Be    Sign in to Welcome to your Development Toolkit
 
 Submit Credentials
