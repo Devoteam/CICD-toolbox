@@ -83,12 +83,6 @@ function CreateTeam () {
 
 #script asssumes gitea is running
 echo "****************************************************************************************************************"
-echo " Installing certificates..."
-echo "****************************************************************************************************************"
-docker cp freeipa/certs/gitea.tooling.test.key gitea.tooling.test:/data/gitea/gitea.tooling.test.key
-docker cp freeipa/certs/gitea.tooling.test.pem gitea.tooling.test:/data/gitea/gitea.tooling.test.pem
-echo " "
-echo "****************************************************************************************************************"
 echo " Installing CA certificate"
 echo "****************************************************************************************************************"
 docker exec -it gitea.tooling.test sh -c "/usr/sbin/update-ca-certificates"

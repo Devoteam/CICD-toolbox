@@ -7,7 +7,7 @@ until $(curl --output /dev/null --silent --head --fail http://freeipa.tooling.te
     sleep 5
 done
 
-docker-compose start netcicd-db keycloak.tooling.test
+docker-compose start cicdtoolbox-db keycloak.tooling.test
 echo "Waiting for Keycloak to come online"
 until $(curl --output /dev/null --silent --head --fail http://keycloak.tooling.test:8080); do
     printf '.'

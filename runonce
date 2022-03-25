@@ -40,7 +40,8 @@ rm -f install_log/*
 rm -f freeipa/certs/*
 rm -f freeipa/hostcerts/*
 rm -f nexus/keystore.jks
-rm -f cicdtoolbox-db/cicdtoolbox-db.*
+rm -f cicdtoolbox-db/docker-entrypoint-initdb-resources/*
+rm -f gitea/gitea.tooling.test*
 echo " " 
 echo "****************************************************************************************************************"
 echo " Cleaning Gitea" 
@@ -59,6 +60,13 @@ echo " hosts file."
 echo "****************************************************************************************************************"
 echo " " 
 sudo chmod o+w /etc/hosts
+if grep -q "cicdtoolbox-db" /etc/hosts; then
+    echo " CICDtoolbox-db exists in /etc/hosts, removing..."
+    sudo sed -i '/cicdtoolbox-db.tooling.test/d' /etc/hosts
+fi
+echo " Add Gitea to /etc/hosts"
+sudo echo "172.16.11.2   cicdtoolbox-db.tooling.test" >> /etc/hosts
+
 if grep -q "gitea" /etc/hosts; then
     echo " Gitea exists in /etc/hosts, removing..."
     sudo sed -i '/gitea.tooling.test/d' /etc/hosts
@@ -194,7 +202,10 @@ echo " Saving host certificates"
 echo "****************************************************************************************************************"
 docker cp freeipa.tooling.test:/tmp/certs freeipa/
 chmod 644 freeipa/certs/*
-cp freeipa/certs/cicdtoolbox-db* cicdtoolbox-db/
+cp freeipa/certs/cicdtoolbox-db.tooling.test.key cicdtoolbox-db/docker-entrypoint-initdb-resources/server.key
+cp freeipa/certs/cicdtoolbox-db.tooling.test.pem cicdtoolbox-db/docker-entrypoint-initdb-resources/server.crt
+cp ca.crt cicdtoolbox-db/docker-entrypoint-initdb-resources/root.crt
+cp freeipa/certs/gitea* gitea/
 docker exec freeipa.tooling.test rm -rf /tmp/host*
 echo " "
 echo "****************************************************************************************************************"
@@ -202,8 +213,6 @@ echo " Creating database"
 echo "****************************************************************************************************************"
 DOCKER_BUILDKIT=1 docker-compose up -d --build cicdtoolbox-db
 sleep 10
-docker cp ca.crt /usr/local/share/ca-certificates/ca.crt
-# RUN update-ca-certificates
 echo " " 
 echo "****************************************************************************************************************"
 echo " Starting Keycloak "
@@ -236,7 +245,7 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Booting the remainder of the containers"
 echo "****************************************************************************************************************"
-docker-compose up -d --build --no-deps gitea.tooling.test
+DOCKER_BUILDKIT=1 docker-compose up -d --build --no-deps gitea.tooling.test
 docker-compose up -d --build --no-deps jenkins.tooling.test
 docker-compose up -d --build --no-deps nexus.tooling.test
 docker-compose up -d --build --no-deps portainer.tooling.test
