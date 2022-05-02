@@ -195,7 +195,7 @@ services:
       - '3000'
     depends_on:
       - cicdtoolbox-db
-      - keycloak.tooling.provider.test
+      - keycloak.services.provider.test
     healthcheck:
       test: curl --insecure --head --fail -s https://localhost:3000/ || exit 1
       interval: 1m30s
@@ -237,7 +237,7 @@ services:
       - '8084:8084'   
       - '50000:50000'
     depends_on:
-      - keycloak.tooling.provider.test
+      - keycloak.services.provider.test
     healthcheck:
       test: curl --insecure --head --fail -s https://localhost:8084/whoAmI || exit 1
       interval: 1m30s
@@ -271,6 +271,8 @@ services:
         ipv4_address: 172.16.11.9
     ports:
       - '8081:8081'
+    depends_on:
+      - keycloak.services.provider.test
     healthcheck:
       test: curl --insecure --head --fail -s https://localhost:8443 || exit 1
       interval: 1m30s

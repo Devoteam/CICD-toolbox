@@ -233,7 +233,7 @@ echo "**************************************************************************
 echo " Wait until FreeIPA has self-installed (~375 sec)"
 echo "****************************************************************************************************************"
 let t=0
-until  docker logs freeipa.tooling.services.test | grep "ipa-server-install command was successful"; do
+until  docker logs freeipa.services.provider.test | grep "ipa-server-install command was successful"; do
     spin
 done
 endspin

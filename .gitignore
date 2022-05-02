@@ -37,3 +37,4 @@ cicdtoolbox-db/docker-entrypoint-initdb-resources/root.crt
 cicdtoolbox-db/docker-entrypoint-initdb-resources/server.crt
 cicdtoolbox-db/docker-entrypoint-initdb-resources/server.key
 nexus/nexus.p12
+gitea/gitea.tooling.provider.test*

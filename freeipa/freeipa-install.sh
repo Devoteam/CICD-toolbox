@@ -205,6 +205,13 @@ ipa group-add-member field_services_floor_management --user=patchhero
 # Link Operations groups
 ipa group-add-member field_services --groups=field_services_eng --groups=field_services_floor_management
 
+#Add DNS zones
+ipa dnszone-add internal.provider.test
+ipa dnszone-add services.provider.test
+ipa dnszone-add tooling.provider.test
+ipa dnszone-add monitoring.provider.test
+ipa dnszone-add delivery.provider.test
+
 # Add hosts
 addHost "cicdtoolbox-db" "internal" "172.16.9.2"
 addHost "keycloak" "services" "172.16.10.11"
