@@ -1,11 +1,37 @@
 version: '3.8'
 networks:
+  internal:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.9.0/24
+  services:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.10.0/24
   tooling:
     driver: bridge
     ipam:
       config:
         - subnet: 172.16.11.0/24
   reverse-proxy: null
+  delivery:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.12.0/24
+  monitoring:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.13.0/24
+  management:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.14.0/24
+
 
 volumes:
   cicdtoolbox_db_data: null
@@ -28,21 +54,21 @@ secrets:
   ca_crt:
     file: ./ca.crt
   keycloak_key:
-    file: ./freeipa/certs/keycloak.tooling.test.key
+    file: ./freeipa/certs/keycloak.services.provider.test.key
   keycloak_crt:
-    file: ./freeipa/certs/keycloak.tooling.test.pem
+    file: ./freeipa/certs/keycloak.services.provider.test.pem
   jenkins_key:
-    file: ./freeipa/certs/jenkins.tooling.test.key
+    file: ./freeipa/certs/jenkins.tooling.provider.test.key
   jenkins_crt:
-    file: ./freeipa/certs/jenkins.tooling.test.pem
+    file: ./freeipa/certs/jenkins.tooling.provider.test.pem
   nexus_key:
-    file: ./freeipa/certs/nexus.tooling.test.key
+    file: ./freeipa/certs/nexus.tooling.provider.test.key
   nexus_crt:
-    file: ./freeipa/certs/nexus.tooling.test.pem
+    file: ./freeipa/certs/nexus.tooling.provider.test.pem
 
 services:
   cicdtoolbox-db:
-    container_name: cicdtoolbox-db.tooling.test
+    container_name: cicdtoolbox-db.tooling.provider.test
     build: cicdtoolbox-db
     command: >
       -c ssl=on 
@@ -53,12 +79,12 @@ services:
     stop_signal: SIGINT
     stop_grace_period: 15s
     environment:
-      - 'POSTGRES_MULTIPLE_DATABASES=gitea,keycloak,sonar'
+      - 'POSTGRES_MULTIPLE_DATABASES=gitea,keycloak,sonar,myreference'
       - POSTGRES_USER=netcicd
       - POSTGRES_PASSWORD=netcicd
     networks:
-      tooling:
-        ipv4_address: 172.16.11.2
+      internal:
+        ipv4_address: 172.16.9.2
     expose:
       - '5432'
     volumes:
@@ -66,8 +92,84 @@ services:
       - 'cicdtoolbox_db_conf:/etc/postgresql'
       - './cicdtoolbox-db/docker-entrypoint-initdb-resources:/docker-entrypoint-initdb-resources:ro'
 
-  gitea.tooling.test:
-    container_name: gitea.tooling.test
+  keycloak.services.provider.test:
+    container_name: keycloak.services.provider.test
+    build: keycloak
+    restart: unless-stopped
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: cicdtoolbox-db
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: keycloak
+      KEYCLOAK_USER: local-admin
+      KEYCLOAK_PASSWORD: Pa55w0rd
+      JDBC_PARAMS: 'ssl=true&sslmode=verify-ca&sslrootcert=/etc/pki/ca-trust/source/anchors/ca.crt'
+    secrets:
+      - source: keycloak_key
+        target: /etc/x509/https/tls.key
+      - source: keycloak_crt
+        target: /etc/x509/https/tls.crt
+    networks:
+      services:
+        ipv4_address: 172.16.10.11
+    ports:
+      - '8080:8080'
+      - '8443:8443'
+    depends_on:
+      - cicdtoolbox-db
+    healthcheck:
+      test: curl --insecure --head --fail -s https://localhost:8443 || exit 1
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+
+  freeipa.services.provider.test:
+    container_name: freeipa.services.provider.test
+    build: freeipa
+    restart: unless-stopped
+    hostname: freeipa
+    domainname: provider.test
+    volumes:
+      - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
+      - 'freeipa:/data:Z'
+    expose:
+      - '80'
+      - '443'
+      - '389'
+      - '636'
+      - '88'
+      - '464'
+      - 88/udp
+      - 464/udp
+      - 123/udp
+    environment:
+      - IPA_SERVER_HOSTNAME=freeipa.services.provider.test
+      - IPA_SERVER_INSTALL_OPTS=-d -r provider.test --ntp-pool=pool.ntp.org --domain=provider.test --reverse-zone=16.172.in-addr.arpa -p Pa55w0rd -a Pa55w0rd --no-host-dns --setup-dns --no-forwarders --ip-address 172.16.10.12 --pki-config-override=/etc/pki/pki.conf -U
+      - IPA_SERVER_IP=172.16.10.12
+      - VIRTUAL_PROTO=http
+      - VIRTUAL_HOST=freeipa.services.provider.test
+      - VIRTUAL_PORT=80
+    dns:
+      - 127.0.0.1
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+    networks:
+      services:
+        ipv4_address: 172.16.10.12
+      reverse-proxy: null
+    healthcheck:
+      test: curl --insecure --head --fail -s https://localhost || exit 1
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+
+  gitea.tooling.provider.test:
+    container_name: gitea.tooling.provider.test
     build: gitea
     restart: unless-stopped
     init: true
@@ -76,7 +178,7 @@ services:
     environment:
       - USER_UID=1000
       - USER_GID=1000
-      - GITEA__server__DOMAIN=gitea.tooling.test
+      - GITEA__server__DOMAIN=gitea.tooling.provider.test
       - GITEA__database__USER=gitea
       - GITEA__database__PASSWD=gitea
     secrets:
@@ -89,14 +191,19 @@ services:
       - 'gitea:/data'
       - '/etc/timezone:/etc/timezone:ro'
       - '/etc/localtime:/etc/localtime:ro'
-    ports:
-      - '3000:3000'
+    expose:
+      - '3000'
     depends_on:
       - cicdtoolbox-db
-      - keycloak.tooling.test
+      - keycloak.tooling.provider.test
+    healthcheck:
+      test: curl --insecure --head --fail -s https://localhost:3000/ || exit 1
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
 
-  jenkins.tooling.test:
-    container_name: jenkins.tooling.test
+  jenkins.tooling.provider.test:
+    container_name: jenkins.tooling.provider.test
     build: ./jenkins
     restart: unless-stopped
     privileged: true
@@ -119,9 +226,9 @@ services:
       - JENKINS_ARGOS_PASSWORD=netcicd
     secrets:
       - source: jenkins_key
-        target: /var/jenkins_home/jenkins.tooling.test.key
+        target: /var/jenkins_home/jenkins.tooling.provider.test.key
       - source: jenkins_crt
-        target: /var/jenkins_home/jenkins.tooling.test.pem
+        target: /var/jenkins_home/jenkins.tooling.provider.test.pem
     volumes:
       - 'jenkins_certs:/certs/client'
       - 'jenkins_data:/var/jenkins_home'
@@ -130,10 +237,15 @@ services:
       - '8084:8084'   
       - '50000:50000'
     depends_on:
-      - keycloak.tooling.test
+      - keycloak.tooling.provider.test
+    healthcheck:
+      test: curl --insecure --head --fail -s https://localhost:8084/whoAmI || exit 1
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
 
-  nexus.tooling.test:
-    container_name: nexus.tooling.test
+  nexus.tooling.provider.test:
+    container_name: nexus.tooling.provider.test
     build: nexus
     restart: unless-stopped
     init: true
@@ -141,7 +253,7 @@ services:
     stop_grace_period: 15s
     user: nexus
     environment:
-      BASE_URL: 'https://nexus.tooling.test:8443'
+      BASE_URL: 'https://nexus.tooling.provider.test:8443'
       NEXUS_SECURITY_RANDOMPASSWORD: 'true'
       NEXUS_CASC_CONFIG: /opt/nexus.yaml
     secrets:
@@ -159,75 +271,66 @@ services:
         ipv4_address: 172.16.11.9
     ports:
       - '8081:8081'
+    healthcheck:
+      test: curl --insecure --head --fail -s https://localhost:8443 || exit 1
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
 
-  keycloak.tooling.test:
-    container_name: keycloak.tooling.test
-    build: keycloak
+  build-dev.delivery.provider.test:
+    container_name: build-dev.delivery.provider.test
+    build: jenkins_buildnode
     restart: unless-stopped
     init: true
     stop_signal: SIGINT
     stop_grace_period: 15s
-    environment:
-      DB_VENDOR: POSTGRES
-      DB_ADDR: cicdtoolbox-db
-      DB_DATABASE: keycloak
-      DB_USER: keycloak
-      DB_SCHEMA: public
-      DB_PASSWORD: keycloak
-      KEYCLOAK_USER: local-admin
-      KEYCLOAK_PASSWORD: Pa55w0rd
-      JDBC_PARAMS: 'ssl=true&sslmode=verify-ca&sslrootcert=/etc/pki/ca-trust/source/anchors/ca.crt'
-    secrets:
-      - source: keycloak_key
-        target: /etc/x509/https/tls.key
-      - source: keycloak_crt
-        target: /etc/x509/https/tls.crt
-    networks:
-      tooling:
-        ipv4_address: 172.16.11.11
-    ports:
-      - '8080:8080'
-      - '8443:8443'
-    depends_on:
-      - cicdtoolbox-db
-
-  freeipa.tooling.test:
-    container_name: freeipa.tooling.test
-    build: freeipa
-    restart: unless-stopped
-    hostname: freeipa
-    domainname: tooling.test
-    volumes:
-      - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
-      - 'freeipa:/data:Z'
     expose:
-      - '80'
-      - '443'
-      - '389'
-      - '636'
-      - '88'
-      - '464'
-      - 88/udp
-      - 464/udp
-      - 123/udp
-    environment:
-      - IPA_SERVER_HOSTNAME=freeipa.tooling.test
-      - IPA_SERVER_INSTALL_OPTS=-d -r tooling.test --ntp-pool=pool.ntp.org --domain=tooling.test --reverse-zone=16.172.in-addr.arpa -p Pa55w0rd -a Pa55w0rd --no-host-dns --setup-dns --no-forwarders --ip-address 172.16.11.12 --pki-config-override=/etc/pki/pki.conf -U
-      - IPA_SERVER_IP=172.16.11.12
-      - VIRTUAL_PROTO=http
-      - VIRTUAL_HOST=freeipa.tooling.test
-      - VIRTUAL_PORT=80
-    dns:
-      - 127.0.0.1
-    sysctls:
-      - net.ipv6.conf.all.disable_ipv6=0
+      - '50000'
     networks:
-      tooling:
-        ipv4_address: 172.16.11.12
-      reverse-proxy: null
-      
-  portainer.tooling.test:
-    container_name: portainer.tooling.test
+      delivery:
+        ipv4_address: 172.16.12.2
+
+  build-test.delivery.provider.test:
+    container_name: build-test.delivery.provider.test
+    build: jenkins_buildnode
+    restart: unless-stopped
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
+    expose:
+      - '50000'
+    networks:
+      delivery:
+        ipv4_address: 172.16.12.3
+
+  build-acc.delivery.provider.test:
+    container_name: build-acc.delivery.provider.test
+    build: jenkins_buildnode
+    restart: unless-stopped
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
+    expose:
+      - '50000'
+    networks:
+      delivery:
+        ipv4_address: 172.16.12.4
+
+  build-prod.delivery.provider.test:
+    container_name: build-prod.delivery.provider.test
+    build: jenkins_buildnode
+    restart: unless-stopped
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
+    expose:
+      - '50000'
+    networks:
+      delivery:
+        ipv4_address: 172.16.12.4
+ 
+  portainer.monitoring.provider.test:
+    container_name: portainer.monitoring.provider.test
     image: portainer/portainer-ce
     restart: unless-stopped
     init: true
@@ -238,6 +341,65 @@ services:
       - '/var/run/docker.sock:/var/run/docker.sock'
     networks:
       tooling:
-        ipv4_address: 172.16.11.15
+        ipv4_address: 172.16.13.3
     ports:
       - '9000:9000'
+    healthcheck:
+      test: curl --insecure --head --fail -s http://localhost || exit 1
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+
+  loki.monitoring.provider.test:
+    container_name: loki.monitoring.provider.test
+    build: loki
+    restart: unless-stopped
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
+    expose:
+      - '3100'
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      tooling:
+        ipv4_address: 172.16.13.4
+
+  promtail.monitoring.provider.test:
+    container_name: promtail.monitoring.provider.test
+    build: promtail
+    restart: unless-stopped
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
+    volumes:
+      - /var/log:/var/log
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      tooling:
+        ipv4_address: 172.16.13.5
+
+  grafana.monitoring.provider.test:
+    container_name: grafana.monitoring.provider.test
+    build: grafana
+    restart: unless-stopped
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
+    environment:
+      - GF_SERVER_DOMAIN="grafana.monitoring.provider.test"
+      - GF_SERVER_ROOT_URL="https://grafana.monitoring.provider.test"
+      - GF_AUTH_GENERIC_OAUTH_ENABLED="true"
+      - GF_AUTH_GENERIC_OAUTH_NAME="Login with Keycloak"
+      - GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP="false"
+      - GF_AUTH_GENERIC_OAUTH_CLIENT_ID="grafana"
+      - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET="$Grafana_CLIENT_SECRET"
+      - GF_AUTH_GENERIC_OAUTH_SCOPES=profile
+      - GF_AUTH_GENERIC_OAUTH_AUTH_URL="https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/auth"
+      - GF_AUTH_GENERIC_OAUTH_TOKEN_URL="https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/token"
+      - GF_AUTH_GENERIC_OAUTH_API_URL="https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/userinfo"
+      - GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH="contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'"
+    expose:
+      - '3000'
+    networks:
+      tooling:
+        ipv4_address: 172.16.13.6

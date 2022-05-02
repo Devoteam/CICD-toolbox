@@ -4,7 +4,8 @@
 cd /opt/jboss/keycloak/bin
 
 #Create credentials
-./kcadm.sh config credentials --server https://keycloak.tooling.test:8443/auth --realm master --user $4 --password $1
+./kcadm.sh config credentials --server https://keycloak.services.provider.test:8443/auth --realm master --user $4 --password $1
+echo "Credentials created"
 
 #add realm
 ./kcadm.sh create realms \
@@ -13,8 +14,66 @@ cd /opt/jboss/keycloak/bin
     -s enabled=true \
     -s displayName="Welcome to your Development Toolkit" \
     -s displayNameHtml="<b>Welcome to your Development Toolkit</b>"
+echo "Realm created"
 
-#add clients
+# Add FreeIPA integration
+./kcadm.sh create components -r cicdtoolbox \
+    -s name=freeipa \
+    -s providerId=ldap \
+    -s providerType=org.keycloak.storage.UserStorageProvider \
+    -s 'config.priority=["1"]' \
+    -s 'config.editMode=["READ_ONLY"]' \
+    -s 'config.syncRegistrations=["true"]' \
+    -s 'config.vendor=["rhds"]' \
+    -s 'config.usernameLDAPAttribute=["uid"]' \
+    -s 'config.rdnLDAPAttribute=["uid"]' \
+    -s 'config.uuidLDAPAttribute=["ipaUniqueID"]' \
+    -s 'config.userObjectClasses=["inetOrgPerson, organizationalPerson"]' \
+    -s 'config.connectionUrl=["ldaps://freeipa.services.provider.test"]' \
+    -s 'config.usersDn=["cn=users,cn=accounts,dc=provider,dc=test"]' \
+    -s 'config.searchScope=["1"]' \
+    -s 'config.authType=["simple"]' \
+    -s 'config.bindDn=["uid=admin,cn=users,cn=accounts,dc=provider,dc=test"]' \
+    -s 'config.bindCredential=["'$3'"]' \
+    -s 'config.useTruststoreSpi=["ldapsOnly"]' \
+    -s 'config.pagination=["true"]' \
+    -s 'config.connectionPooling=["true"]' \
+    -s 'config.allowKerberosAuthentication=["false"]' \
+    -s 'config.kerberosRealm=["provider.test"]' \
+    -s 'config.serverPrincipal=["HTTP/keycloak.services.provider.test"]' \
+    -s 'config.keyTab=["/etc/krb5-keycloak.keytab"]' \
+    -s 'config.debug=["false"]' \
+    -s 'config.useKerberosForPasswordAuthentication=["true"]' \
+    -s 'config.batchSizeForSync=["1000"]' \
+    -s 'config.fullSyncPeriod=["-1"]' \
+    -s 'config.changedSyncPeriod=["10"]' \
+    -s 'config.cachePolicy=["DEFAULT"]' \
+    -s config.evictionDay=[] \
+    -s config.evictionHour=[] \
+    -s config.evictionMinute=[] \
+    -s config.maxLifespan=[] &>FREEIPA_LDAP
+
+freeipa_ldap_id=$(cat FREEIPA_LDAP | grep id | cut -d"'" -f 2)
+./kcadm.sh create components -r cicdtoolbox \
+    -s name=FreeIPA-group-mapper \
+    -s providerId=group-ldap-mapper \
+    -s providerType=org.keycloak.storage.ldap.mappers.LDAPStorageMapper \
+    -s parentId=${freeipa_ldap_id} \
+    -s 'config."groups.dn"=["cn=groups,cn=accounts,dc=provider,dc=test"]' \
+    -s 'config."group.name.ldap.attribute"=["cn"]' \
+    -s 'config."group.object.classes"=["groupOfNames"]' \
+    -s 'config."preserve.group.inheritance"=["true"]' \
+    -s 'config."membership.ldap.attribute"=["member"]' \
+    -s 'config."membership.attribute.type"=["DN"]' \
+    -s 'config."groups.ldap.filter"=[]' \
+    -s 'config.mode=["READ_ONLY"]' \
+    -s 'config."user.roles.retrieve.strategy"=["GET_GROUPS_FROM_USER_MEMBEROF_ATTRIBUTE"]' \
+    -s 'config."mapped.group.attributes"=[]' \
+    -s 'config."drop.non.existing.groups.during.sync"=["true"]' 
+
+echo "FreeIPA configured"
+
+#add Gitea client
 ./kcadm.sh create clients \
     -r cicdtoolbox \
     -s name="Gitea" \
@@ -24,10 +83,10 @@ cd /opt/jboss/keycloak/bin
     -s publicClient=false \
     -s fullScopeAllowed=false \
     -s directAccessGrantsEnabled=true \
-    -s rootUrl=https://gitea.tooling.test:3000 \
-    -s adminUrl=https://gitea.tooling.test:3000/ \
-    -s 'redirectUris=[ "https://gitea.tooling.test:3000/user/oauth2/keycloak/callback" ]' \
-    -s 'webOrigins=[ "https://gitea.tooling.test:3000/" ]' \
+    -s rootUrl=https://gitea.tooling.provider.test:3000 \
+    -s adminUrl=https://gitea.tooling.provider.test:3000/ \
+    -s 'redirectUris=[ "https://gitea.tooling.provider.test:3000/user/oauth2/keycloak/callback" ]' \
+    -s 'webOrigins=[ "https://gitea.tooling.provider.test:3000/" ]' \
     -o --fields id >cicdtoolbox_GITEA
 
 # output is Created new client with id, we now need to grep the ID out of it
@@ -65,6 +124,7 @@ echo "GITEA_token: ${GITEA_token}"
 
 echo "Created role-group mapper in the Client Scope" 
 
+#Add Jenkins client
 ./kcadm.sh create clients \
     -r cicdtoolbox \
     -s name="Jenkins" \
@@ -76,10 +136,10 @@ echo "Created role-group mapper in the Client Scope"
     -s directAccessGrantsEnabled=true \
     -s serviceAccountsEnabled=true \
     -s authorizationServicesEnabled=true \
-    -s rootUrl=https://jenkins.tooling.test:8084 \
-    -s adminUrl=https://jenkins.tooling.test:8084/ \
-    -s 'redirectUris=[ "https://jenkins.tooling.test:8084/*" ]' \
-    -s 'webOrigins=[ "https://jenkins.tooling.test:8084/" ]' \
+    -s rootUrl=https://jenkins.tooling.provider.test:8084 \
+    -s adminUrl=https://jenkins.tooling.provider.test:8084/ \
+    -s 'redirectUris=[ "https://jenkins.tooling.provider.test:8084/*" ]' \
+    -s 'webOrigins=[ "https://jenkins.tooling.provider.test:8084/" ]' \
     -o --fields id >cicdtoolbox_JENKINS
 
 # output is Created new client with id, we now need to grep the ID out of it
@@ -152,8 +212,11 @@ echo "Included Jenkins Audience in token"
     -s consentRequired=false \
 	-s config="{\"multivalued\" : \"true\",\"userinfo.token.claim\" : \"true\",\"id.token.claim\" : \"false\",\"access.token.claim\" : \"false\",\"claim.name\" : \"group-membership\",\"jsonType.label\" : \"String\",\"usermodel.clientRoleMapping.clientId\" : \"Jenkins\"}"
 
-echo "Created role-group mapper in the Client Scope" 
+echo "Created role-group mapper in the Client Scope for Jenkins" 
+echo "Jenkins configuration finished"
+echo ""
 
+#Add Nexus
 ./kcadm.sh create clients \
     -r cicdtoolbox \
     -s name="Nexus" \
@@ -165,16 +228,15 @@ echo "Created role-group mapper in the Client Scope"
     -s directAccessGrantsEnabled=true \
     -s serviceAccountsEnabled=true \
     -s authorizationServicesEnabled=true \
-    -s rootUrl=https://nexus.tooling.test:8443 \
-    -s adminUrl=https://nexus.tooling.test:8443/ \
-    -s 'redirectUris=[ "https://nexus.tooling.test:8443/*" ]' \
-    -s 'webOrigins=[ "https://nexus.tooling.test:8443/" ]' \
+    -s rootUrl=https://nexus.tooling.provider.test:8443 \
+    -s adminUrl=https://nexus.tooling.provider.test:8443/ \
+    -s 'redirectUris=[ "https://nexus.tooling.provider.test:8443/*" ]' \
+    -s 'webOrigins=[ "https://nexus.tooling.provider.test:8443/" ]' \
     -o --fields id >cicdtoolbox_NEXUS
 
 # output is Created new client with id, we now need to grep the ID out of it
 NEXUS_ID=$(cat cicdtoolbox_NEXUS | grep id | cut -d'"' -f 4)
 echo "Created Nexus client with ID: ${NEXUS_ID}" 
-echo " "
 
 # Create Client secret
 ./kcadm.sh create clients/$NEXUS_ID/client-secret -r cicdtoolbox
@@ -196,6 +258,7 @@ RM_ID=$( ./kcadm.sh get -r cicdtoolbox clients | grep realm-management -B1 | gre
 ./kcadm.sh create -r cicdtoolbox clients/$NEXUS_ID/scope-mappings/clients/$RM_ID  --body "[{\"name\": \"view-realm\"}]"
 ./kcadm.sh create -r cicdtoolbox clients/$NEXUS_ID/scope-mappings/clients/$RM_ID  --body "[{\"name\": \"view-users\"}]"
 ./kcadm.sh create -r cicdtoolbox clients/$NEXUS_ID/scope-mappings/clients/$RM_ID  --body "[{\"name\": \"view-clients\"}]"
+echo "Created Nexus Scope mappings" 
 
 # Service account
 ./kcadm.sh add-roles -r cicdtoolbox --uusername service-account-nexus --cclientid account --rolename manage-account --rolename manage-account-links --rolename view-profile
@@ -208,7 +271,132 @@ echo "Created Nexus Service Account"
 ./kcadm.sh get clients/$NEXUS_ID/installation/providers/keycloak-oidc-keycloak-json -r cicdtoolbox > keycloak-nexus.json
 
 echo "Created keycloak-nexus installation json" 
+echo "Nexus configuration finished"
+echo ""
 
+#Add Build-dev node
+./kcadm.sh create clients \
+    -r cicdtoolbox \
+    -s name="build-dev" \
+    -s description="First step build node for Jenkins for Development jobs" \
+    -s clientId=build-dev \
+    -s enabled=true \
+    -s publicClient=false \
+    -s fullScopeAllowed=false \
+    -s directAccessGrantsEnabled=true \
+    -s rootUrl=https://build-dev.delivery.provider.test \
+    -s adminUrl=https://build-dev.delivery.provider.test:3100/ \
+    -s 'redirectUris=[ "https://build-dev.delivery.provider.test:3100/user/oauth2/keycloak/callback" ]' \
+    -s 'webOrigins=[ "https://build-dev.delivery.provider.test:3100/" ]' \
+    -o --fields id >cicdtoolbox_build-dev
+
+# output is Created new client with id, we now need to grep the ID out of it
+BUILD-DEV_ID=$(cat cicdtoolbox_build-dev | grep id | cut -d'"' -f 4)
+echo "Created cicdtoolbox_build-dev client with ID: ${BUILD-DEV_ID}" 
+
+# Create Client secret
+./kcadm.sh create clients/$BUILD-DEV_ID/client-secret -r cicdtoolbox
+
+# We need to retrieve the token from keycloak for this client
+./kcadm.sh get clients/$BUILD-DEV_ID/client-secret -r cicdtoolbox >cicdtoolbox_build-dev_secret
+BUILD-DEV_token=$(grep value cicdtoolbox_build-dev_secret | cut -d '"' -f4)
+# Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source for Keycloak
+echo "Build-dev_token: ${BUILD-DEV_token}"
+echo "Build-dev configuration finished"
+echo ""
+
+#Add Build-test node
+./kcadm.sh create clients \
+    -r cicdtoolbox \
+    -s name="build-test" \
+    -s description="First step build node for Jenkins for Test jobs" \
+    -s clientId=build-test \
+    -s enabled=true \
+    -s publicClient=false \
+    -s fullScopeAllowed=false \
+    -s directAccessGrantsEnabled=true \
+    -s rootUrl=https://build-test.delivery.provider.test \
+    -s adminUrl=https://build-test.delivery.provider.test:3100/ \
+    -s 'redirectUris=[ "https://build-test.delivery.provider.test:3100/user/oauth2/keycloak/callback" ]' \
+    -s 'webOrigins=[ "https://build-test.delivery.provider.test:3100/" ]' \
+    -o --fields id >cicdtoolbox_build-test
+
+# output is Created new client with id, we now need to grep the ID out of it
+BUILD-TEST_ID=$(cat cicdtoolbox_build-test | grep id | cut -d'"' -f 4)
+echo "Created cicdtoolbox_build-test client with ID: ${BUILD-TEST_ID}" 
+
+# Create Client secret
+./kcadm.sh create clients/$BUILD-TEST_ID/client-secret -r cicdtoolbox
+
+# We need to retrieve the token from keycloak for this client
+./kcadm.sh get clients/$BUILD-TEST_ID/client-secret -r cicdtoolbox >cicdtoolbox_build-test_secret
+BUILD-TEST_token=$(grep value cicdtoolbox_build-test_secret | cut -d '"' -f4)
+# Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source for Keycloak
+echo "Build-test_token: ${BUILD-TEST_token}"
+echo "Build-test configuration finished"
+echo ""
+
+#Add Build-acc node
+./kcadm.sh create clients \
+    -r cicdtoolbox \
+    -s name="build-acc" \
+    -s description="First step build node for Jenkins for Acceptance jobs" \
+    -s clientId=build-acc \
+    -s enabled=true \
+    -s publicClient=false \
+    -s fullScopeAllowed=false \
+    -s directAccessGrantsEnabled=true \
+    -s rootUrl=https://build-acc.delivery.provider.test \
+    -s adminUrl=https://build-acc.delivery.provider.test:3100/ \
+    -s 'redirectUris=[ "https://build-acc.delivery.provider.test:3100/user/oauth2/keycloak/callback" ]' \
+    -s 'webOrigins=[ "https://build-acc.delivery.provider.test:3100/" ]' \
+    -o --fields id >cicdtoolbox_build-acc
+
+# output is Created new client with id, we now need to grep the ID out of it
+BUILD-ACC_ID=$(cat cicdtoolbox_build-acc | grep id | cut -d'"' -f 4)
+echo "Created cicdtoolbox_build-acc client with ID: ${BUILD-ACC_ID}" 
+
+# Create Client secret
+./kcadm.sh create clients/$BUILD-ACC_ID/client-secret -r cicdtoolbox
+
+# We need to retrieve the token from keycloak for this client
+./kcadm.sh get clients/$BUILD-ACC_ID/client-secret -r cicdtoolbox >cicdtoolbox_build-acc_secret
+BUILD-ACC_token=$(grep value cicdtoolbox_build-acc_secret | cut -d '"' -f4)
+# Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source for Keycloak
+echo "Build-acc_token: ${BUILD-ACC_token}"
+
+#Add Build-prod node
+./kcadm.sh create clients \
+    -r cicdtoolbox \
+    -s name="build-prod" \
+    -s description="First step build node for Jenkins for Production jobs" \
+    -s clientId=build-prod \
+    -s enabled=true \
+    -s publicClient=false \
+    -s fullScopeAllowed=false \
+    -s directAccessGrantsEnabled=true \
+    -s rootUrl=https://build-prod.delivery.provider.test \
+    -s adminUrl=https://build-prod.delivery.provider.test:3100/ \
+    -s 'redirectUris=[ "https://build-prod.delivery.provider.test:3100/user/oauth2/keycloak/callback" ]' \
+    -s 'webOrigins=[ "https://build-prod.delivery.provider.test:3100/" ]' \
+    -o --fields id >cicdtoolbox_build-prod
+
+# output is Created new client with id, we now need to grep the ID out of it
+BUILD-PROD_ID=$(cat cicdtoolbox_build-prod | grep id | cut -d'"' -f 4)
+echo "Created cicdtoolbox_build-prod client with ID: ${BUILD-PROD_ID}" 
+
+# Create Client secret
+./kcadm.sh create clients/$BUILD-PROD_ID/client-secret -r cicdtoolbox
+
+# We need to retrieve the token from keycloak for this client
+./kcadm.sh get clients/$BUILD-PROD_ID/client-secret -r cicdtoolbox >cicdtoolbox_build-prod_secret
+BUILD-PROD_token=$(grep value cicdtoolbox_build-prod_secret | cut -d '"' -f4)
+# Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source for Keycloak
+echo "Build-prod_token: ${BUILD-PROD_token}"
+echo "Build-prod configuration finished"
+echo ""
+
+#Add Portainer client
 ./kcadm.sh create clients \
     -r cicdtoolbox \
     -s name="Portainer" \
@@ -217,10 +405,10 @@ echo "Created keycloak-nexus installation json"
     -s enabled=true \
     -s publicClient=true \
     -s directAccessGrantsEnabled=true \
-    -s rootUrl=http://portainer.tooling.test:9000 \
-    -s adminUrl=http://portainer.tooling.test:9000/ \
-    -s 'redirectUris=[ "http://portainer.tooling.test:9000/*" ]' \
-    -s 'webOrigins=[ "http://portainer.tooling.test:9000/" ]' \
+    -s rootUrl=http://portainer.monitoring.provider.test:9000 \
+    -s adminUrl=http://portainer.monitoring.provider.test:9000/ \
+    -s 'redirectUris=[ "http://portainer.monitoring.provider.test:9000/*" ]' \
+    -s 'webOrigins=[ "http://portainer.monitoring.provider.test:9000/" ]' \
     -o --fields id >cicdtoolbox_PORTAINER
 
 # output is Created new client with id, we now need to grep the ID out of it
@@ -228,6 +416,119 @@ PORTAINER_ID=$(cat cicdtoolbox_PORTAINER | grep id | cut -d'"' -f 4)
 
 # Now we can add client specific roles (Clientroles)
 ./kcadm.sh create clients/$PORTAINER_ID/roles -r cicdtoolbox -s name=PORTAINER-admin -s description='The admin role for Portainer'
+echo "Portainer configuration finished"
+echo ""
+
+#add Loki client
+./kcadm.sh create clients \
+    -r cicdtoolbox \
+    -s name="Loki" \
+    -s description="Grafara Loki logserver for the toolchain" \
+    -s clientId=Loki \
+    -s enabled=true \
+    -s publicClient=false \
+    -s fullScopeAllowed=false \
+    -s directAccessGrantsEnabled=true \
+    -s rootUrl=https://loki.monitoring.provider.test:3100 \
+    -s adminUrl=https://loki.monitoring.provider.test:3100/ \
+    -s 'redirectUris=[ "https://loki.monitoring.provider.test:3100/user/oauth2/keycloak/callback" ]' \
+    -s 'webOrigins=[ "https://loki.monitoring.provider.test:3100/" ]' \
+    -o --fields id >cicdtoolbox_LOKI
+
+# output is Created new client with id, we now need to grep the ID out of it
+LOKI_ID=$(cat cicdtoolbox_LOKI | grep id | cut -d'"' -f 4)
+echo "Created Loki client with ID: ${LOKI_ID}" 
+
+# Create Client secret
+./kcadm.sh create clients/$LOKI_ID/client-secret -r cicdtoolbox
+
+# We need to retrieve the token from keycloak for this client
+./kcadm.sh get clients/$LOKI_ID/client-secret -r cicdtoolbox >cicdtoolbox_loki_secret
+LOKI_token=$(grep value cicdtoolbox_loki_secret | cut -d '"' -f4)
+# Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source in Loki for Keycloak
+echo "Loki_token: ${LOKI_token}"
+
+# Now we can add client specific roles (Clientroles)
+./kcadm.sh create clients/$LOKI_ID/roles -r cicdtoolbox -s name=lokiAdmin -s description='The admin role for the Infra Automators organization'
+echo "Loki configuration finished"
+echo ""
+
+#add Promtail client
+./kcadm.sh create clients \
+    -r cicdtoolbox \
+    -s name="Promtail" \
+    -s description="Grafara Promtail logserver for the toolchain" \
+    -s clientId=Promtail \
+    -s enabled=true \
+    -s publicClient=false \
+    -s fullScopeAllowed=false \
+    -s directAccessGrantsEnabled=true \
+    -s rootUrl=https://promtail.monitoring.provider.test \
+    -s adminUrl=https://promtail.monitoring.provider.test/ \
+    -s 'redirectUris=[ "https://promtail.monitoring.provider.test/user/oauth2/keycloak/callback" ]' \
+    -s 'webOrigins=[ "https://promtail.monitoring.provider.test/" ]' \
+    -o --fields id >cicdtoolbox_PROMTAIL
+
+# output is Created new client with id, we now need to grep the ID out of it
+PROMTAIL_ID=$(cat cicdtoolbox_PROMTAIL | grep id | cut -d'"' -f 4)
+echo "Created Promtail client with ID: ${PROMTAIL_ID}" 
+
+# Create Client secret
+./kcadm.sh create clients/$PROMTAIL_ID/client-secret -r cicdtoolbox
+
+# We need to retrieve the token from keycloak for this client
+./kcadm.sh get clients/$PROMTAIL_ID/client-secret -r cicdtoolbox >cicdtoolbox_promtail_secret
+PROMTAIL_token=$(grep value cicdtoolbox_promtail_secret | cut -d '"' -f4)
+# Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source in Promtail for Keycloak
+echo "Promtail_token: ${PROMTAIL_token}"
+
+# Now we can add client specific roles (Clientroles)
+./kcadm.sh create clients/$PROMTAIL_ID/roles -r cicdtoolbox -s name=promtailAdmin -s description='The admin role for the Infra Automators organization'
+echo "Promtail configuration finished"
+echo ""
+
+#add Grafana client
+./kcadm.sh create clients \
+    -r cicdtoolbox \
+    -s name="Grafana" \
+    -s description="Grafana server for the toolchain" \
+    -s clientId=Grafana \
+    -s enabled=true \
+    -s publicClient=false \
+    -s fullScopeAllowed=false \
+    -s directAccessGrantsEnabled=true \
+    -s rootUrl=${authBaseUrl} \
+    -s 'redirectUris=[ "https://grafana.monitoring.provider.test:3000/login/generic_oauth" ]' \
+    -o --fields id >cicdtoolbox_GRAFANA
+
+# output is Created new client with id, we now need to grep the ID out of it
+GRAFANA_ID=$(cat cicdtoolbox_GRAFANA | grep id | cut -d'"' -f 4)
+echo "Created Grafana client with ID: ${GRAFANA_ID}" 
+
+# Create Client secret
+./kcadm.sh create clients/$GRAFANA_ID/client-secret -r cicdtoolbox
+
+# We need to retrieve the token from keycloak for this client
+./kcadm.sh get clients/$GRAFANA_ID/client-secret -r cicdtoolbox >cicdtoolbox_grafana_secret
+GRAFANA_token=$(grep value cicdtoolbox_grafana_secret | cut -d '"' -f4)
+# Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source in Grafana for Keycloak
+echo "Grafana_token: ${GRAFANA_token}"
+
+# Now we can add client specific roles (Clientroles)
+./kcadm.sh create clients/$GRAFANA_ID/roles -r cicdtoolbox -s name=grafanaAdmin -s description='The admin role for the Infra Automators organization'
+
+# We need to add the roles claim to the token
+./kcadm.sh create clients/$GRAFANA_ID/protocol-mappers/models \
+    -r cicdtoolbox \
+	-s name=group-mapper \
+    -s protocol=openid-connect \
+	-s protocolMapper=oidc-usermodel-client-role-mapper \
+    -s consentRequired=false \
+	-s config="{\"multivalued\" : \"true\",\"userinfo.token.claim\" : \"true\",\"id.token.claim\" : \"true\",\"access.token.claim\" : \"true\",\"claim.name\" : \"roles\",\"jsonType.label\" : \"String\",\"usermodel.clientRoleMapping.clientId\" : \"Grafana\"}"
+
+echo "Created role-group mapper in the Client Scope" 
+echo "Grafana configuration finished"
+echo ""
 
 #add groups - we start at the toolbox level, which implements the groups related to service accounts
 ./kcadm.sh create groups -r cicdtoolbox -s name="toolbox" &>cicdtoolbox_TOOLBOX
@@ -979,58 +1280,3 @@ echo "Created Floor Management group within the Field Services Department with I
 
 #Now delete tokens and secrets
 rm cicdtoolbox_*
-
-# Add FreeIPA integration
-./kcadm.sh create components -r cicdtoolbox \
-    -s name=freeipa \
-    -s providerId=ldap \
-    -s providerType=org.keycloak.storage.UserStorageProvider \
-    -s 'config.priority=["1"]' \
-    -s 'config.editMode=["READ_ONLY"]' \
-    -s 'config.syncRegistrations=["true"]' \
-    -s 'config.vendor=["rhds"]' \
-    -s 'config.usernameLDAPAttribute=["uid"]' \
-    -s 'config.rdnLDAPAttribute=["uid"]' \
-    -s 'config.uuidLDAPAttribute=["ipaUniqueID"]' \
-    -s 'config.userObjectClasses=["inetOrgPerson, organizationalPerson"]' \
-    -s 'config.connectionUrl=["ldaps://freeipa.tooling.test"]' \
-    -s 'config.usersDn=["cn=users,cn=accounts,dc=tooling,dc=test"]' \
-    -s 'config.searchScope=["1"]' \
-    -s 'config.authType=["simple"]' \
-    -s 'config.bindDn=["uid=admin,cn=users,cn=accounts,dc=tooling,dc=test"]' \
-    -s 'config.bindCredential=["'$3'"]' \
-    -s 'config.useTruststoreSpi=["ldapsOnly"]' \
-    -s 'config.pagination=["true"]' \
-    -s 'config.connectionPooling=["true"]' \
-    -s 'config.allowKerberosAuthentication=["false"]' \
-    -s 'config.kerberosRealm=["TOOLING.TEST"]' \
-    -s 'config.serverPrincipal=["HTTP/keycloak.tooling.test"]' \
-    -s 'config.keyTab=["/etc/krb5-keycloak.keytab"]' \
-    -s 'config.debug=["false"]' \
-    -s 'config.useKerberosForPasswordAuthentication=["true"]' \
-    -s 'config.batchSizeForSync=["1000"]' \
-    -s 'config.fullSyncPeriod=["-1"]' \
-    -s 'config.changedSyncPeriod=["10"]' \
-    -s 'config.cachePolicy=["DEFAULT"]' \
-    -s config.evictionDay=[] \
-    -s config.evictionHour=[] \
-    -s config.evictionMinute=[] \
-    -s config.maxLifespan=[] &>FREEIPA_LDAP
-
-freeipa_ldap_id=$(cat FREEIPA_LDAP | grep id | cut -d"'" -f 2)
-./kcadm.sh create components -r cicdtoolbox \
-    -s name=FreeIPA-group-mapper \
-    -s providerId=group-ldap-mapper \
-    -s providerType=org.keycloak.storage.ldap.mappers.LDAPStorageMapper \
-    -s parentId=${freeipa_ldap_id} \
-    -s 'config."groups.dn"=["cn=groups,cn=accounts,dc=tooling,dc=test"]' \
-    -s 'config."group.name.ldap.attribute"=["cn"]' \
-    -s 'config."group.object.classes"=["groupOfNames"]' \
-    -s 'config."preserve.group.inheritance"=["true"]' \
-    -s 'config."membership.ldap.attribute"=["member"]' \
-    -s 'config."membership.attribute.type"=["DN"]' \
-    -s 'config."groups.ldap.filter"=[]' \
-    -s 'config.mode=["READ_ONLY"]' \
-    -s 'config."user.roles.retrieve.strategy"=["GET_GROUPS_FROM_USER_MEMBEROF_ATTRIBUTE"]' \
-    -s 'config."mapped.group.attributes"=[]' \
-    -s 'config."drop.non.existing.groups.during.sync"=["true"]' 

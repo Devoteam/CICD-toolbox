@@ -4,6 +4,7 @@ FROM gitea/gitea:latest
 COPY app.ini /data/gitea/conf/app.ini
 RUN mkdir /data/gitea/templates/
 COPY home.tmpl /data/gitea/templates/home.tmpl
+COPY signin_inner.tmpl /data/gitea/templates/user/auth/signin_inner.tmpl
 
 COPY gitea.tooling.test.key /data/gitea/gitea.tooling.test.key
 RUN mkdir /home/git

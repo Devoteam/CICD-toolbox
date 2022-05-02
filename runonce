@@ -41,7 +41,7 @@ rm -f freeipa/certs/*
 rm -f freeipa/hostcerts/*
 rm -f nexus/keystore.jks
 rm -f cicdtoolbox-db/docker-entrypoint-initdb-resources/*
-rm -f gitea/gitea.tooling.test*
+rm -f gitea/gitea.tooling.provider.test*
 echo " " 
 echo "****************************************************************************************************************"
 echo " Cleaning Gitea" 
@@ -62,66 +62,116 @@ echo " "
 sudo chmod o+w /etc/hosts
 if grep -q "cicdtoolbox-db" /etc/hosts; then
     echo " CICDtoolbox-db exists in /etc/hosts, removing..."
-    sudo sed -i '/cicdtoolbox-db.tooling.test/d' /etc/hosts
+    sudo sed -i '/cicdtoolbox-db.internal.provider.test/d' /etc/hosts
 fi
-echo " Add Gitea to /etc/hosts"
-sudo echo "172.16.11.2   cicdtoolbox-db.tooling.test" >> /etc/hosts
-
-if grep -q "gitea" /etc/hosts; then
-    echo " Gitea exists in /etc/hosts, removing..."
-    sudo sed -i '/gitea.tooling.test/d' /etc/hosts
-fi
-echo " Add Gitea to /etc/hosts"
-sudo echo "172.16.11.3   gitea.tooling.test" >> /etc/hosts
-
-if grep -q "jenkins" /etc/hosts; then
-    echo " Jenkins exists in /etc/hosts, removing..."
-    sudo sed -i '/jenkins.tooling.test/d' /etc/hosts
-fi
-echo " Add Jenkins to /etc/hosts"
-sudo echo "172.16.11.8   jenkins.tooling.test" >> /etc/hosts
-
-if grep -q "nexus" /etc/hosts; then
-    echo " Nexus exists in /etc/hosts, removing..."
-    sudo sed -i '/nexus.tooling.test/d' /etc/hosts
-fi
-echo " Add Nexus to /etc/hosts"
-sudo echo "172.16.11.9   nexus.tooling.test" >> /etc/hosts
+echo " Add CICDtoolbox-db to /etc/hosts"
+sudo echo "172.16.9.2   cicdtoolbox-db.internal.provider.test" >> /etc/hosts
 
 if grep -q "keycloak" /etc/hosts; then
     echo " Keycloak exists in /etc/hosts, removing..."
-    sudo sed -i '/keycloak.tooling.test/d' /etc/hosts
+    sudo sed -i '/keycloak.services.provider.test/d' /etc/hosts
 fi
 echo " Add Keycloak to /etc/hosts"
-sudo echo "172.16.11.11   keycloak.tooling.test" >> /etc/hosts
-
-if grep -q "freeipa" /etc/hosts; then
-    echo " FreeIPA exists in /etc/hosts, removing..."
-    sudo sed -i '/freeipa.tooling.test/d' /etc/hosts
-fi
-echo " Add FreeIPA to /etc/hosts"
-sudo echo "172.16.11.12   freeipa.tooling.test" >> /etc/hosts
+sudo echo "172.16.10.11   keycloak.services.provider.test" >> /etc/hosts
 
 if grep -q "ipa-ca" /etc/hosts; then
     echo " ipa-ca exists in /etc/hosts, removing..."
-    sudo sed -i '/ipa-ca.tooling.test/d' /etc/hosts
+    sudo sed -i '/ipa-ca.tooling.provider.test/d' /etc/hosts
 fi
 echo " Add ipa-ca /etc/hosts"
-sudo echo "172.16.11.12   ipa-ca.tooling.test" >> /etc/hosts
+sudo echo "172.16.10.12   ipa-ca.tooling.provider.test" >> /etc/hosts
+
+if grep -q "freeipa" /etc/hosts; then
+    echo " FreeIPA exists in /etc/hosts, removing..."
+    sudo sed -i '/freeipa.services.provider.test/d' /etc/hosts
+fi
+echo " Add FreeIPA to /etc/hosts"
+sudo echo "172.16.10.12   freeipa.services.provider.test" >> /etc/hosts
+
+if grep -q "gitea" /etc/hosts; then
+    echo " Gitea exists in /etc/hosts, removing..."
+    sudo sed -i '/gitea.tooling.provider.test/d' /etc/hosts
+fi
+echo " Add Gitea to /etc/hosts"
+sudo echo "172.16.11.3   gitea.tooling.provider.test" >> /etc/hosts
+
+if grep -q "jenkins" /etc/hosts; then
+    echo " Jenkins exists in /etc/hosts, removing..."
+    sudo sed -i '/jenkins.tooling.provider.test/d' /etc/hosts
+fi
+echo " Add Jenkins to /etc/hosts"
+sudo echo "172.16.11.8   jenkins.tooling.provider.test" >> /etc/hosts
+
+if grep -q "nexus" /etc/hosts; then
+    echo " Nexus exists in /etc/hosts, removing..."
+    sudo sed -i '/nexus.tooling.provider.test/d' /etc/hosts
+fi
+echo " Add Nexus to /etc/hosts"
+sudo echo "172.16.11.9   nexus.tooling.provider.test" >> /etc/hosts
+
+if grep -q "build-dev" /etc/hosts; then
+    echo " Jenkins build-dev node exists in /etc/hosts, removing..."
+    sudo sed -i '/build-dev.delivery.provider.test/d' /etc/hosts
+fi
+echo " Add Jenkins build-dev node to /etc/hosts"
+sudo echo "172.16.12.3   build-dev.delivery.provider.test" >> /etc/hosts
+
+if grep -q "build-test" /etc/hosts; then
+    echo " Jenkins build-test node exists in /etc/hosts, removing..."
+    sudo sed -i '/build-test.delivery.provider.test/d' /etc/hosts
+fi
+echo " Add Jenkins build-test node to /etc/hosts"
+sudo echo "172.16.12.3   build-test.delivery.provider.test" >> /etc/hosts
+
+if grep -q "build-acc" /etc/hosts; then
+    echo " Jenkins build-acc node exists in /etc/hosts, removing..."
+    sudo sed -i '/build-acc.delivery.provider.test/d' /etc/hosts
+fi
+echo " Add Jenkins build-acc node to /etc/hosts"
+sudo echo "172.16.12.3   build-acc.delivery.provider.test" >> /etc/hosts
+
+if grep -q "build-prod" /etc/hosts; then
+    echo " Jenkins build-prod node exists in /etc/hosts, removing..."
+    sudo sed -i '/build-prod.delivery.provider.test/d' /etc/hosts
+fi
+echo " Add Jenkins build-prod node to /etc/hosts"
+sudo echo "172.16.12.3   build-prod.delivery.provider.test" >> /etc/hosts
 
 if grep -q "portainer" /etc/hosts; then
     echo " Portainer exists in /etc/hosts, removing..."
-    sudo sed -i '/portainer.tooling.test/d' /etc/hosts
+    sudo sed -i '/portainer.monitoring.provider.test/d' /etc/hosts
 fi
 echo " Add Portainer to /etc/hosts"
-sudo echo "172.16.11.15   portainer.tooling.test" >> /etc/hosts
+sudo echo "172.16.13.3   portainer.monitoring.provider.test" >> /etc/hosts
+
+if grep -q "loki" /etc/hosts; then
+    echo " Loki exists in /etc/hosts, removing..."
+    sudo sed -i '/loki.monitoring.provider.test/d' /etc/hosts
+fi
+echo " Add Loki to /etc/hosts"
+sudo echo "172.16.13.4   loki.monitoring.provider.test" >> /etc/hosts
+
+if grep -q "promtail" /etc/hosts; then
+    echo " Promtail exists in /etc/hosts, removing..."
+    sudo sed -i '/promtail.monitoring.provider.test/d' /etc/hosts
+fi
+echo " Add Promtail to /etc/hosts"
+sudo echo "172.16.13.5   promtail.monitoring.provider.test" >> /etc/hosts
+
+if grep -q "grafana" /etc/hosts; then
+    echo " Grafana exists in /etc/hosts, removing..."
+    sudo sed -i '/grafana.monitoring.provider.test/d' /etc/hosts
+fi
+echo " Add Grafana to /etc/hosts"
+sudo echo "172.16.13.6   grafana.monitoring.provider.test" >> /etc/hosts
 
 if grep -q "cml" /etc/hosts; then
     echo " Cisco Modeling Labs exists in /etc/hosts, removing..."
-    sudo sed -i '/cml.tooling.test/d' /etc/hosts
+    sudo sed -i '/cml.tooling.provider.test/d' /etc/hosts
 fi
+
 echo " Add Cisco Modeling Labs to /etc/hosts"
-sudo echo "10.10.20.161   cml.tooling.test" >> /etc/hosts
+sudo echo "10.10.20.161   cml.tooling.provider.test" >> /etc/hosts
 sudo chmod o-w /etc/hosts
 echo " " 
 echo "****************************************************************************************************************"
@@ -161,22 +211,29 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating CSR for all containers, so they can be copied in in the Dockerfile" 
 echo "****************************************************************************************************************"
-freeipa/create-certificates.sh cicdtoolbox-db
-freeipa/create-certificates.sh gitea
-freeipa/create-certificates.sh jenkins
-freeipa/create-certificates.sh keycloak
-freeipa/create-certificates.sh nexus
-freeipa/create-certificates.sh portainer
+freeipa/create-certificates.sh cicdtoolbox-db.internal
+freeipa/create-certificates.sh keycloak.services
+freeipa/create-certificates.sh gitea.tooling
+freeipa/create-certificates.sh jenkins.tooling
+freeipa/create-certificates.sh nexus.tooling
+freeipa/create-certificates.sh build-dev.delivery
+freeipa/create-certificates.sh build-test.delivery
+freeipa/create-certificates.sh build-acc.delivery
+freeipa/create-certificates.sh build-prod.delivery
+freeipa/create-certificates.sh portainer.monitoring
+freeipa/create-certificates.sh loki.monitoring
+freeipa/create-certificates.sh promtail.monitoring
+freeipa/create-certificates.sh grafana.monitoring
 echo "****************************************************************************************************************"
 echo " Creating freeIPA"
 echo "****************************************************************************************************************"
 docker-compose pull 
-docker-compose up -d --build --remove-orphans freeipa.tooling.test
+docker-compose up -d --build --remove-orphans freeipa.services.provider.test
 echo "****************************************************************************************************************"
 echo " Wait until FreeIPA has self-installed (~375 sec)"
 echo "****************************************************************************************************************"
 let t=0
-until  docker logs freeipa.tooling.test | grep "ipa-server-install command was successful"; do
+until  docker logs freeipa.tooling.services.test | grep "ipa-server-install command was successful"; do
     spin
 done
 endspin
@@ -184,29 +241,33 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Saving FreeIPA self-signed certificate"
 echo "****************************************************************************************************************"
-docker cp freeipa.tooling.test:/etc/ipa/ca.crt ca.crt
+docker cp freeipa.services.provider.test:/etc/ipa/ca.crt ca.crt
 cp ca.crt keycloak/ca.crt
 cp ca.crt nexus/ca.crt
 cp ca.crt cicdtoolbox-db/ca.crt
+cp ca.crt loki/ca.crt
+cp ca.crt promtail/ca.crt
+cp ca.crt grafana/ca.crt
+cp ca.crt jenkins_buildnode/ca.crt
 echo "****************************************************************************************************************"
 echo " Copy csr files to FreeIPA for signing"
 echo "****************************************************************************************************************"
-docker cp freeipa/cert* freeipa.tooling.test:/tmp
+docker cp freeipa/cert* freeipa.services.provider.test:/tmp
 echo "****************************************************************************************************************"
 echo " Creating FreeIPA setup. This will take time..."
 echo "****************************************************************************************************************"
-docker exec -it freeipa.tooling.test sh -c "/root/freeipa-install.sh ${netcicd_pwd} ${freeipa_pwd}" | tee install_log/freeipa_create.log
+docker exec -it freeipa.services.provider.test sh -c "/root/freeipa-install.sh ${netcicd_pwd} ${freeipa_pwd}" | tee install_log/freeipa_create.log
 echo " " 
 echo "****************************************************************************************************************"
 echo " Saving host certificates"
 echo "****************************************************************************************************************"
-docker cp freeipa.tooling.test:/tmp/certs freeipa/
+docker cp freeipa.services.provider.test:/tmp/certs freeipa/
 chmod 644 freeipa/certs/*
-cp freeipa/certs/cicdtoolbox-db.tooling.test.key cicdtoolbox-db/docker-entrypoint-initdb-resources/server.key
-cp freeipa/certs/cicdtoolbox-db.tooling.test.pem cicdtoolbox-db/docker-entrypoint-initdb-resources/server.crt
+cp freeipa/certs/cicdtoolbox-db.internal.provider.test.key cicdtoolbox-db/docker-entrypoint-initdb-resources/server.key
+cp freeipa/certs/cicdtoolbox-db.internal.provider.test.pem cicdtoolbox-db/docker-entrypoint-initdb-resources/server.crt
 cp ca.crt cicdtoolbox-db/docker-entrypoint-initdb-resources/root.crt
 cp freeipa/certs/gitea* gitea/
-docker exec freeipa.tooling.test rm -rf /tmp/host*
+docker exec freeipa.services.provider.test rm -rf /tmp/host*
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating database"
@@ -217,12 +278,12 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Starting Keycloak "
 echo "****************************************************************************************************************"
-docker-compose up -d --build --no-deps keycloak.tooling.test
+docker-compose up -d --build --no-deps keycloak.services.provider.test
 echo "****************************************************************************************************************"
 echo " Wait until keycloak is running (~45 sec.)"
 echo "****************************************************************************************************************"
 let t=0
-until $(curl --output /dev/null --insecure --silent --head --fail https://keycloak.tooling.test:8443); do
+until $(curl --output /dev/null --insecure --silent --head --fail https://keycloak.services.provider.test:8443); do
     spin
 done
 endspin
@@ -230,25 +291,38 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating keycloak setup. This will take time..."
 echo "****************************************************************************************************************"
-docker exec -it keycloak.tooling.test sh -c "/opt/jboss/keycloak/bin/create-realm.sh ${keycloak_pwd} ${keycloak_storepass} ${freeipa_pwd} ${local_admin_user}" | tee install_log/keycloak_create.log
+docker exec -it keycloak.services.provider.test sh -c "/opt/jboss/keycloak/bin/create-realm.sh ${keycloak_pwd} ${keycloak_storepass} ${freeipa_pwd} ${local_admin_user}" | tee install_log/keycloak_create.log
 echo " "
-docker restart keycloak.tooling.test
+docker restart keycloak.services.provider.test
 echo "****************************************************************************************************************"
 echo " Wait until keycloak is running (~5 sec.)"
 echo "****************************************************************************************************************"
 let t=0
-until $(curl --output /dev/null --insecure --silent --head --fail https://keycloak.tooling.test:8443); do
+until $(curl --output /dev/null --insecure --silent --head --fail https://keycloak.services.provider.test:8443); do
     spin
 done
 endspin
 echo " "
 echo "****************************************************************************************************************"
+echo " Creating Grafana Keycloak Client secret"
+echo "****************************************************************************************************************"
+Grafana_CLIENT_SECRET=$(grep Grafana_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r')
+echo $Grafana_CLIENT_SECRET
+echo "****************************************************************************************************************"
 echo " Booting the remainder of the containers"
 echo "****************************************************************************************************************"
-DOCKER_BUILDKIT=1 docker-compose up -d --build --no-deps gitea.tooling.test
-docker-compose up -d --build --no-deps jenkins.tooling.test
-docker-compose up -d --build --no-deps nexus.tooling.test
-docker-compose up -d --build --no-deps portainer.tooling.test
+DOCKER_BUILDKIT=1 docker-compose up -d --build --no-deps gitea.tooling.provider.test
+docker-compose up -d --build --no-deps jenkins.tooling.provider.test
+docker-compose up -d --build --no-deps nexus.tooling.provider.test
+docker-compose up -d --build --no-deps build-dev.delivery.provider.test
+docker-compose up -d --build --no-deps build-test.delivery.provider.test
+docker-compose up -d --build --no-deps build-acc.delivery.provider.test
+docker-compose up -d --build --no-deps build-prod.delivery.provider.test
+docker-compose up -d --build --no-deps portainer.monitoring.provider.test
+docker-compose up -d --build --no-deps loki.monitoring.provider.test
+docker-compose up -d --build --no-deps promtail.monitoring.provider.test
+docker-compose up -d --build --no-deps grafana.monitoring.provider.test
+
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating gitea setup"
@@ -259,16 +333,16 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating nexus setup (~ 115 sec.)"
 echo "****************************************************************************************************************"
-docker cp keycloak.tooling.test:/opt/jboss/keycloak/bin/keycloak-nexus.json nexus/keycloak-nexus.json
-docker cp nexus/keycloak-nexus.json nexus.tooling.test:/opt/sonatype/nexus/etc/keycloak.json
-openssl pkcs12 -export -in ./freeipa/certs/nexus.tooling.test.pem -inkey ./freeipa/certs/nexus.tooling.test.key -name nexus.tooling.test -out ./nexus/nexus.p12 -password pass:${nexus_storepass}
+docker cp keycloak.tooling.provider.test:/opt/jboss/keycloak/bin/keycloak-nexus.json nexus/keycloak-nexus.json
+docker cp nexus/keycloak-nexus.json nexus.tooling.provider.test:/opt/sonatype/nexus/etc/keycloak.json
+openssl pkcs12 -export -in ./freeipa/certs/nexus.tooling.provider.test.pem -inkey ./freeipa/certs/nexus.tooling.provider.test.key -name nexus.tooling.provider.test -out ./nexus/nexus.p12 -password pass:${nexus_storepass}
 chmod 644 ./nexus/nexus.p12
-docker cp nexus/nexus.p12 nexus.tooling.test:/nexus-data/etc/nexus.p12
-docker exec --user root -it nexus.tooling.test sh -c "/usr/bin/keytool -importkeystore -deststorepass ${nexus_storepass} -destkeystore /nexus-data/etc/ssl/keystore.jks -srckeystore /nexus-data/etc/nexus.p12 -srcstoretype PKCS12 -srcstorepass ${nexus_storepass} -deststoretype pkcs12"
+docker cp nexus/nexus.p12 nexus.tooling.provider.test:/nexus-data/etc/nexus.p12
+docker exec --user root -it nexus.tooling.provider.test sh -c "/usr/bin/keytool -importkeystore -deststorepass ${nexus_storepass} -destkeystore /nexus-data/etc/ssl/keystore.jks -srckeystore /nexus-data/etc/nexus.p12 -srcstoretype PKCS12 -srcstorepass ${nexus_storepass} -deststoretype pkcs12"
 echo "Reloading Nexus"
-docker restart nexus.tooling.test
+docker restart nexus.tooling.provider.test
 let t=0
-until $(curl --output /dev/null --insecure --silent --head --fail https://nexus.tooling.test:8443); do
+until $(curl --output /dev/null --insecure --silent --head --fail https://nexus.tooling.provider.test:8443); do
     spin
 done
 endspin
@@ -278,20 +352,20 @@ echo " Creating jenkins setup"
 echo "****************************************************************************************************************"
 #config for oic_auth plugin: need to replace secrets in casc.yaml
 jenkins_client_id=$(grep JENKINS_token: install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
-docker exec -it jenkins.tooling.test sh -c "sed -i -e 's/oic_secret/\"$jenkins_client_id\"/' /var/jenkins_conf/casc.yaml"
+docker exec -it jenkins.tooling.provider.test sh -c "sed -i -e 's/oic_secret/\"$jenkins_client_id\"/' /var/jenkins_conf/casc.yaml"
 echo " " 
 echo "****************************************************************************************************************"
 echo " Copy certificates into Jenkins keystore"
 echo "****************************************************************************************************************"
 #Add CA to keystore
-docker cp jenkins.tooling.test:/opt/java/openjdk/lib/security/cacerts ./jenkins/keystore/cacerts
+docker cp jenkins.tooling.provider.test:/opt/java/openjdk/lib/security/cacerts ./jenkins/keystore/cacerts
 chmod +w ./jenkins/keystore/cacerts
-keytool -import -alias freeipa.tooling.test -keystore ./jenkins/keystore/cacerts -file ./ca.crt -storepass ${jenkins_storepass} -noprompt
-docker cp ./jenkins/keystore/cacerts jenkins.tooling.test:/opt/java/openjdk/lib/security/cacerts
+keytool -import -alias freeipa.tooling.provider.test -keystore ./jenkins/keystore/cacerts -file ./ca.crt -storepass ${jenkins_storepass} -noprompt
+docker cp ./jenkins/keystore/cacerts jenkins.tooling.provider.test:/opt/java/openjdk/lib/security/cacerts
 echo "Reloading "
-docker restart jenkins.tooling.test
+docker restart jenkins.tooling.provider.test
 let t=0
-until $(curl --output /dev/null --insecure --silent --head --fail https://jenkins.tooling.test:8084/whoAmI); do
+until $(curl --output /dev/null --insecure --silent --head --fail https://jenkins.tooling.provider.test:8084/whoAmI); do
     spin
 done
 endspin
@@ -348,7 +422,7 @@ echo "**************************************************************************
 echo " The pipeline uses the default Cisco DevNet CML Sandbox credentials developer/C1sco12345 to log in to CML."
 echo " You may change this to your own credentials in:"
 echo " "
-echo " http://jenkins.tooling.test:8084/credentials/store/system/domain/_/credential/CML-SIM-CRED/update"
+echo " http://jenkins.tooling.provider.test:8084/credentials/store/system/domain/_/credential/CML-SIM-CRED/update"
 echo " "
 echo " Due to limitations in Keycloak, do **not** use docker-compose down. Keycloak will no longer function after this."
 echo " "
@@ -361,12 +435,14 @@ echo "You can read the install test report in install_tests/report.html"
 echo " "
 echo "You can reach the servers on:"
 echo " "
-echo " Gitea:       https://gitea.tooling.test:3000"
-echo " Jenkins:     http://jenkins.tooling.test:8084"
-echo " Nexus:       http://nexus.tooling.test:8081"
-echo " Keycloak:    http://keycloak.tooling.test:8443"
-echo " FreeIPA:     http://freeipa.tooling.test"
-echo " Portainer:   http://portainer.tooling.test:9000"
+echo " FreeIPA:     https://freeipa.services.provider.test"
+echo " Keycloak:    https://keycloak.services.provider.test:8443"
+echo " Gitea:       https://gitea.tooling.provider.test:3000"
+echo " Jenkins:     https://jenkins.tooling.provider.test:8084"
+echo " Nexus:       https://nexus.tooling.provider.test:8081"
+echo " Portainer:   http://portainer.monitoring.provider.test:9000"
+echo " Loki:        http://loki.monitoring.provider.test:9000"
+echo " Grafana:     http://grafana.monitoring.provider.test:9000"
 echo " "
 echo "****************************************************************************************************************"
 echo "Cleaning up"

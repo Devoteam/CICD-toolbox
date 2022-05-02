@@ -1,7 +1,7 @@
 #!/bin/bash
 
 server=$1
-domain=$server.tooling.test
+domain=$server.provider.test
 commonname=$domain
 password=netcicd
 country=NL
@@ -9,7 +9,7 @@ state="Zuid Holland"
 locality="Den Haag"
 organization=Infraautomator
 organizationalunit=IT-infra
-email=netcicd@tooling.test
+email=netcicd@provider.test
 
 if [ -z "$server" ]
 then

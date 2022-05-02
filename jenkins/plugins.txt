@@ -21,6 +21,8 @@ credentials:latest
 credentials-binding:latest
 dashboard-view:latest
 display-url-api:latest
+docker-commons:latest
+docker-workflow:latest
 durable-task:latest
 echarts-api:latest
 email-ext:latest
