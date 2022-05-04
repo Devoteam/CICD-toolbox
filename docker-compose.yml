@@ -4,33 +4,7 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.16.9.0/24
-  services:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.16.10.0/24
-  tooling:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.16.11.0/24
-  reverse-proxy: null
-  delivery:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.16.12.0/24
-  monitoring:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.16.13.0/24
-  management:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.16.14.0/24
+        - subnet: 172.16.8.0/20
 
 
 volumes:
@@ -67,8 +41,8 @@ secrets:
     file: ./freeipa/certs/nexus.tooling.provider.test.pem
 
 services:
-  cicdtoolbox-db:
-    container_name: cicdtoolbox-db.tooling.provider.test
+  cicdtoolbox-db.internal.provider.test:
+    container_name: cicdtoolbox-db.internal.provider.test
     build: cicdtoolbox-db
     command: >
       -c ssl=on 
@@ -91,6 +65,24 @@ services:
       - 'cicdtoolbox_db_data:/var/lib/postgresql/data'
       - 'cicdtoolbox_db_conf:/etc/postgresql'
       - './cicdtoolbox-db/docker-entrypoint-initdb-resources:/docker-entrypoint-initdb-resources:ro'
+  
+  restportal.services.provider.test:
+    container_name: restportal.services.provider.test
+    build: restportal
+    restart: unless-stopped
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
+    networks:
+      internal:
+        ipv4_address: 172.16.10.2
+    ports:
+      - '8080:8080'
+    healthcheck:
+      test: curl --insecure --head --fail -s https://localhost:8080 || exit 1
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
 
   keycloak.services.provider.test:
     container_name: keycloak.services.provider.test
@@ -101,7 +93,7 @@ services:
     stop_grace_period: 15s
     environment:
       DB_VENDOR: POSTGRES
-      DB_ADDR: cicdtoolbox-db
+      DB_ADDR: cicdtoolbox-db.internal.provider.test
       DB_DATABASE: keycloak
       DB_USER: keycloak
       DB_SCHEMA: public
@@ -115,13 +107,13 @@ services:
       - source: keycloak_crt
         target: /etc/x509/https/tls.crt
     networks:
-      services:
+      internal:
         ipv4_address: 172.16.10.11
     ports:
       - '8080:8080'
       - '8443:8443'
     depends_on:
-      - cicdtoolbox-db
+      - cicdtoolbox-db.internal.provider.test
     healthcheck:
       test: curl --insecure --head --fail -s https://localhost:8443 || exit 1
       interval: 1m30s
@@ -159,9 +151,8 @@ services:
     sysctls:
       - net.ipv6.conf.all.disable_ipv6=0
     networks:
-      services:
+      internal:
         ipv4_address: 172.16.10.12
-      reverse-proxy: null
     healthcheck:
       test: curl --insecure --head --fail -s https://localhost || exit 1
       interval: 1m30s
@@ -185,7 +176,7 @@ services:
       - source: ca_crt
         target: /usr/local/share/ca-certificates/CICD-toolbox-ca.crt
     networks:
-      tooling:
+      internal:
         ipv4_address: 172.16.11.3
     volumes:
       - 'gitea:/data'
@@ -194,7 +185,7 @@ services:
     expose:
       - '3000'
     depends_on:
-      - cicdtoolbox-db
+      - cicdtoolbox-db.internal.provider.test
       - keycloak.services.provider.test
     healthcheck:
       test: curl --insecure --head --fail -s https://localhost:3000/ || exit 1
@@ -209,7 +200,7 @@ services:
     privileged: true
     user: root
     networks:
-      tooling:
+      internal:
         ipv4_address: 172.16.11.8
     environment:
       - JENKINS_ADMIN_ID=local-admin
@@ -267,7 +258,7 @@ services:
         soft: 65536
         hard: 65536
     networks:
-      tooling:
+      internal:
         ipv4_address: 172.16.11.9
     ports:
       - '8081:8081'
@@ -289,7 +280,7 @@ services:
     expose:
       - '50000'
     networks:
-      delivery:
+      internal:
         ipv4_address: 172.16.12.2
 
   build-test.delivery.provider.test:
@@ -302,7 +293,7 @@ services:
     expose:
       - '50000'
     networks:
-      delivery:
+      internal:
         ipv4_address: 172.16.12.3
 
   build-acc.delivery.provider.test:
@@ -315,7 +306,7 @@ services:
     expose:
       - '50000'
     networks:
-      delivery:
+      internal:
         ipv4_address: 172.16.12.4
 
   build-prod.delivery.provider.test:
@@ -328,8 +319,8 @@ services:
     expose:
       - '50000'
     networks:
-      delivery:
-        ipv4_address: 172.16.12.4
+      internal:
+        ipv4_address: 172.16.12.5
  
   portainer.monitoring.provider.test:
     container_name: portainer.monitoring.provider.test
@@ -342,7 +333,7 @@ services:
       - 'portainer_data:/data'
       - '/var/run/docker.sock:/var/run/docker.sock'
     networks:
-      tooling:
+      internal:
         ipv4_address: 172.16.13.3
     ports:
       - '9000:9000'
@@ -363,7 +354,7 @@ services:
       - '3100'
     command: -config.file=/etc/loki/local-config.yaml
     networks:
-      tooling:
+      internal:
         ipv4_address: 172.16.13.4
 
   promtail.monitoring.provider.test:
@@ -377,7 +368,7 @@ services:
       - /var/log:/var/log
     command: -config.file=/etc/promtail/config.yml
     networks:
-      tooling:
+      internal:
         ipv4_address: 172.16.13.5
 
   grafana.monitoring.provider.test:
@@ -403,5 +394,5 @@ services:
     expose:
       - '3000'
     networks:
-      tooling:
+      internal:
         ipv4_address: 172.16.13.6

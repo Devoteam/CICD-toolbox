@@ -4,9 +4,9 @@ Resource          ../install_test.resource
 Documentation       Making sure that Jenkins has access to the NetCICD repository on gitea
 
 *** Variables ***
-${JENKINS URL}      https://jenkins.tooling.test:8084/
-${JENKINS NetCICD}  https://jenkins.tooling.test:8084/job/Infraautomator/computation/console
-${JENKINS LOGOUT}   https://jenkins.tooling.test:8084/logout 
+${JENKINS URL}      https://jenkins.tooling.provider.test:8084/
+${JENKINS NetCICD}  https://jenkins.tooling.provider.test:8084/job/Infraautomator/computation/console
+${JENKINS LOGOUT}   https://jenkins.tooling.provider.test:8084/logout 
 
 *** Test cases ***
 Log into Jenkins
@@ -31,7 +31,7 @@ Log into Jenkins as netcicd
     Jenkins Page Should Be Open
 
 Get infraautomator repositories
-    Go To                       https://jenkins.tooling.test:8084/job/Infraautomator/computation/console
+    Go To                       https://jenkins.tooling.provider.test:8084/job/Infraautomator/computation/console
 
     ${repo_status}=             Run Keyword And Return Status    Page Should Contain        Finished: SUCCESS
 

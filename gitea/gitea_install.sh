@@ -129,7 +129,7 @@ echo "**************************************************************************
 echo " Adding keycloak client key to Gitea"
 echo "****************************************************************************************************************"
 gitea_client_id=$(grep GITEA_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
-docker exec -it gitea.tooling.provider.test sh -c "su git -c '/usr/local/bin/gitea admin auth add-oauth --name keycloak --provider openidConnect --key Gitea --secret $gitea_client_id --auto-discover-url https://keycloak.tooling.provider.test:8443/auth/realms/cicdtoolbox/.well-known/openid-configuration --config=/data/gitea/conf/app.ini'"
+docker exec -it gitea.tooling.provider.test sh -c "su git -c '/usr/local/bin/gitea admin auth add-oauth --name keycloak --provider openidConnect --key Gitea --secret $gitea_client_id --auto-discover-url https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/.well-known/openid-configuration --config=/data/gitea/conf/app.ini'"
 # required claim name contains the claim name required to be able to use the claim, admin-group is the claim value for admin.
 docker exec -it gitea.tooling.provider.test sh -c "su git -c '/usr/local/bin/gitea admin auth update-oauth --id 1 --required-claim-name giteaGroups --admin-group giteaAdmin --group-claim-name giteaGroups --skip-local-2fa'"
 echo "****************************************************************************************************************"

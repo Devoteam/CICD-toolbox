@@ -30,16 +30,16 @@ echo "Realm created"
     -s 'config.uuidLDAPAttribute=["ipaUniqueID"]' \
     -s 'config.userObjectClasses=["inetOrgPerson, organizationalPerson"]' \
     -s 'config.connectionUrl=["ldaps://freeipa.services.provider.test"]' \
-    -s 'config.usersDn=["cn=users,cn=accounts,dc=provider,dc=test"]' \
+    -s 'config.usersDn=["cn=users,cn=accounts,dc=services,dc=provider,dc=test"]' \
     -s 'config.searchScope=["1"]' \
     -s 'config.authType=["simple"]' \
-    -s 'config.bindDn=["uid=admin,cn=users,cn=accounts,dc=provider,dc=test"]' \
+    -s 'config.bindDn=["uid=admin,cn=users,cn=accounts,dc=services,dc=provider,dc=test"]' \
     -s 'config.bindCredential=["'$3'"]' \
     -s 'config.useTruststoreSpi=["ldapsOnly"]' \
     -s 'config.pagination=["true"]' \
     -s 'config.connectionPooling=["true"]' \
     -s 'config.allowKerberosAuthentication=["false"]' \
-    -s 'config.kerberosRealm=["provider.test"]' \
+    -s 'config.kerberosRealm=["services.provider.test"]' \
     -s 'config.serverPrincipal=["HTTP/keycloak.services.provider.test"]' \
     -s 'config.keyTab=["/etc/krb5-keycloak.keytab"]' \
     -s 'config.debug=["false"]' \
@@ -59,7 +59,7 @@ freeipa_ldap_id=$(cat FREEIPA_LDAP | grep id | cut -d"'" -f 2)
     -s providerId=group-ldap-mapper \
     -s providerType=org.keycloak.storage.ldap.mappers.LDAPStorageMapper \
     -s parentId=${freeipa_ldap_id} \
-    -s 'config."groups.dn"=["cn=groups,cn=accounts,dc=provider,dc=test"]' \
+    -s 'config."groups.dn"=["cn=groups,cn=accounts,dc=services,dc=provider,dc=test"]' \
     -s 'config."group.name.ldap.attribute"=["cn"]' \
     -s 'config."group.object.classes"=["groupOfNames"]' \
     -s 'config."preserve.group.inheritance"=["true"]' \
@@ -274,126 +274,126 @@ echo "Created keycloak-nexus installation json"
 echo "Nexus configuration finished"
 echo ""
 
-#Add Build-dev node
+#Add Build_dev node
 ./kcadm.sh create clients \
     -r cicdtoolbox \
-    -s name="build-dev" \
+    -s name="build_dev" \
     -s description="First step build node for Jenkins for Development jobs" \
-    -s clientId=build-dev \
+    -s clientId=build_dev \
     -s enabled=true \
     -s publicClient=false \
     -s fullScopeAllowed=false \
     -s directAccessGrantsEnabled=true \
-    -s rootUrl=https://build-dev.delivery.provider.test \
-    -s adminUrl=https://build-dev.delivery.provider.test:3100/ \
-    -s 'redirectUris=[ "https://build-dev.delivery.provider.test:3100/user/oauth2/keycloak/callback" ]' \
-    -s 'webOrigins=[ "https://build-dev.delivery.provider.test:3100/" ]' \
-    -o --fields id >cicdtoolbox_build-dev
+    -s rootUrl=https://build_dev.delivery.provider.test \
+    -s adminUrl=https://build_dev.delivery.provider.test:3100/ \
+    -s 'redirectUris=[ "https://build_dev.delivery.provider.test:3100/user/oauth2/keycloak/callback" ]' \
+    -s 'webOrigins=[ "https://build_dev.delivery.provider.test:3100/" ]' \
+    -o --fields id >cicdtoolbox_build_dev
 
 # output is Created new client with id, we now need to grep the ID out of it
-BUILD-DEV_ID=$(cat cicdtoolbox_build-dev | grep id | cut -d'"' -f 4)
-echo "Created cicdtoolbox_build-dev client with ID: ${BUILD-DEV_ID}" 
+BUILD_DEV_ID=$(cat cicdtoolbox_build_dev | grep id | cut -d'"' -f 4)
+echo "Created cicdtoolbox_build_dev client with ID: ${BUILD_DEV_ID}" 
 
 # Create Client secret
-./kcadm.sh create clients/$BUILD-DEV_ID/client-secret -r cicdtoolbox
+./kcadm.sh create clients/$BUILD_DEV_ID/client-secret -r cicdtoolbox
 
 # We need to retrieve the token from keycloak for this client
-./kcadm.sh get clients/$BUILD-DEV_ID/client-secret -r cicdtoolbox >cicdtoolbox_build-dev_secret
-BUILD-DEV_token=$(grep value cicdtoolbox_build-dev_secret | cut -d '"' -f4)
+./kcadm.sh get clients/$BUILD_DEV_ID/client-secret -r cicdtoolbox >cicdtoolbox_build_dev_secret
+BUILD_DEV_token=$(grep value cicdtoolbox_build_dev_secret | cut -d '"' -f4)
 # Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source for Keycloak
-echo "Build-dev_token: ${BUILD-DEV_token}"
-echo "Build-dev configuration finished"
+echo "Build_dev_token: ${BUILD_DEV_token}"
+echo "Build_dev configuration finished"
 echo ""
 
-#Add Build-test node
+#Add Build_test node
 ./kcadm.sh create clients \
     -r cicdtoolbox \
-    -s name="build-test" \
+    -s name="build_test" \
     -s description="First step build node for Jenkins for Test jobs" \
-    -s clientId=build-test \
+    -s clientId=build_test \
     -s enabled=true \
     -s publicClient=false \
     -s fullScopeAllowed=false \
     -s directAccessGrantsEnabled=true \
-    -s rootUrl=https://build-test.delivery.provider.test \
-    -s adminUrl=https://build-test.delivery.provider.test:3100/ \
-    -s 'redirectUris=[ "https://build-test.delivery.provider.test:3100/user/oauth2/keycloak/callback" ]' \
-    -s 'webOrigins=[ "https://build-test.delivery.provider.test:3100/" ]' \
-    -o --fields id >cicdtoolbox_build-test
+    -s rootUrl=https://build_test.delivery.provider.test \
+    -s adminUrl=https://build_test.delivery.provider.test:3100/ \
+    -s 'redirectUris=[ "https://build_test.delivery.provider.test:3100/user/oauth2/keycloak/callback" ]' \
+    -s 'webOrigins=[ "https://build_test.delivery.provider.test:3100/" ]' \
+    -o --fields id >cicdtoolbox_build_test
 
 # output is Created new client with id, we now need to grep the ID out of it
-BUILD-TEST_ID=$(cat cicdtoolbox_build-test | grep id | cut -d'"' -f 4)
-echo "Created cicdtoolbox_build-test client with ID: ${BUILD-TEST_ID}" 
+BUILD_TEST_ID=$(cat cicdtoolbox_build_test | grep id | cut -d'"' -f 4)
+echo "Created cicdtoolbox_build_test client with ID: ${BUILD_TEST_ID}" 
 
 # Create Client secret
-./kcadm.sh create clients/$BUILD-TEST_ID/client-secret -r cicdtoolbox
+./kcadm.sh create clients/$BUILD_TEST_ID/client-secret -r cicdtoolbox
 
 # We need to retrieve the token from keycloak for this client
-./kcadm.sh get clients/$BUILD-TEST_ID/client-secret -r cicdtoolbox >cicdtoolbox_build-test_secret
-BUILD-TEST_token=$(grep value cicdtoolbox_build-test_secret | cut -d '"' -f4)
+./kcadm.sh get clients/$BUILD_TEST_ID/client-secret -r cicdtoolbox >cicdtoolbox_build_test_secret
+BUILD_TEST_token=$(grep value cicdtoolbox_build_test_secret | cut -d '"' -f4)
 # Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source for Keycloak
-echo "Build-test_token: ${BUILD-TEST_token}"
-echo "Build-test configuration finished"
+echo "Build_test_token: ${BUILD_TEST_token}"
+echo "Build_test configuration finished"
 echo ""
 
-#Add Build-acc node
+#Add Build_acc node
 ./kcadm.sh create clients \
     -r cicdtoolbox \
-    -s name="build-acc" \
+    -s name="build_acc" \
     -s description="First step build node for Jenkins for Acceptance jobs" \
-    -s clientId=build-acc \
+    -s clientId=build_acc \
     -s enabled=true \
     -s publicClient=false \
     -s fullScopeAllowed=false \
     -s directAccessGrantsEnabled=true \
-    -s rootUrl=https://build-acc.delivery.provider.test \
-    -s adminUrl=https://build-acc.delivery.provider.test:3100/ \
-    -s 'redirectUris=[ "https://build-acc.delivery.provider.test:3100/user/oauth2/keycloak/callback" ]' \
-    -s 'webOrigins=[ "https://build-acc.delivery.provider.test:3100/" ]' \
-    -o --fields id >cicdtoolbox_build-acc
+    -s rootUrl=https://build_acc.delivery.provider.test \
+    -s adminUrl=https://build_acc.delivery.provider.test:3100/ \
+    -s 'redirectUris=[ "https://build_acc.delivery.provider.test:3100/user/oauth2/keycloak/callback" ]' \
+    -s 'webOrigins=[ "https://build_acc.delivery.provider.test:3100/" ]' \
+    -o --fields id >cicdtoolbox_build_acc
 
 # output is Created new client with id, we now need to grep the ID out of it
-BUILD-ACC_ID=$(cat cicdtoolbox_build-acc | grep id | cut -d'"' -f 4)
-echo "Created cicdtoolbox_build-acc client with ID: ${BUILD-ACC_ID}" 
+BUILD_ACC_ID=$(cat cicdtoolbox_build_acc | grep id | cut -d'"' -f 4)
+echo "Created cicdtoolbox_build_acc client with ID: ${BUILD_ACC_ID}" 
 
 # Create Client secret
-./kcadm.sh create clients/$BUILD-ACC_ID/client-secret -r cicdtoolbox
+./kcadm.sh create clients/$BUILD_ACC_ID/client-secret -r cicdtoolbox
 
 # We need to retrieve the token from keycloak for this client
-./kcadm.sh get clients/$BUILD-ACC_ID/client-secret -r cicdtoolbox >cicdtoolbox_build-acc_secret
-BUILD-ACC_token=$(grep value cicdtoolbox_build-acc_secret | cut -d '"' -f4)
+./kcadm.sh get clients/$BUILD_ACC_ID/client-secret -r cicdtoolbox >cicdtoolbox_build_acc_secret
+BUILD_ACC_token=$(grep value cicdtoolbox_build_acc_secret | cut -d '"' -f4)
 # Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source for Keycloak
-echo "Build-acc_token: ${BUILD-ACC_token}"
+echo "Build_acc_token: ${BUILD_ACC_token}"
 
-#Add Build-prod node
+#Add Build_prod node
 ./kcadm.sh create clients \
     -r cicdtoolbox \
-    -s name="build-prod" \
+    -s name="build_prod" \
     -s description="First step build node for Jenkins for Production jobs" \
-    -s clientId=build-prod \
+    -s clientId=build_prod \
     -s enabled=true \
     -s publicClient=false \
     -s fullScopeAllowed=false \
     -s directAccessGrantsEnabled=true \
-    -s rootUrl=https://build-prod.delivery.provider.test \
-    -s adminUrl=https://build-prod.delivery.provider.test:3100/ \
-    -s 'redirectUris=[ "https://build-prod.delivery.provider.test:3100/user/oauth2/keycloak/callback" ]' \
-    -s 'webOrigins=[ "https://build-prod.delivery.provider.test:3100/" ]' \
-    -o --fields id >cicdtoolbox_build-prod
+    -s rootUrl=https://build_prod.delivery.provider.test \
+    -s adminUrl=https://build_prod.delivery.provider.test:3100/ \
+    -s 'redirectUris=[ "https://build_prod.delivery.provider.test:3100/user/oauth2/keycloak/callback" ]' \
+    -s 'webOrigins=[ "https://build_prod.delivery.provider.test:3100/" ]' \
+    -o --fields id >cicdtoolbox_build_prod
 
 # output is Created new client with id, we now need to grep the ID out of it
-BUILD-PROD_ID=$(cat cicdtoolbox_build-prod | grep id | cut -d'"' -f 4)
-echo "Created cicdtoolbox_build-prod client with ID: ${BUILD-PROD_ID}" 
+BUILD_PROD_ID=$(cat cicdtoolbox_build_prod | grep id | cut -d'"' -f 4)
+echo "Created cicdtoolbox_build_prod client with ID: ${BUILD_PROD_ID}" 
 
 # Create Client secret
-./kcadm.sh create clients/$BUILD-PROD_ID/client-secret -r cicdtoolbox
+./kcadm.sh create clients/$BUILD_PROD_ID/client-secret -r cicdtoolbox
 
 # We need to retrieve the token from keycloak for this client
-./kcadm.sh get clients/$BUILD-PROD_ID/client-secret -r cicdtoolbox >cicdtoolbox_build-prod_secret
-BUILD-PROD_token=$(grep value cicdtoolbox_build-prod_secret | cut -d '"' -f4)
+./kcadm.sh get clients/$BUILD_PROD_ID/client-secret -r cicdtoolbox >cicdtoolbox_build_prod_secret
+BUILD_PROD_token=$(grep value cicdtoolbox_build_prod_secret | cut -d '"' -f4)
 # Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source for Keycloak
-echo "Build-prod_token: ${BUILD-PROD_token}"
-echo "Build-prod configuration finished"
+echo "Build_prod_token: ${BUILD_PROD_token}"
+echo "Build_prod configuration finished"
 echo ""
 
 #Add Portainer client

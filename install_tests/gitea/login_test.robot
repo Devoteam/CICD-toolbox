@@ -66,8 +66,8 @@ field_services_eng group can login                      mechanicjoe         ${VA
 field_services_floor_management group can login         patchhero           ${VALID_PASSWORD}       gitea-netcicd-read                                                                   --
 
 *** Variables ***
-${GITEA URL}      https://gitea.tooling.test:3000/
-${GITEA LOGIN}    https://gitea.tooling.test:3000/user/login?redirect_to=%2f
+${GITEA URL}      https://gitea.tooling.provider.test:3000/
+${GITEA LOGIN}    https://gitea.tooling.provider.test:3000/user/login?redirect_to=%2f
 
 *** Keywords ***
 Login with correct role provides correct authorization
@@ -84,7 +84,7 @@ Are assigned roles present
 
 Log in as user
     [Arguments]  ${USERNAME}  ${PASSWORD}
-    Go To                       https://gitea.tooling.test:3000/user/oauth2/keycloak
+    Go To                       https://gitea.tooling.provider.test:3000/user/oauth2/keycloak
     Keycloak Page Should Be Open
     Input Text                  username                ${USERNAME}
     Input Text                  password                ${PASSWORD}
@@ -95,7 +95,7 @@ Create user in Gitea
     ${user_not_created}=        Run Keyword And Return Status    Page Should Contain        Complete Account
     IF  ${user_not_created}
         Click Button                Complete Account
-        Go To                       https://gitea.tooling.test:3000/user/oauth2/keycloak
+        Go To                       https://gitea.tooling.provider.test:3000/user/oauth2/keycloak
         Gitea Page Should Be Open   ${USERNAME}
         Log To Console              User created
     ELSE

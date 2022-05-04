@@ -214,6 +214,8 @@ ipa dnszone-add delivery.provider.test
 
 # Add hosts
 addHost "cicdtoolbox-db" "internal" "172.16.9.2"
+addHost "restportal" "services" "172.16.10.2"
+addHost "portal" "services" "172.16.10.3"
 addHost "keycloak" "services" "172.16.10.11"
 addHost "freeipa" "services" "172.16.10.12"
 addHost "gitea" "tooling" "172.16.11.3"
@@ -226,4 +228,4 @@ addHost "build-prod" "delivery" "172.16.12.5"
 addHost "portainer" "monitoring" "172.16.13.4"
 addHost "loki" "monitoring" "172.16.13.5"
 addHost "promtail" "monitoring" "172.16.13.6"
-addHost "grafana" "monitoring" "172.16.13.7
+addHost "grafana" "monitoring" "172.16.13.7"

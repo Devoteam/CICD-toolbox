@@ -1,0 +1,1779 @@
+---
+swagger: "2.0"
+info:
+  description: "This is the Swagger API voor an imaginary SP called Prov."
+  version: "0.0.1"
+  title: "Provider Portal"
+  termsOfService: "https://portal.services.provider.test/terms"
+  contact:
+    email: "automation@provider.test"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "restportal.services.provider.test"
+basePath: "/v001"
+tags:
+- name: "tenant"
+  description: "The tenant owning applications."
+  externalDocs:
+    description: "ProductOffering"
+    url: "https://portal.services.provider.test/portfolio"
+- name: "az"
+  description: "Hosting environment for applications."
+  externalDocs:
+    description: "ProductOffering"
+    url: "https://portal.services.provider.test/portfolio"
+- name: "computeCluster"
+  description: "Platform for Hosting."
+  externalDocs:
+    description: "ProductOffering"
+    url: "https://portal.services.provider.test/portfolio"
+- name: "storageController"
+  description: "Access system for a storagecluster."
+  externalDocs:
+    description: "ProductOffering"
+    url: "https://portal.services.provider.test/portfolio"
+- name: "storageCluster"
+  description: "Hosting platform for Data."
+  externalDocs:
+    description: "ProductOffering"
+    url: "https://portal.services.provider.test/portfolio"
+- name: "application"
+  description: "Attachment point for environments."
+  externalDocs:
+    description: "ProductOffering"
+    url: "https://portal.services.provider.test/portfolio"
+- name: "environment"
+  description: "Environment."
+  externalDocs:
+    description: "ProductOffering"
+    url: "https://portal.services.provider.test/portfolio"
+- name: "compartiment"
+  description: "Tier of an application/subnet."
+  externalDocs:
+    description: "ProductOffering"
+    url: "https://portal.services.provider.test/portfolio"
+- name: "server"
+  description: "Compute machine, (virtual) hardware."
+  externalDocs:
+    description: "ProductOffering"
+    url: "https://portal.services.provider.test/portfolio"
+- name: "image"
+  description: "Operating system and system software."
+  externalDocs:
+    description: "ProductOffering"
+    url: "https://portal.services.provider.test/portfolio"
+- name: "conduit"
+  description: "Traffic path to or from an environment."
+  externalDocs:
+    description: "ProductOffering"
+    url: "https://portal.services.provider.test/portfolio"
+- name: "database"
+  description: "MS SQL, Oracle or PostgreSQL database"
+  externalDocs:
+    description: "ProductOffering"
+    url: "https://portal.services.provider.test/portfolio"
+- name: "domein"
+  description: "Fully Qualified Domain Name"
+  externalDocs:
+    description: "ProductOffering"
+    url: "https://portal.services.provider.test/portfolio"
+schemes:
+- "https"
+- "http"
+consumes:
+- "application/json"
+- "application/xml"
+produces:
+- "application/json"
+- "application/xml"
+paths:
+  /tenants/:
+    post:
+      tags:
+      - "tenant"
+      summary: "Add a tenant"
+      description: "Approval required."
+      operationId: "addTenant"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Tenant to be added"
+        required: true
+        schema:
+          $ref: "#/definitions/tenant"
+        x-exportParamName: "Body"
+      responses:
+        "201":
+          description: "Created"
+          schema:
+            $ref: "#/definitions/tenant"
+        "400":
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/error"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+    put:
+      tags:
+      - "tenant"
+      summary: "Edit existing tenant."
+      description: "Edit a tenant."
+      operationId: "updateTenant"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "payload"
+        description: "Edit existing tenant."
+        required: true
+        schema:
+          $ref: "#/definitions/tenant"
+        x-exportParamName: "Payload"
+      responses:
+        "201":
+          description: "Updated"
+          schema:
+            $ref: "#/definitions/tenant"
+        "400":
+          description: "ID invalid"
+        "404":
+          description: "Not Found"
+        "405":
+          description: "Validation error"
+        "501":
+          description: "Not implemented"
+  /tenants/{id}:
+    get:
+      tags:
+      - "tenant"
+      summary: "Find tenant on ID."
+      description: "Return a single tenant"
+      operationId: "getTenantById"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Find tenant on ID."
+        required: true
+        type: "integer"
+        x-exportParamName: "Id"
+      security:
+      - api_key: []
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/tenant"
+        "404":
+          description: "Not Found"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+    post:
+      tags:
+      - "tenant"
+      summary: "Edit existing tenant with form data."
+      description: "None"
+      operationId: "updateTenantWithForm"
+      consumes:
+      - "application/x-www-form-urlencoded"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of the tenant to be edited."
+        required: true
+        type: "integer"
+        x-exportParamName: "Id"
+      - name: "name"
+        in: "formData"
+        description: "Changed name"
+        required: false
+        type: "string"
+        x-exportParamName: "Name"
+        x-optionalDataType: "String"
+      - name: "status"
+        in: "formData"
+        description: "Changed status"
+        required: false
+        type: "string"
+        x-exportParamName: "Status"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/tenant"
+        "404":
+          description: "Not Found"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+    delete:
+      tags:
+      - "tenant"
+      summary: "Remove a tenant."
+      description: "Remove a tenant."
+      operationId: "deleteTenant"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "api_key"
+        in: "header"
+        required: false
+        type: "string"
+        x-exportParamName: "ApiKey"
+        x-optionalDataType: "String"
+      - name: "id"
+        in: "path"
+        description: "ID of the tenant to be removed."
+        required: true
+        type: "integer"
+        x-exportParamName: "Id"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/tenant"
+        "404":
+          description: "Not Found"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+  /azs/:
+    post:
+      tags:
+      - "az"
+      summary: "Add an AZ"
+      description: "Approval required"
+      operationId: "addAZ"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Add an AZ"
+        required: true
+        schema:
+          $ref: "#/definitions/az"
+        x-exportParamName: "Body"
+      responses:
+        "201":
+          description: "Created"
+          schema:
+            $ref: "#/definitions/az"
+        "400":
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/error"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+    put:
+      tags:
+      - "az"
+      summary: "Edit an AZ"
+      description: "Edit an AZ."
+      operationId: "updateAZ"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "payload"
+        description: "Edit an AZ."
+        required: true
+        schema:
+          $ref: "#/definitions/az"
+        x-exportParamName: "Payload"
+      responses:
+        "201":
+          description: "Updated"
+          schema:
+            $ref: "#/definitions/az"
+        "400":
+          description: "Invalid ID"
+        "404":
+          description: "Not Found"
+        "405":
+          description: "Validation error"
+        "501":
+          description: "Not implemented"
+  /azs/{id}:
+    get:
+      tags:
+      - "az"
+      summary: "Find AZ on ID."
+      description: "Returns a single AZ"
+      operationId: "getAZById"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Find AZ on ID."
+        required: true
+        type: "integer"
+        x-exportParamName: "Id"
+      security:
+      - api_key: []
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/az"
+        "404":
+          description: "Not Found"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+    post:
+      tags:
+      - "az"
+      summary: "Edit an AZ with form data."
+      description: "None"
+      operationId: "updateAZWithForm"
+      consumes:
+      - "application/x-www-form-urlencoded"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of the AZ to be edited"
+        required: true
+        type: "integer"
+        x-exportParamName: "Id"
+      - name: "name"
+        in: "formData"
+        description: "Edited name"
+        required: false
+        type: "string"
+        x-exportParamName: "Name"
+        x-optionalDataType: "String"
+      - name: "status"
+        in: "formData"
+        description: "Edited status"
+        required: false
+        type: "string"
+        x-exportParamName: "Status"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/az"
+        "404":
+          description: "Not Found"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+    delete:
+      tags:
+      - "az"
+      summary: "Remove an AZ."
+      description: "Remove an AZ."
+      operationId: "deleteAZ"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "api_key"
+        in: "header"
+        required: false
+        type: "string"
+        x-exportParamName: "ApiKey"
+        x-optionalDataType: "String"
+      - name: "id"
+        in: "path"
+        description: "ID of the AZ to be removed."
+        required: true
+        type: "integer"
+        x-exportParamName: "Id"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/az"
+        "404":
+          description: "Not Found"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+  /applications/:
+    post:
+      tags:
+      - "application"
+      summary: "Add an application"
+      description: "Permission required."
+      operationId: "addApplication"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Add an application"
+        required: true
+        schema:
+          $ref: "#/definitions/application"
+        x-exportParamName: "Body"
+      responses:
+        "201":
+          description: "Created"
+          schema:
+            $ref: "#/definitions/application"
+        "400":
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/error"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+    put:
+      tags:
+      - "application"
+      summary: "Edit an  application."
+      description: "Edit an  application."
+      operationId: "updateApplication"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "payload"
+        description: "Edit an  application."
+        required: true
+        schema:
+          $ref: "#/definitions/application"
+        x-exportParamName: "Payload"
+      responses:
+        "201":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/application"
+        "404":
+          description: "Not Found"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+  /applications/{id}:
+    get:
+      tags:
+      - "application"
+      summary: "Find application on ID."
+      description: "Returns single application"
+      operationId: "getApplicationById"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Application to be found"
+        required: true
+        type: "integer"
+        x-exportParamName: "Id"
+      security:
+      - api_key: []
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/application"
+        "404":
+          description: "Not Found"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+    post:
+      tags:
+      - "application"
+      summary: "Edit application with form data."
+      description: "None"
+      operationId: "updateApplicationWithForm"
+      consumes:
+      - "application/x-www-form-urlencoded"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of the application to be edited"
+        required: true
+        type: "integer"
+        x-exportParamName: "Id"
+      - name: "name"
+        in: "formData"
+        description: "Edited name"
+        required: false
+        type: "string"
+        x-exportParamName: "Name"
+        x-optionalDataType: "String"
+      - name: "status"
+        in: "formData"
+        description: "Edited status"
+        required: false
+        type: "string"
+        x-exportParamName: "Status"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/application"
+        "404":
+          description: "Not Found"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+    delete:
+      tags:
+      - "application"
+      summary: "Delete a application."
+      description: "Delete a application."
+      operationId: "deleteApplication"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "api_key"
+        in: "header"
+        required: false
+        type: "string"
+        x-exportParamName: "ApiKey"
+        x-optionalDataType: "String"
+      - name: "id"
+        in: "path"
+        description: "ID of the application to be deleted"
+        required: true
+        type: "integer"
+        x-exportParamName: "Id"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/application"
+        "404":
+          description: "Not Found"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+  /environments/:
+    post:
+      tags:
+      - "environment"
+      summary: "Add a new environment"
+      description: "Permission required"
+      operationId: "addEnvironment"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Environment to be added"
+        required: true
+        schema:
+          $ref: "#/definitions/environment"
+        x-exportParamName: "Body"
+      responses:
+        "201":
+          description: "Created"
+          schema:
+            $ref: "#/definitions/environment"
+        "400":
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/error"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+    put:
+      tags:
+      - "environment"
+      summary: "Edit existing environment"
+      description: "Edit existing environment"
+      operationId: "updateEnvironment"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "payload"
+        description: "Environment to be edited"
+        required: true
+        schema:
+          $ref: "#/definitions/environment"
+        x-exportParamName: "Payload"
+      responses:
+        "201":
+          description: "Updated"
+          schema:
+            $ref: "#/definitions/environment"
+        "400":
+          description: "ID ongeldig/bestaat niet"
+        "404":
+          description: "Environment niet gevonden"
+        "405":
+          description: "Validatieprobleem"
+        "501":
+          description: "Not implemented"
+  /environments/{id}:
+    get:
+      tags:
+      - "environment"
+      summary: "Find environment on ID."
+      description: "Geeft enkele environment terug."
+      operationId: "getEnvironmentById"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Environment to be found"
+        required: true
+        type: "integer"
+        x-exportParamName: "Id"
+      security:
+      - api_key: []
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/environment"
+        "404":
+          description: "Not Found"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+    post:
+      tags:
+      - "environment"
+      summary: "Edit environment with form data."
+      description: "None"
+      operationId: "updateEnvironmentWithForm"
+      consumes:
+      - "application/x-www-form-urlencoded"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of the environment to be edited"
+        required: true
+        type: "integer"
+        x-exportParamName: "Id"
+      - name: "name"
+        in: "formData"
+        description: "Edited name"
+        required: false
+        type: "string"
+        x-exportParamName: "Name"
+        x-optionalDataType: "String"
+      - name: "status"
+        in: "formData"
+        description: "Edited status"
+        required: false
+        type: "string"
+        x-exportParamName: "Status"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/environment"
+        "404":
+          description: "Not Found"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+    delete:
+      tags:
+      - "environment"
+      summary: "Delete a environment."
+      description: "Delete a environment."
+      operationId: "deleteEnvironment"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "api_key"
+        in: "header"
+        required: false
+        type: "string"
+        x-exportParamName: "ApiKey"
+        x-optionalDataType: "String"
+      - name: "id"
+        in: "path"
+        description: "ID of the environment to be deleted"
+        required: true
+        type: "integer"
+        x-exportParamName: "Id"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/environment"
+        "404":
+          description: "Not Found"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+  /servers/:
+    post:
+      tags:
+      - "server"
+      summary: "Ass a new server toevoegen"
+      description: "Toevoegen kan alleen als de server zowel in Topdesk is aangemaakt.\
+        \ Dit wordt bij uitvoering of the call gecontroleerd tegen deze systemen."
+      operationId: "addServer"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Server to be added"
+        required: true
+        schema:
+          $ref: "#/definitions/server"
+        x-exportParamName: "Body"
+      responses:
+        "201":
+          description: "Created"
+          schema:
+            $ref: "#/definitions/server"
+        "400":
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/error"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+    put:
+      tags:
+      - "server"
+      summary: "Existing server bijwerken."
+      description: "Bijwerken of the wijzigbare gegevens van een server."
+      operationId: "updateServer"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "payload"
+        description: "Server to be edited"
+        required: true
+        schema:
+          $ref: "#/definitions/server"
+        x-exportParamName: "Payload"
+      responses:
+        "201":
+          description: "Updated"
+          schema:
+            $ref: "#/definitions/server"
+        "400":
+          description: "ID ongeldig/bestaat niet"
+        "404":
+          description: "Server niet gevonden"
+        "405":
+          description: "Validatieprobleem"
+        "501":
+          description: "Not implemented"
+  /servers/{id}:
+    get:
+      tags:
+      - "server"
+      summary: "Find server on ID."
+      description: "Returns single server"
+      operationId: "getServerById"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Server to be found"
+        required: true
+        type: "integer"
+        x-exportParamName: "Id"
+      security:
+      - api_key: []
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/server"
+        "404":
+          description: "Not Found"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+    post:
+      tags:
+      - "server"
+      summary: "Edit server with form data."
+      description: "None"
+      operationId: "updateServerWithForm"
+      consumes:
+      - "application/x-www-form-urlencoded"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of the server to be edited"
+        required: true
+        type: "integer"
+        x-exportParamName: "Id"
+      - name: "name"
+        in: "formData"
+        description: "Edited name"
+        required: false
+        type: "string"
+        x-exportParamName: "Name"
+        x-optionalDataType: "String"
+      - name: "status"
+        in: "formData"
+        description: "Edited status"
+        required: false
+        type: "string"
+        x-exportParamName: "Status"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/server"
+        "404":
+          description: "Not Found"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+    delete:
+      tags:
+      - "server"
+      summary: "Delete a server."
+      description: "Delete a server."
+      operationId: "deleteServer"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "api_key"
+        in: "header"
+        required: false
+        type: "string"
+        x-exportParamName: "ApiKey"
+        x-optionalDataType: "String"
+      - name: "id"
+        in: "path"
+        description: "ID of the server to be deleted"
+        required: true
+        type: "integer"
+        x-exportParamName: "Id"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/server"
+        "404":
+          description: "Not Found"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+  /pf-images/:
+    post:
+      tags:
+      - "image"
+      summary: "Add an image"
+      description: "Image must be approved"
+      operationId: "addPfImage"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Image to be added"
+        required: true
+        schema:
+          $ref: "#/definitions/image"
+        x-exportParamName: "Body"
+      responses:
+        "201":
+          description: "Created"
+          schema:
+            $ref: "#/definitions/image"
+        "400":
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/error"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+  /pf-images/{id}:
+    get:
+      tags:
+      - "image"
+      summary: "Find image on ID."
+      description: "Retruns a single image"
+      operationId: "getPfImageById"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Image to be found"
+        required: true
+        type: "integer"
+        x-exportParamName: "Id"
+      security:
+      - api_key: []
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/image"
+        "404":
+          description: "Not Found"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+      x-terraform-resource-host: "portfolio.services.test:443"
+  /images/:
+    post:
+      tags:
+      - "image"
+      summary: "Add an image"
+      description: "Image must be approved"
+      operationId: "addImage"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Image to be added"
+        required: true
+        schema:
+          $ref: "#/definitions/image"
+        x-exportParamName: "Body"
+      responses:
+        "201":
+          description: "Created"
+          schema:
+            $ref: "#/definitions/image"
+        "400":
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/error"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+    put:
+      tags:
+      - "image"
+      summary: "Edit image"
+      description: "Edit image"
+      operationId: "updateImage"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "payload"
+        description: "Image to be edited"
+        required: true
+        schema:
+          $ref: "#/definitions/image"
+        x-exportParamName: "Payload"
+      responses:
+        "201":
+          description: "Updated"
+          schema:
+            $ref: "#/definitions/image"
+        "400":
+          description: "Bad Request"
+        "404":
+          description: "Not Found"
+        "405":
+          description: "Validation error"
+        "501":
+          description: "Not implemented"
+  /images/{id}:
+    get:
+      tags:
+      - "image"
+      summary: "Find image on ID."
+      description: "Retruns a single image"
+      operationId: "getImageById"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Image to be found"
+        required: true
+        type: "integer"
+        x-exportParamName: "Id"
+      security:
+      - api_key: []
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/image"
+        "404":
+          description: "Not Found"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+    post:
+      tags:
+      - "image"
+      summary: "Edit image with form data."
+      description: "None"
+      operationId: "updateImageWithForm"
+      consumes:
+      - "application/x-www-form-urlencoded"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of the image to be edited"
+        required: true
+        type: "integer"
+        x-exportParamName: "Id"
+      - name: "name"
+        in: "formData"
+        description: "Edited name"
+        required: false
+        type: "string"
+        x-exportParamName: "Name"
+        x-optionalDataType: "String"
+      - name: "status"
+        in: "formData"
+        description: "Edited status"
+        required: false
+        type: "string"
+        x-exportParamName: "Status"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/image"
+        "404":
+          description: "Not Found"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+    delete:
+      tags:
+      - "image"
+      summary: "Delete a image."
+      description: "Delete a image."
+      operationId: "deleteImage"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "api_key"
+        in: "header"
+        required: false
+        type: "string"
+        x-exportParamName: "ApiKey"
+        x-optionalDataType: "String"
+      - name: "id"
+        in: "path"
+        description: "ID of the image to be deleted"
+        required: true
+        type: "integer"
+        x-exportParamName: "Id"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/image"
+        "404":
+          description: "Not Found"
+        "405":
+          description: "Invalid input"
+        "500":
+          description: "Internal Server Error"
+        "501":
+          description: "Not implemented"
+securityDefinitions:
+  provportal_auth:
+    type: "oauth2"
+    authorizationUrl: "http://oauth.services.provider.test/oauth/dialog"
+    flow: "implicit"
+    scopes:
+      write:tenant: "Change Tenants"
+      read:tenant: "Retrieve data about Tenants"
+      write:az: "Change AZ"
+      read:az: "Retrieve data about an AZ"
+      write:computecluster: "Change Compute Cluster"
+      read:computecluster: "Retrieve data about Compute Cluster"
+      write:storagecontroller: "Change Storage Controller"
+      read:storagecontroller: "Retrieve data about Storage Controller"
+      write:storagecluster: "Change Storage Cluster"
+      read:storagecluster: "Retrieve data about Storage Cluster"
+      write:application: "Change Application"
+      read:application: "Retrieve data about an Application"
+      write:environment: "Change an environment"
+      read:environment: "Retrieve data about an environment"
+      write:compartiment: "Change a compartiment"
+      read:compartiment: "Retrieve data about a compartiment"
+      write:server: "Change a Server"
+      read:server: "Retrieve data about a Server"
+      write:image: "Change an image"
+      read:image: "Retrieve data about an image"
+      write:conduit: "Change a conduit"
+      read:conduit: "Retrieve data about a conduit"
+      write:database: "Change a database"
+      read:database: "Retrieve data about a database"
+      write:domein: "Change a domain"
+      read:domein: "Retrieve data about a domain"
+  api_key:
+    type: "apiKey"
+    name: "api_key"
+    in: "header"
+definitions:
+  error:
+    type: "object"
+    properties:
+      code:
+        type: "string"
+        example: "invalid_value"
+        description: "an application-specific error code, expressed as a string value."
+      detail:
+        type: "string"
+        example: "Value of ID must be an integer"
+        description: "a human-readable explanation specific to this occurrence of\
+          \ the problem."
+      id:
+        type: "string"
+        example: "3F1FKVRR"
+        description: "a unique identifier for this particular occurrence of the problem."
+      meta:
+        type: "object"
+        example:
+          timestamp: 1458609000
+        description: "a meta object containing non-standard meta-information about\
+          \ the error."
+        properties: {}
+      status:
+        type: "string"
+        example: "400"
+        description: "the HTTP status code applicable to this problem, expressed as\
+          \ a string value."
+    title: "Error"
+    description: "Error response media type (default view)"
+    example:
+      code: "invalid_value"
+      detail: "Value of ID must be an integer"
+      id: 1
+      meta:
+        timestamp: 1458609000
+      status: "400"
+  contract:
+    type: "object"
+    required:
+    - "costcenter"
+    - "name"
+    - "status"
+    properties:
+      id:
+        type: "integer"
+        example: 1
+        description: "Unique contract ID"
+        readOnly: true
+      name:
+        type: "string"
+        example: "krt"
+        description: "Name of contract"
+        minLength: 1
+      description:
+        type: "string"
+        example: "x"
+        description: "Description of contract"
+        minLength: 1
+      costcenter:
+        type: "string"
+        example: "123456789"
+        description: "Costcenter of contract"
+      status:
+        type: "string"
+        example: "Active"
+        description: "Status of contract"
+        enum:
+        - "Active"
+        - "Inactive"
+    title: "contract"
+    xml:
+      name: "contract"
+    description: "Contract in the datacenter"
+    example:
+      id: 1
+      name: "Richie"
+      description: "The paying party"
+      costcenter: 123456789
+      status: "Operational"
+  tenant:
+    type: "object"
+    required:
+    - "name"
+    - "party"
+    properties:
+      id:
+        type: "integer"
+        example: 1
+        description: "Unique tenant ID"
+        readOnly: true
+      name:
+        type: "string"
+        example: "krt"
+        description: "Name of tenant"
+        minLength: 1
+      description:
+        type: "string"
+        example: "x"
+        description: "Description of tenant"
+        minLength: 1
+      party:
+        type: "string"
+        example: "Betaler"
+        description: "Name of the contract"
+        minLength: 1
+      status:
+        type: "string"
+        example: "Operational"
+        description: "Status of tenant"
+        enum:
+        - "Radar"
+        - "Planned"
+        - "Global Design"
+        - "Detail design"
+        - "Build"
+        - "Test"
+        - "Accept"
+        - "RFS"
+        - "Operationeel"
+        - "End-of-life"
+        - "Retired"
+        - "Deleted"
+    title: "tenant"
+    xml:
+      name: "tenant"
+    description: "Tenant in the datacenter"
+    example:
+      id: 1
+      name: "hushhush"
+      description: "The secret tenant"
+      costcenter: 123456789
+      status: "Operational"
+  az:
+    type: "object"
+    required:
+    - "name"
+    properties:
+      id:
+        type: "integer"
+        example: 1
+        description: "Unique az ID"
+        readOnly: true
+      name:
+        type: "string"
+        example: "AP1"
+        description: "Name of az"
+        minLength: 1
+      description:
+        type: "string"
+        example: "Some AZ somewhere"
+        description: "Description of AZ"
+        minLength: 1
+      region:
+        type: "string"
+        example: "ODC"
+        description: "Regio/cloud where the AZ is build"
+        enum:
+        - "North"
+        - "West"
+        - "Sounth"
+        - "East"
+        - "Azure"
+        - "AWS"
+      az:
+        type: "string"
+        example: "ODC"
+        description: "Availability Zone waarin de AZ is gebuildd binnen de regio"
+        enum:
+        - "South/1"
+        - "South/2"
+        - "South/3"
+        - "East"
+        - "Azure"
+      party:
+        type: "string"
+        example: "Betaler"
+        description: "Name of the contract"
+        minLength: 1
+      status:
+        type: "string"
+        example: "Operational"
+        description: "Status of az"
+        enum:
+        - "Radar"
+        - "Planned"
+        - "Global Design"
+        - "Detail design"
+        - "Build"
+        - "Test"
+        - "Accept"
+        - "RFS"
+        - "Operationeel"
+        - "End-of-life"
+        - "Retired"
+        - "Deleted"
+    title: "az"
+    xml:
+      name: "az"
+    description: "AZ in the datacenter"
+    example:
+      id: 1
+      name: "shared"
+      description: "The shared az"
+      region: "ODC"
+      az: 1
+      party: "PROV"
+      status: "Operational"
+  application:
+    type: "object"
+    required:
+    - "name"
+    - "status"
+    properties:
+      id:
+        type: "integer"
+        example: 1
+        description: "Unique application ID"
+        readOnly: true
+      name:
+        type: "string"
+        example: "MyApp"
+        description: "Name of application"
+        minLength: 1
+      description:
+        type: "string"
+        example: "Some Application somewhere"
+        description: "Description of Application"
+        minLength: 1
+      party:
+        type: "string"
+        example: "Betaler"
+        description: "Name of the contract"
+        minLength: 1
+      pod:
+        type: "string"
+        example: "AP01"
+        description: "Name of the App-PoD"
+        minLength: 1
+      status:
+        type: "string"
+        example: "Operational"
+        description: "Status of application"
+        enum:
+        - "Radar"
+        - "Planned"
+        - "Global Design"
+        - "Detail design"
+        - "Build"
+        - "Test"
+        - "Accept"
+        - "RFS"
+        - "Operationeel"
+        - "End-of-life"
+        - "Retired"
+        - "Deleted"
+    title: "application"
+    xml:
+      name: "application"
+    description: "Application in the datacenter"
+    example:
+      id: 1
+      name: "MyApp"
+      description: "MySuperduperApp"
+      party: "PROV"
+      pod: "AP01"
+      status: "Operational"
+  environment:
+    type: "object"
+    required:
+    - "name"
+    - "status"
+    properties:
+      id:
+        type: "integer"
+        example: 1
+        description: "Unique environment ID"
+        readOnly: true
+      name:
+        type: "string"
+        example: "MyApp"
+        description: "Name of environment"
+        minLength: 1
+      description:
+        type: "string"
+        example: "Some Environment somewhere"
+        description: "Description of Environment"
+        minLength: 1
+      party:
+        type: "string"
+        example: "Betaler"
+        description: "Name of the contract"
+        minLength: 1
+      pod:
+        type: "string"
+        example: "AP01"
+        description: "Name of the App-PoD"
+        minLength: 1
+      subnet:
+        type: "string"
+        example: "1.2.3.4"
+        description: "subnet"
+        readOnly: true
+      mask:
+        type: "string"
+        example: "24"
+        description: "subnet in bits"
+        readOnly: true
+      nos:
+        type: "integer"
+        example: "1-4"
+        description: "Number of Servers"
+      status:
+        type: "string"
+        example: "Operational"
+        description: "Status of environment"
+        enum:
+        - "Radar"
+        - "Planned"
+        - "Global Design"
+        - "Detail design"
+        - "Build"
+        - "Test"
+        - "Accept"
+        - "RFS"
+        - "Operationeel"
+        - "End-of-life"
+        - "Retired"
+        - "Deleted"
+    title: "environment"
+    xml:
+      name: "environment"
+    description: "Environment in the datacenter"
+    example:
+      id: 1
+      name: "Dev"
+      description: "Dev environment MyApp"
+      party: "PROV"
+      pod: "AP01"
+      subnet: "1.2.3.0"
+      mask: 24
+      nos: 24
+      status: "Operational"
+  server:
+    type: "object"
+    required:
+    - "name"
+    - "status"
+    properties:
+      id:
+        type: "integer"
+        example: 1
+        description: "Unique server ID"
+        readOnly: true
+      name:
+        type: "string"
+        example: "MyApp"
+        description: "Name of server"
+        minLength: 1
+      description:
+        type: "string"
+        example: "Some Server somewhere"
+        description: "Description of Server"
+        minLength: 1
+      party:
+        type: "string"
+        example: "Betaler"
+        description: "Name of the contract"
+        minLength: 1
+      env:
+        type: "string"
+        example: "AP01"
+        description: "Name of the Environment"
+        minLength: 1
+      size:
+        type: "string"
+        example: "XL"
+        description: "Grootte of the server"
+        readOnly: true
+      image:
+        type: "integer"
+        example: 1
+        description: "The ID of the OS"
+      status:
+        type: "string"
+        example: "Operational"
+        description: "Status of server"
+        enum:
+        - "Radar"
+        - "Planned"
+        - "Global Design"
+        - "Detail design"
+        - "Build"
+        - "Test"
+        - "Accept"
+        - "RFS"
+        - "Operationeel"
+        - "End-of-life"
+        - "Retired"
+        - "Deleted"
+    title: "server"
+    xml:
+      name: "server"
+    description: "Server in the datacenter"
+    example:
+      id: 1
+      name: "Frontend"
+      description: "Frontend server MyApp"
+      party: "PROV"
+      env: "Dev"
+      size: "XL"
+      status: "Operational"
+  image:
+    type: "object"
+    required:
+    - "name"
+    - "status"
+    properties:
+      id:
+        type: "integer"
+        example: 1
+        description: "Unique image ID"
+        readOnly: true
+      name:
+        type: "string"
+        example: "MyApp"
+        description: "Name of image"
+        minLength: 1
+      description:
+        type: "string"
+        example: "My awesome OS image"
+        description: "Description of Image"
+        minLength: 1
+      type:
+        type: "string"
+        example: "Container"
+        description: "Image type"
+        enum:
+        - "VM"
+        - "Container"
+      os:
+        type: "string"
+        example: "Alpine"
+        description: "Image OS"
+        enum:
+        - "Windows_server_2019"
+        - "Windows_core_2019"
+        - "Windows_server_2022"
+        - "Windows_core_2022"
+        - "RHEL8"
+      status:
+        type: "string"
+        example: "Operational"
+        description: "Status of image"
+        enum:
+        - "Radar"
+        - "Planned"
+        - "Global Design"
+        - "Detail design"
+        - "Build"
+        - "Test"
+        - "Accept"
+        - "RFS"
+        - "Operationeel"
+        - "End-of-life"
+        - "Retired"
+        - "Deleted"
+    title: "image"
+    xml:
+      name: "image"
+    description: "Some image"
+    example:
+      id: 1
+      name: "Windows_Core_2022"
+      description: "OS type"
+      party: "PROV"
+      env: "Dev"
+      size: "XL"
+      status: "Operational"
+  ApiResponse:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+      type:
+        type: "string"
+      message:
+        type: "string"
+responses:
+  InternalServerError:
+    description: "Internal Server Error"
+  NotFound:
+    description: "Not Found"
+externalDocs:
+  description: "For information on the services, see the portal"
+  url: "https://restportal.services.provider.test/portfolio"

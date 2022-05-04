@@ -67,6 +67,13 @@ fi
 echo " Add CICDtoolbox-db to /etc/hosts"
 sudo echo "172.16.9.2   cicdtoolbox-db.internal.provider.test" >> /etc/hosts
 
+if grep -q "restportal" /etc/hosts; then
+    echo " Provider REST portal exists in /etc/hosts, removing..."
+    sudo sed -i '/restportal.services.provider.test/d' /etc/hosts
+fi
+echo " Add Provider REST portal to /etc/hosts"
+sudo echo "172.16.10.2   restportal.services.provider.test" >> /etc/hosts
+
 if grep -q "keycloak" /etc/hosts; then
     echo " Keycloak exists in /etc/hosts, removing..."
     sudo sed -i '/keycloak.services.provider.test/d' /etc/hosts
@@ -213,6 +220,7 @@ echo " Creating CSR for all containers, so they can be copied in in the Dockerfi
 echo "****************************************************************************************************************"
 freeipa/create-certificates.sh cicdtoolbox-db.internal
 freeipa/create-certificates.sh keycloak.services
+freeipa/create-certificates.sh restportal.services
 freeipa/create-certificates.sh gitea.tooling
 freeipa/create-certificates.sh jenkins.tooling
 freeipa/create-certificates.sh nexus.tooling
@@ -242,7 +250,9 @@ echo "**************************************************************************
 echo " Saving FreeIPA self-signed certificate"
 echo "****************************************************************************************************************"
 docker cp freeipa.services.provider.test:/etc/ipa/ca.crt ca.crt
+cp ca.crt gitea/ca.crt
 cp ca.crt keycloak/ca.crt
+cp ca.crt restportal/ca.crt
 cp ca.crt nexus/ca.crt
 cp ca.crt cicdtoolbox-db/ca.crt
 cp ca.crt loki/ca.crt
@@ -272,7 +282,7 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating database"
 echo "****************************************************************************************************************"
-DOCKER_BUILDKIT=1 docker-compose up -d --build cicdtoolbox-db
+DOCKER_BUILDKIT=1 docker-compose up -d --build cicdtoolbox-db.internal.provider.test
 sleep 10
 echo " " 
 echo "****************************************************************************************************************"
@@ -309,6 +319,10 @@ echo "**************************************************************************
 Grafana_CLIENT_SECRET=$(grep Grafana_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r')
 echo $Grafana_CLIENT_SECRET
 echo "****************************************************************************************************************"
+echo " Creating keycloak-nexus json"
+echo "****************************************************************************************************************"
+docker cp keycloak.services.provider.test:/opt/jboss/keycloak/bin/keycloak-nexus.json nexus/keycloak-nexus.json
+echo "****************************************************************************************************************"
 echo " Booting the remainder of the containers"
 echo "****************************************************************************************************************"
 DOCKER_BUILDKIT=1 docker-compose up -d --build --no-deps gitea.tooling.provider.test
@@ -333,8 +347,6 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating nexus setup (~ 115 sec.)"
 echo "****************************************************************************************************************"
-docker cp keycloak.tooling.provider.test:/opt/jboss/keycloak/bin/keycloak-nexus.json nexus/keycloak-nexus.json
-docker cp nexus/keycloak-nexus.json nexus.tooling.provider.test:/opt/sonatype/nexus/etc/keycloak.json
 openssl pkcs12 -export -in ./freeipa/certs/nexus.tooling.provider.test.pem -inkey ./freeipa/certs/nexus.tooling.provider.test.key -name nexus.tooling.provider.test -out ./nexus/nexus.p12 -password pass:${nexus_storepass}
 chmod 644 ./nexus/nexus.p12
 docker cp nexus/nexus.p12 nexus.tooling.provider.test:/nexus-data/etc/nexus.p12

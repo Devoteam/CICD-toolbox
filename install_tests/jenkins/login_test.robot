@@ -66,9 +66,9 @@ field_services_eng group can login                      mechanicjoe         ${VA
 field_services_floor_management group can login         patchhero           ${VALID_PASSWORD}       jenkins-user                                                                        jenkins-netcicd-run,jenkins-netcicd-dev,jenkins-cicdtoolbox-run,jenkins-cicdtoolbox-dev
 
 *** Variables ***
-${JENKINS URL}      https://jenkins.tooling.test:8084/
-${JENKINS whoAmI}   https://jenkins.tooling.test:8084/whoAmI
-${JENKINS LOGOUT}   https://jenkins.tooling.test:8084/logout 
+${JENKINS URL}      https://jenkins.tooling.provider.test:8084/
+${JENKINS whoAmI}   https://jenkins.tooling.provider.test:8084/whoAmI
+${JENKINS LOGOUT}   https://jenkins.tooling.provider.test:8084/logout 
 
 *** Keywords ***
 Login with correct role provides correct authorization
