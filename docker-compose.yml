@@ -77,7 +77,7 @@ services:
       internal:
         ipv4_address: 172.16.10.2
     ports:
-      - '8080:8080'
+      - '8888:8080'
     healthcheck:
       test: curl --insecure --head --fail -s https://localhost:8080 || exit 1
       interval: 1m30s
@@ -380,7 +380,7 @@ services:
     stop_grace_period: 15s
     environment:
       - GF_SERVER_DOMAIN="grafana.monitoring.provider.test"
-      - GF_SERVER_ROOT_URL="https://grafana.monitoring.provider.test"
+      - GF_SERVER_ROOT_URL="grafana.monitoring.provider.test"
       - GF_AUTH_GENERIC_OAUTH_ENABLED="true"
       - GF_AUTH_GENERIC_OAUTH_NAME="Login with Keycloak"
       - GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP="false"

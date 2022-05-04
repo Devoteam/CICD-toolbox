@@ -326,6 +326,7 @@ echo "**************************************************************************
 echo " Booting the remainder of the containers"
 echo "****************************************************************************************************************"
 DOCKER_BUILDKIT=1 docker-compose up -d --build --no-deps gitea.tooling.provider.test
+docker-compose up -d --build --no-deps restportal.services.provider.test
 docker-compose up -d --build --no-deps jenkins.tooling.provider.test
 docker-compose up -d --build --no-deps nexus.tooling.provider.test
 docker-compose up -d --build --no-deps build-dev.delivery.provider.test
