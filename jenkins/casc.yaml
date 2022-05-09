@@ -210,7 +210,7 @@ jenkins:
       disableSslVerification: false
       logoutFromOpenidProvider: true
       endSessionEndpoint: "https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/logout"
-      postLogoutRedirectUrl: "https://jenkins.services.provider.test:8084"
+      postLogoutRedirectUrl: "https://jenkins.tooling.provider.test:8084"
       escapeHatchEnabled: true
       escapeHatchGroup: "local-admin"
       escapeHatchSecret: ${JENKINS_ADMIN_PASSWORD}

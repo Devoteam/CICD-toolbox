@@ -60,6 +60,20 @@ echo " hosts file."
 echo "****************************************************************************************************************"
 echo " " 
 sudo chmod o+w /etc/hosts
+if grep -q "ipa-ca" /etc/hosts; then
+    echo " ipa-ca exists in /etc/hosts, removing..."
+    sudo sed -i '/ipa-ca.tooling.provider.test/d' /etc/hosts
+fi
+echo " Add ipa-ca /etc/hosts"
+sudo echo "172.16.8.12   ipa-ca.tooling.provider.test" >> /etc/hosts
+
+if grep -q "freeipa" /etc/hosts; then
+    echo " FreeIPA exists in /etc/hosts, removing..."
+    sudo sed -i '/freeipa.iam.provider.test/d' /etc/hosts
+fi
+echo " Add FreeIPA to /etc/hosts"
+sudo echo "172.16.8.12   freeipa.iam.provider.test" >> /etc/hosts
+
 if grep -q "cicdtoolbox-db" /etc/hosts; then
     echo " CICDtoolbox-db exists in /etc/hosts, removing..."
     sudo sed -i '/cicdtoolbox-db.internal.provider.test/d' /etc/hosts
@@ -80,20 +94,6 @@ if grep -q "keycloak" /etc/hosts; then
 fi
 echo " Add Keycloak to /etc/hosts"
 sudo echo "172.16.10.11   keycloak.services.provider.test" >> /etc/hosts
-
-if grep -q "ipa-ca" /etc/hosts; then
-    echo " ipa-ca exists in /etc/hosts, removing..."
-    sudo sed -i '/ipa-ca.tooling.provider.test/d' /etc/hosts
-fi
-echo " Add ipa-ca /etc/hosts"
-sudo echo "172.16.10.12   ipa-ca.tooling.provider.test" >> /etc/hosts
-
-if grep -q "freeipa" /etc/hosts; then
-    echo " FreeIPA exists in /etc/hosts, removing..."
-    sudo sed -i '/freeipa.services.provider.test/d' /etc/hosts
-fi
-echo " Add FreeIPA to /etc/hosts"
-sudo echo "172.16.10.12   freeipa.services.provider.test" >> /etc/hosts
 
 if grep -q "gitea" /etc/hosts; then
     echo " Gitea exists in /etc/hosts, removing..."
@@ -221,6 +221,7 @@ echo "**************************************************************************
 freeipa/create-certificates.sh cicdtoolbox-db.internal
 freeipa/create-certificates.sh keycloak.services
 freeipa/create-certificates.sh restportal.services
+freeipa/create-certificates.sh portal.services
 freeipa/create-certificates.sh gitea.tooling
 freeipa/create-certificates.sh jenkins.tooling
 freeipa/create-certificates.sh nexus.tooling
@@ -236,12 +237,12 @@ echo "**************************************************************************
 echo " Creating freeIPA"
 echo "****************************************************************************************************************"
 docker-compose pull 
-docker-compose up -d --build --remove-orphans freeipa.services.provider.test
+docker-compose up -d --build --remove-orphans freeipa.iam.provider.test
 echo "****************************************************************************************************************"
 echo " Wait until FreeIPA has self-installed (~375 sec)"
 echo "****************************************************************************************************************"
 let t=0
-until  docker logs freeipa.services.provider.test | grep "ipa-server-install command was successful"; do
+until  docker logs freeipa.iam.provider.test | grep "ipa-server-install command was successful"; do
     spin
 done
 endspin
@@ -249,7 +250,7 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Saving FreeIPA self-signed certificate"
 echo "****************************************************************************************************************"
-docker cp freeipa.services.provider.test:/etc/ipa/ca.crt ca.crt
+docker cp freeipa.iam.provider.test:/etc/ipa/ca.crt ca.crt
 cp ca.crt gitea/ca.crt
 cp ca.crt keycloak/ca.crt
 cp ca.crt restportal/ca.crt
@@ -262,22 +263,22 @@ cp ca.crt jenkins_buildnode/ca.crt
 echo "****************************************************************************************************************"
 echo " Copy csr files to FreeIPA for signing"
 echo "****************************************************************************************************************"
-docker cp freeipa/cert* freeipa.services.provider.test:/tmp
+docker cp freeipa/cert* freeipa.iam.provider.test:/tmp
 echo "****************************************************************************************************************"
 echo " Creating FreeIPA setup. This will take time..."
 echo "****************************************************************************************************************"
-docker exec -it freeipa.services.provider.test sh -c "/root/freeipa-install.sh ${netcicd_pwd} ${freeipa_pwd}" | tee install_log/freeipa_create.log
+docker exec -it freeipa.iam.provider.test sh -c "/root/freeipa-install.sh ${netcicd_pwd} ${freeipa_pwd}" | tee install_log/freeipa_create.log
 echo " " 
 echo "****************************************************************************************************************"
 echo " Saving host certificates"
 echo "****************************************************************************************************************"
-docker cp freeipa.services.provider.test:/tmp/certs freeipa/
+docker cp freeipa.iam.provider.test:/tmp/certs freeipa/
 chmod 644 freeipa/certs/*
 cp freeipa/certs/cicdtoolbox-db.internal.provider.test.key cicdtoolbox-db/docker-entrypoint-initdb-resources/server.key
 cp freeipa/certs/cicdtoolbox-db.internal.provider.test.pem cicdtoolbox-db/docker-entrypoint-initdb-resources/server.crt
 cp ca.crt cicdtoolbox-db/docker-entrypoint-initdb-resources/root.crt
 cp freeipa/certs/gitea* gitea/
-docker exec freeipa.services.provider.test rm -rf /tmp/host*
+docker exec freeipa.iam.provider.test rm -rf /tmp/host*
 echo " "
 echo "****************************************************************************************************************"
 echo " Creating database"
@@ -329,10 +330,6 @@ DOCKER_BUILDKIT=1 docker-compose up -d --build --no-deps gitea.tooling.provider.
 docker-compose up -d --build --no-deps restportal.services.provider.test
 docker-compose up -d --build --no-deps jenkins.tooling.provider.test
 docker-compose up -d --build --no-deps nexus.tooling.provider.test
-docker-compose up -d --build --no-deps build-dev.delivery.provider.test
-docker-compose up -d --build --no-deps build-test.delivery.provider.test
-docker-compose up -d --build --no-deps build-acc.delivery.provider.test
-docker-compose up -d --build --no-deps build-prod.delivery.provider.test
 docker-compose up -d --build --no-deps portainer.monitoring.provider.test
 docker-compose up -d --build --no-deps loki.monitoring.provider.test
 docker-compose up -d --build --no-deps promtail.monitoring.provider.test
@@ -383,6 +380,28 @@ until $(curl --output /dev/null --insecure --silent --head --fail https://jenkin
 done
 endspin
 echo " " 
+echo "****************************************************************************************************************"
+echo " Downloading agent.jar from jenkins"
+echo "****************************************************************************************************************"
+if $(curl --output /dev/null --silent --head --fail http://jenkins.tooling.provider.test:8084/whoAmI); then
+    wget http://jenkins.tooling.provider.test:8084/jnlpJars/agent.jar
+    echo "Retrieved agent.jar from Jenkins."
+    mv agent.jar jenkins_buildnode/agent.jar
+else
+    echo "Jenkins not running, no recent agent present"
+fi
+echo " " 
+echo "****************************************************************************************************************"
+echo " Letting Robot retrieve build secrets"
+echo "****************************************************************************************************************"
+echo " " 
+echo "****************************************************************************************************************"
+echo " Building Jenkins build nodes"
+echo "****************************************************************************************************************"
+docker-compose up -d --build --no-deps build-dev.delivery.provider.test
+docker-compose up -d --build --no-deps build-test.delivery.provider.test
+docker-compose up -d --build --no-deps build-acc.delivery.provider.test
+docker-compose up -d --build --no-deps build-prod.delivery.provider.test
 echo "****************************************************************************************************************"
 echo " Preparing for finalizing install via ROBOT"
 echo "****************************************************************************************************************"
@@ -448,7 +467,7 @@ echo "You can read the install test report in install_tests/report.html"
 echo " "
 echo "You can reach the servers on:"
 echo " "
-echo " FreeIPA:     https://freeipa.services.provider.test"
+echo " FreeIPA:     https://freeipa.iam.provider.test"
 echo " Keycloak:    https://keycloak.services.provider.test:8443"
 echo " Gitea:       https://gitea.tooling.provider.test:3000"
 echo " Jenkins:     https://jenkins.tooling.provider.test:8084"

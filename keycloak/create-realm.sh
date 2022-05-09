@@ -16,63 +16,6 @@ echo "Credentials created"
     -s displayNameHtml="<b>Welcome to your Development Toolkit</b>"
 echo "Realm created"
 
-# Add FreeIPA integration
-./kcadm.sh create components -r cicdtoolbox \
-    -s name=freeipa \
-    -s providerId=ldap \
-    -s providerType=org.keycloak.storage.UserStorageProvider \
-    -s 'config.priority=["1"]' \
-    -s 'config.editMode=["READ_ONLY"]' \
-    -s 'config.syncRegistrations=["true"]' \
-    -s 'config.vendor=["rhds"]' \
-    -s 'config.usernameLDAPAttribute=["uid"]' \
-    -s 'config.rdnLDAPAttribute=["uid"]' \
-    -s 'config.uuidLDAPAttribute=["ipaUniqueID"]' \
-    -s 'config.userObjectClasses=["inetOrgPerson, organizationalPerson"]' \
-    -s 'config.connectionUrl=["ldaps://freeipa.services.provider.test"]' \
-    -s 'config.usersDn=["cn=users,cn=accounts,dc=services,dc=provider,dc=test"]' \
-    -s 'config.searchScope=["1"]' \
-    -s 'config.authType=["simple"]' \
-    -s 'config.bindDn=["uid=admin,cn=users,cn=accounts,dc=services,dc=provider,dc=test"]' \
-    -s 'config.bindCredential=["'$3'"]' \
-    -s 'config.useTruststoreSpi=["ldapsOnly"]' \
-    -s 'config.pagination=["true"]' \
-    -s 'config.connectionPooling=["true"]' \
-    -s 'config.allowKerberosAuthentication=["false"]' \
-    -s 'config.kerberosRealm=["services.provider.test"]' \
-    -s 'config.serverPrincipal=["HTTP/keycloak.services.provider.test"]' \
-    -s 'config.keyTab=["/etc/krb5-keycloak.keytab"]' \
-    -s 'config.debug=["false"]' \
-    -s 'config.useKerberosForPasswordAuthentication=["true"]' \
-    -s 'config.batchSizeForSync=["1000"]' \
-    -s 'config.fullSyncPeriod=["-1"]' \
-    -s 'config.changedSyncPeriod=["10"]' \
-    -s 'config.cachePolicy=["DEFAULT"]' \
-    -s config.evictionDay=[] \
-    -s config.evictionHour=[] \
-    -s config.evictionMinute=[] \
-    -s config.maxLifespan=[] &>FREEIPA_LDAP
-
-freeipa_ldap_id=$(cat FREEIPA_LDAP | grep id | cut -d"'" -f 2)
-./kcadm.sh create components -r cicdtoolbox \
-    -s name=FreeIPA-group-mapper \
-    -s providerId=group-ldap-mapper \
-    -s providerType=org.keycloak.storage.ldap.mappers.LDAPStorageMapper \
-    -s parentId=${freeipa_ldap_id} \
-    -s 'config."groups.dn"=["cn=groups,cn=accounts,dc=services,dc=provider,dc=test"]' \
-    -s 'config."group.name.ldap.attribute"=["cn"]' \
-    -s 'config."group.object.classes"=["groupOfNames"]' \
-    -s 'config."preserve.group.inheritance"=["true"]' \
-    -s 'config."membership.ldap.attribute"=["member"]' \
-    -s 'config."membership.attribute.type"=["DN"]' \
-    -s 'config."groups.ldap.filter"=[]' \
-    -s 'config.mode=["READ_ONLY"]' \
-    -s 'config."user.roles.retrieve.strategy"=["GET_GROUPS_FROM_USER_MEMBEROF_ATTRIBUTE"]' \
-    -s 'config."mapped.group.attributes"=[]' \
-    -s 'config."drop.non.existing.groups.during.sync"=["true"]' 
-
-echo "FreeIPA configured"
-
 #add Gitea client
 ./kcadm.sh create clients \
     -r cicdtoolbox \
@@ -105,12 +48,15 @@ echo "GITEA_token: ${GITEA_token}"
 # Now we can add client specific roles (Clientroles)
 ./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name=giteaAdmin -s description='The admin role for the Infra Automators organization'
 ./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='infraautomator' -s description='Organization owner role in the Infraautomator organization'
-./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-netcicd-read' -s description='A read-only role on NetCICD'
-./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-netcicd-write' -s description='A read-write role on NetCICD'
-./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-netcicd-admin' -s description='A admin role on NetCICD'
 ./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-cicdtoolbox-read' -s description='A read-only role on the CICD toolbox'
 ./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-cicdtoolbox-write' -s description='A read-write role on the CICD toolbox'
 ./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-cicdtoolbox-admin' -s description='A read-write role on the CICD toolbox'
+./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-netcicd-read' -s description='A read-only role on NetCICD'
+./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-netcicd-write' -s description='A read-write role on NetCICD'
+./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-netcicd-admin' -s description='A admin role on NetCICD'
+./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-appcicd-read' -s description='A read-only role on AppCICD'
+./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-appcicd-write' -s description='A read-write role on AppCICD'
+./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-appcicd-admin' -s description='A admin role on AppCICD'
 
 
 # We need to add the gitea-admin claim and gitea-group claim to the token
@@ -163,6 +109,8 @@ echo "JENKINS_token: ${JENKINS_token}"
 ./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-netcicd-agent -s description='The role to be used for a user that needs to create agents in Jenkins'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-netcicd-run -s description='The role to be used for a user that needs to run the NetCICD pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-netcicd-dev -s description='The role to be used for a user that needs to configure the NetCICD pipeline'
+./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-appcicd-run -s description='The role to be used for a user that needs to run the AppCICD pipeline'
+./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-appcicd-dev -s description='The role to be used for a user that needs to configure the AppCICD pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-cicdtoolbox-run -s description='The role to be used for a user that needs to run the NetCICD-developer-toolbox pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-cicdtoolbox-dev -s description='The role to be used for a user that needs to configure the NetCICD-developer-toolbox pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-git -s description='A role for Jenkins to work with Git'
@@ -178,6 +126,8 @@ echo "Created Jenkins roles."
     --rolename view-users \
     --rolename gitea-netcicd-read \
     --rolename gitea-netcicd-write \
+    --rolename gitea-appcicd-read \
+    --rolename gitea-appcicd-write \
     --rolename gitea-cicdtoolbox-read \
     --rolename gitea-cicdtoolbox-write &>cicdtoolbox_JENKINS_SCOPE
 
@@ -569,6 +519,7 @@ echo "Created cicdtoolbox Agents with ID: ${cicdtoolbox_agents_id}"
     --gid $cicdtoolbox_agents_id \
     --cclientid Jenkins \
     --rolename jenkins-netcicd-agent 
+    --rolename jenkins-appcicd-agent 
 
 ./kcadm.sh create groups/$toolbox_id/children -r cicdtoolbox -s name="git_from_jenkins" &>cicdtoolbox_J_G
 j_g_id=$(cat cicdtoolbox_J_G | grep id | cut -d"'" -f 2)
@@ -1277,6 +1228,63 @@ echo "Created Field Service Engineers group within the Field Services Department
 ./kcadm.sh create groups/$dom_fs_id/children -r cicdtoolbox -s name="field_services_floor_management" &>FS_FM
 fs_fm_id=$(cat FS_FM | grep id | cut -d"'" -f 2)
 echo "Created Floor Management group within the Field Services Department with ID: ${fs_fm_id}" 
+
+# Add FreeIPA integration, needs to be last, otherwise FreeIPA groups interfere with group creation in Keycloak
+./kcadm.sh create components -r cicdtoolbox \
+    -s name=freeipa \
+    -s providerId=ldap \
+    -s providerType=org.keycloak.storage.UserStorageProvider \
+    -s 'config.priority=["1"]' \
+    -s 'config.editMode=["READ_ONLY"]' \
+    -s 'config.syncRegistrations=["true"]' \
+    -s 'config.vendor=["rhds"]' \
+    -s 'config.usernameLDAPAttribute=["uid"]' \
+    -s 'config.rdnLDAPAttribute=["uid"]' \
+    -s 'config.uuidLDAPAttribute=["ipaUniqueID"]' \
+    -s 'config.userObjectClasses=["inetOrgPerson, organizationalPerson"]' \
+    -s 'config.connectionUrl=["ldaps://freeipa.iam.provider.test"]' \
+    -s 'config.usersDn=["cn=users,cn=accounts,dc=provider,dc=test"]' \
+    -s 'config.searchScope=["1"]' \
+    -s 'config.authType=["simple"]' \
+    -s 'config.bindDn=["uid=admin,cn=users,cn=accounts,dc=provider,dc=test"]' \
+    -s 'config.bindCredential=["'$3'"]' \
+    -s 'config.useTruststoreSpi=["ldapsOnly"]' \
+    -s 'config.pagination=["true"]' \
+    -s 'config.connectionPooling=["true"]' \
+    -s 'config.allowKerberosAuthentication=["false"]' \
+    -s 'config.kerberosRealm=["services.provider.test"]' \
+    -s 'config.serverPrincipal=["HTTP/keycloak.services.provider.test"]' \
+    -s 'config.keyTab=["/etc/krb5-keycloak.keytab"]' \
+    -s 'config.debug=["false"]' \
+    -s 'config.useKerberosForPasswordAuthentication=["true"]' \
+    -s 'config.batchSizeForSync=["1000"]' \
+    -s 'config.fullSyncPeriod=["-1"]' \
+    -s 'config.changedSyncPeriod=["10"]' \
+    -s 'config.cachePolicy=["DEFAULT"]' \
+    -s config.evictionDay=[] \
+    -s config.evictionHour=[] \
+    -s config.evictionMinute=[] \
+    -s config.maxLifespan=[] &>FREEIPA_LDAP
+
+freeipa_ldap_id=$(cat FREEIPA_LDAP | grep id | cut -d"'" -f 2)
+./kcadm.sh create components -r cicdtoolbox \
+    -s name=FreeIPA-group-mapper \
+    -s providerId=group-ldap-mapper \
+    -s providerType=org.keycloak.storage.ldap.mappers.LDAPStorageMapper \
+    -s parentId=${freeipa_ldap_id} \
+    -s 'config."groups.dn"=["cn=groups,cn=accounts,dc=provider,dc=test"]' \
+    -s 'config."group.name.ldap.attribute"=["cn"]' \
+    -s 'config."group.object.classes"=["groupOfNames"]' \
+    -s 'config."preserve.group.inheritance"=["true"]' \
+    -s 'config."membership.ldap.attribute"=["member"]' \
+    -s 'config."membership.attribute.type"=["DN"]' \
+    -s 'config."groups.ldap.filter"=[]' \
+    -s 'config.mode=["READ_ONLY"]' \
+    -s 'config."user.roles.retrieve.strategy"=["GET_GROUPS_FROM_USER_MEMBEROF_ATTRIBUTE"]' \
+    -s 'config."mapped.group.attributes"=[]' \
+    -s 'config."drop.non.existing.groups.during.sync"=["true"]' 
+
+echo "FreeIPA configured"
 
 #Now delete tokens and secrets
 rm cicdtoolbox_*

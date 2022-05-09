@@ -4,7 +4,7 @@ echo $2 | kinit admin
 function addHost() {
     ipa host-add --force --ip-address=$3 $1.$2.provider.test
     ipa service-add HTTP/$1.$2.provider.test
-    ipa-getkeytab -p HTTP/$1.$2.provider.test -s freeipa.services.provider.test -k /etc/krb5-$1.keytab
+    ipa-getkeytab -p HTTP/$1.$2.provider.test -s freeipa.iam.provider.test -k /etc/krb5-$1.keytab
     chown root /etc/krb5-$1.keytab
     chmod 640 /etc/krb5-$1.keytab
     ipa cert-request /tmp/certs/$1.$2.provider.test.csr --principal=host/$1.$2.provider.test --chain --certificate-out=/tmp/certs/$1.$2.provider.test.pem
@@ -213,11 +213,11 @@ ipa dnszone-add monitoring.provider.test
 ipa dnszone-add delivery.provider.test
 
 # Add hosts
+addHost "freeipa" "iam" "172.16.8.12"
 addHost "cicdtoolbox-db" "internal" "172.16.9.2"
 addHost "restportal" "services" "172.16.10.2"
 addHost "portal" "services" "172.16.10.3"
 addHost "keycloak" "services" "172.16.10.11"
-addHost "freeipa" "services" "172.16.10.12"
 addHost "gitea" "tooling" "172.16.11.3"
 addHost "jenkins" "tooling" "172.16.11.8"
 addHost "nexus" "tooling" "172.16.11.9"

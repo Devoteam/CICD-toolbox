@@ -116,15 +116,19 @@ ORG_PAYLOAD='{
 org_data=`curl -s --insecure --user $user:$pwd -X POST "https://gitea.tooling.provider.test:3000/api/v1/orgs" -H "accept: application/json" -H "Content-Type: application/json" --data "${ORG_PAYLOAD}"`
 echo " "
 
-CreateRepo "Infraautomator" "NetCICD" "https://github.com/Devoteam/NetCICD.git" "The NetCICD pipeline"
 CreateRepo "Infraautomator" "CICD-toolbox" "https://github.com/Devoteam/CICD-toolbox.git" "The CICD-toolbox"
+CreateRepo "Infraautomator" "NetCICD" "https://github.com/Devoteam/NetCICD.git" "The NetCICD pipeline"
+CreateRepo "Infraautomator" "AppCICD" "https://github.com/myref/AppCICD.git" "The AppCICD pipeline"
 
-CreateTeam infraautomator "gitea-netcicd-read" "The NetCICD repo read role" "read" "NetCICD"
-CreateTeam infraautomator "gitea-netcicd-write" "The NetCICD repo read-write role" "write" "NetCICD"
-CreateTeam infraautomator "gitea-netcicd-admin" "The NetCICD repo admin role" "admin" "NetCICD"
 CreateTeam infraautomator "gitea-CICDtoolbox-read" "The CICDtoolbox repo read role" "read" "CICD-toolbox"
 CreateTeam infraautomator "gitea-CICDtoolbox-write" "The CICDtoolbox repo read-write role" "write" "CICD-toolbox"
 CreateTeam infraautomator "gitea-CICDtoolbox-admin" "The CICDtoolbox repo admin role" "admin" "CICD-toolbox"
+CreateTeam infraautomator "gitea-netcicd-read" "The NetCICD repo read role" "read" "NetCICD"
+CreateTeam infraautomator "gitea-netcicd-write" "The NetCICD repo read-write role" "write" "NetCICD"
+CreateTeam infraautomator "gitea-netcicd-admin" "The NetCICD repo admin role" "admin" "NetCICD"
+CreateTeam infraautomator "gitea-appcicd-read" "The AppCICD repo read role" "read" "AppCICD"
+CreateTeam infraautomator "gitea-appcicd-write" "The AppCICD repo read-write role" "write" "AppCICD"
+CreateTeam infraautomator "gitea-appcicd-admin" "The AppCICD repo admin role" "admin" "AppCICD"
 echo "****************************************************************************************************************"
 echo " Adding keycloak client key to Gitea"
 echo "****************************************************************************************************************"
