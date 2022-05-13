@@ -10,7 +10,8 @@ RUN apk add --update \
     openssl \
     libxml2-dev \
     libxslt-dev \
-    sshpass
+    sshpass \
+    curl
 RUN pip3 install --upgrade pip
 RUN apk --update add --virtual \
         .build-deps \

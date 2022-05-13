@@ -1,0 +1,13 @@
+{
+  "realm" : "cicdtoolbox",
+  "auth-server-url" : "https://keycloak.services.provider.test:8443/auth/",
+  "ssl-required" : "external",
+  "resource" : "Nexus",
+  "verify-token-audience" : true,
+  "credentials" : {
+    "secret" : "1XdAJALRth6NteWF2xpaAfe4bKyfLU61"
+  },
+  "use-resource-role-mappings" : true,
+  "confidential-port" : 0,
+  "policy-enforcer" : { }
+}
