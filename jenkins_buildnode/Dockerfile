@@ -11,7 +11,8 @@ RUN apk add --update \
     libxml2-dev \
     libxslt-dev \
     sshpass \
-    curl
+    curl \
+    terraform
 RUN pip3 install --upgrade pip
 RUN apk --update add --virtual \
         .build-deps \
