@@ -49,6 +49,8 @@ ADD docker-entrypoint.sh /usr/local/bin
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 RUN rm -rf /etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_dsa_key
 COPY agent.jar /home/jenkins/
+COPY ca.crt /usr/local/share/ca-certificates/ca.crt
+RUN update-ca-certificates
 COPY cacerts /etc/ssl/certs/java/cacerts
 COPY ${BUILD_ENVIRONMENT}_secret /home/jenkins/secret-file
 RUN echo ${BUILD_ENVIRONMENT} > /home/jenkins/buildenv
