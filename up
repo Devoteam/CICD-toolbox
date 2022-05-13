@@ -1,13 +1,13 @@
 #!/bin/bash
 
-docker-compose start freeipa.services.provider.test
+docker-compose start freeipa.iam.provider.test
 echo "Waiting for FreeIPA to come online"
-until $(curl --output /dev/null --silent --head --fail http://freeipa.services.provider.test:8080); do
+until $(curl --output /dev/null --silent --head --fail http://freeipa.iam.provider.test:8080); do
     printf '.'
     sleep 5
 done
 
-docker-compose start cicdtoolbox-db keycloak.services.provider.test
+docker-compose start cicdtoolbox-db.internal.provider.test keycloak.services.provider.test
 echo "Waiting for Keycloak to come online"
 until $(curl --output /dev/null --silent --head --fail http://keycloak.services.provider.test:8080); do
     printf '.'

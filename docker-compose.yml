@@ -5,8 +5,6 @@ networks:
     ipam:
       config:
         - subnet: 172.16.8.0/20
-
-
 volumes:
   cicdtoolbox_db_data: null
   cicdtoolbox_db_conf: null
@@ -23,7 +21,6 @@ volumes:
   sonarqube_extensions: null
   sonarqube_logs: null
   sonarqube_temp: null
-
 secrets:
   ca_crt:
     file: ./ca.crt
@@ -39,7 +36,6 @@ secrets:
     file: ./freeipa/certs/nexus.tooling.provider.test.key
   nexus_crt:
     file: ./freeipa/certs/nexus.tooling.provider.test.pem
-
 services:
   freeipa.iam.provider.test:
     container_name: freeipa.iam.provider.test
@@ -62,7 +58,9 @@ services:
       - 123/udp
     environment:
       - IPA_SERVER_HOSTNAME=freeipa.iam.provider.test
-      - IPA_SERVER_INSTALL_OPTS=-d -r provider.test --ntp-pool=pool.ntp.org --domain=provider.test --reverse-zone=16.172.in-addr.arpa -p Pa55w0rd -a Pa55w0rd --no-host-dns --setup-dns --no-forwarders --ip-address 172.16.8.12 --pki-config-override=/etc/pki/pki.conf -U
+      - >-
+        IPA_SERVER_INSTALL_OPTS=-d -r provider.test --ntp-pool=pool.ntp.org --domain=provider.test --reverse-zone=16.172.in-addr.arpa -p Pa55w0rd -a Pa55w0rd --no-host-dns --setup-dns --no-forwarders --ip-address 172.16.8.12
+        --pki-config-override=/etc/pki/pki.conf -U
       - IPA_SERVER_IP=172.16.8.12
       - VIRTUAL_PROTO=http
       - VIRTUAL_HOST=freeipa.iam.provider.test
@@ -75,18 +73,15 @@ services:
       internal:
         ipv4_address: 172.16.8.12
     healthcheck:
-      test: curl --insecure --head --fail -s https://localhost || exit 1
+      test: 'curl --insecure --head --fail -s https://localhost || exit 1'
       interval: 1m30s
       timeout: 10s
       retries: 3
-
   cicdtoolbox-db.internal.provider.test:
     container_name: cicdtoolbox-db.internal.provider.test
     build: cicdtoolbox-db
-    command: >
-      -c ssl=on 
-      -c ssl_cert_file=/var/lib/postgresql/server.crt
-      -c ssl_key_file=/var/lib/postgresql/server.key
+    command: |
+      -c ssl=on  -c ssl_cert_file=/var/lib/postgresql/server.crt -c ssl_key_file=/var/lib/postgresql/server.key
     restart: unless-stopped
     init: true
     stop_signal: SIGINT
@@ -104,7 +99,6 @@ services:
       - 'cicdtoolbox_db_data:/var/lib/postgresql/data'
       - 'cicdtoolbox_db_conf:/etc/postgresql'
       - './cicdtoolbox-db/docker-entrypoint-initdb-resources:/docker-entrypoint-initdb-resources:ro'
-  
   restportal.services.provider.test:
     container_name: restportal.services.provider.test
     build: restportal
@@ -118,11 +112,10 @@ services:
     ports:
       - '8888:8080'
     healthcheck:
-      test: curl --insecure --head --fail -s https://localhost:8080 || exit 1
+      test: 'curl --insecure --head --fail -s https://localhost:8080 || exit 1'
       interval: 1m30s
       timeout: 10s
       retries: 3
-
   keycloak.services.provider.test:
     container_name: keycloak.services.provider.test
     build: keycloak
@@ -139,7 +132,7 @@ services:
       DB_PASSWORD: keycloak
       KEYCLOAK_USER: local-admin
       KEYCLOAK_PASSWORD: Pa55w0rd
-      JDBC_PARAMS: 'ssl=true&sslmode=verify-ca&sslrootcert=/etc/pki/ca-trust/source/anchors/ca.crt'
+      JDBC_PARAMS: ssl=true&sslmode=verify-ca&sslrootcert=/etc/pki/ca-trust/source/anchors/ca.crt
     secrets:
       - source: keycloak_key
         target: /etc/x509/https/tls.key
@@ -154,11 +147,10 @@ services:
     depends_on:
       - cicdtoolbox-db.internal.provider.test
     healthcheck:
-      test: curl --insecure --head --fail -s https://localhost:8443 || exit 1
+      test: 'curl --insecure --head --fail -s https://localhost:8443 || exit 1'
       interval: 1m30s
       timeout: 10s
       retries: 3
-
   gitea.tooling.provider.test:
     container_name: gitea.tooling.provider.test
     build: gitea
@@ -188,11 +180,10 @@ services:
       - cicdtoolbox-db.internal.provider.test
       - keycloak.services.provider.test
     healthcheck:
-      test: curl --insecure --head --fail -s https://localhost:3000/ || exit 1
+      test: 'curl --insecure --head --fail -s https://localhost:3000/ || exit 1'
       interval: 1m30s
       timeout: 10s
       retries: 3
-
   jenkins.tooling.provider.test:
     container_name: jenkins.tooling.provider.test
     build: ./jenkins
@@ -225,16 +216,15 @@ services:
       - 'jenkins_data:/var/jenkins_home'
       - 'jenkins_conf:/var/jenkins_conf'
     ports:
-      - '8084:8084'   
+      - '8084:8084'
       - '50000:50000'
     depends_on:
       - keycloak.services.provider.test
     healthcheck:
-      test: curl --insecure --head --fail -s https://localhost:8084/whoAmI || exit 1
+      test: 'curl --insecure --head --fail -s https://localhost:8084/whoAmI || exit 1'
       interval: 1m30s
       timeout: 10s
       retries: 3
-
   nexus.tooling.provider.test:
     container_name: nexus.tooling.provider.test
     build: nexus
@@ -265,14 +255,18 @@ services:
     depends_on:
       - keycloak.services.provider.test
     healthcheck:
-      test: curl --insecure --head --fail -s https://localhost:8443 || exit 1
+      test: 'curl --insecure --head --fail -s https://localhost:8443 || exit 1'
       interval: 1m30s
       timeout: 10s
       retries: 3
 
   build-dev.delivery.provider.test:
     container_name: build-dev.delivery.provider.test
-    build: jenkins_buildnode
+    build:
+      context: ./jenkins_buildnode
+      dockerfile: Dockerfile
+      args:
+        - BUILD_ENVIRONMENT=Dev
     restart: unless-stopped
     init: true
     stop_signal: SIGINT
@@ -285,7 +279,11 @@ services:
 
   build-test.delivery.provider.test:
     container_name: build-test.delivery.provider.test
-    build: jenkins_buildnode
+    build:
+      context: ./jenkins_buildnode
+      dockerfile: Dockerfile
+      args:
+        - BUILD_ENVIRONMENT=Test
     restart: unless-stopped
     init: true
     stop_signal: SIGINT
@@ -298,7 +296,11 @@ services:
 
   build-acc.delivery.provider.test:
     container_name: build-acc.delivery.provider.test
-    build: jenkins_buildnode
+    build:
+      context: ./jenkins_buildnode
+      dockerfile: Dockerfile
+      args:
+        - BUILD_ENVIRONMENT=Acc
     restart: unless-stopped
     init: true
     stop_signal: SIGINT
@@ -311,7 +313,11 @@ services:
 
   build-prod.delivery.provider.test:
     container_name: build-prod.delivery.provider.test
-    build: jenkins_buildnode
+    build:
+      context: ./jenkins_buildnode
+      dockerfile: Dockerfile
+      args:
+        - BUILD_ENVIRONMENT=Prod
     restart: unless-stopped
     init: true
     stop_signal: SIGINT
@@ -321,7 +327,7 @@ services:
     networks:
       internal:
         ipv4_address: 172.16.12.5
- 
+
   portainer.monitoring.provider.test:
     container_name: portainer.monitoring.provider.test
     image: portainer/portainer-ce
@@ -338,11 +344,10 @@ services:
     ports:
       - '9000:9000'
     healthcheck:
-      test: curl --insecure --head --fail -s http://localhost || exit 1
+      test: 'curl --insecure --head --fail -s http://localhost || exit 1'
       interval: 1m30s
       timeout: 10s
       retries: 3
-
   loki.monitoring.provider.test:
     container_name: loki.monitoring.provider.test
     build: loki
@@ -352,11 +357,10 @@ services:
     stop_grace_period: 15s
     expose:
       - '3100'
-    command: -config.file=/etc/loki/local-config.yaml
+    command: '-config.file=/etc/loki/local-config.yaml'
     networks:
       internal:
         ipv4_address: 172.16.13.4
-
   promtail.monitoring.provider.test:
     container_name: promtail.monitoring.provider.test
     build: promtail
@@ -365,12 +369,11 @@ services:
     stop_signal: SIGINT
     stop_grace_period: 15s
     volumes:
-      - /var/log:/var/log
-    command: -config.file=/etc/promtail/config.yml
+      - '/var/log:/var/log'
+    command: '-config.file=/etc/promtail/config.yml'
     networks:
       internal:
         ipv4_address: 172.16.13.5
-
   grafana.monitoring.provider.test:
     container_name: grafana.monitoring.provider.test
     build: grafana
@@ -385,12 +388,12 @@ services:
       - GF_AUTH_GENERIC_OAUTH_NAME="Login with Keycloak"
       - GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP="false"
       - GF_AUTH_GENERIC_OAUTH_CLIENT_ID="grafana"
-      - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET="$Grafana_CLIENT_SECRET"
+      - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET="${Grafana_CLIENT_SECRET}"
       - GF_AUTH_GENERIC_OAUTH_SCOPES=profile
-      - GF_AUTH_GENERIC_OAUTH_AUTH_URL="https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/auth"
-      - GF_AUTH_GENERIC_OAUTH_TOKEN_URL="https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/token"
-      - GF_AUTH_GENERIC_OAUTH_API_URL="https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/userinfo"
-      - GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH="contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'"
+      - 'GF_AUTH_GENERIC_OAUTH_AUTH_URL="https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/auth"'
+      - 'GF_AUTH_GENERIC_OAUTH_TOKEN_URL="https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/token"'
+      - 'GF_AUTH_GENERIC_OAUTH_API_URL="https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/userinfo"'
+      - 'GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH="contains(roles[*], ''admin'') && ''Admin'' || contains(roles[*], ''editor'') && ''Editor'' || ''Viewer''"'
     expose:
       - '3000'
     networks:

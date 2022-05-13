@@ -1,7 +1,7 @@
 FROM ciscotestautomation/pyats:latest-alpine
 
 ENV JAVA_HOME "/usr"
-
+ARG BUILD_ENVIRONMENT
 RUN apk add --update \
     openjdk8 \
     git \
@@ -40,20 +40,19 @@ Host *\n\
 RUN echo "export JAVA_HOME=/usr" >> /etc/profile
  
 RUN adduser -D jenkins && (echo "jenkins:jenkins" | chpasswd) && (echo "root:root" | chpasswd)
-COPY agent.jar /home/jenkins/
 RUN echo "[defaults]" > /home/jenkins/.ansible.cfg
 RUN echo "host_key_checking = False" >> /home/jenkins/.ansible.cfg
 RUN chown jenkins:jenkins /home/jenkins/.ansible.cfg
 RUN chown -R jenkins:jenkins /home/jenkins
 
-COPY agent.jar /root/
-RUN echo "[defaults]" > /root/.ansible.cfg
-RUN echo "host_key_checking = False" >> /root/.ansible.cfg
-RUN ln -s /usr/bin/python3 /usr/bin/python
-
 ADD docker-entrypoint.sh /usr/local/bin
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 RUN rm -rf /etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_dsa_key
+COPY agent.jar /home/jenkins/
+COPY cacerts /etc/ssl/certs/java/cacerts
+COPY ${BUILD_ENVIRONMENT}_secret /home/jenkins/secret-file
+RUN echo ${BUILD_ENVIRONMENT} > /home/jenkins/buildenv
+COPY rc.local /etc/rc.local
 EXPOSE 22 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["/usr/sbin/sshd", "-D"]

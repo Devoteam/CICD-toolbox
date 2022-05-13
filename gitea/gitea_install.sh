@@ -118,7 +118,7 @@ echo " "
 
 CreateRepo "Infraautomator" "CICD-toolbox" "https://github.com/Devoteam/CICD-toolbox.git" "The CICD-toolbox"
 CreateRepo "Infraautomator" "NetCICD" "https://github.com/Devoteam/NetCICD.git" "The NetCICD pipeline"
-CreateRepo "Infraautomator" "AppCICD" "https://github.com/myref/AppCICD.git" "The AppCICD pipeline"
+CreateRepo "Infraautomator" "AppCICD" "https://github.com/DevoteamNL/AppCICD.git" "The AppCICD pipeline"
 
 CreateTeam infraautomator "gitea-CICDtoolbox-read" "The CICDtoolbox repo read role" "read" "CICD-toolbox"
 CreateTeam infraautomator "gitea-CICDtoolbox-write" "The CICDtoolbox repo read-write role" "write" "CICD-toolbox"

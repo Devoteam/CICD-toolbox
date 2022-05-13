@@ -40,7 +40,8 @@ jenkins:
           permissions:
           - "Overall/Read"
           - "Agent/Create"
-          - "Agent/Delete"        
+          - "Agent/Delete"
+          - "Agent/Connect"        
         - assignments:
           - "jenkins-readonly"
           - "jenkins-git"
@@ -132,7 +133,7 @@ jenkins:
         - assignments:
           - "jenkins-netcicd-dev"
           name: "NetCICD-dev"
-          pattern: "^jenkins-netcicd-dev$"
+          pattern: "^jenkins-*cicd-dev$"
           permissions:
           - "Credentials/Create"
           - "Credentials/Delete"
@@ -174,7 +175,7 @@ jenkins:
         - assignments:
           - "jenkins-netcicd-run"
           name: "NetCICD-run"
-          pattern: "^jenkins-netcicd-run$"
+          pattern: "^jenkins-*cicd-run$"
           permissions:
           - "Credentials/View"
           - "Job/Build"
@@ -190,8 +191,64 @@ jenkins:
           - "Run/Update"
           - "SCM/Tag"
   labelAtoms:
-  - name: "master"
-  numExecutors: 1
+  - name: "Acc"
+  - name: "Dev"
+  - name: "Prod"
+  - name: "Test"
+  nodes:
+  - permanent:
+      labelString: "Dev"
+      launcher:
+        jnlp:
+          workDirSettings:
+            disabled: false
+            failIfWorkDirIsMissing: false
+            internalDir: "remoting"
+            workDirPath: "/home/jenkins"
+      name: "Dev"
+      nodeDescription: "Build node for Dev jobs"
+      remoteFS: "/home/jenkins"
+      retentionStrategy: "always"
+  - permanent:
+      labelString: "Test"
+      launcher:
+        jnlp:
+          workDirSettings:
+            disabled: false
+            failIfWorkDirIsMissing: false
+            internalDir: "remoting"
+            workDirPath: "/home/jenkins"
+      name: "Test"
+      nodeDescription: "Build node for Dev jobs"
+      remoteFS: "/home/jenkins"
+      retentionStrategy: "always"
+  - permanent:
+      labelString: "Acc"
+      launcher:
+        jnlp:
+          workDirSettings:
+            disabled: false
+            failIfWorkDirIsMissing: false
+            internalDir: "remoting"
+            workDirPath: "/home/jenkins"
+      name: "Acc"
+      nodeDescription: "Build node for Dev jobs"
+      remoteFS: "/home/jenkins"
+      retentionStrategy: "always"
+  - permanent:
+      labelString: "Prod"
+      launcher:
+        jnlp:
+          workDirSettings:
+            disabled: false
+            failIfWorkDirIsMissing: false
+            internalDir: "remoting"
+            workDirPath: "/home/jenkins"
+      name: "Prod"
+      nodeDescription: "Build node for Dev jobs"
+      remoteFS: "/home/jenkins"
+      retentionStrategy: "always"
+  numExecutors: 0
   remotingSecurity:
     enabled: true
   securityRealm:

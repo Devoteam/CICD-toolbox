@@ -109,6 +109,7 @@ echo "JENKINS_token: ${JENKINS_token}"
 ./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-netcicd-agent -s description='The role to be used for a user that needs to create agents in Jenkins'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-netcicd-run -s description='The role to be used for a user that needs to run the NetCICD pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-netcicd-dev -s description='The role to be used for a user that needs to configure the NetCICD pipeline'
+./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-appcicd-agent -s description='The role to be used for a user that needs to create agents in Jenkins'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-appcicd-run -s description='The role to be used for a user that needs to run the AppCICD pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-appcicd-dev -s description='The role to be used for a user that needs to configure the AppCICD pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-cicdtoolbox-run -s description='The role to be used for a user that needs to run the NetCICD-developer-toolbox pipeline'
@@ -518,7 +519,7 @@ echo "Created cicdtoolbox Agents with ID: ${cicdtoolbox_agents_id}"
     -r cicdtoolbox \
     --gid $cicdtoolbox_agents_id \
     --cclientid Jenkins \
-    --rolename jenkins-netcicd-agent 
+    --rolename jenkins-netcicd-agent \
     --rolename jenkins-appcicd-agent 
 
 ./kcadm.sh create groups/$toolbox_id/children -r cicdtoolbox -s name="git_from_jenkins" &>cicdtoolbox_J_G
