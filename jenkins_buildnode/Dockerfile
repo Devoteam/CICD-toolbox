@@ -65,6 +65,7 @@ USER jenkins
 RUN cd /home/jenkins
 RUN curl -fsSL https://raw.githubusercontent.com/dikhan/terraform-provider-openapi/master/scripts/install.sh | bash -s -- --provider-name "prov" --provider-source-address "prov.tooling.test/tooling"
 RUN export OTF_VAR_bis_PLUGIN_CONFIGURATION_FILE="~/.terraform.d/plugins/terraform-provider-openapi.yaml"
+COPY terraform-provider-openapi.yaml /home/jenkins/.terraform.d/plugins/terraform-provider-openapi.yaml
 
 USER root
 CMD ["/usr/sbin/sshd", "-D"]

@@ -16,6 +16,6 @@ fi
 
 cd /home/jenkins
 buildenv=`cat buildenv`
-java -jar agent.jar -jnlpUrl "https://jenkins.tooling.provider.test:8084/computer/$buildenv/jenkins-agent.jnlp" -secret @secret-file -workDir "/home/jenkins" &
+su -u jenkins -c 'java -jar agent.jar -jnlpUrl "https://jenkins.tooling.provider.test:8084/computer/$buildenv/jenkins-agent.jnlp" -secret @secret-file -workDir "/home/jenkins" &'
 
 exec "$@"

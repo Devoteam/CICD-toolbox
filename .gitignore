@@ -38,7 +38,8 @@ cicdtoolbox-db/docker-entrypoint-initdb-resources/server.crt
 cicdtoolbox-db/docker-entrypoint-initdb-resources/server.key
 nexus/nexus.p12
 gitea/gitea.tooling.provider.test*
-jenkins_buildnode/Acc_secret
 jenkins_buildnode/Dev_secret
+jenkins_buildnode/Test_secret
+jenkins_buildnode/Acc_secret
 jenkins_buildnode/Prod_secret
 jtoken.txt

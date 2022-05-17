@@ -1,0 +1,4 @@
+version: '1'
+services:
+    prov:
+      swagger-url: /home/jenkins/prov.yaml
