@@ -26,6 +26,7 @@ RUN apk --update add --virtual \
         ncclient \
         behave\
         virlutils\
+        robotframework \
  && pip3 install \
         ansible \
  && apk del \
