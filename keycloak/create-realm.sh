@@ -225,6 +225,47 @@ echo "Created keycloak-nexus installation json"
 echo "Nexus configuration finished"
 echo ""
 
+# Add Argos
+./kcadm.sh create clients \
+    -r cicdtoolbox \
+    -s name="Argos" \
+    -s description="The Argos notary in the toolchain" \
+    -s clientId=Argos \
+    -s enabled=true \
+    -s publicClient=false \
+    -s directAccessGrantsEnabled=true \
+    -s fullScopeAllowed=false \
+    -s rootUrl=http://argos.services.provider.test \
+    -s adminUrl=http://argos.services.provider.test/ \
+    -s 'redirectUris=[ "http://argos.services.provider.test/*" ]' \
+    -s 'webOrigins=[ "http://argos.services.provider.test/" ]' \
+    -o --fields id >cicdtoolbox_ARGOS
+
+# output is Created new client with id, we now need to grep the ID out of it
+ARGOS_ID=$(cat cicdtoolbox_ARGOS | grep id | cut -d'"' -f 4)
+echo "Created Argos client with ID: ${ARGOS_ID}"
+
+# Create Client secret
+./kcadm.sh create clients/$ARGOS_ID/client-secret -r cicdtoolbox
+
+# We need to retrieve the token from keycloak for this client
+./kcadm.sh get clients/$ARGOS_ID/client-secret -r cicdtoolbox >cicdtoolbox_argos_secret
+ARGOS_token=$(grep value cicdtoolbox_argos_secret | cut -d '"' -f4)
+
+# Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source 
+echo "ARGOS_token: ${ARGOS_token}"
+
+# Now we can add client specific roles (Clientroles)
+./kcadm.sh create clients/$ARGOS_ID/roles -r cicdtoolbox -s name=argos-admin -s description='The admin role for Argos'
+./kcadm.sh create clients/$ARGOS_ID/roles -r cicdtoolbox -s name=argos-user -s description='The user role for Argos'
+./kcadm.sh create clients/$ARGOS_ID/roles -r cicdtoolbox -s name=argos-jenkins -s description='The jenkins user role for Argos'
+
+# We need to retrieve the token from keycloak for this client
+./kcadm.sh get clients/$ARGOS_ID/client-secret -r cicdtoolbox >cicdtoolbox_argos_secret
+ARGOS_token=$(grep value cicdtoolbox_argos_secret | cut -d '"' -f4)
+# Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source in Gitea for Keycloak
+echo "ARGOS_token: " $ARGOS_token
+
 #Add Build_dev node
 ./kcadm.sh create clients \
     -r cicdtoolbox \
@@ -509,6 +550,12 @@ echo "Created Toolbox Admins group with ID: ${toolbox_admin_id}"
     --gid $toolbox_admin_id \
     --cclientid Nexus \
     --rolename nexus-admin
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $toolbox_admin_id \
+    --cclientid Argos \
+    --rolename argos-admin
 
 ./kcadm.sh create groups/$toolbox_id/children -r cicdtoolbox -s name="cicdtoolbox_agents" &>cicdtoolbox_AGENTS
 cicdtoolbox_agents_id=$(cat cicdtoolbox_AGENTS | grep id | cut -d"'" -f 2)

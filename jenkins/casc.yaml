@@ -19,13 +19,11 @@ credentials:
           description: "Credentials to be used to log into Jenkins from Jenkins to configure\
             \ the NetCICD agent."
           id: "jenkins-jenkins"
-          password: ${JENKINS_JENKINS_PASSWORD}
           scope: GLOBAL
           username: "jenkins-jenkins"
       - usernamePassword:
           description: "Credentials to be used to get an access token from Keycloak."
           id: "jenkins-git"
-          password: "sa-jenkins"
           scope: GLOBAL
           username: "Jenkins"
 jenkins:

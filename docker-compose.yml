@@ -5,9 +5,11 @@ networks:
     ipam:
       config:
         - subnet: 172.16.8.0/20
+
 volumes:
   cicdtoolbox_db_data: null
   cicdtoolbox_db_conf: null
+  mongo_data: null
   gitea:
     driver: local
   jenkins_certs: null
@@ -21,6 +23,7 @@ volumes:
   sonarqube_extensions: null
   sonarqube_logs: null
   sonarqube_temp: null
+
 secrets:
   ca_crt:
     file: ./ca.crt
@@ -36,6 +39,7 @@ secrets:
     file: ./freeipa/certs/nexus.tooling.provider.test.key
   nexus_crt:
     file: ./freeipa/certs/nexus.tooling.provider.test.pem
+
 services:
   freeipa.iam.provider.test:
     container_name: freeipa.iam.provider.test
@@ -77,6 +81,7 @@ services:
       interval: 1m30s
       timeout: 10s
       retries: 3
+
   cicdtoolbox-db.internal.provider.test:
     container_name: cicdtoolbox-db.internal.provider.test
     build: cicdtoolbox-db
@@ -99,6 +104,22 @@ services:
       - 'cicdtoolbox_db_data:/var/lib/postgresql/data'
       - 'cicdtoolbox_db_conf:/etc/postgresql'
       - './cicdtoolbox-db/docker-entrypoint-initdb-resources:/docker-entrypoint-initdb-resources:ro'
+
+  mongodb.internal.provider.test:
+    container_name: mongodb.internal.provider.test
+    image: argosnotary/mongo:4.2.8
+    restart: unless-stopped
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
+    networks:
+      internal:
+        ipv4_address: 172.16.9.3
+    expose:
+      - '27017' 
+    volumes:
+      - 'mongo_data:/var/lib/postgresql/data'
+
   restportal.services.provider.test:
     container_name: restportal.services.provider.test
     build: restportal
@@ -116,6 +137,20 @@ services:
       interval: 1m30s
       timeout: 10s
       retries: 3
+
+  argos.services.provider.test:
+    container_name: argos.services.provider.test
+    image: argosnotary/argos-frontend:1.0.2
+    environment:
+      - BACKEND_URL=http://argos-service.tooling.provider.test:8080
+    networks:
+      internal:
+        ipv4_address: 172.16.10.4
+    ports:
+      - 8082:80
+    depends_on:
+      - argos-service.tooling.provider.test
+
   keycloak.services.provider.test:
     container_name: keycloak.services.provider.test
     build: keycloak
@@ -151,6 +186,7 @@ services:
       interval: 1m30s
       timeout: 10s
       retries: 3
+
   gitea.tooling.provider.test:
     container_name: gitea.tooling.provider.test
     build: gitea
@@ -184,6 +220,26 @@ services:
       interval: 1m30s
       timeout: 10s
       retries: 3
+
+  argos-service.tooling.provider.test:
+    container_name: argos-service.tooling.provider.test
+    build: ./argos-service
+    environment:
+      spring.config.location: /application.yml
+      jwt.token.secret: Z2LcVpgCuGtpb5rBDNIIWGe8RXqYGWDpWFjWhYQUS2Z8rjE2/GTJlu0s6BRYG0Mn0kV8StC9cFE83Jkl68RCkw==
+      spring.profiles.active: integration-test
+      JAVA_OPTS: '-Xmx1g'
+    networks:
+      internal:
+        ipv4_address: 172.16.11.4
+    expose:
+      - '8080'
+    depends_on:
+      - mongodb.internal.provider.test
+      - keycloak.services.provider.test
+    volumes:
+      - ./argos/application.yml:/application.yml
+
   jenkins.tooling.provider.test:
     container_name: jenkins.tooling.provider.test
     build: ./jenkins
@@ -225,6 +281,7 @@ services:
       interval: 1m30s
       timeout: 10s
       retries: 3
+
   nexus.tooling.provider.test:
     container_name: nexus.tooling.provider.test
     build: nexus
@@ -374,6 +431,7 @@ services:
     networks:
       internal:
         ipv4_address: 172.16.13.5
+
   grafana.monitoring.provider.test:
     container_name: grafana.monitoring.provider.test
     build: grafana
@@ -382,18 +440,18 @@ services:
     stop_signal: SIGINT
     stop_grace_period: 15s
     environment:
-      - GF_SERVER_DOMAIN="grafana.monitoring.provider.test"
+      - GF_SERVER_DOMAIN="monitoring.provider.test"
       - GF_SERVER_ROOT_URL="grafana.monitoring.provider.test"
       - GF_AUTH_GENERIC_OAUTH_ENABLED="true"
       - GF_AUTH_GENERIC_OAUTH_NAME="Login with Keycloak"
-      - GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP="false"
-      - GF_AUTH_GENERIC_OAUTH_CLIENT_ID="grafana"
-      - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET="${Grafana_CLIENT_SECRET}"
+      - GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP="true"
+      - GF_AUTH_GENERIC_OAUTH_CLIENT_ID="Grafana"
+      - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=$Grafana_CLIENT_SECRET
       - GF_AUTH_GENERIC_OAUTH_SCOPES=profile
-      - 'GF_AUTH_GENERIC_OAUTH_AUTH_URL="https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/auth"'
-      - 'GF_AUTH_GENERIC_OAUTH_TOKEN_URL="https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/token"'
-      - 'GF_AUTH_GENERIC_OAUTH_API_URL="https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/userinfo"'
-      - 'GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH="contains(roles[*], ''admin'') && ''Admin'' || contains(roles[*], ''editor'') && ''Editor'' || ''Viewer''"'
+      - GF_AUTH_GENERIC_OAUTH_AUTH_URL="https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/auth"
+      - GF_AUTH_GENERIC_OAUTH_TOKEN_URL="https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/token"
+      - GF_AUTH_GENERIC_OAUTH_API_URL="https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/userinfo"
+      - GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH="contains(roles[*], ''admin'') && ''Admin'' || contains(roles[*], ''editor'') && ''Editor'' || ''Viewer''"
     expose:
       - '3000'
     networks:

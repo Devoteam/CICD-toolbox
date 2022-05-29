@@ -57,6 +57,10 @@ sudo rm -rf nexus/data/*
 sudo rm -rf nexus/*.kar
 echo " " 
 echo "****************************************************************************************************************"
+echo " Cleaning Argos" 
+echo "****************************************************************************************************************"
+cp -p argos/compose-application.yml argos/application.yml
+echo "****************************************************************************************************************"
 echo " Making sure all containers are reachable locally with the name in the"
 echo " hosts file."
 echo "****************************************************************************************************************"
@@ -83,12 +87,26 @@ fi
 echo " Add CICDtoolbox-db to /etc/hosts"
 sudo echo "172.16.9.2   cicdtoolbox-db.internal.provider.test" >> /etc/hosts
 
+if grep -q "mongodb" /etc/hosts; then
+    echo " mongodb exists in /etc/hosts, removing..."
+    sudo sed -i '/mongodb.internal.provider.test/d' /etc/hosts
+fi
+echo " Add mongodb to /etc/hosts"
+sudo echo "172.16.9.3   mongodb.internal.provider.test" >> /etc/hosts
+
 if grep -q "restportal" /etc/hosts; then
     echo " Provider REST portal exists in /etc/hosts, removing..."
     sudo sed -i '/restportal.services.provider.test/d' /etc/hosts
 fi
 echo " Add Provider REST portal to /etc/hosts"
 sudo echo "172.16.10.2   restportal.services.provider.test" >> /etc/hosts
+
+if grep -q "argos.services.provider.test" /etc/hosts; then
+    echo " Argos Notray Portal exists in /etc/hosts, removing..."
+    sudo sed -i '/argos.services.provider.test/d' /etc/hosts
+fi
+echo " Add Provider REST portal to /etc/hosts"
+sudo echo "172.16.10.4   argos.services.provider.test" >> /etc/hosts
 
 if grep -q "keycloak" /etc/hosts; then
     echo " Keycloak exists in /etc/hosts, removing..."
@@ -103,6 +121,13 @@ if grep -q "gitea" /etc/hosts; then
 fi
 echo " Add Gitea to /etc/hosts"
 sudo echo "172.16.11.3   gitea.tooling.provider.test" >> /etc/hosts
+
+if grep -q "argos-service.tooling.provider.test" /etc/hosts; then
+    echo " Argos Service exists in /etc/hosts, removing..."
+    sudo sed -i '/argos-service.tooling.provider.test/d' /etc/hosts
+fi
+echo " Add Gitea to /etc/hosts"
+sudo echo "172.16.11.4   argos-service.tooling.provider.test" >> /etc/hosts
 
 if grep -q "jenkins" /etc/hosts; then
     echo " Jenkins exists in /etc/hosts, removing..."
@@ -222,6 +247,9 @@ echo " Creating CSR for all containers, so they can be copied in in the Dockerfi
 echo "****************************************************************************************************************"
 freeipa/create-certificates.sh cicdtoolbox-db.internal
 freeipa/create-certificates.sh keycloak.services
+freeipa/create-certificates.sh argos.services
+freeipa/create-certificates.sh argos-service.tooling
+freeipa/create-certificates.sh mongodb.internal
 freeipa/create-certificates.sh restportal.services
 freeipa/create-certificates.sh portal.services
 freeipa/create-certificates.sh gitea.tooling
@@ -253,6 +281,7 @@ echo "**************************************************************************
 echo " Saving FreeIPA self-signed certificate"
 echo "****************************************************************************************************************"
 docker cp freeipa.iam.provider.test:/etc/ipa/ca.crt ca.crt
+cp ca.crt argos/ca.crt
 cp ca.crt gitea/ca.crt
 cp ca.crt keycloak/ca.crt
 cp ca.crt restportal/ca.crt
@@ -319,7 +348,7 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating Grafana Keycloak Client secret"
 echo "****************************************************************************************************************"
-Grafana_CLIENT_SECRET=$(grep Grafana_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r')
+export Grafana_CLIENT_SECRET=$(grep Grafana_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r')
 echo $Grafana_CLIENT_SECRET
 echo "****************************************************************************************************************"
 echo " Creating keycloak-nexus json"
@@ -370,6 +399,8 @@ chmod +w ./jenkins/keystore/cacerts
 keytool -import -alias freeipa.tooling.provider.test -keystore ./jenkins/keystore/cacerts -file ./ca.crt -storepass ${jenkins_storepass} -noprompt
 docker cp ./jenkins/keystore/cacerts jenkins.tooling.provider.test:/opt/java/openjdk/lib/security/cacerts
 cp ./jenkins/keystore/cacerts ./jenkins_buildnode/cacerts
+cp ./jenkins/keystore/cacerts ./argos/cacerts
+cp ./jenkins/keystore/cacerts ./argos-service/cacerts
 echo "Reloading "
 docker restart jenkins.tooling.provider.test
 let t=0
@@ -377,6 +408,18 @@ until $(curl --output /dev/null --insecure --silent --head --fail https://jenkin
     spin
 done
 endspin
+echo " "
+echo "****************************************************************************************************************"
+echo " Creating Argos setup"
+echo "****************************************************************************************************************"
+argos_client_id=$(grep ARGOS_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
+sed -i -e "s/argos_secret/$argos_client_id/" argos/application.yml
+echo "****************************************************************************************************************"
+echo " Starting Argos"
+echo "****************************************************************************************************************"
+docker-compose up -d --build --no-deps mongodb.internal.provider.test
+docker-compose up -d --build --no-deps argos-service.tooling.provider.test
+docker-compose up -d --build --no-deps argos.services.provider.test
 echo " " 
 echo "****************************************************************************************************************"
 echo " Downloading agent.jar from jenkins"
