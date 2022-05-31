@@ -117,8 +117,6 @@ services:
         ipv4_address: 172.16.9.3
     expose:
       - '27017' 
-    volumes:
-      - 'mongo_data:/var/lib/postgresql/data'
 
   restportal.services.provider.test:
     container_name: restportal.services.provider.test
@@ -405,6 +403,7 @@ services:
       interval: 1m30s
       timeout: 10s
       retries: 3
+
   loki.monitoring.provider.test:
     container_name: loki.monitoring.provider.test
     build: loki
@@ -418,6 +417,7 @@ services:
     networks:
       internal:
         ipv4_address: 172.16.13.4
+
   promtail.monitoring.provider.test:
     container_name: promtail.monitoring.provider.test
     build: promtail
@@ -447,7 +447,7 @@ services:
       - GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP="true"
       - GF_AUTH_GENERIC_OAUTH_CLIENT_ID="Grafana"
       - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=$Grafana_CLIENT_SECRET
-      - GF_AUTH_GENERIC_OAUTH_SCOPES=profile
+      - GF_AUTH_GENERIC_OAUTH_SCOPES="openid email profile"
       - GF_AUTH_GENERIC_OAUTH_AUTH_URL="https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/auth"
       - GF_AUTH_GENERIC_OAUTH_TOKEN_URL="https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/token"
       - GF_AUTH_GENERIC_OAUTH_API_URL="https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/userinfo"
