@@ -1257,6 +1257,23 @@ definitions:
         type: string
     title: 'Error'
     type: object
+  lcmStatus:
+    description: Status of tenant
+    example: Operational
+    type: string
+    enum:
+    - Radar
+    - Planned
+    - Global Design
+    - Detail design
+    - Build
+    - Test
+    - Accept
+    - RFS
+    - Operationeel
+    - End-of-life
+    - Retired
+    - Deleted
   contract:
     title: contract
     type: object
@@ -1298,6 +1315,53 @@ definitions:
     - name
     - costcenter
     - status
+  pod:
+    title: pod
+    type: object
+    description: Point of Delivery for application hosting
+    example:
+      id: 1
+      name: AP01
+      description: The first hosting PoD
+      party: Mine
+      costcenter: 123456789
+      status: Operational
+    properties:
+      id:
+        description: Unique ID
+        example: 1
+        readOnly: true
+        type: integer
+      name:
+        description: Name of the PoD
+        example: AP01
+        minLength: 4
+        type: string
+      description:
+        description: Purpose for this PoD
+        example: Applications for finance
+        minLength: 10
+        type: string
+      party:
+        description: PartyID that can change the parameters of this PoD
+        type: uuid
+      costcenter:
+        description: Costcenter on which the cost of the PoD are to be assigned
+        example: 123456789
+        type: string
+      status:
+        description: Status of PoD
+        example: Active
+        type: string
+        enum:
+        - Active
+        - Inactive
+    required:
+    - id
+    - name
+    - party
+    - costcenter
+    - status
     xml:
       name: contract
   tenant:
@@ -1331,23 +1395,6 @@ definitions:
         example: "Betaler" 
         minLength: 1
         type: string
-      status:
-        description: Status of tenant
-        example: Operational
-        type: string
-        enum:
-        - Radar
-        - Planned
-        - Global Design
-        - Detail design
-        - Build
-        - Test
-        - Accept
-        - RFS
-        - Operationeel
-        - End-of-life
-        - Retired
-        - Deleted
     required:
     - name
     - party
@@ -1408,22 +1455,8 @@ definitions:
         minLength: 1
         type: string
       status:
-        description: Status of az
-        example: Operational
-        type: string
-        enum:
-        - Radar
-        - Planned
-        - Global Design
-        - Detail design
-        - Build
-        - Test
-        - Accept
-        - RFS
-        - Operationeel
-        - End-of-life
-        - Retired
-        - Deleted
+        schema:
+          $ref: '#/definitions/lcmStatus'
     required:
     - name
     xml:

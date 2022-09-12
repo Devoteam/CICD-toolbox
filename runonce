@@ -351,6 +351,11 @@ echo "**************************************************************************
 export Grafana_CLIENT_SECRET=$(grep Grafana_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r')
 echo $Grafana_CLIENT_SECRET
 echo "****************************************************************************************************************"
+echo " Copying Grafana certificates"
+echo "****************************************************************************************************************"
+cp freeipa/certs/grafana.monitoring.provider.test.key grafana/grafana.monitoring.provider.test.key
+cp freeipa/certs/grafana.monitoring.provider.test.pem grafana/grafana.monitoring.provider.test.pem
+echo "****************************************************************************************************************"
 echo " Creating keycloak-nexus json"
 echo "****************************************************************************************************************"
 docker cp keycloak.services.provider.test:/opt/jboss/keycloak/bin/keycloak-nexus.json nexus/keycloak-nexus.json
@@ -451,10 +456,10 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Retrieving Jenkins Agent secrets"
 echo "****************************************************************************************************************"
-curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Dev/jenkins-agent.jnlp -s | sed "s/.*<application-desc main-class=\"hudson.remoting.jnlp.Main\"><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Dev_secret
-curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Acc/jenkins-agent.jnlp -s | sed "s/.*<application-desc main-class=\"hudson.remoting.jnlp.Main\"><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Acc_secret
-curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Test/jenkins-agent.jnlp -s | sed "s/.*<application-desc main-class=\"hudson.remoting.jnlp.Main\"><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Test_secret
-curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Prod/jenkins-agent.jnlp -s | sed "s/.*<application-desc main-class=\"hudson.remoting.jnlp.Main\"><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Prod_secret
+curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Dev/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Dev_secret
+curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Acc/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Acc_secret
+curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Test/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Test_secret
+curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Prod/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Prod_secret
 echo "****************************************************************************************************************"
 echo " Building Jenkins build nodes"
 echo "****************************************************************************************************************"

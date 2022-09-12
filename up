@@ -13,4 +13,10 @@ until $(curl --output /dev/null --silent --head --fail http://keycloak.services.
     printf '.'
     sleep 5
 done
+echo "****************************************************************************************************************"
+echo " Creating Grafana Keycloak Client secret"
+echo "****************************************************************************************************************"
+export Grafana_CLIENT_SECRET=$(grep Grafana_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r')
+echo $Grafana_CLIENT_SECRET
+
 docker-compose start 

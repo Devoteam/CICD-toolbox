@@ -92,7 +92,7 @@ services:
     stop_signal: SIGINT
     stop_grace_period: 15s
     environment:
-      - 'POSTGRES_MULTIPLE_DATABASES=gitea,keycloak,sonar,myreference'
+      - 'POSTGRES_MULTIPLE_DATABASES=gitea,keycloak,sonar,terraform,grafana'
       - POSTGRES_USER=netcicd
       - POSTGRES_PASSWORD=netcicd
     networks:
@@ -257,7 +257,6 @@ services:
       - GITEA_IP=172.16.11.3
       - JENKINS_IP=172.16.11.8
       - NEXUS_IP=172.16.11.9
-      - JENKINS_JENKINS_PASSWORD=netcicd
       - JENKINS_NEXUS_PASSWORD=netcicd
       - JENKINS_ARGOS_PASSWORD=netcicd
     secrets:
@@ -440,18 +439,7 @@ services:
     stop_signal: SIGINT
     stop_grace_period: 15s
     environment:
-      - GF_SERVER_DOMAIN="monitoring.provider.test"
-      - GF_SERVER_ROOT_URL="grafana.monitoring.provider.test"
-      - GF_AUTH_GENERIC_OAUTH_ENABLED="true"
-      - GF_AUTH_GENERIC_OAUTH_NAME="Login with Keycloak"
-      - GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP="true"
-      - GF_AUTH_GENERIC_OAUTH_CLIENT_ID="Grafana"
       - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=$Grafana_CLIENT_SECRET
-      - GF_AUTH_GENERIC_OAUTH_SCOPES="openid email profile"
-      - GF_AUTH_GENERIC_OAUTH_AUTH_URL="https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/auth"
-      - GF_AUTH_GENERIC_OAUTH_TOKEN_URL="https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/token"
-      - GF_AUTH_GENERIC_OAUTH_API_URL="https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/userinfo"
-      - GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH="contains(roles[*], ''admin'') && ''Admin'' || contains(roles[*], ''editor'') && ''Editor'' || ''Viewer''"
     expose:
       - '3000'
     networks:

@@ -484,7 +484,7 @@ echo ""
     -s fullScopeAllowed=false \
     -s directAccessGrantsEnabled=true \
     -s rootUrl=${authBaseUrl} \
-    -s 'redirectUris=[ "https://grafana.monitoring.provider.test:3000/login/generic_oauth" ]' \
+    -s 'redirectUris=[ "http://grafana.monitoring.provider.test:3000/login/generic_oauth" ]' \
     -o --fields id >cicdtoolbox_GRAFANA
 
 # output is Created new client with id, we now need to grep the ID out of it
