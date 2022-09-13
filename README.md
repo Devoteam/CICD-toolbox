@@ -64,7 +64,7 @@ After install, execute:
 
 ```sudo python3 -m pip install robotframework-selenium2library```
 
-```git clone https://github.com/Devoteam/NetCICD-developer-toolbox.git```
+```git clone https://github.com/Devoteam/CICD-toolbox.git```
 
 ```cd NetCICD-developer-toolbox/```
 
