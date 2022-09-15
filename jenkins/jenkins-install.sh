@@ -54,7 +54,6 @@ until $(curl --output /dev/null --insecure --silent --head --fail https://jenkin
 done
 endspin
 echo " " 
-echo " " 
 echo "****************************************************************************************************************"
 echo " Downloading agent.jar from jenkins"
 echo "****************************************************************************************************************"
@@ -70,4 +69,13 @@ echo " "
 jenkins_client_id=$(grep JENKINS_token: install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
 docker exec -it jenkins.tooling.provider.test sh -c "sed -i -e 's/oic_secret/\"$jenkins_client_id\"/' /var/jenkins_conf/casc.yaml"
 echo " " 
-
+echo "****************************************************************************************************************"
+echo " Restarting Jenkins"
+echo "****************************************************************************************************************"
+docker restart jenkins.tooling.provider.test
+let t=0
+until $(curl --output /dev/null --insecure --silent --head --fail https://jenkins.tooling.provider.test:8084/whoAmI); do
+    spin
+done
+endspin
+echo " " 

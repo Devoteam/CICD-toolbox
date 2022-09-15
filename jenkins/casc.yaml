@@ -247,8 +247,6 @@ jenkins:
       remoteFS: "/home/jenkins"
       retentionStrategy: "always"
   numExecutors: 0
-  remotingSecurity:
-    enabled: true
   securityRealm:
     oic:
       clientId: "Jenkins"
