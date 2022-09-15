@@ -43,3 +43,11 @@ jenkins_buildnode/Test_secret
 jenkins_buildnode/Acc_secret
 jenkins_buildnode/Prod_secret
 jtoken.txt
+jenkins/jenkins.tooling.provider.test.*
+nexus/keycloak-nexus.json
+grafana/grafana.monitoring.provider.test.*
+jenkins/keystore/
+jenkins/jenkins.p12
+jenkins/import.pem
+grafana/grafana.monitoring.provider.test.pem
+grafana/grafana.monitoring.provider.test.key
