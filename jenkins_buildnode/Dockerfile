@@ -3,7 +3,7 @@ FROM ciscotestautomation/pyats:latest-alpine
 ENV JAVA_HOME "/usr"
 ARG BUILD_ENVIRONMENT
 RUN apk add --update \
-    openjdk8 \
+    openjdk11 \
     git \
     openssh \
     openssh-keygen \
