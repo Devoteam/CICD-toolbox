@@ -64,9 +64,11 @@ After install, execute:
 
 ```sudo python3 -m pip install robotframework-selenium2library```
 
+Go to the [Trivy site](https://github.com/aquasecurity/trivy) to install trivy.
+
 ```git clone https://github.com/Devoteam/CICD-toolbox.git```
 
-```cd NetCICD-developer-toolbox/```
+```cd CICD-toolbox/```
 
 ### As Docker has a pull rate limit, you need to authenticate first:
 ```docker login -u <yourusername> -p <yourpassword>```
@@ -104,7 +106,7 @@ All steps should PASS!
 If you now log into Jenkins, you should see Jenkins scanning Gitea, finding two repositories, and starting a test on NetCICD. At the moment this lab fails. It is most probably due to having incorrect IP addresses in the NetCICD_agent. We are working on a fix.
 
 ## Users ##
-All users are configured in Keycloak. [The wiki](https://github.com/Devoteam/NetCICD-developer-toolbox/wiki/Users-and-passwords) has the complete list.
+All users are configured in Keycloak. [The wiki](https://github.com/Devoteam/CICD-toolbox/wiki/Users-and-passwords) has the complete list.
 
 ### Wat the Robot script does ###
 In order for Jenkins to be able to run the jenkinsfiles, jenkins needs the jenkins-jenkins user to have a token.
