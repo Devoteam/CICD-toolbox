@@ -425,6 +425,7 @@ services:
     networks:
       internal:
         ipv4_address: 172.16.13.6
+
   vault.tooling.provider.test:
     container_name: vault.tooling.provider.test
     image: vault
@@ -433,11 +434,3 @@ services:
     networks:
       internal:
         ipv4_address: 172.16.11.10
-  netbox.tooling.provider.test:
-    container_name: netbox.tooling.provider.test
-    image: netboxcommunity/netbox
-    expose:
-      - 8000
-    networks:
-      internal:
-        ipv4_address: 172.16.11.11
