@@ -369,7 +369,7 @@ DOCKER_BUILDKIT=1 docker-compose up -d --build --no-deps gitea.tooling.provider.
 docker-compose up -d --build --no-deps restportal.services.provider.test
 docker-compose up -d --build --no-deps nexus.tooling.provider.test
 echo "****************************************************************************************************************"
-echo " Copying Grafana certificates"
+echo " Copying Jenkins certificates"
 echo "****************************************************************************************************************"
 cp freeipa/certs/jenkins.tooling.provider.test.key jenkins/jenkins.tooling.provider.test.key
 cp freeipa/certs/jenkins.tooling.provider.test.pem jenkins/jenkins.tooling.provider.test.pem
@@ -401,9 +401,8 @@ done
 endspin
 echo " "
 echo "****************************************************************************************************************"
-echo " Copying Jenkins Keystore to Jenkins buildnodes and Argos node"
+echo " Copying Jenkins Keystore to Argos node"
 echo "****************************************************************************************************************"
-cp ./jenkins/keystore/cacerts ./jenkins_buildnode/cacerts
 cp ./jenkins/keystore/cacerts ./argos/cacerts
 cp ./jenkins/keystore/cacerts ./argos-service/cacerts
 echo "Reloading "
@@ -434,6 +433,19 @@ source ~/.bashrc
 robot --variable VALID_PASSWORD:${netcicd_pwd} -d install_log finalize_install.robot
 echo " " 
 echo "****************************************************************************************************************"
+echo " Starting Loki, Promtail and Grafana..."
+echo "****************************************************************************************************************"
+docker-compose up -d --build --no-deps portainer.monitoring.provider.test
+docker-compose up -d --build --no-deps loki.monitoring.provider.test
+docker-compose up -d --build --no-deps promtail.monitoring.provider.test
+docker-compose up -d --build --no-deps grafana.monitoring.provider.test
+echo " " 
+echo "****************************************************************************************************************"
+echo " Copying Jenkins Keystore to Jenkins buildnodes"
+echo "****************************************************************************************************************"
+cp ./jenkins/keystore/cacerts ./jenkins_buildnode/cacerts
+echo " " 
+echo "****************************************************************************************************************"
 echo " Retrieving Jenkins CSRF"
 echo "****************************************************************************************************************"
 jtoken=`cat jtoken.txt`
@@ -456,15 +468,6 @@ docker-compose up -d --build --no-deps build-dev.delivery.provider.test
 docker-compose up -d --build --no-deps build-test.delivery.provider.test
 docker-compose up -d --build --no-deps build-acc.delivery.provider.test
 docker-compose up -d --build --no-deps build-prod.delivery.provider.test
-echo " " 
-echo "****************************************************************************************************************"
-echo " Starting Loki, Promtail and Grafana..."
-echo "****************************************************************************************************************"
-docker-compose up -d --build --no-deps portainer.monitoring.provider.test
-docker-compose up -d --build --no-deps loki.monitoring.provider.test
-docker-compose up -d --build --no-deps promtail.monitoring.provider.test
-docker-compose up -d --build --no-deps grafana.monitoring.provider.test
-echo " " 
 echo "****************************************************************************************************************"
 echo " Validating install"
 echo "****************************************************************************************************************"

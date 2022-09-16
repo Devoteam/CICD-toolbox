@@ -5,7 +5,6 @@ networks:
     ipam:
       config:
         - subnet: 172.16.8.0/20
-
 volumes:
   cicdtoolbox_db_data: null
   cicdtoolbox_db_conf: null
@@ -15,15 +14,14 @@ volumes:
   jenkins_certs: null
   jenkins_data: null
   jenkins_conf: null
-  nexus_work: null
-  nexus_db: null
+  nexus-work: null
+  nexus-data: null
   freeipa: null
   portainer_data: null
   sonarqube_data: null
   sonarqube_extensions: null
   sonarqube_logs: null
   sonarqube_temp: null
-
 secrets:
   ca_crt:
     file: ./ca.crt
@@ -39,7 +37,6 @@ secrets:
     file: ./freeipa/certs/nexus.tooling.provider.test.key
   nexus_crt:
     file: ./freeipa/certs/nexus.tooling.provider.test.pem
-
 services:
   freeipa.iam.provider.test:
     container_name: freeipa.iam.provider.test
@@ -81,7 +78,6 @@ services:
       interval: 1m30s
       timeout: 10s
       retries: 3
-
   cicdtoolbox-db.internal.provider.test:
     container_name: cicdtoolbox-db.internal.provider.test
     build: cicdtoolbox-db
@@ -104,10 +100,9 @@ services:
       - 'cicdtoolbox_db_data:/var/lib/postgresql/data'
       - 'cicdtoolbox_db_conf:/etc/postgresql'
       - './cicdtoolbox-db/docker-entrypoint-initdb-resources:/docker-entrypoint-initdb-resources:ro'
-
   mongodb.internal.provider.test:
     container_name: mongodb.internal.provider.test
-    image: argosnotary/mongo:4.2.8
+    image: 'argosnotary/mongo:4.2.8'
     restart: unless-stopped
     init: true
     stop_signal: SIGINT
@@ -116,8 +111,7 @@ services:
       internal:
         ipv4_address: 172.16.9.3
     expose:
-      - '27017' 
-
+      - '27017'
   restportal.services.provider.test:
     container_name: restportal.services.provider.test
     build: restportal
@@ -135,20 +129,18 @@ services:
       interval: 1m30s
       timeout: 10s
       retries: 3
-
   argos.services.provider.test:
     container_name: argos.services.provider.test
-    image: argosnotary/argos-frontend:1.0.2
+    image: 'argosnotary/argos-frontend:1.0.2'
     environment:
-      - BACKEND_URL=http://argos-service.tooling.provider.test:8080
+      - 'BACKEND_URL=http://argos-service.tooling.provider.test:8080'
     networks:
       internal:
         ipv4_address: 172.16.10.4
     ports:
-      - 8082:80
+      - '8082:80'
     depends_on:
       - argos-service.tooling.provider.test
-
   keycloak.services.provider.test:
     container_name: keycloak.services.provider.test
     build: keycloak
@@ -184,7 +176,6 @@ services:
       interval: 1m30s
       timeout: 10s
       retries: 3
-
   gitea.tooling.provider.test:
     container_name: gitea.tooling.provider.test
     build: gitea
@@ -218,7 +209,6 @@ services:
       interval: 1m30s
       timeout: 10s
       retries: 3
-
   argos-service.tooling.provider.test:
     container_name: argos-service.tooling.provider.test
     build: ./argos-service
@@ -236,8 +226,7 @@ services:
       - mongodb.internal.provider.test
       - keycloak.services.provider.test
     volumes:
-      - ./argos/application.yml:/application.yml
-
+      - './argos/application.yml:/application.yml'
   jenkins.tooling.provider.test:
     container_name: jenkins.tooling.provider.test
     build: ./jenkins
@@ -278,7 +267,6 @@ services:
       interval: 1m30s
       timeout: 10s
       retries: 3
-
   nexus.tooling.provider.test:
     container_name: nexus.tooling.provider.test
     build: nexus
@@ -295,8 +283,8 @@ services:
       - source: ca_crt
         target: /nexus-data/etc/ssl/ca.crt
     volumes:
-      - 'nexus_work:/sonatype-work'
-      - 'nexus_db:/nexus-data'
+      - 'nexus-work:/sonatype-work'
+      - 'nexus-data:/nexus-data'
     ulimits:
       nofile:
         soft: 65536
@@ -313,7 +301,6 @@ services:
       interval: 1m30s
       timeout: 10s
       retries: 3
-
   build-dev.delivery.provider.test:
     container_name: build-dev.delivery.provider.test
     build:
@@ -330,7 +317,6 @@ services:
     networks:
       internal:
         ipv4_address: 172.16.12.2
-
   build-test.delivery.provider.test:
     container_name: build-test.delivery.provider.test
     build:
@@ -347,7 +333,6 @@ services:
     networks:
       internal:
         ipv4_address: 172.16.12.3
-
   build-acc.delivery.provider.test:
     container_name: build-acc.delivery.provider.test
     build:
@@ -364,7 +349,6 @@ services:
     networks:
       internal:
         ipv4_address: 172.16.12.4
-
   build-prod.delivery.provider.test:
     container_name: build-prod.delivery.provider.test
     build:
@@ -381,7 +365,6 @@ services:
     networks:
       internal:
         ipv4_address: 172.16.12.5
-
   portainer.monitoring.provider.test:
     container_name: portainer.monitoring.provider.test
     image: portainer/portainer-ce
@@ -402,7 +385,6 @@ services:
       interval: 1m30s
       timeout: 10s
       retries: 3
-
   loki.monitoring.provider.test:
     container_name: loki.monitoring.provider.test
     build: loki
@@ -416,7 +398,6 @@ services:
     networks:
       internal:
         ipv4_address: 172.16.13.4
-
   promtail.monitoring.provider.test:
     container_name: promtail.monitoring.provider.test
     build: promtail
@@ -430,7 +411,6 @@ services:
     networks:
       internal:
         ipv4_address: 172.16.13.5
-
   grafana.monitoring.provider.test:
     container_name: grafana.monitoring.provider.test
     build: grafana

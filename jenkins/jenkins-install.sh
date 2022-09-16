@@ -78,4 +78,8 @@ until $(curl --output /dev/null --insecure --silent --head --fail https://jenkin
     spin
 done
 endspin
-echo " " 
+echo " "
+echo "****************************************************************************************************************"
+echo " Copying Jenkins Keystore to Jenkins buildnodes"
+echo "****************************************************************************************************************"
+cp ./jenkins/keystore/cacerts ./jenkins_buildnode/cacerts
