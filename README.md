@@ -70,6 +70,8 @@ Go to the [Trivy site](https://aquasecurity.github.io/trivy/v0.31.3/getting-star
 
 ```cd CICD-toolbox/```
 
+```sudo cp geckodriver /usr/local/bin/```
+
 ### As Docker has a pull rate limit, you need to authenticate first:
 ```docker login -u <yourusername> -p <yourpassword>```
 
