@@ -64,7 +64,7 @@ After install, execute:
 
 ```sudo python3 -m pip install robotframework-selenium2library```
 
-Go to the [Trivy site](https://github.com/aquasecurity/trivy) to install trivy.
+Go to the [Trivy site](https://aquasecurity.github.io/trivy/v0.31.3/getting-started/installation/) to install trivy.
 
 ```git clone https://github.com/Devoteam/CICD-toolbox.git```
 
