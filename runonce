@@ -469,6 +469,15 @@ docker-compose up -d --build --no-deps build-test.delivery.provider.test
 docker-compose up -d --build --no-deps build-acc.delivery.provider.test
 docker-compose up -d --build --no-deps build-prod.delivery.provider.test
 echo "****************************************************************************************************************"
+echo " Installing Hashicorp Vault"
+echo "****************************************************************************************************************"
+docker-compose up -d --build --no-deps vault.tooling.provider.test
+echo " " echo "****************************************************************************************************************"
+echo " Installing Netbox"
+echo "****************************************************************************************************************"
+docker-compose up -d --build --no-deps netbox.tooling.provider.test
+echo " " 
+echo "****************************************************************************************************************"
 echo " Validating install"
 echo "****************************************************************************************************************"
 robot --variable VALID_PASSWORD:${netcicd_pwd} -d install_tests/ install_tests
