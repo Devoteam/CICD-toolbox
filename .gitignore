@@ -52,3 +52,6 @@ jenkins/import.pem
 grafana/grafana.monitoring.provider.test.pem
 grafana/grafana.monitoring.provider.test.key
 jenkins_buildnode/agent.jar
+argos/cacerts
+argos-service/cacerts
+jenkins_buildnode/cacerts

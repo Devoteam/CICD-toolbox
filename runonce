@@ -201,13 +201,34 @@ fi
 echo " Add Grafana to /etc/hosts"
 sudo echo "172.16.13.6   grafana.monitoring.provider.test" >> /etc/hosts
 
+if grep -q "vault" /etc/hosts; then
+    echo " Hashicorp Vault exists in /etc/hosts, removing..."
+    sudo sed -i '/vault.tooling.provider.test/d' /etc/hosts
+fi
+echo " Add Hashicorp Vault to /etc/hosts"
+sudo echo "172.16.11.10   vault.tooling.provider.test" >> /etc/hosts
+
+if grep -q "redis" /etc/hosts; then
+    echo " Redis exists in /etc/hosts, removing..."
+    sudo sed -i '/redis.tooling.provider.test/d' /etc/hosts
+fi
+echo " Add Redis to /etc/hosts"
+sudo echo "172.16.11.11   redis.tooling.provider.test" >> /etc/hosts
+
+if grep -q "netbox" /etc/hosts; then
+    echo " Netbox exists in /etc/hosts, removing..."
+    sudo sed -i '/netbox.tooling.provider.test/d' /etc/hosts
+fi
+echo " Add Netbox to /etc/hosts"
+sudo echo "172.16.11.12   netbox.tooling.provider.test" >> /etc/hosts
+
 if grep -q "cml" /etc/hosts; then
     echo " Cisco Modeling Labs exists in /etc/hosts, removing..."
     sudo sed -i '/cml.tooling.provider.test/d' /etc/hosts
 fi
-
 echo " Add Cisco Modeling Labs to /etc/hosts"
 sudo echo "10.10.20.161   cml.tooling.provider.test" >> /etc/hosts
+
 sudo chmod o-w /etc/hosts
 echo " " 
 echo "****************************************************************************************************************"
@@ -475,6 +496,7 @@ docker-compose up -d --build --no-deps vault.tooling.provider.test
 echo " " echo "****************************************************************************************************************"
 echo " Installing Netbox"
 echo "****************************************************************************************************************"
+docker-compose up -d --build --no-deps redis.tooling.provider.test
 docker-compose up -d --build --no-deps netbox.tooling.provider.test
 echo " " 
 echo "****************************************************************************************************************"
@@ -547,6 +569,8 @@ echo " Nexus:       https://nexus.tooling.provider.test:8081"
 echo " Portainer:   http://portainer.monitoring.provider.test:9000"
 echo " Loki:        http://loki.monitoring.provider.test:9000"
 echo " Grafana:     http://grafana.monitoring.provider.test:9000"
+echo " Vault:       http://vault.tooling.provider.test:8200"
+echo " Netbox:      http://netbox.tooling.provider.test:8000"
 echo " "
 echo "****************************************************************************************************************"
 echo "Cleaning up"
