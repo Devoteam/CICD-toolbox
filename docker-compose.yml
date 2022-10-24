@@ -5,6 +5,8 @@ networks:
     ipam:
       config:
         - subnet: 172.16.8.0/20
+  vault-backend:
+
 volumes:
   cicdtoolbox_db_data: null
   cicdtoolbox_db_conf: null
@@ -14,6 +16,7 @@ volumes:
   jenkins_certs: null
   jenkins_data: null
   jenkins_conf: null
+  ldap_data: null
   nexus-work: null
   nexus-data: null
   freeipa: null
@@ -26,6 +29,12 @@ volumes:
   promtail: null
   netbox: null
   redis: null
+  consul-config:
+  consul-data:
+  vault-config:
+  vault-policies:
+  vault-data:
+  vault-logs:
 
 secrets:
   ca_crt:
@@ -44,6 +53,29 @@ secrets:
     file: ./freeipa/certs/nexus.tooling.provider.test.pem
 
 services:
+
+  ldap.iam.provider.test:
+    container_name: ldap.iam.provider.test
+    build: lldap
+    restart: unless-stopped
+    hostname: ldap
+    volumes:
+      - 'ldap_data:/data'
+    expose:
+      - '3890:3890'
+    environment:
+#      - LLDAP_JWT_SECRET=REPLACE_WITH_RANDOM
+      - LLDAP_LDAP_USER_PASS=netcicd
+      - LLDAP_LDAP_BASE_DN=dc=provider,dc=test  
+    networks:
+      internal:
+        ipv4_address: 172.16.8.11
+    healthcheck:
+      test: 'curl --insecure --head --fail -s https://localhost || exit 1'
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+
   freeipa.iam.provider.test:
     container_name: freeipa.iam.provider.test
     build: freeipa
@@ -120,6 +152,48 @@ services:
         ipv4_address: 172.16.9.3
     expose:
       - '27017'
+
+  consul.internal.provider.test:
+    container_name: consul.internal.provider.test
+    build:
+      context: ./vault
+      dockerfile: docker/Dockerfile-consul
+    restart: unless-stopped
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
+    networks:
+      internal:
+        ipv4_address: 172.16.9.4
+    volumes:
+      - consul-data:/consul/data
+
+  vault.internal.provider.test:
+    container_name: vault.internal.provider.test
+    build:
+      context: ./vault
+      dockerfile: docker/Dockerfile-vault
+    restart: unless-stopped
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
+    networks:
+      internal:
+        ipv4_address: 172.16.9.5
+    expose:
+      - '8200'
+    volumes:
+      - vault-config:/vault/config
+      - vault-policies:/vault/policies
+      - vault-data:/vault/data
+      - vault-logs:/vault/logs
+    environment:
+      - VAULT_ADDR=http://172.16.9.5:8200
+      - VAULT_API_ADDR=http://172.16.9.5:8200
+    cap_add:
+      - IPC_LOCK
+    depends_on:
+      - consul.internal.provider.test
 
   restportal.services.provider.test:
     container_name: restportal.services.provider.test

@@ -1,0 +1,1 @@
+FROM nitnelave/lldap:stable
