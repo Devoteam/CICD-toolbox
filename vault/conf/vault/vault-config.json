@@ -11,5 +11,6 @@
       "tls_disable": 1
     }
   },
-  "ui": true
+  "ui": true,
+  "api_addr": "http://vault.internal.provider.test:8200"
 }

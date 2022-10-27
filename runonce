@@ -229,28 +229,11 @@ echo " Add Cisco Modeling Labs to /etc/hosts"
 sudo echo "10.10.20.161   cml.tooling.provider.test" >> /etc/hosts
 
 sudo chmod o-w /etc/hosts
-echo " " 
+
 echo "****************************************************************************************************************"
-echo " Preparing Root CA in Vault" 
+echo " Setting up Vault" 
 echo "****************************************************************************************************************"
-docker-compose pull 
-docker-compose up -d --build --remove-orphans consul.internal.provider.test
-docker-compose up -d --build --remove-orphans vault.internal.provider.test
-echo "****************************************************************************************************************"
-echo " Wait until vault is running (~5 sec.)"
-echo "****************************************************************************************************************"
-let t=0
-until $(curl --output /dev/null --insecure --silent --head --fail http://vault.internal.provider.test:8200); do
-    spin
-done
-endspin
-echo " "
-echo "****************************************************************************************************************"
-echo " Creating vault setup."
-echo "****************************************************************************************************************"
-robot -o ./install_log/vault.xml -l ./install_log/vault_log.html -r ./install_log/vault_report.html ./vault/vault-setup.robot
-echo "****************************************************************************************************************"
-echo " We now have a Hashicorp Vault running with Consul. " 
+vault/vault_install | tee install_log/vault_create.log
 echo "****************************************************************************************************************"
 echo " Collecting Nexus Keycloak plugin" 
 echo "****************************************************************************************************************"

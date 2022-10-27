@@ -523,28 +523,7 @@ services:
       internal:
         ipv4_address: 172.16.13.6
 
-  vault.tooling.provider.test:
-    container_name: vault.tooling.provider.test
-    image: vault
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    environment:
-      VAULT_ADDR: "http://172.16.11.10:8200"
-      VAULT_DEV_ROOT_TOKEN_ID: "vault-plaintext-root-token"
-      VAULT_LOCAL_CONFIG: '{"backend": {"file": {"path": "/vault/file"}}, "default_lease_ttl": "168h", "max_lease_ttl": "720h"}'
-    cap_add:
-      - IPC_LOCK
-    volumes:
-      - vault:/vault/file
-    expose:
-      - 8200
-    networks:
-      internal:
-        ipv4_address: 172.16.11.10
-
-  redis.tooling.provider.test:
+  redis.internal.provider.test:
     container_name: redis.tooling.provider.test
     image: redis:6.2-alpine
     ports:
@@ -572,7 +551,7 @@ services:
       - DB_PASSWORD=netbox
       - DB_HOST=cicdtoolbox-db.internal.provider.test
       - DB_PORT=5432
-      - REDIS_HOST=redis.tooling.provider.test
+      - REDIS_HOST=redis.internal.provider.test
       - REDIS_PORT=6379
       - REDIS_PASSWORD=netbox
 

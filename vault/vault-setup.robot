@@ -46,11 +46,13 @@ Initialize vault
     Input Text                 key-threshold           1
     Click Button               Initialize
 
-Get keys                                                        
+Get keys                                                    
     ${token}                   SeleniumLibrary.Get Element Attribute    xpath:/html/body/div[1]/div/div[2]/div[1]/div/div/div/div[3]/div[1]/div[2]/div/div/div/button[1]    data-clipboard-text                                  
     Set Global Variable        ${token}
+    Create File                ${EXECDIR}/token.txt   ${token}
     ${key}                     SeleniumLibrary.Get Element Attribute    xpath:/html/body/div[1]/div/div[2]/div[1]/div/div/div/div[3]/div[1]/div[3]/div/div/div/button[1]    data-clipboard-text
     Set Global Variable        ${key}
+    Create File                ${EXECDIR}/key.txt   ${key}
     Click Link                 Continue to Unseal
 
 Unseal Vault 
