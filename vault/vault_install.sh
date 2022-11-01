@@ -1,28 +1,41 @@
 
 #!/bin/bash
 
+sp="/-\|"
+sc=0
+spin() {
+   printf -- "${sp:sc++:1}  ( ${t} sec.) \r"
+   ((sc==${#sp})) && sc=0
+   sleep 1
+   let t+=1
+}
+
+endspin() {
+   printf "\r%s\n" "$@"
+}
+
 function create_intermediate() {
     echo "****************************************************************************************************************"
     echo " Preparing ${1} intermediate CA in Vault" 
     echo "****************************************************************************************************************"
-    vault secrets enable -path=pki_intermediate_$1 pki
-    vault secrets tune -max-lease-ttl=43800h pki_intermediate_$1
-    vault write -format=json pki_intermediate_$1/intermediate/generate/internal common_name="${1}.provider.test Intermediate Authority" | jq -r '.data.csr' > pki_intermediate_$1.csr
-    vault write -format=json pki/root/sign-intermediate csr=@pki_intermediate_$1.csr format=pem_bundle ttl="43800h" | jq -r '.data.certificate' > pki_intermediate_$1.crt
-    vault write pki_intermediate_$1/intermediate/set-signed certificate=@pki_intermediate_$1.crt
+    vault secrets enable -address="http://vault.internal.provider.test:8200" -path=pki_intermediate_$1 pki
+    vault secrets tune -address="http://vault.internal.provider.test:8200" -max-lease-ttl=43800h pki_intermediate_$1
+    vault write -address="http://vault.internal.provider.test:8200" -format=json pki_intermediate_$1/intermediate/generate/internal common_name="${1}.provider.test Intermediate Authority" | jq -r '.data.csr' > ./vault/certs/pki_intermediate_$1.csr
+    vault write -address="http://vault.internal.provider.test:8200" -format=json pki/root/sign-intermediate csr=@vault/certs/pki_intermediate_$1.csr format=pem_bundle ttl="43800h" | jq -r '.data.certificate' > ./vault/certs/pki_intermediate_$1.crt
+    vault write -address="http://vault.internal.provider.test:8200" pki_intermediate_$1/intermediate/set-signed certificate=@vault/certs/pki_intermediate_$1.crt
     echo "****************************************************************************************************************"
     echo " Define role to permit issueing leaf certificates" 
     echo "****************************************************************************************************************"
-    vault write pki_int/roles/$1.provider.test allowed_domains="${1}.provider.test" allow_subdomains=true max_ttl="8760h"
+    vault write -address="http://vault.internal.provider.test:8200" pki_intermediate_$1/roles/$1.provider.test allowed_domains="${1}.provider.test" allow_subdomains=true max_ttl="8760h"
     echo " " 
 }
 
-function create_leaf () {
-    vault write -format=json pki_int/issue/$1 common_name="${2}.${1}.provider.tooling.test" ttl="8760h" > $2.$1.provider.test.json
-    cat $2.$1.provider.test.json | jq -r '.data.private_key' > $2.$1.provider.test.pem
-    cat $2.$1.provider.test.json | jq -r '.data.certificate' > $2.$1.provider.test.crt
-    cat $2.$1.provider.test.json | jq -r '.data.ca_chain[]' >> $2.$1.provider.test.crt
-    rm $2.$1.provider.test.json
+function create_leaf() {
+    vault write -address="http://vault.internal.provider.test:8200" -format=json pki_intermediate_$2/issue/$2.provider.test common_name="${1}.${2}.provider.test" ttl="8760h" > ./vault/certs/$1.$2.provider.test.json
+    cat ./vault/certs/$1.$2.provider.test.json | jq -r '.data.private_key' > ./vault/certs/$1.$2.provider.test.pem
+    cat ./vault/certs/$1.$2.provider.test.json | jq -r '.data.certificate' > ./vault/certs/$1.$2.provider.test.crt
+    cat ./vault/certs/$1.$2.provider.test.json | jq -r '.data.ca_chain[]' >> ./vault/certs/$1.$2.provider.test.crt
+    rm ./vault/certs/$1.$2.provider.test.json
 }
 
 echo "****************************************************************************************************************"
@@ -53,12 +66,13 @@ echo " "
 echo "****************************************************************************************************************"
 echo " CLI Login to Vault" 
 echo "****************************************************************************************************************"
-cat key.txt | vault login -address="http://vault.internal.provider.test:8200" -
+cat ./vault/token.txt | vault login -address="http://vault.internal.provider.test:8200" -
 echo "****************************************************************************************************************"
 echo " Preparing Root CA in Vault" 
 echo "****************************************************************************************************************"
-vault write -field=certificate pki/root/generate/internal common_name="provider.test" ttl=87600h > ca.crt
-vault write pki/config/urls issuing_certificates="http://vault.internal.provider.test:8200/v1/pki/ca" crl_distribution_points="http://vault.internal.provider.test:8200/v1/pki/crl"
+vault secrets tune -address="http://vault.internal.provider.test:8200" -max-lease-ttl=87600h pki
+vault write -address="http://vault.internal.provider.test:8200" -field=certificate pki/root/generate/internal common_name="provider.test" ttl=87600h > ./vault/certs/ca.crt
+vault write -address="http://vault.internal.provider.test:8200" pki/config/urls issuing_certificates="http://vault.internal.provider.test:8200/v1/pki/ca" crl_distribution_points="http://vault.internal.provider.test:8200/v1/pki/crl"
 echo " " 
 echo "****************************************************************************************************************"
 echo " Creating intermediates" 
@@ -87,9 +101,9 @@ create_leaf ldap iam
 create_leaf cicdtoolbox-db internal 
 create_leaf mongodb internal
 create_leaf redis internal 
-create leaf loki monitoring
-create leaf promtail monitoring
-create leaf grafana monitoring
+create_leaf loki monitoring
+create_leaf promtail monitoring
+create_leaf grafana monitoring
 create_leaf restportal services 
 create_leaf argos services 
 create_leaf keycloak services 

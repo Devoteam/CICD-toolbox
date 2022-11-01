@@ -140,18 +140,18 @@ services:
       - 'cicdtoolbox_db_conf:/etc/postgresql'
       - './cicdtoolbox-db/docker-entrypoint-initdb-resources:/docker-entrypoint-initdb-resources:ro'
 
-  mongodb.internal.provider.test:
-    container_name: mongodb.internal.provider.test
-    image: 'argosnotary/mongo:4.2.8'
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    networks:
-      internal:
-        ipv4_address: 172.16.9.3
-    expose:
-      - '27017'
+  # mongodb.internal.provider.test:
+  #   container_name: mongodb.internal.provider.test
+  #   image: 'argosnotary/mongo:4.2.8'
+  #   restart: unless-stopped
+  #   init: true
+  #   stop_signal: SIGINT
+  #   stop_grace_period: 15s
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.9.3
+  #   expose:
+  #     - '27017'
 
   consul.internal.provider.test:
     container_name: consul.internal.provider.test
@@ -188,43 +188,43 @@ services:
       - vault-data:/vault/data
       - vault-logs:/vault/logs
     environment:
-      - VAULT_ADDR=http://172.16.9.5:8200
-      - VAULT_API_ADDR=http://172.16.9.5:8200
+      - VAULT_ADDR=http://vault.internal.provider.test:8200
+      - VAULT_API_ADDR=http://vault.internal.provider.test:8200
     cap_add:
       - IPC_LOCK
     depends_on:
       - consul.internal.provider.test
 
-  restportal.services.provider.test:
-    container_name: restportal.services.provider.test
-    build: restportal
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    networks:
-      internal:
-        ipv4_address: 172.16.10.2
-    ports:
-      - '8888:8080'
-    healthcheck:
-      test: 'curl --insecure --head --fail -s https://localhost:8080 || exit 1'
-      interval: 1m30s
-      timeout: 10s
-      retries: 3
+  # restportal.services.provider.test:
+  #   container_name: restportal.services.provider.test
+  #   build: restportal
+  #   restart: unless-stopped
+  #   init: true
+  #   stop_signal: SIGINT
+  #   stop_grace_period: 15s
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.10.2
+  #   ports:
+  #     - '8888:8080'
+  #   healthcheck:
+  #     test: 'curl --insecure --head --fail -s https://localhost:8080 || exit 1'
+  #     interval: 1m30s
+  #     timeout: 10s
+  #     retries: 3
 
-  argos.services.provider.test:
-    container_name: argos.services.provider.test
-    image: 'argosnotary/argos-frontend:1.0.2'
-    environment:
-      - 'BACKEND_URL=http://argos-service.tooling.provider.test:8080'
-    networks:
-      internal:
-        ipv4_address: 172.16.10.4
-    ports:
-      - '8082:80'
-    depends_on:
-      - argos-service.tooling.provider.test
+  # argos.services.provider.test:
+  #   container_name: argos.services.provider.test
+  #   image: 'argosnotary/argos-frontend:1.0.2'
+  #   environment:
+  #     - 'BACKEND_URL=http://argos-service.tooling.provider.test:8080'
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.10.4
+  #   ports:
+  #     - '8082:80'
+  #   depends_on:
+  #     - argos-service.tooling.provider.test
 
   keycloak.services.provider.test:
     container_name: keycloak.services.provider.test
@@ -296,24 +296,24 @@ services:
       timeout: 10s
       retries: 3
 
-  argos-service.tooling.provider.test:
-    container_name: argos-service.tooling.provider.test
-    build: ./argos-service
-    environment:
-      spring.config.location: /application.yml
-      jwt.token.secret: Z2LcVpgCuGtpb5rBDNIIWGe8RXqYGWDpWFjWhYQUS2Z8rjE2/GTJlu0s6BRYG0Mn0kV8StC9cFE83Jkl68RCkw==
-      spring.profiles.active: integration-test
-      JAVA_OPTS: '-Xmx1g'
-    networks:
-      internal:
-        ipv4_address: 172.16.11.4
-    expose:
-      - '8080'
-    depends_on:
-      - mongodb.internal.provider.test
-      - keycloak.services.provider.test
-    volumes:
-      - './argos/application.yml:/application.yml'
+  # argos-service.tooling.provider.test:
+  #   container_name: argos-service.tooling.provider.test
+  #   build: ./argos-service
+  #   environment:
+  #     spring.config.location: /application.yml
+  #     jwt.token.secret: Z2LcVpgCuGtpb5rBDNIIWGe8RXqYGWDpWFjWhYQUS2Z8rjE2/GTJlu0s6BRYG0Mn0kV8StC9cFE83Jkl68RCkw==
+  #     spring.profiles.active: integration-test
+  #     JAVA_OPTS: '-Xmx1g'
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.11.4
+  #   expose:
+  #     - '8080'
+  #   depends_on:
+  #     - mongodb.internal.provider.test
+  #     - keycloak.services.provider.test
+  #   volumes:
+  #     - './argos/application.yml:/application.yml'
 
   jenkins.tooling.provider.test:
     container_name: jenkins.tooling.provider.test
@@ -459,113 +459,113 @@ services:
       internal:
         ipv4_address: 172.16.12.5
 
-  portainer.monitoring.provider.test:
-    container_name: portainer.monitoring.provider.test
-    image: portainer/portainer-ce
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    volumes:
-      - 'portainer_data:/data'
-      - '/var/run/docker.sock:/var/run/docker.sock'
-    networks:
-      internal:
-        ipv4_address: 172.16.13.3
-    ports:
-      - '9000:9000'
-    healthcheck:
-      test: 'curl --insecure --head --fail -s http://localhost || exit 1'
-      interval: 1m30s
-      timeout: 10s
-      retries: 3
+  # portainer.monitoring.provider.test:
+  #   container_name: portainer.monitoring.provider.test
+  #   image: portainer/portainer-ce
+  #   restart: unless-stopped
+  #   init: true
+  #   stop_signal: SIGINT
+  #   stop_grace_period: 15s
+  #   volumes:
+  #     - 'portainer_data:/data'
+  #     - '/var/run/docker.sock:/var/run/docker.sock'
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.13.3
+  #   ports:
+  #     - '9000:9000'
+  #   healthcheck:
+  #     test: 'curl --insecure --head --fail -s http://localhost || exit 1'
+  #     interval: 1m30s
+  #     timeout: 10s
+  #     retries: 3
 
-  loki.monitoring.provider.test:
-    container_name: loki.monitoring.provider.test
-    build: loki
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    expose:
-      - '3100'
-    command: '-config.file=/etc/loki/local-config.yaml'
-    networks:
-      internal:
-        ipv4_address: 172.16.13.4
+  # loki.monitoring.provider.test:
+  #   container_name: loki.monitoring.provider.test
+  #   build: loki
+  #   restart: unless-stopped
+  #   init: true
+  #   stop_signal: SIGINT
+  #   stop_grace_period: 15s
+  #   expose:
+  #     - '3100'
+  #   command: '-config.file=/etc/loki/local-config.yaml'
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.13.4
 
-  promtail.monitoring.provider.test:
-    container_name: promtail.monitoring.provider.test
-    build: promtail
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    volumes:
-      - promtail:/var/log
-    command: '-config.file=/etc/promtail/config.yml'
-    networks:
-      internal:
-        ipv4_address: 172.16.13.5
+  # promtail.monitoring.provider.test:
+  #   container_name: promtail.monitoring.provider.test
+  #   build: promtail
+  #   restart: unless-stopped
+  #   init: true
+  #   stop_signal: SIGINT
+  #   stop_grace_period: 15s
+  #   volumes:
+  #     - promtail:/var/log
+  #   command: '-config.file=/etc/promtail/config.yml'
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.13.5
 
-  grafana.monitoring.provider.test:
-    container_name: grafana.monitoring.provider.test
-    build: grafana
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    environment:
-      - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=$Grafana_CLIENT_SECRET
-    expose:
-      - '3000'
-    networks:
-      internal:
-        ipv4_address: 172.16.13.6
+  # grafana.monitoring.provider.test:
+  #   container_name: grafana.monitoring.provider.test
+  #   build: grafana
+  #   restart: unless-stopped
+  #   init: true
+  #   stop_signal: SIGINT
+  #   stop_grace_period: 15s
+  #   environment:
+  #     - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=$Grafana_CLIENT_SECRET
+  #   expose:
+  #     - '3000'
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.13.6
 
-  redis.internal.provider.test:
-    container_name: redis.tooling.provider.test
-    image: redis:6.2-alpine
-    ports:
-      - 6379:6379
-    command: redis-server --save 60 1 --requirepass netbox --loglevel warning
-    restart: unless-stopped
-    volumes:
-      - redis:/data
-    networks:
-      internal:
-        ipv4_address: 172.16.11.11  
+  # redis.internal.provider.test:
+  #   container_name: redis.tooling.provider.test
+  #   image: redis:6.2-alpine
+  #   ports:
+  #     - 6379:6379
+  #   command: redis-server --save 60 1 --requirepass netbox --loglevel warning
+  #   restart: unless-stopped
+  #   volumes:
+  #     - redis:/data
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.11.11  
 
-  netbox.tooling.provider.test:
-    container_name: netbox.tooling.provider.test
-    image: lscr.io/linuxserver/netbox:latest
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Amsterdam
-      - SUPERUSER_EMAIL=netcicd@provider.test
-      - SUPERUSER_PASSWORD=Pa55w0rd
-      - ALLOWED_HOST=netbox.tooling.provider.test
-      - DB_NAME=netbox
-      - DB_USER=netbox
-      - DB_PASSWORD=netbox
-      - DB_HOST=cicdtoolbox-db.internal.provider.test
-      - DB_PORT=5432
-      - REDIS_HOST=redis.internal.provider.test
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD=netbox
+  # netbox.tooling.provider.test:
+  #   container_name: netbox.tooling.provider.test
+  #   image: lscr.io/linuxserver/netbox:latest
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Europe/Amsterdam
+  #     - SUPERUSER_EMAIL=netcicd@provider.test
+  #     - SUPERUSER_PASSWORD=Pa55w0rd
+  #     - ALLOWED_HOST=netbox.tooling.provider.test
+  #     - DB_NAME=netbox
+  #     - DB_USER=netbox
+  #     - DB_PASSWORD=netbox
+  #     - DB_HOST=cicdtoolbox-db.internal.provider.test
+  #     - DB_PORT=5432
+  #     - REDIS_HOST=redis.internal.provider.test
+  #     - REDIS_PORT=6379
+  #     - REDIS_PASSWORD=netbox
 
-      # - REMOTE_AUTH_ENABLED=<REMOTE_AUTH_ENABLED> #optional
-      # - REMOTE_AUTH_BACKEND=<REMOTE_AUTH_BACKEND> #optional
-      # - REMOTE_AUTH_HEADER=<REMOTE_AUTH_HEADER> #optional
-      # - REMOTE_AUTH_AUTO_CREATE_USER=<REMOTE_AUTH_AUTO_CREATE_USER> #optional
-      # - REMOTE_AUTH_DEFAULT_GROUPS=<REMOTE_AUTH_DEFAULT_GROUPS> #optional
-      # - REMOTE_AUTH_DEFAULT_PERMISSIONS=<REMOTE_AUTH_DEFAULT_PERMISSIONS> #optional
-    volumes:
-      - netbox:/config
-    ports:
-      - 8000:8000
-    restart: unless-stopped
-    networks:
-      internal:
-        ipv4_address: 172.16.11.12
+  #     # - REMOTE_AUTH_ENABLED=<REMOTE_AUTH_ENABLED> #optional
+  #     # - REMOTE_AUTH_BACKEND=<REMOTE_AUTH_BACKEND> #optional
+  #     # - REMOTE_AUTH_HEADER=<REMOTE_AUTH_HEADER> #optional
+  #     # - REMOTE_AUTH_AUTO_CREATE_USER=<REMOTE_AUTH_AUTO_CREATE_USER> #optional
+  #     # - REMOTE_AUTH_DEFAULT_GROUPS=<REMOTE_AUTH_DEFAULT_GROUPS> #optional
+  #     # - REMOTE_AUTH_DEFAULT_PERMISSIONS=<REMOTE_AUTH_DEFAULT_PERMISSIONS> #optional
+  #   volumes:
+  #     - netbox:/config
+  #   ports:
+  #     - 8000:8000
+  #   restart: unless-stopped
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.11.12

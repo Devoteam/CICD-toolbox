@@ -56,3 +56,7 @@ argos/cacerts
 argos-service/cacerts
 jenkins_buildnode/cacerts
 jtoken.txt
+vault/certs/*.pem
+vault/certs/*.crt
+vault/certs/*.csr
+vault/*.txt
