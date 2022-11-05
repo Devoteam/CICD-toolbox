@@ -1,7 +1,6 @@
 FROM ciscotestautomation/pyats:latest-alpine
 
 ENV JAVA_HOME "/usr"
-ARG BUILD_ENVIRONMENT
 RUN apk add --update \
     openjdk11 \
     git \
@@ -13,6 +12,8 @@ RUN apk add --update \
     sshpass \
     curl \
     bash \
+    docker \
+    docker-compose \
     terraform
 RUN pip3 install --upgrade pip
 RUN apk --update add --virtual \
@@ -48,6 +49,7 @@ RUN echo "[defaults]" > /home/jenkins/.ansible.cfg
 RUN echo "host_key_checking = False" >> /home/jenkins/.ansible.cfg
 RUN chown jenkins:jenkins /home/jenkins/.ansible.cfg
 RUN chown -R jenkins:jenkins /home/jenkins
+RUN addgroup jenkins docker
 
 ADD docker-entrypoint.sh /usr/local/bin
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
@@ -56,11 +58,6 @@ COPY agent.jar /home/jenkins/
 COPY ca.crt /usr/local/share/ca-certificates/ca.crt
 RUN update-ca-certificates
 COPY cacerts /etc/ssl/certs/java/cacerts
-COPY ${BUILD_ENVIRONMENT}_secret /home/jenkins/secret-file
-RUN echo ${BUILD_ENVIRONMENT} > /home/jenkins/buildenv
-COPY rc.local /etc/rc.local
-EXPOSE 22 
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 USER jenkins
 RUN cd /home/jenkins
@@ -69,5 +66,10 @@ RUN export OTF_VAR_bis_PLUGIN_CONFIGURATION_FILE="~/.terraform.d/plugins/terrafo
 COPY terraform-provider-openapi.yaml /home/jenkins/.terraform.d/plugins/terraform-provider-openapi.yaml
 COPY prov.yaml /home/jenkins/prov.yaml
 
+
 USER root
 CMD ["/usr/sbin/sshd", "-D"]
+COPY rc.local /etc/rc.local
+EXPOSE 22 
+
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

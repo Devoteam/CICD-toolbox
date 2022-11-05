@@ -63,7 +63,7 @@ echo "**************************************************************************
 echo " Cleaning Jenkins" 
 echo "****************************************************************************************************************"
 rm -f jenkins/jenkins.tooling*
-rm -f jenkins_buildnode/*_secret
+rm -f jenkins_buildnode/*_secret.txt
 rm -f jenkins_buildnode/agent.jar
 rm -f jenkins_buildnode/jenkins-cli.jar
 echo " " 
@@ -84,6 +84,13 @@ echo " hosts file."
 echo "****************************************************************************************************************"
 echo " " 
 sudo chmod o+w /etc/hosts
+if grep -q "ldap" /etc/hosts; then
+    echo " LLDAP exists in /etc/hosts, removing..."
+    sudo sed -i '/ldap.iam.provider.test/d' /etc/hosts
+fi
+echo " Add LLDAP to /etc/hosts"
+sudo echo "172.16.8.11   ldap.iam.provider.test" >> /etc/hosts
+
 if grep -q "ipa-ca" /etc/hosts; then
     echo " ipa-ca exists in /etc/hosts, removing..."
     sudo sed -i '/ipa-ca.tooling.provider.test/d' /etc/hosts
@@ -284,6 +291,11 @@ if [ ! -f ./nexus/nexus-casc* ]; then
 else
     echo "Casc plugin exists, no need to build"
 fi
+echo " " 
+echo "****************************************************************************************************************"
+echo " Creating LDAP server" 
+echo "****************************************************************************************************************"
+docker-compose up -d --build --remove-orphans ldap.iam.provider.test
 echo " " 
 echo "****************************************************************************************************************"
 echo " Creating CSR for all containers, so they can be copied in in the Dockerfile" 
@@ -497,10 +509,10 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Retrieving Jenkins Agent secrets"
 echo "****************************************************************************************************************"
-curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Dev/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Dev_secret
-curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Acc/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Acc_secret
-curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Test/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Test_secret
-curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Prod/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Prod_secret
+curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Dev/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Dev_secret.txt
+curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Acc/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Acc_secret.txt
+curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Test/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Test_secret.txt
+curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Prod/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Prod_secret.txt
 echo "****************************************************************************************************************"
 echo " Building Jenkins build nodes"
 echo "****************************************************************************************************************"
@@ -509,10 +521,6 @@ docker-compose up -d --build --no-deps build-test.delivery.provider.test
 docker-compose up -d --build --no-deps build-acc.delivery.provider.test
 docker-compose up -d --build --no-deps build-prod.delivery.provider.test
 echo "****************************************************************************************************************"
-echo " Installing Hashicorp Vault"
-echo "****************************************************************************************************************"
-docker-compose up -d --build --no-deps vault.tooling.provider.test
-echo " " echo "****************************************************************************************************************"
 echo " Installing Netbox"
 echo "****************************************************************************************************************"
 docker-compose up -d --build --no-deps redis.tooling.provider.test
