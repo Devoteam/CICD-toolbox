@@ -25,7 +25,7 @@ Close browsers
 
 *** Variables ***
 
-${BROWSER1}         headlessfirefox
+${BROWSER1}         firefox
 ${DELAY}            0
 ${JENKINS URL}      https://jenkins.tooling.provider.test:8084/
 ${JENKINS LOGOUT}   https://jenkins.tooling.provider.test:8084/logout 

@@ -1,5 +1,5 @@
 # pulling offical image
-FROM gitea/gitea:latest
+FROM gitea/gitea:1
 
 COPY app.ini /data/gitea/conf/app.ini
 RUN mkdir /data/gitea/templates/

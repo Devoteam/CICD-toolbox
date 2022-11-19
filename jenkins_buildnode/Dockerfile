@@ -28,6 +28,7 @@ RUN apk --update add --virtual \
         behave\
         virlutils\
         robotframework \
+        azure-cli \
  && pip3 install \
         ansible \
  && apk del \
