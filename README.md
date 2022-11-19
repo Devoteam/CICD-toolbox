@@ -62,6 +62,8 @@ After install, execute:
 
 ```sudo python3 -m pip install robotframework-selenium2library```
 
+```echo "export COMPOSE_DOCKER_CLI_BUILD=1" >> ~/.bashrc```
+
 Go to the [Trivy site](https://aquasecurity.github.io/trivy/v0.31.3/getting-started/installation/) to install trivy.
 
 ```git clone https://github.com/Devoteam/CICD-toolbox.git```
