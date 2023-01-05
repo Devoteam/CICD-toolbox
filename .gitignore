@@ -55,4 +55,8 @@ jenkins_buildnode/agent.jar
 argos/cacerts
 argos-service/cacerts
 jenkins_buildnode/cacerts
-jtoken.txt
+*.txt
+*.pem
+*.crt
+*.csr
+vault/key.txt
