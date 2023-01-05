@@ -5,7 +5,6 @@ networks:
     ipam:
       config:
         - subnet: 172.16.8.0/20
-  vault-backend:
 
 volumes:
   cicdtoolbox_db_data: null
@@ -138,7 +137,7 @@ services:
     volumes:
       - 'ldap_data:/data'
     expose:
-      - '3890:3890'
+      - '3890'
     environment:
 #      - LLDAP_JWT_SECRET=REPLACE_WITH_RANDOM
       - LLDAP_LDAP_USER_PASS=Pa55w0rd
@@ -209,19 +208,10 @@ services:
     secrets:
       - source: cicdtoolbox-db_key
         target: /var/lib/postgresql/server1.key
-        uid: '999'
-        gid: '999'
-        mode: 600
       - source: cicdtoolbox-db_crt
         target: /var/lib/postgresql/server.crt
-        uid: '999'
-        gid: '999'
-        mode: 644
       - source: ca_crt
         target: /var/lib/postgresql/root.crt
-        uid: '999'
-        gid: '999'
-        mode: 600
     networks:
       internal:
         ipv4_address: 172.16.9.2
@@ -467,8 +457,8 @@ services:
       - source: ca_crt
         target: /nexus-data/etc/ssl/ca.crt
     volumes:
-      - 'nexus-work:/sonatype-work'
-      - 'nexus-data:/nexus-data'
+      - nexus-work:/sonatype-work
+      - nexus-data:/nexus-data
     ulimits:
       nofile:
         soft: 65536
@@ -503,7 +493,6 @@ services:
     secrets:
       - source: dev_jenkins_secret
         target: /home/jenkins/secret-file.txt
-        mode: 444
     expose:
       - '50000'
     networks:
@@ -527,7 +516,6 @@ services:
     secrets:
       - source: test_jenkins_secret
         target: /home/jenkins/secret-file.txt
-        mode: 444
     expose:
       - '50000'
     networks:
@@ -551,7 +539,6 @@ services:
     secrets:
       - source: acc_jenkins_secret
         target: /home/jenkins/secret-file.txt
-        mode: 444
     expose:
       - '50000'
     networks:
@@ -575,7 +562,6 @@ services:
     secrets:
       - source: prod_jenkins_secret
         target: /home/jenkins/secret-file.txt
-        mode: 444
     expose:
       - '50000'
     networks:

@@ -24,8 +24,6 @@ Set up PKI
 Set up KV
     Enable Key Value Store
 
-Set up Database
-    Enable Database
 
 Close browsers
     Close Browser
@@ -87,13 +85,3 @@ Enable Key Value Store
     Page Should Contain        Enable KV Secrets Engine
     Click Button               xpath:/html/body/div[1]/div/div[2]/div[1]/section/div/div/form/div[2]/div[1]/button
     Click Link                 secrets
-
-Enable Database
-    Page Should Contain        Secrets Engines
-    Click Element              xpath:/html/body/div[1]/div/div[2]/div[1]/section/div/nav/div/nav/a/span
-    Page Should Contain        Enable a Secrets Engine
-    Click Element              xpath://*[@id="database"]
-    Click Element              xpath://*[@class="columns is-mobile is-variable is-1"]
-    Click Button               Next
-    Page Should Contain        Enable Databases Secrets Engine
-    Click Button               xpath:/html/body/div[1]/div/div[2]/div[1]/section/div/div/form/div[2]/div[1]/button

@@ -38,6 +38,24 @@ function create_leaf() {
     rm ./vault/certs/$1.$2.provider.test.json
 }
 
+function create_database() {
+    vault write database/config/$1 \
+    plugin_name="postgresql-database-plugin" \
+    allowed_roles=$1 \
+    connection_url="postgresql://{{username}}:{{password}}@cicdtoolbox-db.internal.provider.test:5432/${1}" \
+    username=$1 \
+    password=$1
+
+    vault write database/roles/$1 \
+    db_name=$1 \
+    creation_statements="CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}'; \
+        GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"{{name}}\";" \
+    default_ttl="1h" \
+    max_ttl="24h"
+
+    vault write -force database/rotate-root/$1
+}
+
 echo "****************************************************************************************************************"
 echo " Creating Vault with a Consul backend" 
 echo "****************************************************************************************************************"
@@ -112,4 +130,9 @@ create_leaf argos-service tooling
 create_leaf jenkins tooling 
 create_leaf nexus tooling 
 create_leaf netbox tooling 
-
+echo "****************************************************************************************************************"
+echo " Preparing PostgreSQL database use" 
+echo "****************************************************************************************************************"
+echo " " 
+vault secrets enable database
+create_database myreference
