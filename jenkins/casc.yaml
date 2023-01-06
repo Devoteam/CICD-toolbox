@@ -197,7 +197,7 @@ jenkins:
   - permanent:
       labelString: "Dev"
       launcher:
-        jnlp:
+        inbound:
           workDirSettings:
             disabled: false
             failIfWorkDirIsMissing: false
@@ -210,7 +210,7 @@ jenkins:
   - permanent:
       labelString: "Test"
       launcher:
-        jnlp:
+        inbound:
           workDirSettings:
             disabled: false
             failIfWorkDirIsMissing: false
@@ -223,7 +223,7 @@ jenkins:
   - permanent:
       labelString: "Acc"
       launcher:
-        jnlp:
+        inbound:
           workDirSettings:
             disabled: false
             failIfWorkDirIsMissing: false
@@ -236,7 +236,7 @@ jenkins:
   - permanent:
       labelString: "Prod"
       launcher:
-        jnlp:
+        inbound:
           workDirSettings:
             disabled: false
             failIfWorkDirIsMissing: false
