@@ -60,3 +60,5 @@ vault/certs/*.pem
 vault/certs/*.crt
 vault/certs/*.csr
 vault/*.txt
+*.kar
+nexus/nexus-repository-apk-0.0.25-bundle.kar
