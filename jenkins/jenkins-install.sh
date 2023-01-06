@@ -28,13 +28,9 @@ echo "**************************************************************************
 echo " " 
 docker-compose up -d --build --no-deps jenkins.tooling.provider.test
 echo "****************************************************************************************************************"
-echo " Wait until Jenkins has booted (~20 sec)"
+echo " We need a hack to get the CA into Jenkins"
 echo "****************************************************************************************************************"
-let t=0
-until  docker logs jenkins.tooling.provider.test 2>&1 | grep "Jenkins is fully up and running"; do
-    spin
-done
-endspin
+sleep 2
 echo " " 
 echo "****************************************************************************************************************"
 echo " Copy CA certificates into Jenkins keystore"
