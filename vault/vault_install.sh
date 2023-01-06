@@ -39,21 +39,21 @@ function create_leaf() {
 }
 
 function create_database() {
-    vault write database/config/$1 \
+    vault write -address="http://vault.internal.provider.test:8200" database/config/$1 \
     plugin_name="postgresql-database-plugin" \
     allowed_roles=$1 \
     connection_url="postgresql://{{username}}:{{password}}@cicdtoolbox-db.internal.provider.test:5432/${1}" \
     username=$1 \
     password=$1
 
-    vault write database/roles/$1 \
+    vault write -address="http://vault.internal.provider.test:8200" database/roles/$1 \
     db_name=$1 \
     creation_statements="CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}'; \
         GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"{{name}}\";" \
     default_ttl="1h" \
     max_ttl="24h"
 
-    vault write -force database/rotate-root/$1
+    vault write -force  -address="http://vault.internal.provider.test:8200" database/rotate-root/$1
 }
 
 echo "****************************************************************************************************************"
@@ -134,5 +134,5 @@ echo "**************************************************************************
 echo " Preparing PostgreSQL database use" 
 echo "****************************************************************************************************************"
 echo " " 
-vault secrets enable database
-create_database myreference
+vault secrets enable -address="http://vault.internal.provider.test:8200" database
+#create_database myreference

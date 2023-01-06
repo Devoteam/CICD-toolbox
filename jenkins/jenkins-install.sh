@@ -19,7 +19,7 @@ echo "**************************************************************************
 echo " Copy certificates into Jenkins keystore"
 echo "****************************************************************************************************************"
 cat jenkins/jenkins.tooling.provider.test.pem ca.crt > jenkins/import.pem
-openssl pkcs12 -export -in jenkins/import.pem -inkey jenkins/jenkins.tooling.provider.test.key -name jenkins -passout pass:changeit > jenkins/jenkins.p12
+openssl pkcs12 -export -in jenkins/import.pem -inkey jenkins/jenkins.tooling.provider.test.key -name jenkins.tooling.provider.test.key -passout pass:$1 > jenkins/jenkins.p12
 #Import the PKCS12 file into Java keystore:
 keytool -importkeystore -srckeystore jenkins/jenkins.p12 -destkeystore jenkins/keystore/jenkins.jks -srcstoretype pkcs12 -srcstorepass $1 -storepass $1 -noprompt -deststoretype pkcs12
 echo "****************************************************************************************************************"
@@ -28,13 +28,9 @@ echo "**************************************************************************
 echo " " 
 docker-compose up -d --build --no-deps jenkins.tooling.provider.test
 echo "****************************************************************************************************************"
-echo " Wait until Jenkins has booted (~20 sec)"
+echo " We need to do a dirty hack as Jenkins requires a CA certificate to work"
 echo "****************************************************************************************************************"
-let t=0
-until  docker logs jenkins.tooling.provider.test 2>&1 | grep "Jenkins is fully up and running"; do
-    spin
-done
-endspin
+sleep 1
 echo " " 
 echo "****************************************************************************************************************"
 echo " Copy CA certificates into Jenkins keystore"
