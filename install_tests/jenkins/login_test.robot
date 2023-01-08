@@ -79,6 +79,7 @@ Login with correct role provides correct authorization
 Are assigned roles present
     [Arguments]  ${USERNAME}  ${PASSWORD}  ${OK_ROLES}  ${FAIL_ROLES}
     Open Browser                ${JENKINS URL}          ${BROWSER1}
+    Set Window Size             2560                 1920
     Log into Jenkins as user    ${USERNAME}             ${PASSWORD}
     Test given roles            ${USERNAME}             ${OK_ROLES}                 ${FAIL_ROLES}
     Close Browser
