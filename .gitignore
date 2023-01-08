@@ -60,3 +60,7 @@ jenkins_buildnode/cacerts
 *.crt
 *.csr
 vault/key.txt
+jtoken.txt
+argos/cacerts
+argos-service/cacerts
+jenkins_buildnode/cacerts

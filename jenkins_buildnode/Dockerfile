@@ -49,7 +49,7 @@ RUN echo "host_key_checking = False" >> /home/jenkins/.ansible.cfg
 RUN chown jenkins:jenkins /home/jenkins/.ansible.cfg
 RUN chown -R jenkins:jenkins /home/jenkins
 
-ADD docker-entrypoint.sh /usr/local/bin
+COPY docker-entrypoint.sh /usr/local/bin
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 RUN rm -rf /etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_dsa_key
 COPY agent.jar /home/jenkins/
@@ -63,7 +63,7 @@ EXPOSE 22
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 USER jenkins
-RUN cd /home/jenkins
+WORKDIR /home/jenkins
 RUN curl -fsSL https://raw.githubusercontent.com/dikhan/terraform-provider-openapi/master/scripts/install.sh | bash -s -- --provider-name "prov" --provider-source-address "prov.tooling.test/tooling"
 RUN export OTF_VAR_bis_PLUGIN_CONFIGURATION_FILE="~/.terraform.d/plugins/terraform-provider-openapi.yaml"
 COPY terraform-provider-openapi.yaml /home/jenkins/.terraform.d/plugins/terraform-provider-openapi.yaml

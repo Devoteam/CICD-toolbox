@@ -268,7 +268,6 @@ jenkins:
       escapeHatchGroup: "local-admin"
       escapeHatchSecret: ${JENKINS_ADMIN_PASSWORD}
       escapeHatchUsername: ${JENKINS_ADMIN_ID}
-      scopes: "web-origins address phone openid offline_access profile roles microprofile-jwt email"
   globalNodeProperties:
     - envVars:
         env:
