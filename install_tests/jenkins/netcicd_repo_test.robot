@@ -21,7 +21,7 @@ Close browsers
 *** Keywords ***
 Log into Jenkins as netcicd
     Open Browser                ${JENKINS URL}       ${BROWSER1}
-    Maximize Browser Window
+    Set Window Size             2560                 1920
     Go To                       ${JENKINS URL}
     Set Selenium Speed          ${DELAY}
     Keycloak Page Should Be Open

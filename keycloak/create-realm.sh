@@ -151,7 +151,7 @@ echo "Created Client scope for Jenkins with id: ${JENKINS_SCOPE_ID}"
 echo "Created audience mapper in the Client Scope" 
 
 # We need to add the scope to the token
-./kcadm.sh update clients/$JENKINS_ID -r cicdtoolbox --body "{\"defaultClientScopes\": [\"jenkins-audience\"]}"
+./kcadm.sh update clients/$JENKINS_ID/default-client-scopes/${JENKINS_SCOPE_ID} -r cicdtoolbox 
 
 echo "Included Jenkins Audience in token" 
 

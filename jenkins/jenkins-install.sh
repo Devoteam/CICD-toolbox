@@ -28,9 +28,9 @@ echo "**************************************************************************
 echo " " 
 docker-compose up -d --build --no-deps jenkins.tooling.provider.test
 echo "****************************************************************************************************************"
-echo " We need to do a dirty hack as Jenkins requires a CA certificate to work"
+echo " We need a hack to get the CA into Jenkins"
 echo "****************************************************************************************************************"
-sleep 1
+sleep 2
 echo " " 
 echo "****************************************************************************************************************"
 echo " Copy CA certificates into Jenkins keystore"
