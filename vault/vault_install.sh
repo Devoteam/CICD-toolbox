@@ -130,6 +130,7 @@ create_leaf argos-service tooling
 create_leaf jenkins tooling 
 create_leaf nexus tooling 
 create_leaf netbox tooling 
+echo " " 
 echo "****************************************************************************************************************"
 echo " Preparing PostgreSQL database use" 
 echo "****************************************************************************************************************"

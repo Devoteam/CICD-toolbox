@@ -37,7 +37,7 @@ volumes:
 
 secrets:
   ca_crt:
-    file: ./ca.crt
+    file: ./vault/certs/ca.crt
   argos_key:
     file: ./vault/certs/argos.services.provider.test.pem
   argos_crt:
@@ -63,9 +63,9 @@ secrets:
   build-prod_crt:
     file: ./vault/certs/build-prod.delivery.provider.test.crt
   cicdtoolbox-db_key:
-    file: ./freeipa/certs/cicdtoolbox-db.internal.provider.test.key
+    file: ./vault/certs/cicdtoolbox-db.internal.provider.test.pem
   cicdtoolbox-db_crt:
-    file: ./freeipa/certs/cicdtoolbox-db.internal.provider.test.pem
+    file: ./vault/certs/cicdtoolbox-db.internal.provider.test.crt
   gitea_key:
     file: ./vault/certs/gitea.tooling.provider.test.pem
   gitea_crt:
@@ -74,11 +74,10 @@ secrets:
     file: ./vault/certs/grafana.monitoring.provider.test.pem
   grafana_crt:
     file: ./vault/certs/grafana.monitoring..provider.test.crt
-
   jenkins_key:
-    file: ./freeipa/certs/jenkins.tooling.provider.test.key
+    file: ./vault/certs/jenkins.tooling.provider.test.pem
   jenkins_crt:
-    file: ./freeipa/certs/jenkins.tooling.provider.test.pem
+    file: ./vault/certs/jenkins.tooling.provider.test.crt
   dev_jenkins_secret:
     file: ./jenkins_buildnode/Dev_secret.txt
   test_jenkins_secret:
@@ -88,14 +87,13 @@ secrets:
   prod_jenkins_secret:
     file: ./jenkins_buildnode/Prod_secret.txt
   keycloak_key:
-    file: ./freeipa/certs/keycloak.services.provider.test.key
+    file: ./vault/certs/keycloak.services.provider.test.pem
   keycloak_crt:
-    file: ./freeipa/certs/keycloak.services.provider.test.pem
-
+    file: ./vault/certs/keycloak.services.provider.test.crt
   ldap_key:
-    file: ./vault/certs/ldap.internal.provider.test..pem
+    file: ./vault/certs/ldap.iam.provider.test.pem
   ldap_crt:
-    file: ./vault/certs/ldap.internal.provider.test.crt
+    file: ./vault/certs/ldap.iam.provider.test.crt
   loki_key:
     file: ./vault/certs/loki.monitoring.provider.test.pem
   loki_crt:
@@ -108,12 +106,10 @@ secrets:
     file: ./vault/certs/netbox.tooling.provider.test.pem
   netbox_crt:
     file: ./vault/certs/netbox.tooling.provider.test.crt
-
   nexus_key:
-    file: ./freeipa/certs/nexus.tooling.provider.test.pem
+    file: ./vault/certs/nexus.tooling.provider.test.pem
   nexus_crt:
-    file: ./freeipa/certs/nexus.tooling.provider.test.crt
-
+    file: ./vault/certs/nexus.tooling.provider.test.crt
   promtail_key:
     file: ./vault/certs/promtail.monitoring.provider.test.pem
   promtail_crt:
@@ -142,6 +138,11 @@ services:
 #      - LLDAP_JWT_SECRET=REPLACE_WITH_RANDOM
       - LLDAP_LDAP_USER_PASS=Pa55w0rd
       - LLDAP_LDAP_BASE_DN=dc=provider,dc=test  
+    secrets:
+      - source: ldap_key
+        target: /data/key.pem
+      - source: ldap_crt
+        target: /data/cert.pem
     networks:
       internal:
         ipv4_address: 172.16.8.11
@@ -422,10 +423,9 @@ services:
       - JENKINS_ARGOS_PASSWORD=netcicd
     secrets:
       - source: jenkins_key
-        target: /var/jenkins_home/jenkins.tooling.provider.test.key
-
-      - source: jenkins_crt
         target: /var/jenkins_home/jenkins.tooling.provider.test.pem
+      - source: jenkins_crt
+        target: /var/jenkins_home/jenkins.tooling.provider.test.crt
     volumes:
       - 'jenkins_certs:/certs/client'
       - 'jenkins_data:/var/jenkins_home'
@@ -626,6 +626,11 @@ services:
     stop_grace_period: 15s
     environment:
       - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=$Grafana_CLIENT_SECRET
+    secrets:
+      - source: grafana_key
+        target: /home/jenkins/secret-file.txt
+      - source: grafana_pem
+        target: /home/jenkins/secret-file.txt
     expose:
       - '3000'
     networks:

@@ -16,6 +16,64 @@ echo "Credentials created"
     -s displayNameHtml="<b>Welcome to your Development Toolkit</b>"
 echo "Realm created"
 
+#add Hashicorp Vault client
+./kcadm.sh create clients \
+    -r cicdtoolbox \
+    -s name="Vault" \
+    -s description="The Vault secrets store and PKI for the toolchain" \
+    -s clientId=Vault \
+    -s enabled=true \
+    -s publicClient=false \
+    -s fullScopeAllowed=false \
+    -s directAccessGrantsEnabled=true \
+    -s rootUrl=https://vault.internal.provider.test:8200 \
+    -s adminUrl=https://vault.internal.provider.test:8200/ \
+    -s 'redirectUris=[ "https://vault.internal.provider.test:8200/oidc/oidc/callback","https://vault.internal.provider.test:8200/ui/vault/auth/oidc/oidc/callback" ]' \
+    -s 'webOrigins=[ "https://vault.internal.provider.test:8200/" ]' \
+    -o --fields id >cicdtoolbox_VAULT
+
+# output is Created new client with id, we now need to grep the ID out of it
+VAULT_ID=$(cat cicdtoolbox_VAULT | grep id | cut -d'"' -f 4)
+echo "Created Vault client with ID: ${VAULT_ID}" 
+
+# Create Client secret
+./kcadm.sh create clients/$VAULT_ID/client-secret -r cicdtoolbox
+
+# We need to retrieve the token from keycloak for this client
+./kcadm.sh get clients/$VAULT_ID/client-secret -r cicdtoolbox >cicdtoolbox_vault_secret
+VAULT_token=$(grep value cicdtoolbox_vault_secret | cut -d '"' -f4)
+# Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source in Vault for Keycloak
+echo "VAULT_token: ${VAULT_token}"
+
+# Now we can add client specific roles (Clientroles)
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name=vaultAdmin -s description='The admin role for the Infra Automators organization'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='infraautomator' -s description='Organization owner role in the Infraautomator organization'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-cicdtoolbox-read' -s description='A read-only role on the CICD toolbox'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-cicdtoolbox-write' -s description='A read-write role on the CICD toolbox'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-cicdtoolbox-admin' -s description='A read-write role on the CICD toolbox'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-netcicd-read' -s description='A read-only role on NetCICD'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-netcicd-write' -s description='A read-write role on NetCICD'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-netcicd-admin' -s description='A admin role on NetCICD'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-appcicd-read' -s description='A read-only role on AppCICD'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-appcicd-write' -s description='A read-write role on AppCICD'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-appcicd-admin' -s description='A admin role on AppCICD'
+
+# We need to add the vault-admin claim and vault-group claim to the token
+./kcadm.sh create clients/$VAULT_ID/protocol-mappers/models \
+    -r cicdtoolbox \
+	-s name=group-mapper \
+    -s protocol=openid-connect \
+	-s protocolMapper=oidc-usermodel-client-role-mapper \
+    -s consentRequired=false \
+	-s config="{\"multivalued\" : \"true\",\"userinfo.token.claim\" : \"true\",\"id.token.claim\" : \"true\",\"access.token.claim\" : \"true\",\"claim.name\" : \"vaultGroups\",\"jsonType.label\" : \"String\",\"usermodel.clientRoleMapping.clientId\" : \"Vault\"}"
+
+echo "Created role-group mapper in the Client Scope" 
+
+#download Vault OIDC file
+./kcadm.sh get clients/$VAULT_ID/installation/providers/keycloak-oidc-keycloak-json -r cicdtoolbox > keycloak-vault.json
+
+echo "Created keycloak-vault installation json" 
+
 #add Gitea client
 ./kcadm.sh create clients \
     -r cicdtoolbox \
@@ -1284,7 +1342,7 @@ echo "Created Floor Management group within the Field Services Department with I
     -s 'config.rdnLDAPAttribute=["uid"]' \
     -s 'config.uuidLDAPAttribute=["ipaUniqueID"]' \
     -s 'config.userObjectClasses=["inetOrgPerson, organizationalPerson"]' \
-    -s 'config.connectionUrl=["ldaps://freeipa.iam.provider.test"]' \
+    -s 'config.connectionUrl=["ldap://freeipa.iam.provider.test"]' \
     -s 'config.usersDn=["cn=users,cn=accounts,dc=provider,dc=test"]' \
     -s 'config.searchScope=["1"]' \
     -s 'config.authType=["simple"]' \
