@@ -1386,5 +1386,61 @@ freeipa_ldap_id=$(cat FREEIPA_LDAP | grep id | cut -d"'" -f 2)
 
 echo "FreeIPA configured"
 
+# Add LLDAP integration, needs to be last, otherwise LLDAP groups interfere with group creation in Keycloak
+./kcadm.sh create components -r cicdtoolbox \
+    -s name=LLDAP \
+    -s providerId=lldap \
+    -s providerType=org.keycloak.storage.UserStorageProvider \
+    -s 'config.priority=["2"]' \
+    -s 'config.editMode=["READ_ONLY"]' \
+    -s 'config.syncRegistrations=["true"]' \
+    -s 'config.vendor=["other"]' \
+    -s 'config.usernameLDAPAttribute=["uid"]' \
+    -s 'config.rdnLDAPAttribute=["uid"]' \
+    -s 'config.uuidLDAPAttribute=["entryUUID"]' \
+    -s 'config.userObjectClasses=["people"]' \
+    -s 'config.connectionUrl=["ldap://ldap.iam.provider.test:3890"]' \
+    -s 'config.usersDn=["cn=people,dc=provider,dc=test"]' \
+    -s 'config.searchScope=["1"]' \
+    -s 'config.authType=["simple"]' \
+    -s 'config.bindDn=["uid=admin,cn=people,dc=provider,dc=test"]' \
+    -s 'config.bindCredential=["'$3'"]' \
+    -s 'config.useTruststoreSpi=["ldapsOnly"]' \
+    -s 'config.pagination=["true"]' \
+    -s 'config.connectionPooling=["true"]' \
+    -s 'config.allowKerberosAuthentication=["false"]' \
+    -s 'config.kerberosRealm=["services.provider.test"]' \
+    -s 'config.serverPrincipal=["HTTP/keycloak.services.provider.test"]' \
+    -s 'config.keyTab=["/etc/krb5-keycloak.keytab"]' \
+    -s 'config.debug=["false"]' \
+    -s 'config.useKerberosForPasswordAuthentication=["true"]' \
+    -s 'config.batchSizeForSync=["1000"]' \
+    -s 'config.fullSyncPeriod=["-1"]' \
+    -s 'config.changedSyncPeriod=["10"]' \
+    -s 'config.cachePolicy=["DEFAULT"]' \
+    -s config.evictionDay=[] \
+    -s config.evictionHour=[] \
+    -s config.evictionMinute=[] \
+    -s config.maxLifespan=[] &>LLDAP_LDAP
+
+lldap_ldap_id=$(cat LLDAP_LDAP | grep id | cut -d"'" -f 2)
+./kcadm.sh create components -r cicdtoolbox \
+    -s name=LLDAP-group-mapper \
+    -s providerId=group-ldap-mapper \
+    -s providerType=org.keycloak.storage.ldap.mappers.LDAPStorageMapper \
+    -s parentId=${lldap_ldap_id} \
+    -s 'config."groups.dn"=["cn=groups,dc=provider,dc=test"]' \
+    -s 'config."group.name.ldap.attribute"=["cn"]' \
+    -s 'config."group.object.classes"=["groupOfUniqueNames"]' \
+    -s 'config."preserve.group.inheritance"=["true"]' \
+    -s 'config."membership.ldap.attribute"=["member"]' \
+    -s 'config."membership.attribute.type"=["DN"]' \
+    -s 'config."groups.ldap.filter"=[]' \
+    -s 'config.mode=["READ_ONLY"]' \
+    -s 'config."user.roles.retrieve.strategy"=["GET_GROUPS_FROM_USER_MEMBEROF_ATTRIBUTE"]' \
+    -s 'config."mapped.group.attributes"=[]' \
+    -s 'config."drop.non.existing.groups.during.sync"=["true"]' 
+
+echo "LLDAP configured"
 #Now delete tokens and secrets
 rm cicdtoolbox_*
