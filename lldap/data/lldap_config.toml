@@ -37,13 +37,13 @@ http_url = "http://ldap.iam.provider.test"
 ## The sample value is for "example.com", but you can extend it with as
 ## many "dc" as you want, and you don't actually need to own the domain
 ## name.
-ldap_base_dn = "dc=provider,dc=test"
+#ldap_base_dn = "dc=provider,dc=test"
 
 ## Admin username.
 ## For the LDAP interface, a value of "admin" here will create the LDAP
 ## user "cn=admin,ou=people,dc=example,dc=com" (with the base DN above).
 ## For the administration interface, this is the username.
-ldap_user_dn = "local-admin"
+#ldap_user_dn = "local-admin"
 
 ## Admin email.
 ## Email for the admin account. It is only used when initially creating
@@ -60,7 +60,7 @@ ldap_user_dn = "local-admin"
 ## in the LLDAP_LDAP_USER_PASS_FILE environment variable
 ## Note: you can create another admin user for user administration, this
 ## is just the default one.
-ldap_user_pass = "Pa55w0rd"
+#ldap_user_pass = "Pa55w0rd"
 
 ## Database URL.
 ## This encodes the type of database (SQlite, Mysql and so
@@ -81,7 +81,7 @@ database_url = "sqlite:///data/users.db?mode=rwc"
 ## would still have to perform an (expensive) brute force attack to find
 ## each password.
 ## Randomly generated on first run if it doesn't exist.
-key_file = "/data/ldap.iam.provider.test.crt"
+#key_file = "/data/ldap.iam.provider.test.crt"
 
 ## Ignored attributes.
 ## Some services will request attributes that are not present in LLDAP. When it
@@ -122,6 +122,6 @@ enabled=true
 ## Port on which to listen.
 port=6360
 ## Certificate file.
-cert_file="/data/ldap.iam.provider.test.crt"
+cert_file="/data/cert.pem"
 ## Certificate key file.
-key_file="/data/ldap.iam.provider.test.pem"
+key_file="/data/key.pem"

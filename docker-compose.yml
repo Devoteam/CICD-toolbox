@@ -134,10 +134,10 @@ services:
       - 'ldap_data:/data'
     expose:
       - '3890'
-    environment:
-#      - LLDAP_JWT_SECRET=REPLACE_WITH_RANDOM
-      - LLDAP_LDAP_USER_PASS=Pa55w0rd
-      - LLDAP_LDAP_BASE_DN=dc=provider,dc=test  
+#     environment:
+#       - LLDAP_JWT_SECRET=REPLACE_WITH_RANDOM
+#       - LLDAP_LDAP_USER_PASS=Pa55w0rd
+#       - LLDAP_LDAP_BASE_DN=dc=provider,dc=test  
     secrets:
       - source: ldap_key
         target: /data/key.pem
