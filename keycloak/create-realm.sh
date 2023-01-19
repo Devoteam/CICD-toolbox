@@ -1329,67 +1329,67 @@ echo "Created Field Service Engineers group within the Field Services Department
 fs_fm_id=$(cat FS_FM | grep id | cut -d"'" -f 2)
 echo "Created Floor Management group within the Field Services Department with ID: ${fs_fm_id}" 
 
-# Add FreeIPA integration, needs to be last, otherwise FreeIPA groups interfere with group creation in Keycloak
-./kcadm.sh create components -r cicdtoolbox \
-    -s name=freeipa \
-    -s providerId=ldap \
-    -s providerType=org.keycloak.storage.UserStorageProvider \
-    -s 'config.priority=["1"]' \
-    -s 'config.editMode=["READ_ONLY"]' \
-    -s 'config.syncRegistrations=["true"]' \
-    -s 'config.vendor=["rhds"]' \
-    -s 'config.usernameLDAPAttribute=["uid"]' \
-    -s 'config.rdnLDAPAttribute=["uid"]' \
-    -s 'config.uuidLDAPAttribute=["ipaUniqueID"]' \
-    -s 'config.userObjectClasses=["inetOrgPerson, organizationalPerson"]' \
-    -s 'config.connectionUrl=["ldap://freeipa.iam.provider.test"]' \
-    -s 'config.usersDn=["cn=users,cn=accounts,dc=provider,dc=test"]' \
-    -s 'config.searchScope=["1"]' \
-    -s 'config.authType=["simple"]' \
-    -s 'config.bindDn=["uid=admin,cn=users,cn=accounts,dc=provider,dc=test"]' \
-    -s 'config.bindCredential=["'$3'"]' \
-    -s 'config.useTruststoreSpi=["ldapsOnly"]' \
-    -s 'config.pagination=["true"]' \
-    -s 'config.connectionPooling=["true"]' \
-    -s 'config.allowKerberosAuthentication=["false"]' \
-    -s 'config.kerberosRealm=["services.provider.test"]' \
-    -s 'config.serverPrincipal=["HTTP/keycloak.services.provider.test"]' \
-    -s 'config.keyTab=["/etc/krb5-keycloak.keytab"]' \
-    -s 'config.debug=["false"]' \
-    -s 'config.useKerberosForPasswordAuthentication=["true"]' \
-    -s 'config.batchSizeForSync=["1000"]' \
-    -s 'config.fullSyncPeriod=["-1"]' \
-    -s 'config.changedSyncPeriod=["10"]' \
-    -s 'config.cachePolicy=["DEFAULT"]' \
-    -s config.evictionDay=[] \
-    -s config.evictionHour=[] \
-    -s config.evictionMinute=[] \
-    -s config.maxLifespan=[] &>FREEIPA_LDAP
+# # Add FreeIPA integration, needs to be last, otherwise FreeIPA groups interfere with group creation in Keycloak
+# ./kcadm.sh create components -r cicdtoolbox \
+#     -s name=freeipa \
+#     -s providerId=ldap \
+#     -s providerType=org.keycloak.storage.UserStorageProvider \
+#     -s 'config.priority=["1"]' \
+#     -s 'config.editMode=["READ_ONLY"]' \
+#     -s 'config.syncRegistrations=["true"]' \
+#     -s 'config.vendor=["rhds"]' \
+#     -s 'config.usernameLDAPAttribute=["uid"]' \
+#     -s 'config.rdnLDAPAttribute=["uid"]' \
+#     -s 'config.uuidLDAPAttribute=["ipaUniqueID"]' \
+#     -s 'config.userObjectClasses=["inetOrgPerson, organizationalPerson"]' \
+#     -s 'config.connectionUrl=["ldap://freeipa.iam.provider.test"]' \
+#     -s 'config.usersDn=["cn=users,cn=accounts,dc=provider,dc=test"]' \
+#     -s 'config.searchScope=["1"]' \
+#     -s 'config.authType=["simple"]' \
+#     -s 'config.bindDn=["uid=admin,cn=users,cn=accounts,dc=provider,dc=test"]' \
+#     -s 'config.bindCredential=["'$3'"]' \
+#     -s 'config.useTruststoreSpi=["ldapsOnly"]' \
+#     -s 'config.pagination=["true"]' \
+#     -s 'config.connectionPooling=["true"]' \
+#     -s 'config.allowKerberosAuthentication=["false"]' \
+#     -s 'config.kerberosRealm=["services.provider.test"]' \
+#     -s 'config.serverPrincipal=["HTTP/keycloak.services.provider.test"]' \
+#     -s 'config.keyTab=["/etc/krb5-keycloak.keytab"]' \
+#     -s 'config.debug=["false"]' \
+#     -s 'config.useKerberosForPasswordAuthentication=["true"]' \
+#     -s 'config.batchSizeForSync=["1000"]' \
+#     -s 'config.fullSyncPeriod=["-1"]' \
+#     -s 'config.changedSyncPeriod=["10"]' \
+#     -s 'config.cachePolicy=["DEFAULT"]' \
+#     -s config.evictionDay=[] \
+#     -s config.evictionHour=[] \
+#     -s config.evictionMinute=[] \
+#     -s config.maxLifespan=[] &>FREEIPA_LDAP
 
-freeipa_ldap_id=$(cat FREEIPA_LDAP | grep id | cut -d"'" -f 2)
-./kcadm.sh create components -r cicdtoolbox \
-    -s name=FreeIPA-group-mapper \
-    -s providerId=group-ldap-mapper \
-    -s providerType=org.keycloak.storage.ldap.mappers.LDAPStorageMapper \
-    -s parentId=${freeipa_ldap_id} \
-    -s 'config."groups.dn"=["cn=groups,cn=accounts,dc=provider,dc=test"]' \
-    -s 'config."group.name.ldap.attribute"=["cn"]' \
-    -s 'config."group.object.classes"=["groupOfNames"]' \
-    -s 'config."preserve.group.inheritance"=["true"]' \
-    -s 'config."membership.ldap.attribute"=["member"]' \
-    -s 'config."membership.attribute.type"=["DN"]' \
-    -s 'config."groups.ldap.filter"=[]' \
-    -s 'config.mode=["READ_ONLY"]' \
-    -s 'config."user.roles.retrieve.strategy"=["GET_GROUPS_FROM_USER_MEMBEROF_ATTRIBUTE"]' \
-    -s 'config."mapped.group.attributes"=[]' \
-    -s 'config."drop.non.existing.groups.during.sync"=["true"]' 
+# freeipa_ldap_id=$(cat FREEIPA_LDAP | grep id | cut -d"'" -f 2)
+# ./kcadm.sh create components -r cicdtoolbox \
+#     -s name=FreeIPA-group-mapper \
+#     -s providerId=group-ldap-mapper \
+#     -s providerType=org.keycloak.storage.ldap.mappers.LDAPStorageMapper \
+#     -s parentId=${freeipa_ldap_id} \
+#     -s 'config."groups.dn"=["cn=groups,cn=accounts,dc=provider,dc=test"]' \
+#     -s 'config."group.name.ldap.attribute"=["cn"]' \
+#     -s 'config."group.object.classes"=["groupOfNames"]' \
+#     -s 'config."preserve.group.inheritance"=["true"]' \
+#     -s 'config."membership.ldap.attribute"=["member"]' \
+#     -s 'config."membership.attribute.type"=["DN"]' \
+#     -s 'config."groups.ldap.filter"=[]' \
+#     -s 'config.mode=["READ_ONLY"]' \
+#     -s 'config."user.roles.retrieve.strategy"=["GET_GROUPS_FROM_USER_MEMBEROF_ATTRIBUTE"]' \
+#     -s 'config."mapped.group.attributes"=[]' \
+#     -s 'config."drop.non.existing.groups.during.sync"=["true"]' 
 
-echo "FreeIPA configured"
+# echo "FreeIPA configured"
 
 # Add LLDAP integration, needs to be last, otherwise LLDAP groups interfere with group creation in Keycloak
 ./kcadm.sh create components -r cicdtoolbox \
-    -s name=LLDAP \
-    -s providerId=lldap \
+    -s name=lldap \
+    -s providerId=ldap \
     -s providerType=org.keycloak.storage.UserStorageProvider \
     -s 'config.priority=["2"]' \
     -s 'config.editMode=["READ_ONLY"]' \
@@ -1403,7 +1403,7 @@ echo "FreeIPA configured"
     -s 'config.usersDn=["cn=people,dc=provider,dc=test"]' \
     -s 'config.searchScope=["1"]' \
     -s 'config.authType=["simple"]' \
-    -s 'config.bindDn=["uid=admin,cn=people,dc=provider,dc=test"]' \
+    -s 'config.bindDn=["uid=admin,ou=people,dc=provider,dc=test"]' \
     -s 'config.bindCredential=["'$3'"]' \
     -s 'config.useTruststoreSpi=["ldapsOnly"]' \
     -s 'config.pagination=["true"]' \
@@ -1423,7 +1423,12 @@ echo "FreeIPA configured"
     -s config.evictionMinute=[] \
     -s config.maxLifespan=[] &>LLDAP_LDAP
 
+echo "LLDAP 1 configured"
+
 lldap_ldap_id=$(cat LLDAP_LDAP | grep id | cut -d"'" -f 2)
+
+echo "LLDAP 2 configured"
+
 ./kcadm.sh create components -r cicdtoolbox \
     -s name=LLDAP-group-mapper \
     -s providerId=group-ldap-mapper \
@@ -1441,6 +1446,6 @@ lldap_ldap_id=$(cat LLDAP_LDAP | grep id | cut -d"'" -f 2)
     -s 'config."mapped.group.attributes"=[]' \
     -s 'config."drop.non.existing.groups.during.sync"=["true"]' 
 
-echo "LLDAP configured"
+echo "LLDAP 3 configured"
 #Now delete tokens and secrets
 rm cicdtoolbox_*

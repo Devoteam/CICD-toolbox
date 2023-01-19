@@ -297,19 +297,6 @@ echo " Creating LDAP server"
 echo "****************************************************************************************************************"
 cp vault/certs/ldap.iam.provider.test.* lldap/data/
 docker-compose up -d --build --remove-orphans ldap.iam.provider.test
-echo " " 
-echo "****************************************************************************************************************"
-echo " Creating freeIPA"
-echo "****************************************************************************************************************"
-docker-compose up -d --build --remove-orphans freeipa.iam.provider.test
-echo "****************************************************************************************************************"
-echo " Wait until FreeIPA has self-installed (~375 sec)"
-echo "****************************************************************************************************************"
-let t=0
-until  docker logs freeipa.iam.provider.test 2>&1 | grep "ipa-server-install command was successful"; do
-    spin
-done
-endspin
 echo " "
 echo "****************************************************************************************************************"
 echo " Saving CA self-signed certificate"
@@ -326,15 +313,8 @@ cp vault/certs/ca.crt promtail/ca.crt
 cp vault/certs/ca.crt grafana/ca.crt
 cp vault/certs/ca.crt jenkins_buildnode/ca.crt
 echo "****************************************************************************************************************"
-echo " Creating FreeIPA setup. This will take time..."
-echo "****************************************************************************************************************"
-docker exec -it freeipa.iam.provider.test sh -c "/root/freeipa-install.sh ${netcicd_pwd} ${freeipa_pwd}" | tee install_log/freeipa_create.log
-echo " " 
-echo "****************************************************************************************************************"
 echo " Saving host certificates"
 echo "****************************************************************************************************************"
-# docker cp freeipa.iam.provider.test:/tmp/certs freeipa/
-# chmod 644 freeipa/certs/*
 cp vault/certs/cicdtoolbox-db.internal.provider.test.pem cicdtoolbox-db/docker-entrypoint-initdb-resources/server.key
 cp vault/certs/cicdtoolbox-db.internal.provider.test.crt cicdtoolbox-db/docker-entrypoint-initdb-resources/server.crt
 cp vault/certs/ca.crt cicdtoolbox-db/docker-entrypoint-initdb-resources/root.crt
@@ -375,16 +355,6 @@ done
 endspin
 echo " "
 echo "****************************************************************************************************************"
-echo " Creating Grafana Keycloak Client secret"
-echo "****************************************************************************************************************"
-export Grafana_CLIENT_SECRET=$(grep Grafana_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r')
-echo $Grafana_CLIENT_SECRET
-echo "****************************************************************************************************************"
-echo " Copying Grafana certificates"
-echo "****************************************************************************************************************"
-cp vault/certs/grafana.monitoring.provider.test.pem grafana/grafana.monitoring.provider.test.pem
-cp vault/certs/grafana.monitoring.provider.test.crt grafana/grafana.monitoring.provider.test.crt
-echo "****************************************************************************************************************"
 echo " Creating keycloak-vault integration"
 echo "****************************************************************************************************************"
 vault/vault_install_post_keycloak.sh
@@ -396,7 +366,6 @@ echo "**************************************************************************
 echo " Booting the remainder of the containers"
 echo "****************************************************************************************************************"
 DOCKER_BUILDKIT=1 docker-compose up -d --build --no-deps gitea.tooling.provider.test
-docker-compose up -d --build --no-deps restportal.services.provider.test
 docker-compose up -d --build --no-deps nexus.tooling.provider.test
 echo " "
 echo "****************************************************************************************************************"
@@ -425,30 +394,7 @@ until $(curl --output /dev/null --insecure --silent --head --fail https://nexus.
 done
 endspin
 echo " "
-# echo "****************************************************************************************************************"
-# echo " Copying Jenkins Keystore to Argos node"
-# echo "****************************************************************************************************************"
-# cp ./jenkins/keystore/cacerts ./argos/cacerts
-# cp ./jenkins/keystore/cacerts ./argos-service/cacerts
-# echo "Reloading "
-# docker restart jenkins.tooling.provider.test
-# let t=0
-# until $(curl --output /dev/null --insecure --silent --head --fail https://jenkins.tooling.provider.test:8084/whoAmI); do
-#     spin
-# done
-# endspin
-# echo " "
-# echo "****************************************************************************************************************"
-# echo " Creating Argos setup"
-# echo "****************************************************************************************************************"
-# argos_client_id=$(grep ARGOS_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
-# sed -i -e "s/argos_secret/$argos_client_id/" argos/application.yml
-# echo "****************************************************************************************************************"
-# echo " Starting Argos"
-# echo "****************************************************************************************************************"
-# docker-compose up -d --build --no-deps mongodb.internal.provider.test
-# docker-compose up -d --build --no-deps argos-service.tooling.provider.test
-# docker-compose up -d --build --no-deps argos.services.provider.test
+
 echo "****************************************************************************************************************"
 echo " Preparing for finalizing install via ROBOT"
 echo "****************************************************************************************************************"
@@ -457,14 +403,6 @@ sudo cp geckodriver /usr/local/bin/
 source ~/.bashrc
 robot --variable VALID_PASSWORD:${netcicd_pwd} -d install_log finalize_install.robot
 echo " " 
-# echo "****************************************************************************************************************"
-# echo " Starting Loki, Promtail and Grafana..."
-# echo "****************************************************************************************************************"
-# docker-compose up -d --build --no-deps portainer.monitoring.provider.test
-# docker-compose up -d --build --no-deps loki.monitoring.provider.test
-# docker-compose up -d --build --no-deps promtail.monitoring.provider.test
-# docker-compose up -d --build --no-deps grafana.monitoring.provider.test
-# echo " " 
 echo "****************************************************************************************************************"
 echo " Copying Jenkins Keystore to Jenkins buildnodes"
 echo "****************************************************************************************************************"
@@ -493,12 +431,7 @@ docker-compose up -d --build --no-deps build-dev.delivery.provider.test
 # docker-compose up -d --build --no-deps build-test.delivery.provider.test
 # docker-compose up -d --build --no-deps build-acc.delivery.provider.test
 # docker-compose up -d --build --no-deps build-prod.delivery.provider.test
-# echo "****************************************************************************************************************"
-# echo " Installing Netbox"
-# echo "****************************************************************************************************************"
-# docker-compose up -d --build --no-deps redis.tooling.provider.test
-# docker-compose up -d --build --no-deps netbox.tooling.provider.test
-# echo " " 
+
 echo "****************************************************************************************************************"
 echo " Validating install"
 echo "****************************************************************************************************************"
@@ -513,10 +446,7 @@ echo "**************************************************************************
 echo " Toolbox files" 
 echo "****************************************************************************************************************"
     trivy fs --security-checks vuln,config . | tee install_log/trivy_create.log
-echo "****************************************************************************************************************"
-echo " FreeIPA" 
-echo "****************************************************************************************************************"
-#    trivy image freeipa/freeipa-server:centos-8-stream | tee -a install_log/trivy_create.log
+
 echo "****************************************************************************************************************"
 echo " Gitea" 
 echo "****************************************************************************************************************"
@@ -537,10 +467,6 @@ echo "**************************************************************************
 echo " Nexus" 
 echo "****************************************************************************************************************"
 #    trivy image sonatype/nexus3:latest | tee -a install_log/trivy_create.log
-echo "****************************************************************************************************************"
-echo " Portainer" 
-echo "****************************************************************************************************************"
-#    trivy image portainer/portainer-ce | tee -a install_log/trivy_create.log
 else
     echo "trivy is not installed"
 fi
