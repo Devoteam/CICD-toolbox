@@ -134,10 +134,6 @@ services:
       - 'ldap_data:/data'
     expose:
       - '3890'
-    environment:
-#       - LLDAP_JWT_SECRET=REPLACE_WITH_RANDOM
-      - LLDAP_LDAP_USER_PASS=Pa55w0rd
-      - LLDAP_LDAP_BASE_DN=dc=provider,dc=test  
     secrets:
       - source: ldap_key
         target: /data/key.pem
@@ -152,46 +148,6 @@ services:
       timeout: 10s
       retries: 3
 
-  # freeipa.iam.provider.test:
-  #   container_name: freeipa.iam.provider.test
-  #   build: freeipa
-  #   restart: unless-stopped
-  #   hostname: freeipa
-  #   domainname: provider.test
-  #   volumes:
-  #     - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
-  #     - 'freeipa:/data:Z'
-  #   expose:
-  #     - '80'
-  #     - '443'
-  #     - '389'
-  #     - '636'
-  #     - '88'
-  #     - '464'
-  #     - 88/udp
-  #     - 464/udp
-  #     - 123/udp
-  #   environment:
-  #     - IPA_SERVER_HOSTNAME=freeipa.iam.provider.test
-  #     - >-
-  #       IPA_SERVER_INSTALL_OPTS=-d -r provider.test --ntp-pool=pool.ntp.org --domain=provider.test --reverse-zone=16.172.in-addr.arpa -p Pa55w0rd -a Pa55w0rd --no-host-dns --setup-dns --no-forwarders --ip-address 172.16.8.12
-  #       --pki-config-override=/etc/pki/pki.conf -U
-  #     - IPA_SERVER_IP=172.16.8.12
-  #     - VIRTUAL_PROTO=http
-  #     - VIRTUAL_HOST=freeipa.iam.provider.test
-  #     - VIRTUAL_PORT=80
-  #   dns:
-  #     - 127.0.0.1
-  #   sysctls:
-  #     - net.ipv6.conf.all.disable_ipv6=0
-  #   networks:
-  #     internal:
-  #       ipv4_address: 172.16.8.12
-  #   healthcheck:
-  #     test: 'curl --insecure --head --fail -s https://localhost || exit 1'
-  #     interval: 1m30s
-  #     timeout: 10s
-  #     retries: 3
 
   cicdtoolbox-db.internal.provider.test:
     container_name: cicdtoolbox-db.internal.provider.test
