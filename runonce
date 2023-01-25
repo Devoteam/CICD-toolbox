@@ -369,16 +369,16 @@ until $(curl --output /dev/null --insecure --silent --head --fail https://keyclo
 done
 endspin
 echo " "
-echo "****************************************************************************************************************"
-echo " Creating Grafana Keycloak Client secret"
-echo "****************************************************************************************************************"
-export Grafana_CLIENT_SECRET=$(grep Grafana_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r')
-echo $Grafana_CLIENT_SECRET
-echo "****************************************************************************************************************"
-echo " Copying Grafana certificates"
-echo "****************************************************************************************************************"
-cp freeipa/certs/grafana.monitoring.provider.test.key grafana/grafana.monitoring.provider.test.key
-cp freeipa/certs/grafana.monitoring.provider.test.pem grafana/grafana.monitoring.provider.test.pem
+# echo "****************************************************************************************************************"
+# echo " Creating Grafana Keycloak Client secret"
+# echo "****************************************************************************************************************"
+# export Grafana_CLIENT_SECRET=$(grep Grafana_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r')
+# echo $Grafana_CLIENT_SECRET
+# echo "****************************************************************************************************************"
+# echo " Copying Grafana certificates"
+# echo "****************************************************************************************************************"
+# cp freeipa/certs/grafana.monitoring.provider.test.key grafana/grafana.monitoring.provider.test.key
+# cp freeipa/certs/grafana.monitoring.provider.test.pem grafana/grafana.monitoring.provider.test.pem
 echo "****************************************************************************************************************"
 echo " Creating keycloak-nexus json"
 echo "****************************************************************************************************************"
@@ -387,7 +387,7 @@ echo "**************************************************************************
 echo " Booting the remainder of the containers"
 echo "****************************************************************************************************************"
 DOCKER_BUILDKIT=1 docker-compose up -d --build --no-deps gitea.tooling.provider.test
-docker-compose up -d --build --no-deps restportal.services.provider.test
+#docker-compose up -d --build --no-deps restportal.services.provider.test
 docker-compose up -d --build --no-deps nexus.tooling.provider.test
 echo "****************************************************************************************************************"
 echo " Copying Jenkins certificates"
@@ -420,12 +420,12 @@ until $(curl --output /dev/null --insecure --silent --head --fail https://nexus.
     spin
 done
 endspin
-echo " "
-echo "****************************************************************************************************************"
-echo " Copying Jenkins Keystore to Argos node"
-echo "****************************************************************************************************************"
-cp ./jenkins/keystore/cacerts ./argos/cacerts
-cp ./jenkins/keystore/cacerts ./argos-service/cacerts
+# echo " "
+# echo "****************************************************************************************************************"
+# echo " Copying Jenkins Keystore to Argos node"
+# echo "****************************************************************************************************************"
+# cp ./jenkins/keystore/cacerts ./argos/cacerts
+# cp ./jenkins/keystore/cacerts ./argos-service/cacerts
 echo "Reloading "
 docker restart jenkins.tooling.provider.test
 let t=0
@@ -433,18 +433,18 @@ until $(curl --output /dev/null --insecure --silent --head --fail https://jenkin
     spin
 done
 endspin
-echo " "
-echo "****************************************************************************************************************"
-echo " Creating Argos setup"
-echo "****************************************************************************************************************"
-argos_client_id=$(grep ARGOS_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
-sed -i -e "s/argos_secret/$argos_client_id/" argos/application.yml
-echo "****************************************************************************************************************"
-echo " Starting Argos"
-echo "****************************************************************************************************************"
-docker-compose up -d --build --no-deps mongodb.internal.provider.test
-docker-compose up -d --build --no-deps argos-service.tooling.provider.test
-docker-compose up -d --build --no-deps argos.services.provider.test
+# echo " "
+# echo "****************************************************************************************************************"
+# echo " Creating Argos setup"
+# echo "****************************************************************************************************************"
+# argos_client_id=$(grep ARGOS_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
+# sed -i -e "s/argos_secret/$argos_client_id/" argos/application.yml
+# echo "****************************************************************************************************************"
+# echo " Starting Argos"
+# echo "****************************************************************************************************************"
+# docker-compose up -d --build --no-deps mongodb.internal.provider.test
+# docker-compose up -d --build --no-deps argos-service.tooling.provider.test
+# docker-compose up -d --build --no-deps argos.services.provider.test
 echo "****************************************************************************************************************"
 echo " Preparing for finalizing install via ROBOT"
 echo "****************************************************************************************************************"
@@ -453,14 +453,14 @@ sudo cp geckodriver /usr/local/bin/
 source ~/.bashrc
 robot --variable VALID_PASSWORD:${netcicd_pwd} -d install_log finalize_install.robot
 echo " " 
-echo "****************************************************************************************************************"
-echo " Starting Loki, Promtail and Grafana..."
-echo "****************************************************************************************************************"
-docker-compose up -d --build --no-deps portainer.monitoring.provider.test
-docker-compose up -d --build --no-deps loki.monitoring.provider.test
-docker-compose up -d --build --no-deps promtail.monitoring.provider.test
-docker-compose up -d --build --no-deps grafana.monitoring.provider.test
-echo " " 
+# echo "****************************************************************************************************************"
+# echo " Starting Loki, Promtail and Grafana..."
+# echo "****************************************************************************************************************"
+# docker-compose up -d --build --no-deps portainer.monitoring.provider.test
+# docker-compose up -d --build --no-deps loki.monitoring.provider.test
+# docker-compose up -d --build --no-deps promtail.monitoring.provider.test
+# docker-compose up -d --build --no-deps grafana.monitoring.provider.test
+# echo " " 
 echo "****************************************************************************************************************"
 echo " Copying Jenkins Keystore to Jenkins buildnodes"
 echo "****************************************************************************************************************"
@@ -479,26 +479,26 @@ echo "**************************************************************************
 echo " Retrieving Jenkins Agent secrets"
 echo "****************************************************************************************************************"
 curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Dev/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Dev_secret
-curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Acc/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Acc_secret
-curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Test/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Test_secret
-curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Prod/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Prod_secret
+# curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Acc/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Acc_secret
+# curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Test/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Test_secret
+# curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Prod/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Prod_secret
 echo "****************************************************************************************************************"
 echo " Building Jenkins build nodes"
 echo "****************************************************************************************************************"
 docker-compose up -d --build --no-deps build-dev.delivery.provider.test
-docker-compose up -d --build --no-deps build-test.delivery.provider.test
-docker-compose up -d --build --no-deps build-acc.delivery.provider.test
-docker-compose up -d --build --no-deps build-prod.delivery.provider.test
-echo "****************************************************************************************************************"
-echo " Installing Hashicorp Vault"
-echo "****************************************************************************************************************"
-docker-compose up -d --build --no-deps vault.tooling.provider.test
-echo " " echo "****************************************************************************************************************"
-echo " Installing Netbox"
-echo "****************************************************************************************************************"
-docker-compose up -d --build --no-deps redis.tooling.provider.test
-docker-compose up -d --build --no-deps netbox.tooling.provider.test
-echo " " 
+# docker-compose up -d --build --no-deps build-test.delivery.provider.test
+# docker-compose up -d --build --no-deps build-acc.delivery.provider.test
+# docker-compose up -d --build --no-deps build-prod.delivery.provider.test
+# echo "****************************************************************************************************************"
+# echo " Installing Hashicorp Vault"
+# echo "****************************************************************************************************************"
+# docker-compose up -d --build --no-deps vault.tooling.provider.test
+# echo " " echo "****************************************************************************************************************"
+# echo " Installing Netbox"
+# echo "****************************************************************************************************************"
+# docker-compose up -d --build --no-deps redis.tooling.provider.test
+# docker-compose up -d --build --no-deps netbox.tooling.provider.test
+# echo " " 
 echo "****************************************************************************************************************"
 echo " Validating install"
 echo "****************************************************************************************************************"
@@ -566,11 +566,11 @@ echo " Keycloak:    https://keycloak.services.provider.test:8443"
 echo " Gitea:       https://gitea.tooling.provider.test:3000"
 echo " Jenkins:     https://jenkins.tooling.provider.test:8084"
 echo " Nexus:       https://nexus.tooling.provider.test:8081"
-echo " Portainer:   http://portainer.monitoring.provider.test:9000"
-echo " Loki:        http://loki.monitoring.provider.test:9000"
-echo " Grafana:     http://grafana.monitoring.provider.test:9000"
-echo " Vault:       http://vault.tooling.provider.test:8200"
-echo " Netbox:      http://netbox.tooling.provider.test:8000"
+# echo " Portainer:   http://portainer.monitoring.provider.test:9000"
+# echo " Loki:        http://loki.monitoring.provider.test:9000"
+# echo " Grafana:     http://grafana.monitoring.provider.test:9000"
+# echo " Vault:       http://vault.tooling.provider.test:8200"
+# echo " Netbox:      http://netbox.tooling.provider.test:8000"
 echo " "
 echo "****************************************************************************************************************"
 echo "Cleaning up"
