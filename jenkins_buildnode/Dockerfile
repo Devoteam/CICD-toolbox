@@ -52,7 +52,7 @@ RUN chown jenkins:jenkins /home/jenkins/.ansible.cfg
 RUN chown -R jenkins:jenkins /home/jenkins
 RUN addgroup jenkins docker
 
-ADD docker-entrypoint.sh /usr/local/bin
+COPY docker-entrypoint.sh /usr/local/bin
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 RUN rm -rf /etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_dsa_key
 COPY agent.jar /home/jenkins/
@@ -61,7 +61,7 @@ RUN update-ca-certificates
 COPY cacerts /etc/ssl/certs/java/cacerts
 
 USER jenkins
-RUN cd /home/jenkins
+WORKDIR /home/jenkins
 RUN curl -fsSL https://raw.githubusercontent.com/dikhan/terraform-provider-openapi/master/scripts/install.sh | bash -s -- --provider-name "prov" --provider-source-address "prov.tooling.test/tooling"
 RUN export OTF_VAR_bis_PLUGIN_CONFIGURATION_FILE="~/.terraform.d/plugins/terraform-provider-openapi.yaml"
 COPY terraform-provider-openapi.yaml /home/jenkins/.terraform.d/plugins/terraform-provider-openapi.yaml

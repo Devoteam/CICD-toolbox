@@ -32,7 +32,7 @@ ${JENKINS LOGOUT}   https://jenkins.tooling.provider.test:8084/logout
 ${GITEA URL}        https://gitea.tooling.provider.test:3000
 ${GITEA LOGIN}      https://gitea.tooling.provider.test:3000/user/login?redirect_to=%2f
 
-*** Keywords ***
+*** Keywords ***   
 Log into Jenkins as jenkins-jenkins
     Open Browser                ${JENKINS URL}       ${BROWSER1}
     Set Window Size             2560                 1920 
