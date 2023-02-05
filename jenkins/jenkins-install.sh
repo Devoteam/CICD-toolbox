@@ -16,10 +16,15 @@ endspin() {
 }
  
 echo "****************************************************************************************************************"
+echo " Copying Jenkins certificates"
+echo "****************************************************************************************************************"
+cp vault/certs/jenkins.tooling.provider.test.pem jenkins/jenkins.tooling.provider.test.pem
+cp vault/certs/jenkins.tooling.provider.test.crt jenkins/jenkins.tooling.provider.test.crt
+echo "****************************************************************************************************************"
 echo " Copy certificates into Jenkins keystore"
 echo "****************************************************************************************************************"
-cat jenkins/jenkins.tooling.provider.test.pem ca.crt > jenkins/import.pem
-openssl pkcs12 -export -in jenkins/import.pem -inkey jenkins/jenkins.tooling.provider.test.key -name jenkins -passout pass:changeit > jenkins/jenkins.p12
+cat jenkins/jenkins.tooling.provider.test.crt ca.crt > jenkins/import.pem
+openssl pkcs12 -export -in jenkins/import.pem -inkey jenkins/jenkins.tooling.provider.test.pem -name jenkins.tooling.provider.test.pem -passout pass:$1 > jenkins/jenkins.p12
 #Import the PKCS12 file into Java keystore:
 keytool -importkeystore -srckeystore jenkins/jenkins.p12 -destkeystore jenkins/keystore/jenkins.jks -srcstoretype pkcs12 -srcstorepass $1 -storepass $1 -noprompt -deststoretype pkcs12
 echo "****************************************************************************************************************"

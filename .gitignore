@@ -44,7 +44,7 @@ jenkins_buildnode/Acc_secret
 jenkins_buildnode/Prod_secret
 jtoken.txt
 jenkins/jenkins.tooling.provider.test.*
-nexus/keycloak-nexus.json
+nexus/*.json
 grafana/grafana.monitoring.provider.test.*
 jenkins/keystore/
 jenkins/jenkins.p12
@@ -61,7 +61,3 @@ jenkins_buildnode/cacerts
 *.csr
 vault/key.txt
 jtoken.txt
-argos/cacerts
-argos-service/cacerts
-jenkins_buildnode/cacerts
-vault/keycloak-vault.json

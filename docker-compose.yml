@@ -5,6 +5,7 @@ networks:
     ipam:
       config:
         - subnet: 172.16.8.0/20
+
 volumes:
   cicdtoolbox_db_data: null
   cicdtoolbox_db_conf: null
@@ -14,6 +15,7 @@ volumes:
   jenkins_certs: null
   jenkins_data: null
   jenkins_conf: null
+  ldap_data: null
   nexus-work: null
   nexus-data: null
   freeipa: null
@@ -26,64 +28,126 @@ volumes:
   promtail: null
   netbox: null
   redis: null
+  consul-config:
+  consul-data:
+  vault-config:
+  vault-policies:
+  vault-data:
+  vault-logs:
 
 secrets:
   ca_crt:
-    file: ./ca.crt
-  keycloak_key:
-    file: ./freeipa/certs/keycloak.services.provider.test.key
-  keycloak_crt:
-    file: ./freeipa/certs/keycloak.services.provider.test.pem
+    file: ./vault/certs/ca.crt
+  argos_key:
+    file: ./vault/certs/argos.services.provider.test.pem
+  argos_crt:
+    file: ./vault/certs/argos.services.provider.test.crt
+  argos-service_key:
+    file: ./vault/certs/argos-service.tooling.provider.test.pem
+  argos-service_crt:
+    file: ./vault/certs/argos-service.tooling.provider.test.crt
+  build-dev_key:
+    file: ./vault/certs/build-dev.delivery.provider.test.pem
+  build-dev_crt:
+    file: ./vault/certs/build-dev.delivery.provider.test.crt
+  build-test_key:
+    file: ./vault/certs/build-test.delivery.provider.test.pem
+  build-test_crt:
+    file: ./vault/certs/build-test.delivery.provider.test.crt
+  build-acc_key:
+    file: ./vault/certs/build-acc.delivery.provider.test.pem
+  build-acc_crt:
+    file: ./vault/certs/build-acc.delivery.provider.test.crt
+  build-prod_key:
+    file: ./vault/certs/build-prod.delivery.provider.test.pem
+  build-prod_crt:
+    file: ./vault/certs/build-prod.delivery.provider.test.crt
+  cicdtoolbox-db_key:
+    file: ./vault/certs/cicdtoolbox-db.internal.provider.test.pem
+  cicdtoolbox-db_crt:
+    file: ./vault/certs/cicdtoolbox-db.internal.provider.test.crt
+  gitea_key:
+    file: ./vault/certs/gitea.tooling.provider.test.pem
+  gitea_crt:
+    file: ./vault/certs/gitea.tooling.provider.test.crt
+  grafana_key:
+    file: ./vault/certs/grafana.monitoring.provider.test.pem
+  grafana_crt:
+    file: ./vault/certs/grafana.monitoring..provider.test.crt
   jenkins_key:
-    file: ./freeipa/certs/jenkins.tooling.provider.test.key
+    file: ./vault/certs/jenkins.tooling.provider.test.pem
   jenkins_crt:
-    file: ./freeipa/certs/jenkins.tooling.provider.test.pem
+    file: ./vault/certs/jenkins.tooling.provider.test.crt
+  dev_jenkins_secret:
+    file: ./jenkins_buildnode/Dev_secret.txt
+  test_jenkins_secret:
+    file: ./jenkins_buildnode/Test_secret.txt
+  acc_jenkins_secret:
+    file: ./jenkins_buildnode/Acc_secret.txt
+  prod_jenkins_secret:
+    file: ./jenkins_buildnode/Prod_secret.txt
+  keycloak_key:
+    file: ./vault/certs/keycloak.services.provider.test.pem
+  keycloak_crt:
+    file: ./vault/certs/keycloak.services.provider.test.crt
+  ldap_key:
+    file: ./vault/certs/ldap.iam.provider.test.pem
+  ldap_crt:
+    file: ./vault/certs/ldap.iam.provider.test.crt
+  loki_key:
+    file: ./vault/certs/loki.monitoring.provider.test.pem
+  loki_crt:
+    file: ./vault/certs/loki.monitoring.provider.test.crt
+  mongodb_key:
+    file: ./vault/certs/mongodb.internal.provider.test.pem
+  mongodb_crt:
+    file: ./vault/certs/mongodb.internal.provider.test.crt
+  netbox_key:
+    file: ./vault/certs/netbox.tooling.provider.test.pem
+  netbox_crt:
+    file: ./vault/certs/netbox.tooling.provider.test.crt
   nexus_key:
-    file: ./freeipa/certs/nexus.tooling.provider.test.key
+    file: ./vault/certs/nexus.tooling.provider.test.pem
   nexus_crt:
-    file: ./freeipa/certs/nexus.tooling.provider.test.pem
+    file: ./vault/certs/nexus.tooling.provider.test.crt
+  promtail_key:
+    file: ./vault/certs/promtail.monitoring.provider.test.pem
+  promtail_crt:
+    file: ./vault/certs/promtail.monitoring.provider.test.crt
+  redis_key:
+    file: ./vault/certs/redis.internal.provider.test.pem
+  redis_crt:
+    file: ./vault/certs/redis.internal.provider.test.crt
+  restportal_key:
+    file: ./vault/certs/restportal.services.provider.test.pem
+  restportal_crt:
+    file: ./vault/certs/restportal.services.provider.test.crt
 
 services:
-  freeipa.iam.provider.test:
-    container_name: freeipa.iam.provider.test
-    build: freeipa
+
+  ldap.iam.provider.test:
+    container_name: ldap.iam.provider.test
+    build: lldap
     restart: unless-stopped
-    hostname: freeipa
-    domainname: provider.test
+    hostname: ldap
     volumes:
-      - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
-      - 'freeipa:/data:Z'
+      - 'ldap_data:/data'
     expose:
-      - '80'
-      - '443'
-      - '389'
-      - '636'
-      - '88'
-      - '464'
-      - 88/udp
-      - 464/udp
-      - 123/udp
-    environment:
-      - IPA_SERVER_HOSTNAME=freeipa.iam.provider.test
-      - >-
-        IPA_SERVER_INSTALL_OPTS=-d -r provider.test --ntp-pool=pool.ntp.org --domain=provider.test --reverse-zone=16.172.in-addr.arpa -p Pa55w0rd -a Pa55w0rd --no-host-dns --setup-dns --no-forwarders --ip-address 172.16.8.12
-        --pki-config-override=/etc/pki/pki.conf -U
-      - IPA_SERVER_IP=172.16.8.12
-      - VIRTUAL_PROTO=http
-      - VIRTUAL_HOST=freeipa.iam.provider.test
-      - VIRTUAL_PORT=80
-    dns:
-      - 127.0.0.1
-    sysctls:
-      - net.ipv6.conf.all.disable_ipv6=0
+      - '3890'
+    secrets:
+      - source: ldap_key
+        target: /data/key.pem
+      - source: ldap_crt
+        target: /data/cert.pem
     networks:
       internal:
-        ipv4_address: 172.16.8.12
+        ipv4_address: 172.16.8.11
     healthcheck:
       test: 'curl --insecure --head --fail -s https://localhost || exit 1'
       interval: 1m30s
       timeout: 10s
       retries: 3
+
 
   cicdtoolbox-db.internal.provider.test:
     container_name: cicdtoolbox-db.internal.provider.test
@@ -98,6 +162,13 @@ services:
       - 'POSTGRES_MULTIPLE_DATABASES=gitea,keycloak,sonar,terraform,grafana,netbox'
       - POSTGRES_USER=netcicd
       - POSTGRES_PASSWORD=netcicd
+    secrets:
+      - source: cicdtoolbox-db_key
+        target: /var/lib/postgresql/server1.key
+      - source: cicdtoolbox-db_crt
+        target: /var/lib/postgresql/server.crt
+      - source: ca_crt
+        target: /var/lib/postgresql/root.crt
     networks:
       internal:
         ipv4_address: 172.16.9.2
@@ -120,6 +191,48 @@ services:
         ipv4_address: 172.16.9.3
     expose:
       - '27017'
+
+  consul.internal.provider.test:
+    container_name: consul.internal.provider.test
+    build:
+      context: ./vault
+      dockerfile: docker/Dockerfile-consul
+    restart: unless-stopped
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
+    networks:
+      internal:
+        ipv4_address: 172.16.9.4
+    volumes:
+      - consul-data:/consul/data
+
+  vault.internal.provider.test:
+    container_name: vault.internal.provider.test
+    build:
+      context: ./vault
+      dockerfile: docker/Dockerfile-vault
+    restart: unless-stopped
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
+    networks:
+      internal:
+        ipv4_address: 172.16.9.5
+    expose:
+      - '8200'
+    volumes:
+      - vault-config:/vault/config
+      - vault-policies:/vault/policies
+      - vault-data:/vault/data
+      - vault-logs:/vault/logs
+    environment:
+      - VAULT_ADDR=http://vault.internal.provider.test:8200
+      - VAULT_API_ADDR=http://vault.internal.provider.test:8200
+    cap_add:
+      - IPC_LOCK
+    depends_on:
+      - consul.internal.provider.test
 
   restportal.services.provider.test:
     container_name: restportal.services.provider.test
@@ -204,6 +317,8 @@ services:
     secrets:
       - source: ca_crt
         target: /usr/local/share/ca-certificates/CICD-toolbox-ca.crt
+      # - source: gitea_key
+      #   target: /data/gitea/gitea.tooling.provider.test.key
     networks:
       internal:
         ipv4_address: 172.16.11.3
@@ -256,7 +371,7 @@ services:
       - NETCICD_PASSWORD=netcicd
       - CML_USER=developer
       - CML_PASSWORD=C1sco12345
-      - 'CML_URL=https://10.10.20.161'
+      - 'CML_URL=https://192.168.32.161'
       - GITEA_IP=172.16.11.3
       - JENKINS_IP=172.16.11.8
       - NEXUS_IP=172.16.11.9
@@ -264,9 +379,9 @@ services:
       - JENKINS_ARGOS_PASSWORD=netcicd
     secrets:
       - source: jenkins_key
-        target: /var/jenkins_home/jenkins.tooling.provider.test.key
-      - source: jenkins_crt
         target: /var/jenkins_home/jenkins.tooling.provider.test.pem
+      - source: jenkins_crt
+        target: /var/jenkins_home/jenkins.tooling.provider.test.crt
     volumes:
       - 'jenkins_certs:/certs/client'
       - 'jenkins_data:/var/jenkins_home'
@@ -298,8 +413,8 @@ services:
       - source: ca_crt
         target: /nexus-data/etc/ssl/ca.crt
     volumes:
-      - 'nexus-work:/sonatype-work'
-      - 'nexus-data:/nexus-data'
+      - nexus-work:/sonatype-work
+      - nexus-data:/nexus-data
     ulimits:
       nofile:
         soft: 65536
@@ -322,12 +437,18 @@ services:
     build:
       context: ./jenkins_buildnode
       dockerfile: Dockerfile
-      args:
-        - BUILD_ENVIRONMENT=Dev
     restart: unless-stopped
     init: true
     stop_signal: SIGINT
     stop_grace_period: 15s
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      BUILD_ENVIRONMENT: 'Dev'
+    secrets:
+      - source: dev_jenkins_secret
+        target: /home/jenkins/secret-file.txt
     expose:
       - '50000'
     networks:
@@ -339,12 +460,18 @@ services:
     build:
       context: ./jenkins_buildnode
       dockerfile: Dockerfile
-      args:
-        - BUILD_ENVIRONMENT=Test
     restart: unless-stopped
     init: true
     stop_signal: SIGINT
     stop_grace_period: 15s
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      BUILD_ENVIRONMENT: 'Test'
+    secrets:
+      - source: test_jenkins_secret
+        target: /home/jenkins/secret-file.txt
     expose:
       - '50000'
     networks:
@@ -356,12 +483,18 @@ services:
     build:
       context: ./jenkins_buildnode
       dockerfile: Dockerfile
-      args:
-        - BUILD_ENVIRONMENT=Acc
     restart: unless-stopped
     init: true
     stop_signal: SIGINT
     stop_grace_period: 15s
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      BUILD_ENVIRONMENT: 'Acc'
+    secrets:
+      - source: acc_jenkins_secret
+        target: /home/jenkins/secret-file.txt
     expose:
       - '50000'
     networks:
@@ -373,12 +506,18 @@ services:
     build:
       context: ./jenkins_buildnode
       dockerfile: Dockerfile
-      args:
-        - BUILD_ENVIRONMENT=Prod
     restart: unless-stopped
     init: true
     stop_signal: SIGINT
     stop_grace_period: 15s
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      BUILD_ENVIRONMENT: 'Prod'
+    secrets:
+      - source: prod_jenkins_secret
+        target: /home/jenkins/secret-file.txt
     expose:
       - '50000'
     networks:
@@ -443,34 +582,18 @@ services:
     stop_grace_period: 15s
     environment:
       - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=$Grafana_CLIENT_SECRET
+    secrets:
+      - source: grafana_key
+        target: /home/jenkins/secret-file.txt
+      - source: grafana_pem
+        target: /home/jenkins/secret-file.txt
     expose:
       - '3000'
     networks:
       internal:
         ipv4_address: 172.16.13.6
 
-  vault.tooling.provider.test:
-    container_name: vault.tooling.provider.test
-    image: vault
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    environment:
-      VAULT_ADDR: "http://172.16.11.10:8200"
-      VAULT_DEV_ROOT_TOKEN_ID: "vault-plaintext-root-token"
-      VAULT_LOCAL_CONFIG: '{"backend": {"file": {"path": "/vault/file"}}, "default_lease_ttl": "168h", "max_lease_ttl": "720h"}'
-    cap_add:
-      - IPC_LOCK
-    volumes:
-      - vault:/vault/file
-    expose:
-      - 8200
-    networks:
-      internal:
-        ipv4_address: 172.16.11.10
-
-  redis.tooling.provider.test:
+  redis.internal.provider.test:
     container_name: redis.tooling.provider.test
     image: redis:6.2-alpine
     ports:
@@ -498,7 +621,7 @@ services:
       - DB_PASSWORD=netbox
       - DB_HOST=cicdtoolbox-db.internal.provider.test
       - DB_PORT=5432
-      - REDIS_HOST=redis.tooling.provider.test
+      - REDIS_HOST=redis.internal.provider.test
       - REDIS_PORT=6379
       - REDIS_PASSWORD=netbox
 

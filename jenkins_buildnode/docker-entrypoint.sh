@@ -14,9 +14,10 @@ if [ ! -d "/var/run/sshd" ]; then
   mkdir -p /var/run/sshd
 fi
 
-cd /home/jenkins
-buildenv=`cat /home/jenkins/buildenv`
+dockerd &
 
-su jenkins -c 'java -jar agent.jar -jnlpUrl "https://jenkins.tooling.provider.test:8084/computer/'$buildenv'/jenkins-agent.jnlp" -secret @secret-file -noCertificateCheck -workDir "/home/jenkins" &'
+cd /home/jenkins
+
+su jenkins -c 'java -jar agent.jar -jnlpUrl "https://jenkins.tooling.provider.test:8084/computer/'$BUILD_ENVIRONMENT'/jenkins-agent.jnlp" -secret @secret-file.txt -workDir "/home/jenkins" &'
 
 exec "$@"

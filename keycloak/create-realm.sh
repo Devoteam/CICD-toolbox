@@ -16,6 +16,64 @@ echo "Credentials created"
     -s displayNameHtml="<b>Welcome to your Development Toolkit</b>"
 echo "Realm created"
 
+#add Hashicorp Vault client
+./kcadm.sh create clients \
+    -r cicdtoolbox \
+    -s name="Vault" \
+    -s description="The Vault secrets store and PKI for the toolchain" \
+    -s clientId=Vault \
+    -s enabled=true \
+    -s publicClient=false \
+    -s fullScopeAllowed=false \
+    -s directAccessGrantsEnabled=true \
+    -s rootUrl=https://vault.internal.provider.test:8200 \
+    -s adminUrl=https://vault.internal.provider.test:8200/ \
+    -s 'redirectUris=[ "https://vault.internal.provider.test:8200/oidc/oidc/callback","https://vault.internal.provider.test:8200/ui/vault/auth/oidc/oidc/callback" ]' \
+    -s 'webOrigins=[ "https://vault.internal.provider.test:8200/" ]' \
+    -o --fields id >cicdtoolbox_VAULT
+
+# output is Created new client with id, we now need to grep the ID out of it
+VAULT_ID=$(cat cicdtoolbox_VAULT | grep id | cut -d'"' -f 4)
+echo "Created Vault client with ID: ${VAULT_ID}" 
+
+# Create Client secret
+./kcadm.sh create clients/$VAULT_ID/client-secret -r cicdtoolbox
+
+# We need to retrieve the token from keycloak for this client
+./kcadm.sh get clients/$VAULT_ID/client-secret -r cicdtoolbox >cicdtoolbox_vault_secret
+VAULT_token=$(grep value cicdtoolbox_vault_secret | cut -d '"' -f4)
+# Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source in Vault for Keycloak
+echo "VAULT_token: ${VAULT_token}"
+
+# Now we can add client specific roles (Clientroles)
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name=vaultAdmin -s description='The admin role for the Infra Automators organization'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='infraautomator' -s description='Organization owner role in the Infraautomator organization'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-cicdtoolbox-read' -s description='A read-only role on the CICD toolbox'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-cicdtoolbox-write' -s description='A read-write role on the CICD toolbox'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-cicdtoolbox-admin' -s description='A read-write role on the CICD toolbox'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-netcicd-read' -s description='A read-only role on NetCICD'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-netcicd-write' -s description='A read-write role on NetCICD'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-netcicd-admin' -s description='A admin role on NetCICD'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-appcicd-read' -s description='A read-only role on AppCICD'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-appcicd-write' -s description='A read-write role on AppCICD'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-appcicd-admin' -s description='A admin role on AppCICD'
+
+# We need to add the vault-admin claim and vault-group claim to the token
+./kcadm.sh create clients/$VAULT_ID/protocol-mappers/models \
+    -r cicdtoolbox \
+	-s name=group-mapper \
+    -s protocol=openid-connect \
+	-s protocolMapper=oidc-usermodel-client-role-mapper \
+    -s consentRequired=false \
+	-s config="{\"multivalued\" : \"true\",\"userinfo.token.claim\" : \"true\",\"id.token.claim\" : \"true\",\"access.token.claim\" : \"true\",\"claim.name\" : \"vaultGroups\",\"jsonType.label\" : \"String\",\"usermodel.clientRoleMapping.clientId\" : \"Vault\"}"
+
+echo "Created role-group mapper in the Client Scope" 
+
+#download Vault OIDC file
+./kcadm.sh get clients/$VAULT_ID/installation/providers/keycloak-oidc-keycloak-json -r cicdtoolbox > keycloak-vault.json
+
+echo "Created keycloak-vault installation json" 
+
 #add Gitea client
 ./kcadm.sh create clients \
     -r cicdtoolbox \
@@ -516,12 +574,434 @@ echo "Created role-group mapper in the Client Scope"
 echo "Grafana configuration finished"
 echo ""
 
-#add groups - we start at the toolbox level, which implements the groups related to service accounts
-./kcadm.sh create groups -r cicdtoolbox -s name="toolbox" &>cicdtoolbox_TOOLBOX
-toolbox_id=$(cat cicdtoolbox_TOOLBOX | grep id | cut -d"'" -f 2)
-echo "Created Toolbox Group with ID: ${toolbox_id}" 
+./kcadm.sh create groups -r cicdtoolbox -s name="campus_dev_lan" &>CAMPUS_DEV_LAN_DESIGNER
+campus_dev_lan_designer_id=$(cat CAMPUS_DEV_LAN_DESIGNER | grep id | cut -d"'" -f 2)
+echo "Created Campus LAN Designer group with ID: ${campus_dev_lan_designer_id}" 
 
-./kcadm.sh create groups/$toolbox_id/children -r cicdtoolbox -s name="toolbox_admin" &>TOOLBOX_ADMIN
+#adding client roles to the group
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $campus_dev_lan_designer_id \
+    --cclientid Gitea \
+    --rolename gitea-netcicd-write
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $campus_dev_lan_designer_id \
+    --cclientid Jenkins \
+    --rolename jenkins-user \
+    --rolename jenkins-netcicd-run \
+    --rolename jenkins-netcicd-dev \
+    --rolename jenkins-cicdtoolbox-run 
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $campus_dev_lan_designer_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
+
+echo "Added roles to Campus LAN Designers."
+
+./kcadm.sh create groups -r cicdtoolbox -s name="campus_dev_wifi" &>CAMPUS_DEV_WIFI_DESIGNER
+campus_dev_wifi_designer_id=$(cat CAMPUS_DEV_WIFI_DESIGNER | grep id | cut -d"'" -f 2)
+echo "Created Campus wifi Designer group with ID: ${campus_dev_wifi_designer_id}" 
+
+#adding client roles to the group
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $campus_dev_wifi_designer_id \
+    --cclientid Gitea \
+    --rolename gitea-netcicd-write
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $campus_dev_wifi_designer_id \
+    --cclientid Jenkins \
+    --rolename jenkins-user \
+    --rolename jenkins-netcicd-run \
+    --rolename jenkins-netcicd-dev \
+    --rolename jenkins-cicdtoolbox-run 
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $campus_dev_wifi_designer_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
+
+echo "Added roles to Campus WIFI Designers."
+
+./kcadm.sh create groups -r cicdtoolbox -s name="campus_ops_oper" &>CAMPUS_OPS_OPER
+campus_ops_oper_id=$(cat CAMPUS_OPS_OPER | grep id | cut -d"'" -f 2)
+echo "Created Campus Operator Group with ID: ${campus_ops_oper_id}" 
+
+#adding client roles to the group
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $campus_ops_oper_id \
+    --cclientid Gitea \
+    --rolename gitea-netcicd-read 
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $campus_ops_oper_id \
+    --cclientid Jenkins \
+    --rolename jenkins-user \
+    --rolename jenkins-netcicd-run \
+    --rolename jenkins-cicdtoolbox-run 
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $campus_ops_oper_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
+
+echo "Added roles to Campus Operators."
+
+./kcadm.sh create groups -r cicdtoolbox -s name="campus_ops_spec" &>CAMPUS_OPS_SPEC
+campus_ops_spec_id=$(cat CAMPUS_OPS_SPEC | grep id | cut -d"'" -f 2)
+echo "Created Campus Specialists Group with ID: ${campus_ops_spec_id}" 
+
+#adding client roles to the group
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $campus_ops_spec_id \
+    --cclientid Gitea \
+    --rolename gitea-netcicd-write
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $campus_ops_spec_id \
+    --cclientid Jenkins \
+    --rolename jenkins-user \
+    --rolename jenkins-netcicd-run \
+    --rolename jenkins-netcicd-dev \
+    --rolename jenkins-cicdtoolbox-run 
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $campus_ops_spec_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
+     
+echo "Added roles to Operations Campus Specialists."
+
+./kcadm.sh create groups -r cicdtoolbox -s name="cicd_agents" &>cicd_AGENTS
+cicd_agents_id=$(cat cicd_AGENTS | grep id | cut -d"'" -f 2)
+echo "Created cicdtoolbox Agents with ID: ${cicd_agents_id}" 
+
+#adding client roles to the group
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $cicd_agents_id \
+    --cclientid Jenkins \
+    --rolename jenkins-netcicd-agent \
+    --rolename jenkins-appcicd-agent 
+
+
+./kcadm.sh create groups -r cicdtoolbox -s name="dc_dev_compute" &>DC_DEV_COMPUTE_DESIGNER
+dc_dev_compute_designer_id=$(cat DC_DEV_COMPUTE_DESIGNER | grep id | cut -d"'" -f 2)
+echo "Created Compute Designer Group with ID: ${dc_dev_compute_designer_id}" 
+
+#adding client roles to the group
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_dev_compute_designer_id \
+    --cclientid Gitea \
+    --rolename gitea-netcicd-write
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_dev_compute_designer_id \
+    --cclientid Jenkins \
+    --rolename jenkins-user \
+    --rolename jenkins-netcicd-run \
+    --rolename jenkins-cicdtoolbox-run 
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_dev_compute_designer_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
+
+echo "Added roles to DC Compute Designers."
+
+./kcadm.sh create groups -r cicdtoolbox -s name="dc_dev_network" &>DC_DEV_NETWORK_DESIGNER
+dc_dev_network_designer_id=$(cat DC_DEV_NETWORK_DESIGNER | grep id | cut -d"'" -f 2)
+echo "Created DC Network Group with ID: ${dc_dev_network_designer_id}" 
+
+#adding client roles to the group
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_dev_network_designer_id \
+    --cclientid Gitea \
+    --rolename gitea-netcicd-write
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_dev_network_designer_id \
+    --cclientid Jenkins \
+    --rolename jenkins-user \
+    --rolename jenkins-netcicd-run \
+    --rolename jenkins-netcicd-dev \
+    --rolename jenkins-cicdtoolbox-run 
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_dev_network_designer_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
+
+echo "Added roles to DC Network Designers."
+
+./kcadm.sh create groups -r cicdtoolbox -s name="dc_dev_storage" &>DC_DEV_STORAGE_DESIGNER
+dc_dev_storage_designer_id=$(cat DC_DEV_STORAGE_DESIGNER | grep id | cut -d"'" -f 2)
+echo "Created DC Storage Designer Group with ID: ${dc_dev_storage_designer_id}" 
+
+#adding client roles to the group
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_dev_storage_designer_id \
+    --cclientid Gitea \
+    --rolename gitea-netcicd-write
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_dev_storage_designer_id \
+    --cclientid Jenkins \
+    --rolename jenkins-user \
+    --rolename jenkins-netcicd-run \
+    --rolename jenkins-cicdtoolbox-run 
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_dev_storage_designer_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
+
+echo "Added roles to DC Network Designers."
+
+./kcadm.sh create groups -r cicdtoolbox -s name="dc_ops_compute_oper" &>DC_OPS_COMP_OPER
+dc_ops_comp_oper_id=$(cat DC_OPS_COMP_OPER | grep id | cut -d"'" -f 2)
+echo "Created Compute Operator Group with ID: ${dc_ops_comp_oper_id}" 
+
+#adding client roles to the group
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_ops_comp_oper_id \
+    --cclientid Gitea \
+    --rolename gitea-netcicd-read
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_ops_comp_oper_id \
+    --cclientid Jenkins \
+    --rolename jenkins-user \
+    --rolename jenkins-netcicd-run \
+    --rolename jenkins-cicdtoolbox-run 
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_ops_comp_oper_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
+
+echo "Added roles to Compute Operators."
+
+./kcadm.sh create groups -r cicdtoolbox -s name="dc_ops_compute_spec" &>DC_OPS_COMP_SPEC
+dc_ops_comp_spec_id=$(cat DC_OPS_COMP_SPEC | grep id | cut -d"'" -f 2)
+echo "Created Compute Specialists group with ID: ${dc_ops_comp_spec_id}" 
+
+#adding client roles to the group
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_ops_comp_spec_id \
+    --cclientid Gitea \
+    --rolename gitea-netcicd-write
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_ops_comp_spec_id \
+    --cclientid Jenkins \
+    --rolename jenkins-user \
+    --rolename jenkins-netcicd-run \
+    --rolename jenkins-netcicd-dev \
+    --rolename jenkins-cicdtoolbox-run 
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_ops_comp_spec_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
+     
+echo "Added roles to Compute Specialists."
+
+./kcadm.sh create groups -r cicdtoolbox -s name="dc_ops_network_oper" &>DC_OPS_NET_OPER
+dc_ops_net_oper_id=$(cat DC_OPS_NET_OPER | grep id | cut -d"'" -f 2)
+echo "Created DC Network Operator Group with ID: ${dc_ops_net_oper_id}" 
+
+#adding client roles to the group
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_ops_net_oper_id \
+    --cclientid Gitea \
+    --rolename gitea-netcicd-read
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_ops_net_oper_id \
+    --cclientid Jenkins \
+    --rolename jenkins-user \
+    --rolename jenkins-netcicd-run \
+    --rolename jenkins-cicdtoolbox-run 
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_ops_net_oper_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
+
+echo "Added roles to DC Network Operators."
+
+./kcadm.sh create groups -r cicdtoolbox -s name="dc_ops_network_spec" &>DC_OPS_NET_SPEC
+dc_ops_net_spec_id=$(cat DC_OPS_NET_SPEC | grep id | cut -d"'" -f 2)
+echo "Created DC Network Specialists group with ID: ${dc_ops_net_spec_id}" 
+
+#adding client roles to the group
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_ops_net_spec_id \
+    --cclientid Gitea \
+    --rolename gitea-netcicd-write
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_ops_net_spec_id \
+    --cclientid Jenkins \
+    --rolename jenkins-user \
+    --rolename jenkins-netcicd-run \
+    --rolename jenkins-netcicd-dev \
+    --rolename jenkins-cicdtoolbox-run 
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_ops_net_spec_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
+     
+echo "Added roles to DC Network Specialists."
+
+./kcadm.sh create groups -r cicdtoolbox -s name="dc_ops_storage_oper" &>DC_OPS_STOR_OPER
+dc_ops_stor_oper_id=$(cat DC_OPS_STOR_OPER | grep id | cut -d"'" -f 2)
+echo "Created Storage Operator Group with ID: ${dc_ops_stor_oper_id}" 
+
+#adding client roles to the group
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_ops_stor_oper_id \
+    --cclientid Gitea \
+    --rolename gitea-netcicd-read
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_ops_stor_oper_id \
+    --cclientid Jenkins \
+    --rolename jenkins-user \
+    --rolename jenkins-netcicd-run \
+    --rolename jenkins-cicdtoolbox-run 
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_ops_stor_oper_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
+
+echo "Added roles to Storage Operators."
+
+./kcadm.sh create groups -r cicdtoolbox -s name="dc_ops_storage_spec" &>DC_OPS_STOR_SPEC
+dc_ops_stor_spec_id=$(cat DC_OPS_STOR_SPEC | grep id | cut -d"'" -f 2)
+echo "Created Storage Specialists group with ID: ${dc_ops_stor_spec_id}" 
+
+#adding client roles to the group
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_ops_stor_spec_id \
+    --cclientid Gitea \
+    --rolename gitea-netcicd-write
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_ops_stor_spec_id \
+    --cclientid Jenkins \
+    --rolename jenkins-user \
+    --rolename jenkins-netcicd-run \
+    --rolename jenkins-cicdtoolbox-run 
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $dc_ops_stor_spec_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
+     
+echo "Added roles to Storage Specialists."
+
+./kcadm.sh create groups -r cicdtoolbox -s name="field_services_eng" &>FS_FSE
+fs_fse_id=$(cat FS_FSE | grep id | cut -d"'" -f 2)
+echo "Created Field Service Engineers group within the Field Services Department with ID: ${fs_fse_id}" 
+
+./kcadm.sh create groups -r cicdtoolbox -s name="field_services_floor_management" &>FS_FM
+fs_fm_id=$(cat FS_FM | grep id | cut -d"'" -f 2)
+echo "Created Floor Management group within the Field Services Department with ID: ${fs_fm_id}" 
+
+./kcadm.sh create groups -r cicdtoolbox -s name="git_from_jenkins" &>cicdtoolbox_J_G
+j_g_id=$(cat cicdtoolbox_J_G | grep id | cut -d"'" -f 2)
+echo "Created git_from_jenkins group with ID: ${j_g_id}" 
+
+#adding client roles to the group
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $j_g_id \
+    --cclientid Jenkins \
+    --rolename jenkins-git
+
+./kcadm.sh create groups -r cicdtoolbox -s name="security_dev_design" &>SEC_DEV
+sec_dev_id=$(cat SEC_DEV | grep id | cut -d"'" -f 2)
+echo "Created Security Development Group with ID: ${sec_dev_id}" 
+
+./kcadm.sh create groups -r cicdtoolbox -s name="security_ops_oper" &>SEC_OPS_OPER
+sec_ops_oper_id=$(cat SEC_OPS_OPER | grep id | cut -d"'" -f 2)
+echo "Created Security Operations Operator Group with ID: ${sec_ops_oper_id}" 
+
+./kcadm.sh create groups -r cicdtoolbox -s name="security_ops_spec" &>SEC_OPS_SPEC
+sec_ops_spec_id=$(cat SEC_OPS_SPEC | grep id | cut -d"'" -f 2)
+echo "Created Security Operations Specialist Group with ID: ${sec_ops_spec_id}" 
+
+./kcadm.sh create groups -r cicdtoolbox -s name="toolbox_admin" &>TOOLBOX_ADMIN
 toolbox_admin_id=$(cat TOOLBOX_ADMIN | grep id | cut -d"'" -f 2)
 echo "Created Toolbox Admins group with ID: ${toolbox_admin_id}" 
 
@@ -551,616 +1031,37 @@ echo "Created Toolbox Admins group with ID: ${toolbox_admin_id}"
     --cclientid Argos \
     --rolename administrator
 
-./kcadm.sh create groups/$toolbox_id/children -r cicdtoolbox -s name="cicdtoolbox_agents" &>cicdtoolbox_AGENTS
-cicdtoolbox_agents_id=$(cat cicdtoolbox_AGENTS | grep id | cut -d"'" -f 2)
-echo "Created cicdtoolbox Agents with ID: ${cicdtoolbox_agents_id}" 
+./kcadm.sh create groups -r cicdtoolbox -s name="tooling_dev_design" &>TOOL_DEV_DESIGNER
+tool_dev_designer_id=$(cat TOOL_DEV_DESIGNER | grep id | cut -d"'" -f 2)
+
+echo "Created Tooling Designer Group with ID: ${tool_dev_designer_id}" 
 
 #adding client roles to the group
 ./kcadm.sh add-roles \
     -r cicdtoolbox \
-    --gid $cicdtoolbox_agents_id \
-    --cclientid Jenkins \
-    --rolename jenkins-netcicd-agent \
-    --rolename jenkins-appcicd-agent 
-
-./kcadm.sh create groups/$toolbox_id/children -r cicdtoolbox -s name="git_from_jenkins" &>cicdtoolbox_J_G
-j_g_id=$(cat cicdtoolbox_J_G | grep id | cut -d"'" -f 2)
-echo "Created git_from_jenkins group with ID: ${j_g_id}" 
-
-#adding client roles to the group
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $j_g_id \
-    --cclientid Jenkins \
-    --rolename jenkins-git
-
-
-#Now - we start at the ICT infra level, which implements the capacity layer of the MyREFerence model
-./kcadm.sh create groups -r cicdtoolbox -s name="iam" &>DOM_IAM
-dom_iam_id=$(cat DOM_IAM | grep id | cut -d"'" -f 2)
-echo "Created Identity and Access Management Domain with ID: ${dom_iam_id}" 
-
-./kcadm.sh create groups/$dom_iam_id/children -r cicdtoolbox -s name="iam_ops" &>IAM_OPS
-iam_ops_id=$(cat IAM_OPS | grep id | cut -d"'" -f 2)
-echo "Created IAM Operations Group with ID: ${iam_ops_id}" 
-
-./kcadm.sh create groups/$iam_ops_id/children -r cicdtoolbox -s name="iam_ops_oper" &>IAM_OPS_OPER
-iam_ops_oper_id=$(cat IAM_OPS_OPER | grep id | cut -d"'" -f 2)
-echo "Created IAM Operator Group within IAM Operations Group with ID: ${iam_ops_oper_id}" 
-
-./kcadm.sh create groups/$iam_ops_id/children -r cicdtoolbox -s name="iam_ops_spec" &>IAM_OPS_SPEC
-iam_ops_spec_id=$(cat IAM_OPS_SPEC | grep id | cut -d"'" -f 2)
-echo "Created IAM Specialist Group within IAM Operations Group with ID: ${iam_ops_spec_id}" 
-
-./kcadm.sh create groups/$dom_iam_id/children -r cicdtoolbox -s name="iam_dev" &>IAM_DEV
-iam_dev_id=$(cat IAM_DEV | grep id | cut -d"'" -f 2)
-echo "Created IAM Development Group with ID: ${iam_dev_id}" 
-
-./kcadm.sh create groups -r cicdtoolbox -s name="office" &>DOM_OFFICE
-dom_office_id=$(cat DOM_OFFICE | grep id | cut -d"'" -f 2)
-echo "Created Office Domain with ID: ${dom_office_id}" 
-
-./kcadm.sh create groups/$dom_office_id/children -r cicdtoolbox -s name="office_ops" &>OFFICE_OPS
-office_ops_id=$(cat OFFICE_OPS | grep id | cut -d"'" -f 2)
-echo "Created Office Operations Group with ID: ${office_ops_id}" 
-
-./kcadm.sh create groups/$dom_office_id/children -r cicdtoolbox -s name="office_dev" &>OFFICE_DEV
-office_dev_id=$(cat OFFICE_DEV | grep id | cut -d"'" -f 2)
-echo "Created Office Development Group with ID: ${office_dev_id}" 
-
-./kcadm.sh create groups/$office_ops_id/children -r cicdtoolbox -s name="office_ops_oper" &>OFFICE_OPS_OPER
-office_ops_oper_id=$(cat OFFICE_OPS_OPER | grep id | cut -d"'" -f 2)
-echo "Created Office Operator Group within Office Operations Group with ID: ${office_ops_oper_id}" 
-
-./kcadm.sh create groups/$office_ops_id/children -r cicdtoolbox -s name="office_ops_spec" &>OFFICE_OPS_SPEC
-office_ops_spec_id=$(cat OFFICE_OPS_SPEC | grep id | cut -d"'" -f 2)
-echo "Created Office Specialist Group within Office Operations Group with ID: ${office_ops_spec_id}" 
-
-./kcadm.sh create groups -r cicdtoolbox -s name="campus" &>DOM_CAMPUS
-dom_campus_id=$(cat DOM_CAMPUS | grep id | cut -d"'" -f 2)
-echo "Created Campus Domain with ID: ${dom_campus_id}" 
-
-./kcadm.sh create groups/$dom_campus_id/children -r cicdtoolbox -s name="campus_ops" &>CAMPUS_OPS
-campus_ops_id=$(cat CAMPUS_OPS | grep id | cut -d"'" -f 2)
-echo "Created Campus Operations Group with ID: ${campus_ops_id}" 
-
-./kcadm.sh create groups/$dom_campus_id/children -r cicdtoolbox -s name="campus_dev" &>CAMPUS_DEV
-campus_dev_id=$(cat CAMPUS_DEV | grep id | cut -d"'" -f 2)
-echo "Created Campus Development Group with ID: ${campus_dev_id}" 
-
-./kcadm.sh create groups/$campus_ops_id/children -r cicdtoolbox -s name="campus_ops_oper" &>CAMPUS_OPS_OPER
-campus_ops_oper_id=$(cat CAMPUS_OPS_OPER | grep id | cut -d"'" -f 2)
-echo "Created Campus Operator Group within Campus Operations Group with ID: ${campus_ops_oper_id}" 
-
-#adding client roles to the group
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $campus_ops_oper_id \
+    --gid $tool_dev_designer_id \
     --cclientid Gitea \
-    --rolename gitea-netcicd-read 
+    --rolename gitea-netcicd-read \
+    --rolename gitea-cicdtoolbox-write
 
 ./kcadm.sh add-roles \
     -r cicdtoolbox \
-    --gid $campus_ops_oper_id \
+    --gid $tool_dev_designer_id \
     --cclientid Jenkins \
     --rolename jenkins-user \
-    --rolename jenkins-netcicd-run \
-    --rolename jenkins-cicdtoolbox-run 
+    --rolename jenkins-cicdtoolbox-dev 
 
 ./kcadm.sh add-roles \
     -r cicdtoolbox \
-    --gid $campus_ops_oper_id \
+    --gid $tool_dev_designer_id \
     --cclientid Nexus \
     --rolename nexus-docker-pull \
     --rolename nexus-read \
     --rolename nexus-apt-ubuntu-read
 
-echo "Added roles to Campus Operators."
+echo "Added roles to Tooling Designer."
 
-./kcadm.sh create groups/$campus_ops_id/children -r cicdtoolbox -s name="campus_ops_spec" &>CAMPUS_OPS_SPEC
-campus_ops_spec_id=$(cat CAMPUS_OPS_SPEC | grep id | cut -d"'" -f 2)
-echo "Created Campus Specialists Group within Campus Operations Group with ID: ${campus_ops_spec_id}" 
-
-#adding client roles to the group
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $campus_ops_spec_id \
-    --cclientid Gitea \
-    --rolename gitea-netcicd-write
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $campus_ops_spec_id \
-    --cclientid Jenkins \
-    --rolename jenkins-user \
-    --rolename jenkins-netcicd-run \
-    --rolename jenkins-netcicd-dev \
-    --rolename jenkins-cicdtoolbox-run 
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $campus_ops_spec_id \
-    --cclientid Nexus \
-    --rolename nexus-docker-pull \
-    --rolename nexus-read \
-    --rolename nexus-apt-ubuntu-read
-     
-echo "Added roles to Operations Campus Specialists."
-
-./kcadm.sh create groups/$campus_dev_id/children -r cicdtoolbox -s name="campus_dev_lan" &>CAMPUS_DEV_LAN_DESIGNER
-campus_dev_lan_designer_id=$(cat CAMPUS_DEV_LAN_DESIGNER | grep id | cut -d"'" -f 2)
-echo "Created Campus LAN Designer group within the Development Department with ID: ${campus_dev_lan_designer_id}" 
-
-#adding client roles to the group
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $campus_dev_lan_designer_id \
-    --cclientid Gitea \
-    --rolename gitea-netcicd-write
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $campus_dev_lan_designer_id \
-    --cclientid Jenkins \
-    --rolename jenkins-user \
-    --rolename jenkins-netcicd-run \
-    --rolename jenkins-netcicd-dev \
-    --rolename jenkins-cicdtoolbox-run 
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $campus_dev_lan_designer_id \
-    --cclientid Nexus \
-    --rolename nexus-docker-pull \
-    --rolename nexus-read \
-    --rolename nexus-apt-ubuntu-read
-
-echo "Added roles to Campus LAN Designers."
-
-./kcadm.sh create groups/$campus_dev_id/children -r cicdtoolbox -s name="campus_dev_wifi" &>CAMPUS_DEV_WIFI_DESIGNER
-campus_dev_wifi_designer_id=$(cat CAMPUS_DEV_WIFI_DESIGNER | grep id | cut -d"'" -f 2)
-echo "Created Campus wifi Designer group within the Development Department with ID: ${campus_dev_wifi_designer_id}" 
-
-#adding client roles to the group
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $campus_dev_wifi_designer_id \
-    --cclientid Gitea \
-    --rolename gitea-netcicd-write
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $campus_dev_wifi_designer_id \
-    --cclientid Jenkins \
-    --rolename jenkins-user \
-    --rolename jenkins-netcicd-run \
-    --rolename jenkins-netcicd-dev \
-    --rolename jenkins-cicdtoolbox-run 
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $campus_dev_wifi_designer_id \
-    --cclientid Nexus \
-    --rolename nexus-docker-pull \
-    --rolename nexus-read \
-    --rolename nexus-apt-ubuntu-read
-
-echo "Added roles to Campus WIFI Designers."
-
-./kcadm.sh create groups -r cicdtoolbox -s name="wan" &>DOM_WAN
-dom_wan_id=$(cat DOM_WAN | grep id | cut -d"'" -f 2)
-echo "Created WAN Domain with ID: ${dom_wan_id}" 
-
-./kcadm.sh create groups/$dom_wan_id/children -r cicdtoolbox -s name="wan_ops" &>WAN_OPS
-wan_ops_id=$(cat WAN_OPS | grep id | cut -d"'" -f 2)
-echo "Created WAN Operations Group with ID: ${wan_ops_id}" 
-
-./kcadm.sh create groups/$dom_wan_id/children -r cicdtoolbox -s name="wan_dev" &>WAN_DEV
-wan_dev_id=$(cat WAN_DEV | grep id | cut -d"'" -f 2)
-echo "Created WAN Development Group with ID: ${wan_dev_id}" 
-
-./kcadm.sh create groups/$wan_ops_id/children -r cicdtoolbox -s name="wan_ops_oper" &>WAN_OPS_OPER
-wan_ops_oper_id=$(cat WAN_OPS_OPER | grep id | cut -d"'" -f 2)
-echo "Created WAN Operator Group within WAN Operations Group with ID: ${wan_ops_oper_id}" 
-
-#adding client roles to the group
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $wan_ops_oper_id \
-    --cclientid Gitea \
-    --rolename gitea-netcicd-read
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $wan_ops_oper_id \
-    --cclientid Jenkins \
-    --rolename jenkins-user \
-    --rolename jenkins-netcicd-run \
-    --rolename jenkins-cicdtoolbox-run 
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $wan_ops_oper_id \
-    --cclientid Nexus \
-    --rolename nexus-docker-pull \
-    --rolename nexus-read \
-    --rolename nexus-apt-ubuntu-read
-
-echo "Added roles to WAN Operators."
-
-./kcadm.sh create groups/$wan_ops_id/children -r cicdtoolbox -s name="wan_ops_spec" &>WAN_OPS_SPEC
-wan_ops_spec_id=$(cat WAN_OPS_SPEC | grep id | cut -d"'" -f 2)
-echo "Created WAN Specialists Group within WAN Operations Group with ID: ${wan_ops_spec_id}" 
-
-#adding client roles to the group
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $wan_ops_spec_id \
-    --cclientid Gitea \
-    --rolename gitea-netcicd-read
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $wan_ops_spec_id \
-    --cclientid Jenkins \
-    --rolename jenkins-user \
-    --rolename jenkins-netcicd-run \
-    --rolename jenkins-netcicd-dev \
-    --rolename jenkins-cicdtoolbox-run 
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $wan_ops_spec_id \
-    --cclientid Nexus \
-    --rolename nexus-docker-pull \
-    --rolename nexus-read \
-    --rolename nexus-apt-ubuntu-read
-     
-echo "Added roles to Operations WAN Specialists."
-
-./kcadm.sh create groups/$wan_dev_id/children -r cicdtoolbox -s name="wan_dev_design" &>WAN_DEV_DESIGNER
-wan_dev_designer_id=$(cat WAN_DEV_DESIGNER | grep id | cut -d"'" -f 2)
-echo "Created WAN Designer group within the WAN Development Group with ID: ${wan_dev_designer_id}" 
-
-#adding client roles to the group
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $wan_dev_designer_id \
-    --cclientid Gitea \
-    --rolename gitea-netcicd-write
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $wan_dev_designer_id \
-    --cclientid Jenkins \
-    --rolename jenkins-user \
-    --rolename jenkins-netcicd-run \
-    --rolename jenkins-netcicd-dev \
-    --rolename jenkins-cicdtoolbox-run 
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $wan_dev_designer_id \
-    --cclientid Nexus \
-    --rolename nexus-docker-pull \
-    --rolename nexus-read \
-    --rolename nexus-apt-ubuntu-read
-
-echo "Added roles to WAN Designer."
-
-./kcadm.sh create groups -r cicdtoolbox -s name="dc" &>DOM_DC
-dom_dc_id=$(cat DOM_DC | grep id | cut -d"'" -f 2)
-echo "Created Datacenter Domain with ID: ${dom_dc_id}" 
-
-./kcadm.sh create groups/$dom_dc_id/children -r cicdtoolbox -s name="dc_ops" &>DC_OPS
-dc_ops_id=$(cat DC_OPS | grep id | cut -d"'" -f 2)
-echo "Created Datacenter Operations Group with ID: ${dc_ops_id}" 
-
-./kcadm.sh create groups/$dom_dc_id/children -r cicdtoolbox -s name="dc_dev" &>DC_DEV
-dc_dev_id=$(cat DC_DEV | grep id | cut -d"'" -f 2)
-echo "Created Datacenter Development Group with ID: ${dc_dev_id}" 
-
-./kcadm.sh create groups/$dc_ops_id/children -r cicdtoolbox -s name="dc_ops_compute" &>DC_OPS_COMP
-dc_ops_comp_id=$(cat DC_OPS_COMP | grep id | cut -d"'" -f 2)
-echo "Created Datacenter Operations Compute Group with ID: ${dc_ops_comp_id}" 
-
-./kcadm.sh create groups/$dc_ops_comp_id/children -r cicdtoolbox -s name="dc_ops_compute_oper" &>DC_OPS_COMP_OPER
-dc_ops_comp_oper_id=$(cat DC_OPS_COMP_OPER | grep id | cut -d"'" -f 2)
-echo "Created Compute Operator Group within Compute Operations Group with ID: ${dc_ops_comp_oper_id}" 
-
-#adding client roles to the group
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_ops_comp_oper_id \
-    --cclientid Gitea \
-    --rolename gitea-netcicd-read
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_ops_comp_oper_id \
-    --cclientid Jenkins \
-    --rolename jenkins-user \
-    --rolename jenkins-netcicd-run \
-    --rolename jenkins-cicdtoolbox-run 
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_ops_comp_oper_id \
-    --cclientid Nexus \
-    --rolename nexus-docker-pull \
-    --rolename nexus-read \
-    --rolename nexus-apt-ubuntu-read
-
-echo "Added roles to Compute Operators."
-
-./kcadm.sh create groups/$dc_ops_comp_id/children -r cicdtoolbox -s name="dc_ops_compute_spec" &>DC_OPS_COMP_SPEC
-dc_ops_comp_spec_id=$(cat DC_OPS_COMP_SPEC | grep id | cut -d"'" -f 2)
-echo "Created Compute Specialists group within Compute Operations with ID: ${dc_ops_comp_spec_id}" 
-
-#adding client roles to the group
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_ops_comp_spec_id \
-    --cclientid Gitea \
-    --rolename gitea-netcicd-write
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_ops_comp_spec_id \
-    --cclientid Jenkins \
-    --rolename jenkins-user \
-    --rolename jenkins-netcicd-run \
-    --rolename jenkins-netcicd-dev \
-    --rolename jenkins-cicdtoolbox-run 
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_ops_comp_spec_id \
-    --cclientid Nexus \
-    --rolename nexus-docker-pull \
-    --rolename nexus-read \
-    --rolename nexus-apt-ubuntu-read
-     
-echo "Added roles to Compute Specialists."
-
-./kcadm.sh create groups/$dc_ops_id/children -r cicdtoolbox -s name="dc_ops_network" &>DC_OPS_NET
-dc_ops_net_id=$(cat DC_OPS_NET | grep id | cut -d"'" -f 2)
-echo "Created Datacenter Network Operations Group with ID: ${dc_ops_net_id}" 
-
-./kcadm.sh create groups/$dc_ops_net_id/children -r cicdtoolbox -s name="dc_ops_network_oper" &>DC_OPS_NET_OPER
-dc_ops_net_oper_id=$(cat DC_OPS_NET_OPER | grep id | cut -d"'" -f 2)
-echo "Created DC Network Operator Group within DC Network Operations Group with ID: ${dc_ops_net_oper_id}" 
-
-#adding client roles to the group
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_ops_net_oper_id \
-    --cclientid Gitea \
-    --rolename gitea-netcicd-read
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_ops_net_oper_id \
-    --cclientid Jenkins \
-    --rolename jenkins-user \
-    --rolename jenkins-netcicd-run \
-    --rolename jenkins-cicdtoolbox-run 
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_ops_net_oper_id \
-    --cclientid Nexus \
-    --rolename nexus-docker-pull \
-    --rolename nexus-read \
-    --rolename nexus-apt-ubuntu-read
-
-echo "Added roles to DC Network Operators."
-
-./kcadm.sh create groups/$dc_ops_net_id/children -r cicdtoolbox -s name="dc_ops_network_spec" &>DC_OPS_NET_SPEC
-dc_ops_net_spec_id=$(cat DC_OPS_NET_SPEC | grep id | cut -d"'" -f 2)
-echo "Created DC Network Specialists group within Compute Operations with ID: ${dc_ops_net_spec_id}" 
-
-#adding client roles to the group
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_ops_net_spec_id \
-    --cclientid Gitea \
-    --rolename gitea-netcicd-write
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_ops_net_spec_id \
-    --cclientid Jenkins \
-    --rolename jenkins-user \
-    --rolename jenkins-netcicd-run \
-    --rolename jenkins-netcicd-dev \
-    --rolename jenkins-cicdtoolbox-run 
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_ops_net_spec_id \
-    --cclientid Nexus \
-    --rolename nexus-docker-pull \
-    --rolename nexus-read \
-    --rolename nexus-apt-ubuntu-read
-     
-echo "Added roles to DC Network Specialists."
-
-./kcadm.sh create groups/$dc_ops_id/children -r cicdtoolbox -s name="dc_ops_storage" &>DC_OPS_STOR
-dc_ops_stor_id=$(cat DC_OPS_STOR | grep id | cut -d"'" -f 2)
-echo "Created Datacenter Operations Group with ID: ${dc_ops_stor_id}" 
-
-./kcadm.sh create groups/$dc_ops_stor_id/children -r cicdtoolbox -s name="dc_ops_storage_oper" &>DC_OPS_STOR_OPER
-dc_ops_stor_oper_id=$(cat DC_OPS_STOR_OPER | grep id | cut -d"'" -f 2)
-echo "Created Storage Operator Group within Storage Operations Group with ID: ${dc_ops_stor_oper_id}" 
-
-#adding client roles to the group
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_ops_stor_oper_id \
-    --cclientid Gitea \
-    --rolename gitea-netcicd-read
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_ops_stor_oper_id \
-    --cclientid Jenkins \
-    --rolename jenkins-user \
-    --rolename jenkins-netcicd-run \
-    --rolename jenkins-cicdtoolbox-run 
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_ops_stor_oper_id \
-    --cclientid Nexus \
-    --rolename nexus-docker-pull \
-    --rolename nexus-read \
-    --rolename nexus-apt-ubuntu-read
-
-echo "Added roles to Storage Operators."
-
-./kcadm.sh create groups/$dc_ops_stor_id/children -r cicdtoolbox -s name="dc_ops_storage_spec" &>DC_OPS_STOR_SPEC
-dc_ops_stor_spec_id=$(cat DC_OPS_STOR_SPEC | grep id | cut -d"'" -f 2)
-echo "Created Storage Specialists group within Storage Operations with ID: ${dc_ops_stor_spec_id}" 
-
-#adding client roles to the group
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_ops_stor_spec_id \
-    --cclientid Gitea \
-    --rolename gitea-netcicd-write
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_ops_stor_spec_id \
-    --cclientid Jenkins \
-    --rolename jenkins-user \
-    --rolename jenkins-netcicd-run \
-    --rolename jenkins-cicdtoolbox-run 
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_ops_stor_spec_id \
-    --cclientid Nexus \
-    --rolename nexus-docker-pull \
-    --rolename nexus-read \
-    --rolename nexus-apt-ubuntu-read
-     
-echo "Added roles to Storage Specialists."
-
-./kcadm.sh create groups/$dc_dev_id/children -r cicdtoolbox -s name="dc_dev_compute" &>DC_DEV_COMPUTE_DESIGNER
-dc_dev_compute_designer_id=$(cat DC_DEV_COMPUTE_DESIGNER | grep id | cut -d"'" -f 2)
-echo "Created Compute Designer Group within the Datacenter Development Group with ID: ${dc_dev_compute_designer_id}" 
-
-#adding client roles to the group
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_dev_compute_designer_id \
-    --cclientid Gitea \
-    --rolename gitea-netcicd-write
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_dev_compute_designer_id \
-    --cclientid Jenkins \
-    --rolename jenkins-user \
-    --rolename jenkins-netcicd-run \
-    --rolename jenkins-cicdtoolbox-run 
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_dev_compute_designer_id \
-    --cclientid Nexus \
-    --rolename nexus-docker-pull \
-    --rolename nexus-read \
-    --rolename nexus-apt-ubuntu-read
-
-echo "Added roles to DC Compute Designers."
-
-./kcadm.sh create groups/$dc_dev_id/children -r cicdtoolbox -s name="dc_dev_network" &>DC_DEV_NETWORK_DESIGNER
-dc_dev_network_designer_id=$(cat DC_DEV_NETWORK_DESIGNER | grep id | cut -d"'" -f 2)
-echo "Created DC Network Group within the Datacenter Development Group with ID: ${dc_dev_network_designer_id}" 
-
-#adding client roles to the group
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_dev_network_designer_id \
-    --cclientid Gitea \
-    --rolename gitea-netcicd-write
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_dev_network_designer_id \
-    --cclientid Jenkins \
-    --rolename jenkins-user \
-    --rolename jenkins-netcicd-run \
-    --rolename jenkins-netcicd-dev \
-    --rolename jenkins-cicdtoolbox-run 
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_dev_network_designer_id \
-    --cclientid Nexus \
-    --rolename nexus-docker-pull \
-    --rolename nexus-read \
-    --rolename nexus-apt-ubuntu-read
-
-echo "Added roles to DC Network Designers."
-
-./kcadm.sh create groups/$dc_dev_id/children -r cicdtoolbox -s name="dc_dev_storage" &>DC_DEV_STORAGE_DESIGNER
-dc_dev_storage_designer_id=$(cat DC_DEV_STORAGE_DESIGNER | grep id | cut -d"'" -f 2)
-echo "Created DC Storage Designer Group within the Datacenter Development Group with ID: ${dc_dev_storage_designer_id}" 
-
-#adding client roles to the group
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_dev_storage_designer_id \
-    --cclientid Gitea \
-    --rolename gitea-netcicd-write
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_dev_storage_designer_id \
-    --cclientid Jenkins \
-    --rolename jenkins-user \
-    --rolename jenkins-netcicd-run \
-    --rolename jenkins-cicdtoolbox-run 
-
-./kcadm.sh add-roles \
-    -r cicdtoolbox \
-    --gid $dc_dev_storage_designer_id \
-    --cclientid Nexus \
-    --rolename nexus-docker-pull \
-    --rolename nexus-read \
-    --rolename nexus-apt-ubuntu-read
-
-echo "Added roles to DC Network Designers."
-
-./kcadm.sh create groups -r cicdtoolbox -s name="app" &>DOM_APPS
-dom_apps_id=$(cat DOM_APPS | grep id | cut -d"'" -f 2)
-echo "Created Applications Domain with ID: ${dom_apps_id}" 
-
-./kcadm.sh create groups/$dom_apps_id/children -r cicdtoolbox -s name="app_ops" &>APP_OPS
-app_ops_id=$(cat APP_OPS | grep id | cut -d"'" -f 2)
-echo "Created Application Operations Group with ID: ${app_ops_id}" 
-
-./kcadm.sh create groups/$dom_apps_id/children -r cicdtoolbox -s name="app_dev" &>APP_DEV
-app_dev_id=$(cat APP_DEV | grep id | cut -d"'" -f 2)
-echo "Created Application Development Group with ID: ${app_dev_id}" 
-
-./kcadm.sh create groups -r cicdtoolbox -s name="tooling" &>DOM_TOOLING
-dom_tooling_id=$(cat DOM_TOOLING | grep id | cut -d"'" -f 2)
-echo "Created Tooling Domain with ID: ${dom_tooling_id}" 
-
-./kcadm.sh create groups/$dom_tooling_id/children -r cicdtoolbox -s name="tooling_ops" &>TOOL_OPS
-tool_ops_id=$(cat TOOL_OPS | grep id | cut -d"'" -f 2)
-echo "Created Tooling Operations Group with ID: ${tool_ops_id}" 
-
-./kcadm.sh create groups/$dom_tooling_id/children -r cicdtoolbox -s name="tooling_dev" &>TOOL_DEV
-tool_dev_id=$(cat TOOL_DEV | grep id | cut -d"'" -f 2)
-echo "Created Tooling Development Group with ID: ${tool_dev_id}" 
-
-./kcadm.sh create groups/$tool_ops_id/children -r cicdtoolbox -s name="tooling_ops_oper" &>TOOL_OPS_OPER
+./kcadm.sh create groups -r cicdtoolbox -s name="tooling_ops_oper" &>TOOL_OPS_OPER
 tool_ops_oper_id=$(cat TOOL_OPS_OPER | grep id | cut -d"'" -f 2)
 echo "Created Tooling Operator group within the Tooling Operations Department with ID: ${tool_ops_oper_id}" 
 
@@ -1189,7 +1090,7 @@ echo "Created Tooling Operator group within the Tooling Operations Department wi
 
 echo "Added roles to Tooling Operator."
 
-./kcadm.sh create groups/$tool_ops_id/children -r cicdtoolbox -s name="tooling_ops_spec" &>TOOL_OPS_SPEC
+./kcadm.sh create groups -r cicdtoolbox -s name="tooling_ops_spec" &>TOOL_OPS_SPEC
 tool_ops_spec_id=$(cat TOOL_OPS_SPEC | grep id | cut -d"'" -f 2)
 echo "Created Tooling Specialist group within the Tooling Operations Department with ID: ${tool_ops_spec_id}" 
 
@@ -1218,105 +1119,135 @@ echo "Created Tooling Specialist group within the Tooling Operations Department 
 
 echo "Added roles to Tooling Specialist."
 
-./kcadm.sh create groups/$tool_dev_id/children -r cicdtoolbox -s name="tooling_dev_design" &>TOOL_DEV_DESIGNER
-tool_dev_designer_id=$(cat TOOL_DEV_DESIGNER | grep id | cut -d"'" -f 2)
-echo "Created Tooling Designer Group within the Tooling Department with ID: ${tool_dev_designer_id}" 
+./kcadm.sh create groups -r cicdtoolbox -s name="wan_dev_design" &>WAN_DEV_DESIGNER
+wan_dev_designer_id=$(cat WAN_DEV_DESIGNER | grep id | cut -d"'" -f 2)
+echo "Created WAN Designer group with ID: ${wan_dev_designer_id}" 
 
 #adding client roles to the group
 ./kcadm.sh add-roles \
     -r cicdtoolbox \
-    --gid $tool_dev_designer_id \
+    --gid $wan_dev_designer_id \
     --cclientid Gitea \
-    --rolename gitea-netcicd-read \
-    --rolename gitea-cicdtoolbox-write
+    --rolename gitea-netcicd-write
 
 ./kcadm.sh add-roles \
     -r cicdtoolbox \
-    --gid $tool_dev_designer_id \
+    --gid $wan_dev_designer_id \
     --cclientid Jenkins \
     --rolename jenkins-user \
-    --rolename jenkins-cicdtoolbox-dev 
+    --rolename jenkins-netcicd-run \
+    --rolename jenkins-netcicd-dev \
+    --rolename jenkins-cicdtoolbox-run 
 
 ./kcadm.sh add-roles \
     -r cicdtoolbox \
-    --gid $tool_dev_designer_id \
+    --gid $wan_dev_designer_id \
     --cclientid Nexus \
     --rolename nexus-docker-pull \
     --rolename nexus-read \
     --rolename nexus-apt-ubuntu-read
 
-echo "Added roles to Tooling Designer."
+echo "Added roles to WAN Designer."
 
-./kcadm.sh create groups -r cicdtoolbox -s name="security" &>DOM_SEC
-dom_sec_id=$(cat DOM_SEC | grep id | cut -d"'" -f 2)
-echo "Created Security Domain with ID: ${dom_sec_id}" 
+./kcadm.sh create groups -r cicdtoolbox -s name="wan_ops_oper" &>WAN_OPS_OPER
+wan_ops_oper_id=$(cat WAN_OPS_OPER | grep id | cut -d"'" -f 2)
+echo "Created WAN Operator Group with ID: ${wan_ops_oper_id}" 
 
-./kcadm.sh create groups/$dom_sec_id/children -r cicdtoolbox -s name="security_ops" &>SEC_OPS
-sec_ops_id=$(cat SEC_OPS | grep id | cut -d"'" -f 2)
-echo "Created Security Operations Group with ID: ${sec_ops_id}" 
+#adding client roles to the group
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $wan_ops_oper_id \
+    --cclientid Gitea \
+    --rolename gitea-netcicd-read
 
-./kcadm.sh create groups/$dom_sec_id/children -r cicdtoolbox -s name="security_dev" &>SEC_DEV
-sec_dev_id=$(cat SEC_DEV | grep id | cut -d"'" -f 2)
-echo "Created Security Development Group with ID: ${sec_dev_id}" 
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $wan_ops_oper_id \
+    --cclientid Jenkins \
+    --rolename jenkins-user \
+    --rolename jenkins-netcicd-run \
+    --rolename jenkins-cicdtoolbox-run 
 
-./kcadm.sh create groups -r cicdtoolbox -s name="field_services" &>DOM_FS
-dom_fs_id=$(cat DOM_FS | grep id | cut -d"'" -f 2)
-echo "Created Field Services Domain with ID: ${dom_fs_id}" 
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $wan_ops_oper_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
 
-./kcadm.sh create groups/$dom_fs_id/children -r cicdtoolbox -s name="field_services_eng" &>FS_FSE
-fs_fse_id=$(cat FS_FSE | grep id | cut -d"'" -f 2)
-echo "Created Field Service Engineers group within the Field Services Department with ID: ${fs_fse_id}" 
+echo "Added roles to WAN Operators."
 
-./kcadm.sh create groups/$dom_fs_id/children -r cicdtoolbox -s name="field_services_floor_management" &>FS_FM
-fs_fm_id=$(cat FS_FM | grep id | cut -d"'" -f 2)
-echo "Created Floor Management group within the Field Services Department with ID: ${fs_fm_id}" 
+./kcadm.sh create groups -r cicdtoolbox -s name="wan_ops_spec" &>WAN_OPS_SPEC
+wan_ops_spec_id=$(cat WAN_OPS_SPEC | grep id | cut -d"'" -f 2)
+echo "Created WAN Specialists Group with ID: ${wan_ops_spec_id}" 
 
-# Add FreeIPA integration, needs to be last, otherwise FreeIPA groups interfere with group creation in Keycloak
+#adding client roles to the group
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $wan_ops_spec_id \
+    --cclientid Gitea \
+    --rolename gitea-netcicd-read
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $wan_ops_spec_id \
+    --cclientid Jenkins \
+    --rolename jenkins-user \
+    --rolename jenkins-netcicd-run \
+    --rolename jenkins-netcicd-dev \
+    --rolename jenkins-cicdtoolbox-run 
+
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $wan_ops_spec_id \
+    --cclientid Nexus \
+    --rolename nexus-docker-pull \
+    --rolename nexus-read \
+    --rolename nexus-apt-ubuntu-read
+     
+echo "Added roles to Operations WAN Specialists."
+
+# Add LLDAP integration, needs to be last, otherwise LLDAP groups interfere with group creation in Keycloak
 ./kcadm.sh create components -r cicdtoolbox \
-    -s name=freeipa \
+    -s name=lldap \
     -s providerId=ldap \
     -s providerType=org.keycloak.storage.UserStorageProvider \
-    -s 'config.priority=["1"]' \
+    -s 'config.priority=["2"]' \
     -s 'config.editMode=["READ_ONLY"]' \
     -s 'config.syncRegistrations=["true"]' \
-    -s 'config.vendor=["rhds"]' \
+    -s 'config.vendor=["other"]' \
     -s 'config.usernameLDAPAttribute=["uid"]' \
     -s 'config.rdnLDAPAttribute=["uid"]' \
-    -s 'config.uuidLDAPAttribute=["ipaUniqueID"]' \
-    -s 'config.userObjectClasses=["inetOrgPerson, organizationalPerson"]' \
-    -s 'config.connectionUrl=["ldaps://freeipa.iam.provider.test"]' \
-    -s 'config.usersDn=["cn=users,cn=accounts,dc=provider,dc=test"]' \
+    -s 'config.uuidLDAPAttribute=["entryUUID"]' \
+    -s 'config.userObjectClasses=["person"]' \
+    -s 'config.connectionUrl=["ldap://ldap.iam.provider.test:3890"]' \
+    -s 'config.usersDn=["ou=people,dc=provider,dc=test"]' \
     -s 'config.searchScope=["1"]' \
     -s 'config.authType=["simple"]' \
-    -s 'config.bindDn=["uid=admin,cn=users,cn=accounts,dc=provider,dc=test"]' \
+    -s 'config.bindDn=["uid=admin,ou=people,dc=provider,dc=test"]' \
     -s 'config.bindCredential=["'$3'"]' \
     -s 'config.useTruststoreSpi=["ldapsOnly"]' \
-    -s 'config.pagination=["true"]' \
+    -s 'config.pagination=["false"]' \
     -s 'config.connectionPooling=["true"]' \
-    -s 'config.allowKerberosAuthentication=["false"]' \
-    -s 'config.kerberosRealm=["services.provider.test"]' \
-    -s 'config.serverPrincipal=["HTTP/keycloak.services.provider.test"]' \
-    -s 'config.keyTab=["/etc/krb5-keycloak.keytab"]' \
-    -s 'config.debug=["false"]' \
-    -s 'config.useKerberosForPasswordAuthentication=["true"]' \
+    -s 'config.useKerberosForPasswordAuthentication=["false"]' \
     -s 'config.batchSizeForSync=["1000"]' \
-    -s 'config.fullSyncPeriod=["-1"]' \
-    -s 'config.changedSyncPeriod=["10"]' \
-    -s 'config.cachePolicy=["DEFAULT"]' \
-    -s config.evictionDay=[] \
-    -s config.evictionHour=[] \
-    -s config.evictionMinute=[] \
-    -s config.maxLifespan=[] &>FREEIPA_LDAP
+    -s 'config.fullSyncPeriod=["-1"]' &>LLDAP_LDAP
 
-freeipa_ldap_id=$(cat FREEIPA_LDAP | grep id | cut -d"'" -f 2)
+echo "LLDAP 1 configured"
+
+lldap_ldap_id=$(cat LLDAP_LDAP | grep id | cut -d"'" -f 2)
+
+echo "LLDAP 2 configured"
+
 ./kcadm.sh create components -r cicdtoolbox \
-    -s name=FreeIPA-group-mapper \
+    -s name=LLDAP-group-mapper \
     -s providerId=group-ldap-mapper \
     -s providerType=org.keycloak.storage.ldap.mappers.LDAPStorageMapper \
-    -s parentId=${freeipa_ldap_id} \
-    -s 'config."groups.dn"=["cn=groups,cn=accounts,dc=provider,dc=test"]' \
+    -s parentId=${lldap_ldap_id} \
+    -s 'config."groups.dn"=["ou=groups,dc=provider,dc=test"]' \
     -s 'config."group.name.ldap.attribute"=["cn"]' \
-    -s 'config."group.object.classes"=["groupOfNames"]' \
+    -s 'config."group.object.classes"=["groupOfUniqueNames"]' \
     -s 'config."preserve.group.inheritance"=["true"]' \
     -s 'config."membership.ldap.attribute"=["member"]' \
     -s 'config."membership.attribute.type"=["DN"]' \
@@ -1324,9 +1255,8 @@ freeipa_ldap_id=$(cat FREEIPA_LDAP | grep id | cut -d"'" -f 2)
     -s 'config.mode=["READ_ONLY"]' \
     -s 'config."user.roles.retrieve.strategy"=["GET_GROUPS_FROM_USER_MEMBEROF_ATTRIBUTE"]' \
     -s 'config."mapped.group.attributes"=[]' \
-    -s 'config."drop.non.existing.groups.during.sync"=["true"]' 
+    -s 'config."drop.non.existing.groups.during.sync"=["false"]' 
 
-echo "FreeIPA configured"
-
+echo "LLDAP 3 configured"
 #Now delete tokens and secrets
 rm cicdtoolbox_*
