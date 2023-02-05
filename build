@@ -1,5 +1,5 @@
 #!/bin/bash 
-
+VERSION="0.1"
 local_admin_user="local-admin"
 nexus_keycloak_plugin="0.5.0"
 nexus_apk_plugin="0.0.25"
@@ -545,16 +545,51 @@ else
     echo "trivy is not installed"
 fi
 echo "****************************************************************************************************************"
-echo " The pipeline uses the default Cisco DevNet CML Sandbox credentials developer/C1sco12345 to log in to CML."
-echo " You may change this to your own credentials in:"
-echo " "
-echo " http://jenkins.tooling.provider.test:8084/credentials/store/system/domain/_/credential/CML-SIM-CRED/update"
-echo " "
-echo " Due to limitations in Keycloak, do **not** use docker-compose down. Keycloak will no longer function after this."
-echo " "
-echo " Stop the environment with ./down, start with ./up"
-echo " "
+echo " building images "
 echo "****************************************************************************************************************"
+docker container commit freeipa.iam.provider.test netarch/cicdtoolbox:freeipa-$VERSION
+docker push netarch/cicdtoolbox:freeipa-$VERSION
+echo " "
+docker container commit cicdtoolbox-db.internal.provider.test netarch/cicdtoolbox:cicdtoolbox-db-$VERSION
+docker push netarch/cicdtoolbox:cicdtoolbox-db-$VERSION
+echo " "
+docker container commit keycloak.services.provider.test netarch/cicdtoolbox:keycloak-$VERSION
+docker push netarch/cicdtoolbox:keycloak-$VERSION
+# echo " "
+# docker container commit argos.services.provider.test netarch/cicdtoolbox:argos-$VERSION
+# docker push netarch/cicdtoolbox:argos-$VERSION
+# echo " "
+# docker container commit argos-service.tooling.provider.test netarch/cicdtoolbox:argos-service-$VERSION
+# docker push netarch/cicdtoolbox:argos-service-$VERSION
+# echo " "
+# docker container commit mongodb.internal.provider.test netarch/cicdtoolbox:mongo-$VERSION
+# docker push netarch/cicdtoolbox:mongo-$VERSION
+# echo " "
+# docker container commit restportal.services.provider.test netarch/cicdtoolbox:restportal-$VERSION
+# docker push netarch/cicdtoolbox:restportal-$VERSION
+echo " "
+docker container commit gitea.tooling.provider.test netarch/cicdtoolbox:gitea-$VERSION
+docker push netarch/cicdtoolbox:gitea-$VERSION
+echo " "
+docker container commit jenkins.tooling.provider.test netarch/cicdtoolbox:jenkins-$VERSION
+docker push netarch/cicdtoolbox:jenkins-$VERSION
+echo " "
+docker container commit nexus.tooling.provider.test netarch/cicdtoolbox:nexus-$VERSION
+docker push netarch/cicdtoolbox:nexus-$VERSION
+echo " "
+docker container commit build-dev.delivery.provider.test netarch/cicdtoolbox:build-dev-$VERSION
+docker push netarch/cicdtoolbox:build-dev-$VERSION
+echo " "
+docker container commit cicdtoolbox-db.internal.provider.test netarch/cicdtoolbox:cicdtoolbox-db-$VERSION
+docker push netarch/cicdtoolbox:cicdtoolbox-db-$VERSION
+echo " "
+docker container commit cicdtoolbox-db.internal.provider.test netarch/cicdtoolbox:cicdtoolbox-db-$VERSION
+docker push netarch/cicdtoolbox:cicdtoolbox-db-$VERSION
+echo " "
+docker container commit cicdtoolbox-db.internal.provider.test netarch/cicdtoolbox:cicdtoolbox-db-$VERSION
+docker push netarch/cicdtoolbox:cicdtoolbox-db-$VERSION
+echo " "
+
 echo "NetCICD Toolkit install done "
 echo " "
 echo "You can read the install test report in install_tests/report.html"

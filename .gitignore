@@ -64,3 +64,4 @@ jtoken.txt
 argos/cacerts
 argos-service/cacerts
 jenkins_buildnode/cacerts
+vault/keycloak-vault.json
