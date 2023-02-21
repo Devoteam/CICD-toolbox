@@ -1232,7 +1232,7 @@ echo "Added roles to Operations WAN Specialists."
     -s 'config.connectionPooling=["true"]' \
     -s 'config.useKerberosForPasswordAuthentication=["false"]' \
     -s 'config.batchSizeForSync=["1000"]' \
-    -s 'config.fullSyncPeriod=["-1"]' &>LLDAP_LDAP
+    -s 'config.fullSyncPeriod=["10"]' &>LLDAP_LDAP
 
 echo "LLDAP 1 configured"
 
