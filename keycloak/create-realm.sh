@@ -1219,7 +1219,7 @@ echo "Added roles to Operations WAN Specialists."
     -s 'config.vendor=["other"]' \
     -s 'config.usernameLDAPAttribute=["uid"]' \
     -s 'config.rdnLDAPAttribute=["uid"]' \
-    -s 'config.uuidLDAPAttribute=["entryUUID"]' \
+    -s 'config.uuidLDAPAttribute=["uid"]' \
     -s 'config.userObjectClasses=["person"]' \
     -s 'config.connectionUrl=["ldap://ldap.iam.provider.test:3890"]' \
     -s 'config.usersDn=["ou=people,dc=provider,dc=test"]' \
