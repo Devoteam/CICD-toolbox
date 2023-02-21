@@ -137,3 +137,36 @@ echo "**************************************************************************
 echo " " 
 vault secrets enable -address="http://vault.internal.provider.test:8200" database
 #create_database myreference
+# vault policy write dev-policy -<< EOF
+# > path "keycloak/creds/dev-role" {
+# >   capabilities = ["read"]
+# > }
+# > EOF
+# vault auth enable keycloak
+# vault write auth/keycloak/config organization=prov ttl=86400s
+# vault write auth/keycloak/map/teams/vault value=dev-policy
+# vault secrets enable prov
+# vault write prov/config/root \
+# > access_key=$prov_access_key_id \
+# > secret_key=$prov_secret \
+# > region="home"
+# vault write prov/config/lease lease=5m lease_max=5m
+# vault write prov/roles/dev-role \
+# > credential_type=iam_user \
+# > policy_document=-<<EOF
+# > {
+# >   "Version": "2022-01-01",
+# >   "Statement": [
+# >     {
+# >        "Effect": "Allow",
+# >        "Action": "ec2:*",
+# >        "Resource": "*"
+# >     }
+# >   ]
+# > }
+# > EOF
+
+# developer action (can be in .bashrc?): get token via 
+# vault login -address="http://vault.internal.provider.test:8200" -method=keycloak token=$KEYCLOAK_TOKEN
+# export VAULT_TOKEN=<token>
+# Like azure shell, redirect to browser screen....get login through FIDO2, get token from vault.

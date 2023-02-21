@@ -43,12 +43,12 @@ ldap_base_dn = "dc=provider,dc=test"
 ## For the LDAP interface, a value of "admin" here will create the LDAP
 ## user "cn=admin,ou=people,dc=example,dc=com" (with the base DN above).
 ## For the administration interface, this is the username.
-#ldap_user_dn = "local-admin"
+#ldap_user_dn = "admin"
 
 ## Admin email.
 ## Email for the admin account. It is only used when initially creating
 ## the admin user, and can safely be omitted.
-#ldap_user_email = "admin@example.com"
+ldap_user_email = "admin@provider.test"
 
 ## Admin password.
 ## Password for the admin account, both for the LDAP bind and for the
@@ -81,7 +81,7 @@ database_url = "sqlite:///data/users.db?mode=rwc"
 ## would still have to perform an (expensive) brute force attack to find
 ## each password.
 ## Randomly generated on first run if it doesn't exist.
-#key_file = "/data/ldap.iam.provider.test.crt"
+key_file = "/data/private_key"
 
 ## Ignored attributes.
 ## Some services will request attributes that are not present in LLDAP. When it
@@ -122,6 +122,6 @@ enabled=true
 ## Port on which to listen.
 port=6360
 ## Certificate file.
-cert_file="/data/cert.pem"
+cert_file="/data/cert.crt"
 ## Certificate key file.
 key_file="/data/key.pem"

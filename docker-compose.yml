@@ -9,7 +9,6 @@ networks:
 volumes:
   cicdtoolbox_db_data: null
   cicdtoolbox_db_conf: null
-  mongo_data: null
   gitea:
     driver: local
   jenkins_certs: null
@@ -18,16 +17,6 @@ volumes:
   ldap_data: null
   nexus-work: null
   nexus-data: null
-  freeipa: null
-  portainer_data: null
-  sonarqube_data: null
-  sonarqube_extensions: null
-  sonarqube_logs: null
-  sonarqube_temp: null
-  vault: null
-  promtail: null
-  netbox: null
-  redis: null
   consul-config:
   consul-data:
   vault-config:
@@ -38,30 +27,10 @@ volumes:
 secrets:
   ca_crt:
     file: ./vault/certs/ca.crt
-  argos_key:
-    file: ./vault/certs/argos.services.provider.test.pem
-  argos_crt:
-    file: ./vault/certs/argos.services.provider.test.crt
-  argos-service_key:
-    file: ./vault/certs/argos-service.tooling.provider.test.pem
-  argos-service_crt:
-    file: ./vault/certs/argos-service.tooling.provider.test.crt
   build-dev_key:
     file: ./vault/certs/build-dev.delivery.provider.test.pem
   build-dev_crt:
     file: ./vault/certs/build-dev.delivery.provider.test.crt
-  build-test_key:
-    file: ./vault/certs/build-test.delivery.provider.test.pem
-  build-test_crt:
-    file: ./vault/certs/build-test.delivery.provider.test.crt
-  build-acc_key:
-    file: ./vault/certs/build-acc.delivery.provider.test.pem
-  build-acc_crt:
-    file: ./vault/certs/build-acc.delivery.provider.test.crt
-  build-prod_key:
-    file: ./vault/certs/build-prod.delivery.provider.test.pem
-  build-prod_crt:
-    file: ./vault/certs/build-prod.delivery.provider.test.crt
   cicdtoolbox-db_key:
     file: ./vault/certs/cicdtoolbox-db.internal.provider.test.pem
   cicdtoolbox-db_crt:
@@ -70,22 +39,12 @@ secrets:
     file: ./vault/certs/gitea.tooling.provider.test.pem
   gitea_crt:
     file: ./vault/certs/gitea.tooling.provider.test.crt
-  grafana_key:
-    file: ./vault/certs/grafana.monitoring.provider.test.pem
-  grafana_crt:
-    file: ./vault/certs/grafana.monitoring..provider.test.crt
   jenkins_key:
     file: ./vault/certs/jenkins.tooling.provider.test.pem
   jenkins_crt:
     file: ./vault/certs/jenkins.tooling.provider.test.crt
   dev_jenkins_secret:
     file: ./jenkins_buildnode/Dev_secret.txt
-  test_jenkins_secret:
-    file: ./jenkins_buildnode/Test_secret.txt
-  acc_jenkins_secret:
-    file: ./jenkins_buildnode/Acc_secret.txt
-  prod_jenkins_secret:
-    file: ./jenkins_buildnode/Prod_secret.txt
   keycloak_key:
     file: ./vault/certs/keycloak.services.provider.test.pem
   keycloak_crt:
@@ -94,34 +53,10 @@ secrets:
     file: ./vault/certs/ldap.iam.provider.test.pem
   ldap_crt:
     file: ./vault/certs/ldap.iam.provider.test.crt
-  loki_key:
-    file: ./vault/certs/loki.monitoring.provider.test.pem
-  loki_crt:
-    file: ./vault/certs/loki.monitoring.provider.test.crt
-  mongodb_key:
-    file: ./vault/certs/mongodb.internal.provider.test.pem
-  mongodb_crt:
-    file: ./vault/certs/mongodb.internal.provider.test.crt
-  netbox_key:
-    file: ./vault/certs/netbox.tooling.provider.test.pem
-  netbox_crt:
-    file: ./vault/certs/netbox.tooling.provider.test.crt
   nexus_key:
     file: ./vault/certs/nexus.tooling.provider.test.pem
   nexus_crt:
     file: ./vault/certs/nexus.tooling.provider.test.crt
-  promtail_key:
-    file: ./vault/certs/promtail.monitoring.provider.test.pem
-  promtail_crt:
-    file: ./vault/certs/promtail.monitoring.provider.test.crt
-  redis_key:
-    file: ./vault/certs/redis.internal.provider.test.pem
-  redis_crt:
-    file: ./vault/certs/redis.internal.provider.test.crt
-  restportal_key:
-    file: ./vault/certs/restportal.services.provider.test.pem
-  restportal_crt:
-    file: ./vault/certs/restportal.services.provider.test.crt
 
 services:
 
@@ -130,15 +65,15 @@ services:
     build: lldap
     restart: unless-stopped
     hostname: ldap
-    volumes:
-      - 'ldap_data:/data'
     expose:
       - '3890'
     secrets:
       - source: ldap_key
         target: /data/key.pem
       - source: ldap_crt
-        target: /data/cert.pem
+        target: /data/cert.crt
+    volumes:
+      - "./lldap/data:/data"
     networks:
       internal:
         ipv4_address: 172.16.8.11
@@ -178,19 +113,6 @@ services:
       - 'cicdtoolbox_db_data:/var/lib/postgresql/data'
       - 'cicdtoolbox_db_conf:/etc/postgresql'
       - './cicdtoolbox-db/docker-entrypoint-initdb-resources:/docker-entrypoint-initdb-resources:ro'
-
-  mongodb.internal.provider.test:
-    container_name: mongodb.internal.provider.test
-    image: 'argosnotary/mongo:4.2.8'
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    networks:
-      internal:
-        ipv4_address: 172.16.9.3
-    expose:
-      - '27017'
 
   consul.internal.provider.test:
     container_name: consul.internal.provider.test
@@ -233,37 +155,6 @@ services:
       - IPC_LOCK
     depends_on:
       - consul.internal.provider.test
-
-  restportal.services.provider.test:
-    container_name: restportal.services.provider.test
-    build: restportal
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    networks:
-      internal:
-        ipv4_address: 172.16.10.2
-    ports:
-      - '8888:8080'
-    healthcheck:
-      test: 'curl --insecure --head --fail -s https://localhost:8080 || exit 1'
-      interval: 1m30s
-      timeout: 10s
-      retries: 3
-
-  argos.services.provider.test:
-    container_name: argos.services.provider.test
-    image: 'argosnotary/argos-frontend:1.0.2'
-    environment:
-      - 'BACKEND_URL=http://argos-service.tooling.provider.test:8080'
-    networks:
-      internal:
-        ipv4_address: 172.16.10.4
-    ports:
-      - '8082:80'
-    depends_on:
-      - argos-service.tooling.provider.test
 
   keycloak.services.provider.test:
     container_name: keycloak.services.provider.test
@@ -336,25 +227,6 @@ services:
       interval: 1m30s
       timeout: 10s
       retries: 3
-
-  argos-service.tooling.provider.test:
-    container_name: argos-service.tooling.provider.test
-    build: ./argos-service
-    environment:
-      spring.config.location: /application.yml
-      jwt.token.secret: Z2LcVpgCuGtpb5rBDNIIWGe8RXqYGWDpWFjWhYQUS2Z8rjE2/GTJlu0s6BRYG0Mn0kV8StC9cFE83Jkl68RCkw==
-      spring.profiles.active: integration-test
-      JAVA_OPTS: '-Xmx1g'
-    networks:
-      internal:
-        ipv4_address: 172.16.11.4
-    expose:
-      - '8080'
-    depends_on:
-      - mongodb.internal.provider.test
-      - keycloak.services.provider.test
-    volumes:
-      - './argos/application.yml:/application.yml'
 
   jenkins.tooling.provider.test:
     container_name: jenkins.tooling.provider.test
@@ -455,187 +327,28 @@ services:
       internal:
         ipv4_address: 172.16.12.2
 
-  build-test.delivery.provider.test:
-    container_name: build-test.delivery.provider.test
-    build:
-      context: ./jenkins_buildnode
-      dockerfile: Dockerfile
+  restportal.services.provider.test:
+    container_name: restportal.services.provider.test
+    build: restportal
     restart: unless-stopped
     init: true
     stop_signal: SIGINT
     stop_grace_period: 15s
-    cap_add:
-      - NET_ADMIN
-      - NET_RAW
-    environment:
-      BUILD_ENVIRONMENT: 'Test'
-    secrets:
-      - source: test_jenkins_secret
-        target: /home/jenkins/secret-file.txt
-    expose:
-      - '50000'
     networks:
       internal:
-        ipv4_address: 172.16.12.3
-
-  build-acc.delivery.provider.test:
-    container_name: build-acc.delivery.provider.test
-    build:
-      context: ./jenkins_buildnode
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    cap_add:
-      - NET_ADMIN
-      - NET_RAW
-    environment:
-      BUILD_ENVIRONMENT: 'Acc'
-    secrets:
-      - source: acc_jenkins_secret
-        target: /home/jenkins/secret-file.txt
-    expose:
-      - '50000'
-    networks:
-      internal:
-        ipv4_address: 172.16.12.4
-
-  build-prod.delivery.provider.test:
-    container_name: build-prod.delivery.provider.test
-    build:
-      context: ./jenkins_buildnode
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    cap_add:
-      - NET_ADMIN
-      - NET_RAW
-    environment:
-      BUILD_ENVIRONMENT: 'Prod'
-    secrets:
-      - source: prod_jenkins_secret
-        target: /home/jenkins/secret-file.txt
-    expose:
-      - '50000'
-    networks:
-      internal:
-        ipv4_address: 172.16.12.5
-
-  portainer.monitoring.provider.test:
-    container_name: portainer.monitoring.provider.test
-    image: portainer/portainer-ce
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
+        ipv4_address: 172.16.10.2
+    # secrets:
+    #   - source: ca_crt
+    #     target: /ca.crt
     volumes:
-      - 'portainer_data:/data'
-      - '/var/run/docker.sock:/var/run/docker.sock'
-    networks:
-      internal:
-        ipv4_address: 172.16.13.3
+      - type: bind
+        source: ./prov.json
+        target: /data
+    command: mockoon-cli start  --data data
     ports:
-      - '9000:9000'
+      - '3001:3001'
     healthcheck:
-      test: 'curl --insecure --head --fail -s http://localhost || exit 1'
+      test: 'curl --insecure --head --fail -s https://localhost:3001 || exit 1'
       interval: 1m30s
       timeout: 10s
-      retries: 3
-
-  loki.monitoring.provider.test:
-    container_name: loki.monitoring.provider.test
-    build: loki
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    expose:
-      - '3100'
-    command: '-config.file=/etc/loki/local-config.yaml'
-    networks:
-      internal:
-        ipv4_address: 172.16.13.4
-
-  promtail.monitoring.provider.test:
-    container_name: promtail.monitoring.provider.test
-    build: promtail
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    volumes:
-      - promtail:/var/log
-    command: '-config.file=/etc/promtail/config.yml'
-    networks:
-      internal:
-        ipv4_address: 172.16.13.5
-
-  grafana.monitoring.provider.test:
-    container_name: grafana.monitoring.provider.test
-    build: grafana
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    environment:
-      - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=$Grafana_CLIENT_SECRET
-    secrets:
-      - source: grafana_key
-        target: /home/jenkins/secret-file.txt
-      - source: grafana_pem
-        target: /home/jenkins/secret-file.txt
-    expose:
-      - '3000'
-    networks:
-      internal:
-        ipv4_address: 172.16.13.6
-
-  redis.internal.provider.test:
-    container_name: redis.tooling.provider.test
-    image: redis:6.2-alpine
-    ports:
-      - 6379:6379
-    command: redis-server --save 60 1 --requirepass netbox --loglevel warning
-    restart: unless-stopped
-    volumes:
-      - redis:/data
-    networks:
-      internal:
-        ipv4_address: 172.16.11.11  
-
-  netbox.tooling.provider.test:
-    container_name: netbox.tooling.provider.test
-    image: lscr.io/linuxserver/netbox:latest
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Amsterdam
-      - SUPERUSER_EMAIL=netcicd@provider.test
-      - SUPERUSER_PASSWORD=Pa55w0rd
-      - ALLOWED_HOST=netbox.tooling.provider.test
-      - DB_NAME=netbox
-      - DB_USER=netbox
-      - DB_PASSWORD=netbox
-      - DB_HOST=cicdtoolbox-db.internal.provider.test
-      - DB_PORT=5432
-      - REDIS_HOST=redis.internal.provider.test
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD=netbox
-
-      # - REMOTE_AUTH_ENABLED=<REMOTE_AUTH_ENABLED> #optional
-      # - REMOTE_AUTH_BACKEND=<REMOTE_AUTH_BACKEND> #optional
-      # - REMOTE_AUTH_HEADER=<REMOTE_AUTH_HEADER> #optional
-      # - REMOTE_AUTH_AUTO_CREATE_USER=<REMOTE_AUTH_AUTO_CREATE_USER> #optional
-      # - REMOTE_AUTH_DEFAULT_GROUPS=<REMOTE_AUTH_DEFAULT_GROUPS> #optional
-      # - REMOTE_AUTH_DEFAULT_PERMISSIONS=<REMOTE_AUTH_DEFAULT_PERMISSIONS> #optional
-    volumes:
-      - netbox:/config
-    ports:
-      - 8000:8000
-    restart: unless-stopped
-    networks:
-      internal:
-        ipv4_address: 172.16.11.12
+      retries: 3  
