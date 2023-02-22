@@ -61,3 +61,4 @@ jenkins_buildnode/cacerts
 *.csr
 vault/key.txt
 jtoken.txt
+nexus/*.kar

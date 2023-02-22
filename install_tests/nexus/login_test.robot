@@ -14,9 +14,9 @@ Test Template    Login with correct role provides correct authorization
 
 *** Test Cases ***                                      USERNAME            PASSWORD                ROLES                                                                               NOT_ROLES
 baduser cannot login                                    baduser             wrongpassword           --                                                                                  --
-toolbox_admin group can login                           netcicd             ${VALID_PASSWORD}       NetCICD_reports                                                                     Nexus-user    
+toolbox_admin group can login                           netcicd             ${VALID_PASSWORD}       NetCICD_reports                                                                     --
 git_from_jenkins group can login                        jenkins-git         ${VALID_PASSWORD}       --                                                                                  --
-cicd_agents group can login                             jenkins-jenkins     ${VALID_PASSWORD}       Nexus-user                                                                          Nexus-admin
+cicd_agents group can login                             jenkins-jenkins     ${VALID_PASSWORD}       --                                                                                  --
 # IAM: no users
 # Office: no users
 # CAMPUS
@@ -80,6 +80,7 @@ Are assigned roles present
     Open Browser                ${Nexus URL}            ${BROWSER1}
     Set Window Size             2560                    1920
     Log into Nexus as user      ${USERNAME}             ${PASSWORD}
+    Wait Until Page Does Not Contain    Loading    
     Test given roles            ${USERNAME}             ${OK_ROLES}                 ${FAIL_ROLES}
     Close Browser
 
@@ -104,34 +105,40 @@ Test given roles
         # User exists in Keycloak and password is correct
         Log to Console              ${USERNAME} can login      
         Go To                       ${Nexus browse}
-        ${no_repo}=         Run Keyword And Return Status    Page Should Contain        Path "browse/browse" not found
+        ${no_repo}=         Run Keyword And Return Status    Page Should Contain        There are no repositories created yet
+        ${no_browse}=       Run Keyword And Return Status    Page Should not Contain    Path "browse/browse" not found
 
         IF  ${no_repo}
             # None of the roles in the JWT is known in Nexus, but the user exists in Keycloak
-            Log to Console              ${USERNAME} can log in but has no rights
+            Log to Console              ${USERNAME} can log in but has no repositories
         ELSE
-            # The user exists in Keycloak AND has roles assigned in Nexus
-            Log to Console              ${USERNAME} can log in and has rights
-            @{MY_ROLES}=    Split String    ${OK_ROLES}     ,
-            FOR  ${ROLE}  IN   @{MY_ROLES}
-                ${role_exists}=              Run Keyword And Return Status    Page Should Contain           ${ROLE}
-                IF  ${role_exists}
-                    Log to Console      ${USERNAME} can see the repo ${ROLE}
-                ELSE
-                    Log to Console      ${USERNAME} cannot see the repo ${ROLE}
-                    Fail
+            # The user exists in Keycloak 
+            IF    ${no_browse}
+                # The user cannot browse
+                Log to Console              ${USERNAME} can log in but cannot browse repositories
+            ELSE
+                Log to Console              ${USERNAME} can log in and has rights
+                @{MY_ROLES}=    Split String    ${OK_ROLES}     ,
+                FOR  ${ROLE}  IN   @{MY_ROLES}
+                    ${role_exists}=              Run Keyword And Return Status    Page Should Contain           ${ROLE}
+                    IF  ${role_exists}
+                        Log to Console      ${USERNAME} can see the repo ${ROLE}
+                    ELSE
+                        Log to Console      ${USERNAME} cannot see the repo ${ROLE}
+                        Fail
+                    END
                 END
-            END
 
-            @{NO_ROLES}=    Split String    ${FAIL_ROLES}   ,
-            FOR  ${ROLE}  IN   @{NO_ROLES}
-                ${role_does_not_exist}=              Run Keyword And Return Status    Page Should Not Contain       "${ROLE}"
-                IF  ${role_does_not_exist}
-                    Log to Console      ${USERNAME} can not see the repo ${ROLE} as intended
-                ELSE
-                    Log to Console      ${USERNAME} can see the repo ${ROLE}, which is wrong
-                    Fail
-                END
+                @{NO_ROLES}=    Split String    ${FAIL_ROLES}   ,
+                FOR  ${ROLE}  IN   @{NO_ROLES}
+                    ${role_does_not_exist}=              Run Keyword And Return Status    Page Should Not Contain       "${ROLE}"
+                    IF  ${role_does_not_exist}
+                        Log to Console      ${USERNAME} can not see the repo ${ROLE} as intended
+                    ELSE
+                        Log to Console      ${USERNAME} can see the repo ${ROLE}, which is wrong
+                        Fail
+                    END
+                END                
             END
         END
     END

@@ -7,3 +7,9 @@ COPY --chmod=0600 grafana.monitoring.provider.test.key /etc/ssl/grafana.monitori
 COPY grafana.ini /etc/grafana/grafana.ini
 RUN update-ca-certificates
 USER 472
+
+HEALTHCHECK:
+    TEST: 'curl --insecure --head --fail -s https://localhost:3000 || exit 1'
+    INTERVAL: 1m30s
+    TIMEOUT: 10s
+    RETRIES: 3

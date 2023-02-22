@@ -77,12 +77,6 @@ services:
     networks:
       internal:
         ipv4_address: 172.16.8.11
-    healthcheck:
-      test: 'curl --insecure --head --fail -s https://localhost || exit 1'
-      interval: 1m30s
-      timeout: 10s
-      retries: 3
-
 
   cicdtoolbox-db.internal.provider.test:
     container_name: cicdtoolbox-db.internal.provider.test
@@ -186,11 +180,6 @@ services:
       - '8443:8443'
     depends_on:
       - cicdtoolbox-db.internal.provider.test
-    healthcheck:
-      test: 'curl --insecure --head --fail -s https://localhost:8443 || exit 1'
-      interval: 1m30s
-      timeout: 10s
-      retries: 3
 
   gitea.tooling.provider.test:
     container_name: gitea.tooling.provider.test
@@ -222,11 +211,6 @@ services:
     depends_on:
       - cicdtoolbox-db.internal.provider.test
       - keycloak.services.provider.test
-    healthcheck:
-      test: 'curl --insecure --head --fail -s https://localhost:3000/ || exit 1'
-      interval: 1m30s
-      timeout: 10s
-      retries: 3
 
   jenkins.tooling.provider.test:
     container_name: jenkins.tooling.provider.test
@@ -263,11 +247,7 @@ services:
       - '50000:50000'
     depends_on:
       - keycloak.services.provider.test
-    healthcheck:
-      test: 'curl --insecure --head --fail -s https://localhost:8084/whoAmI || exit 1'
-      interval: 1m30s
-      timeout: 10s
-      retries: 3
+
 
   nexus.tooling.provider.test:
     container_name: nexus.tooling.provider.test
@@ -298,11 +278,6 @@ services:
       - '8081:8081'
     depends_on:
       - keycloak.services.provider.test
-    healthcheck:
-      test: 'curl --insecure --head --fail -s https://localhost:8443 || exit 1'
-      interval: 1m30s
-      timeout: 10s
-      retries: 3
 
   build-dev.delivery.provider.test:
     container_name: build-dev.delivery.provider.test

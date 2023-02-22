@@ -1241,21 +1241,14 @@ lldap_ldap_id=$(cat LLDAP_LDAP | grep id | cut -d"'" -f 2)
 echo "LLDAP 2 configured"
 
 ./kcadm.sh create components -r cicdtoolbox \
-    -s name=LLDAP-group-mapper \
+    -s name=groups \
     -s providerId=group-ldap-mapper \
     -s providerType=org.keycloak.storage.ldap.mappers.LDAPStorageMapper \
     -s parentId=${lldap_ldap_id} \
     -s 'config."groups.dn"=["ou=groups,dc=provider,dc=test"]' \
     -s 'config."group.name.ldap.attribute"=["cn"]' \
     -s 'config."group.object.classes"=["groupOfUniqueNames"]' \
-    -s 'config."preserve.group.inheritance"=["true"]' \
-    -s 'config."membership.ldap.attribute"=["member"]' \
-    -s 'config."membership.attribute.type"=["DN"]' \
-    -s 'config."groups.ldap.filter"=[]' \
-    -s 'config.mode=["READ_ONLY"]' \
-    -s 'config."user.roles.retrieve.strategy"=["GET_GROUPS_FROM_USER_MEMBEROF_ATTRIBUTE"]' \
-    -s 'config."mapped.group.attributes"=[]' \
-    -s 'config."drop.non.existing.groups.during.sync"=["false"]' 
+    -s 'config.mode=["READ_ONLY"]'
 
 echo "LLDAP 3 configured"
 #Now delete tokens and secrets

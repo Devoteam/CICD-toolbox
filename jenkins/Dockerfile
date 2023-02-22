@@ -14,3 +14,9 @@ COPY casc.yaml /var/jenkins_conf/casc.yaml
 COPY Infraautomator/ /var/jenkins_home/jobs/Infraautomator/
 
 ARG JAVA_OPTS
+
+healthcheck:
+    test: 'curl --insecure --head --fail -s https://localhost:8084/whoAmI || exit 1'
+    interval: 1m30s
+    timeout: 10s
+    retries: 3

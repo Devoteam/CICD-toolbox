@@ -1,7 +1,7 @@
 FROM ciscotestautomation/pyats:latest-alpine
 
 ENV JAVA_HOME "/usr"
-RUN apk add --update \
+RUN apk add --update --no-cache \
     openjdk11 \
     git \
     openssh \
