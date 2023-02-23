@@ -317,13 +317,9 @@ services:
     #     target: /ca.crt
     volumes:
       - type: bind
-        source: ./prov.json
-        target: /data
-    command: mockoon-cli start  --data data
+        source: restportal/bis2.json
+        target: /data/prov.json
+    command: mockoon-cli start --data /data/prov.json
     ports:
       - '3001:3001'
-    healthcheck:
-      test: 'curl --insecure --head --fail -s https://localhost:3001 || exit 1'
-      interval: 1m30s
-      timeout: 10s
-      retries: 3  
+ 

@@ -10,9 +10,3 @@ COPY nexus.properties /nexus-data/etc/nexus.properties
 COPY *.kar /opt/sonatype/nexus/deploy/ 
 COPY nexus.yaml /opt/nexus.yaml
 COPY keycloak-nexus.json /opt/sonatype/nexus/etc/keycloak.json
-
-HEALTHCHECK:
-    TEST: 'curl --insecure --head --fail -s https://localhost:8443 || exit 1'
-    INTERVAL: 1m30s
-    TIMEOUT: 10s
-    RETRIES: 3

@@ -1,1 +1,1 @@
-FROM docker pull mockoon/cli
+FROM mockoon/cli

@@ -14,9 +14,3 @@ COPY gitea.tooling.provider.test.crt /data/gitea/gitea.tooling.provider.test.crt
 COPY --chmod=0644 --chown=git:git gitea.tooling.provider.test.crt /home/git/.postgresql/postgresql.crt
 
 COPY ca.crt /home/git/.postgresql/root.crt
-
-healthcheck:
-    test: 'curl --insecure --head --fail -s https://localhost:3000/ || exit 1'
-    interval: 1m30s
-    timeout: 10s
-    retries: 3

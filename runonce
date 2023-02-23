@@ -6,7 +6,6 @@ nexus_apk_plugin="0.0.25"
 netcicd_pwd="netcicd01"
 keycloak_pwd="Pa55w0rd"
 keycloak_storepass="password"
-freeipa_pwd="Pa55w0rd"
 jenkins_storepass="changeit"
 nexus_storepass="password"
 
@@ -36,8 +35,7 @@ rm -f install_tests/report.html
 rm -f install_tests/*.png
 rm -f install_tests/*.log
 rm -f install_log/*
-rm -f freeipa/certs/*
-rm -f freeipa/hostcerts/*
+
 echo " " 
 echo "****************************************************************************************************************"
 echo " Cleaning Vault" 
@@ -103,13 +101,6 @@ if grep -q "ipa-ca" /etc/hosts; then
 fi
 echo " Add ipa-ca /etc/hosts"
 sudo echo "172.16.8.12   ipa-ca.tooling.provider.test" >> /etc/hosts
-
-if grep -q "freeipa" /etc/hosts; then
-    echo " FreeIPA exists in /etc/hosts, removing..."
-    sudo sed -i '/freeipa.iam.provider.test/d' /etc/hosts
-fi
-echo " Add FreeIPA to /etc/hosts"
-sudo echo "172.16.8.12   freeipa.iam.provider.test" >> /etc/hosts
 
 if grep -q "cicdtoolbox-db" /etc/hosts; then
     echo " CICDtoolbox-db exists in /etc/hosts, removing..."
@@ -348,7 +339,7 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating keycloak setup. This will take time..."
 echo "****************************************************************************************************************"
-docker exec -it keycloak.services.provider.test sh -c "/opt/jboss/keycloak/bin/create-realm.sh ${keycloak_pwd} ${keycloak_storepass} ${freeipa_pwd} ${local_admin_user}" | tee install_log/keycloak_create.log
+docker exec -it keycloak.services.provider.test sh -c "/opt/jboss/keycloak/bin/create-realm.sh ${keycloak_pwd} ${keycloak_storepass} ${keycloak_pwd} ${local_admin_user}" | tee install_log/keycloak_create.log
 echo " "
 docker restart keycloak.services.provider.test
 echo "****************************************************************************************************************"
@@ -372,6 +363,7 @@ echo "**************************************************************************
 echo " Booting the remainder of the containers"
 echo "****************************************************************************************************************"
 DOCKER_BUILDKIT=1 docker-compose up -d --build --no-deps gitea.tooling.provider.test
+docker-compose up -d --build --no-deps restportal.services.provider.test
 docker-compose up -d --build --no-deps nexus.tooling.provider.test
 echo " "
 echo "****************************************************************************************************************"
@@ -493,7 +485,7 @@ echo "You can read the install test report in install_tests/report.html"
 echo " "
 echo "You can reach the servers on:"
 echo " "
-echo " FreeIPA:     https://freeipa.iam.provider.test"
+echo " LLDAP:     http://ldap.iam.provider.test:17170"
 echo " Keycloak:    https://keycloak.services.provider.test:8443"
 echo " Gitea:       https://gitea.tooling.provider.test:3000"
 echo " Jenkins:     https://jenkins.tooling.provider.test:8084"
