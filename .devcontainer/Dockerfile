@@ -19,3 +19,4 @@ RUN sudo apt-get install trivy
 RUN git clone https://github.com/Devoteam/CICD-toolbox.git
 RUN cd CICD-toolbox/
 RUN sudo cp geckodriver /usr/local/bin/
+RUN ./runonce
