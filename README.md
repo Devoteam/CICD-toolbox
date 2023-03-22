@@ -75,7 +75,9 @@ Go to the [Trivy site](https://aquasecurity.github.io/trivy/v0.31.3/getting-star
 ### As Docker has a pull rate limit, you need to authenticate first:
 ```docker login -u <yourusername> -p <yourpassword>```
 
-### The minify branch uses [Hashcorp Vault](https://developer.hashicorp.com/vault/downloads), install it from the site.
+The minify branch uses [Hashcorp Vault](https://developer.hashicorp.com/vault/downloads), install it from the site.
+
+It also requires buildkit to be active to enable [see the docker site](https://docs.docker.com/build/buildkit/#getting-started)
 
 After this, you can run:
 
