@@ -75,6 +75,8 @@ Go to the [Trivy site](https://aquasecurity.github.io/trivy/v0.31.3/getting-star
 ### As Docker has a pull rate limit, you need to authenticate first:
 ```docker login -u <yourusername> -p <yourpassword>```
 
+### The minify branch uses [Hashcorp Vault](https://developer.hashicorp.com/vault/downloads), install it from the site.
+
 After this, you can run:
 
 ```./runonce.sh ```
