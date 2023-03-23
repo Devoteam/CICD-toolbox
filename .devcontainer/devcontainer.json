@@ -1,7 +1,8 @@
 {
   "dockerFile": "Dockerfile",
+  //"remoteUser": "developer",
   "shutdownAction": "stopContainer",
-  "onCreateCommand": "ansible-galaxy install -r ansible/requirements.yml && pip install -r requirements.txt",
+  //"onCreateCommand": "runonce",
   "mounts": [
     "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/$USER/.ssh,type=bind,consistency=cached"
   ],
@@ -18,5 +19,14 @@
         "robocorp.robotframework-lsp"
       ]
     }
-  }
+  },
+  "features": {
+    "docker-in-docker": {
+        "version": "latest",
+        "moby": true,
+        "dockerDashComposeVersion": "v1"
+    }
+  },
+  "runArgs": ["--init", "--privileged"],
+  "overrideCommand": false
 }

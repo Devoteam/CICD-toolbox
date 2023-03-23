@@ -304,22 +304,15 @@ services:
 
   restportal.services.provider.test:
     container_name: restportal.services.provider.test
-    build: restportal
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
+    image: mockoon/cli:latest
+    command: --data data
     networks:
       internal:
         ipv4_address: 172.16.10.2
-    # secrets:
-    #   - source: ca_crt
-    #     target: /ca.crt
     volumes:
       - type: bind
         source: restportal/bis2.json
-        target: /data/prov.json
-    command: mockoon-cli start --data /data/prov.json
+        target: /data
     ports:
       - '3001:3001'
  

@@ -16,7 +16,7 @@
       "responses": [
         {
           "uuid": "848ac1e4-3f30-45cb-aea0-cb847e27ffe4",
-          "body": "{\n  \"id\": \"{{faker 'datatype.uuid'}}\",\n  \"name\": \"{{faker 'name.firstName'}} {{faker 'name.firstName'}}\",\n  \"description\": \"{{faker 'lorem.sentence'}}\",\n  \"costcenter\": \"{{faker 'random.numeric' 10}}\",\n  \"version\": 1,\n  \"status\": \"Operational\",\n  \"created\": \"{{now}}\",\n  \"updated\": \"{{now}}\",\n  \"lastchange\": \"{{faker 'name.firstName'}} {{faker 'name.firstName'}}\",\n  \"change\": \"MyChangeteam\",\n  \"view\": \"MyViewers\",\n  \"managementR\": \"TheOperators\",\n  \"managementA\": \"TheKlos\",\n  \"managementI\": \"InTheDarkteam\",\n  \"developer\": \"TheInventors\"\n}",
+          "body": "{\n  \"id\": 1,\n  \"name\": \"{{faker 'name.firstName'}} {{faker 'name.firstName'}}\",\n  \"description\": \"{{faker 'lorem.sentence'}}\",\n  \"costcenter\": \"{{faker 'random.numeric' 10}}\",\n  \"version\": 1,\n  \"status\": \"Operational\",\n  \"created\": \"{{now}}\",\n  \"updated\": \"{{now}}\",\n  \"lastchange\": \"{{faker 'name.firstName'}} {{faker 'name.firstName'}}\",\n  \"change\": \"MyChangeteam\",\n  \"view\": \"MyViewers\",\n  \"managementR\": \"TheOperators\",\n  \"managementA\": \"TheKlos\",\n  \"managementI\": \"InTheDarkteam\",\n  \"developer\": \"TheInventors\"\n}",
           "latency": 0,
           "statusCode": 201,
           "label": "Created",
@@ -226,7 +226,15 @@
           "filePath": "",
           "databucketID": "",
           "sendFileAsBody": false,
-          "rules": [],
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "",
+              "value": "",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
