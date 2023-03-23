@@ -62,10 +62,9 @@ COPY cacerts /etc/ssl/certs/java/cacerts
 
 USER jenkins
 WORKDIR /home/jenkins
-RUN curl -fsSL https://raw.githubusercontent.com/dikhan/terraform-provider-openapi/master/scripts/install.sh | bash -s -- --provider-name "prov" --provider-source-address "prov.tooling.test/tooling"
-RUN export OTF_VAR_bis_PLUGIN_CONFIGURATION_FILE="~/.terraform.d/plugins/terraform-provider-openapi.yaml"
+RUN curl -fsSL https://raw.githubusercontent.com/dikhan/terraform-provider-openapi/master/scripts/install.sh | bash -s -- --provider-name "onprem" --provider-source-address "restportal.services.provider.test/datacenter"
 COPY terraform-provider-openapi.yaml /home/jenkins/.terraform.d/plugins/terraform-provider-openapi.yaml
-COPY prov.yaml /home/jenkins/prov.yaml
+COPY onprem.yaml /home/jenkins/onprem.yaml
 
 
 USER root

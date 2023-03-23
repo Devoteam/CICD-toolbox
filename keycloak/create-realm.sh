@@ -57,6 +57,9 @@ echo "VAULT_token: ${VAULT_token}"
 ./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-appcicd-read' -s description='A read-only role on AppCICD'
 ./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-appcicd-write' -s description='A read-write role on AppCICD'
 ./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-appcicd-admin' -s description='A admin role on AppCICD'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-templateapp-read' -s description='A read-only role on templateApp'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-templateapp-write' -s description='A read-write role on templateApp'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-templateapp-admin' -s description='A admin role on templateApp'
 
 # We need to add the vault-admin claim and vault-group claim to the token
 ./kcadm.sh create clients/$VAULT_ID/protocol-mappers/models \
