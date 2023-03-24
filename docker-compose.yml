@@ -293,6 +293,7 @@ services:
       - NET_RAW
     environment:
       BUILD_ENVIRONMENT: 'Dev'
+      ANSIBLE_TF_DIR: 'AppCICD'
     secrets:
       - source: dev_jenkins_secret
         target: /home/jenkins/secret-file.txt

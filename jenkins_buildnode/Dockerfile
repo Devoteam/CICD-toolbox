@@ -14,6 +14,7 @@ RUN apk add --update --no-cache \
     bash \
     docker \
     docker-compose \
+    firefox \
     terraform
 RUN pip3 install --upgrade pip
 RUN apk --update add --virtual \
@@ -28,6 +29,7 @@ RUN apk --update add --virtual \
         behave\
         virlutils\
         robotframework \
+        robotframework-selenium2library \
         azure-cli \
  && pip3 install \
         ansible \
@@ -59,6 +61,7 @@ COPY agent.jar /home/jenkins/
 COPY ca.crt /usr/local/share/ca-certificates/ca.crt
 RUN update-ca-certificates
 COPY cacerts /etc/ssl/certs/java/cacerts
+COPY geckodriver /usr/local/bin/geckodriver
 
 USER jenkins
 WORKDIR /home/jenkins
