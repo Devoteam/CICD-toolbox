@@ -130,13 +130,13 @@ create_leaf argos-service tooling
 create_leaf jenkins tooling 
 create_leaf nexus tooling 
 create_leaf netbox tooling 
+create_leaf backstage tooling 
 echo " " 
 echo "****************************************************************************************************************"
 echo " Preparing PostgreSQL database use" 
 echo "****************************************************************************************************************"
 echo " " 
 vault secrets enable -address="http://vault.internal.provider.test:8200" database
-#create_database myreference
 # vault policy write dev-policy -<< EOF
 # > path "keycloak/creds/dev-role" {
 # >   capabilities = ["read"]

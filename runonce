@@ -50,7 +50,7 @@ echo "**************************************************************************
 echo " Cleaning Vault" 
 echo "****************************************************************************************************************"
 rm -f lldap/data/*.crt
-rm -f lldap/data/*.pem
+rm -rf lldap/data/*.pem
 echo " " 
 echo "****************************************************************************************************************"
 echo " Cleaning database" 
@@ -81,7 +81,9 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Cleaning Argos" 
 echo "****************************************************************************************************************"
-cp -p argos/compose-application.yml argos/application.yml
+if [ -f "argos/compose-application.yml" ]; then
+    cp -p argos/compose-application.yml argos/application.yml
+fi
 echo "****************************************************************************************************************"
 echo " Making sure all containers are reachable locally with the name in the"
 echo " hosts file."
@@ -115,6 +117,13 @@ if grep -q "mongodb" /etc/hosts; then
 fi
 echo " Add mongodb to /etc/hosts"
 sudo echo "172.16.9.3   mongodb.internal.provider.test" >> /etc/hosts
+
+if grep -q "vault" /etc/hosts; then
+    echo " Hashicorp Vault exists in /etc/hosts, removing..."
+    sudo sed -i '/vault.internal.provider.test/d' /etc/hosts
+fi
+echo " Add Hashicorp Vault to /etc/hosts"
+sudo echo "172.16.9.5   vault.internal.provider.test" >> /etc/hosts
 
 if grep -q "restportal" /etc/hosts; then
     echo " Provider REST portal exists in /etc/hosts, removing..."
@@ -165,6 +174,27 @@ fi
 echo " Add Nexus to /etc/hosts"
 sudo echo "172.16.11.9   nexus.tooling.provider.test" >> /etc/hosts
 
+if grep -q "redis" /etc/hosts; then
+    echo " Redis exists in /etc/hosts, removing..."
+    sudo sed -i '/redis.tooling.provider.test/d' /etc/hosts
+fi
+echo " Add Redis to /etc/hosts"
+sudo echo "172.16.11.11   redis.tooling.provider.test" >> /etc/hosts
+
+if grep -q "netbox" /etc/hosts; then
+    echo " Netbox exists in /etc/hosts, removing..."
+    sudo sed -i '/netbox.tooling.provider.test/d' /etc/hosts
+fi
+echo " Add Netbox to /etc/hosts"
+sudo echo "172.16.11.12   netbox.tooling.provider.test" >> /etc/hosts
+
+if grep -q "backstage" /etc/hosts; then
+    echo " Backstage exists in /etc/hosts, removing..."
+    sudo sed -i '/backstage.tooling.provider.test/d' /etc/hosts
+fi
+echo " Add Backstage to /etc/hosts"
+sudo echo "172.16.11.14   backstage.tooling.provider.test" >> /etc/hosts
+
 if grep -q "build-dev" /etc/hosts; then
     echo " Jenkins build-dev node exists in /etc/hosts, removing..."
     sudo sed -i '/build-dev.delivery.provider.test/d' /etc/hosts
@@ -177,21 +207,21 @@ if grep -q "build-test" /etc/hosts; then
     sudo sed -i '/build-test.delivery.provider.test/d' /etc/hosts
 fi
 echo " Add Jenkins build-test node to /etc/hosts"
-sudo echo "172.16.12.3   build-test.delivery.provider.test" >> /etc/hosts
+sudo echo "172.16.12.4   build-test.delivery.provider.test" >> /etc/hosts
 
 if grep -q "build-acc" /etc/hosts; then
     echo " Jenkins build-acc node exists in /etc/hosts, removing..."
     sudo sed -i '/build-acc.delivery.provider.test/d' /etc/hosts
 fi
 echo " Add Jenkins build-acc node to /etc/hosts"
-sudo echo "172.16.12.3   build-acc.delivery.provider.test" >> /etc/hosts
+sudo echo "172.16.12.5   build-acc.delivery.provider.test" >> /etc/hosts
 
 if grep -q "build-prod" /etc/hosts; then
     echo " Jenkins build-prod node exists in /etc/hosts, removing..."
     sudo sed -i '/build-prod.delivery.provider.test/d' /etc/hosts
 fi
 echo " Add Jenkins build-prod node to /etc/hosts"
-sudo echo "172.16.12.3   build-prod.delivery.provider.test" >> /etc/hosts
+sudo echo "172.16.12.6   build-prod.delivery.provider.test" >> /etc/hosts
 
 if grep -q "portainer" /etc/hosts; then
     echo " Portainer exists in /etc/hosts, removing..."
@@ -220,27 +250,6 @@ if grep -q "grafana" /etc/hosts; then
 fi
 echo " Add Grafana to /etc/hosts"
 sudo echo "172.16.13.6   grafana.monitoring.provider.test" >> /etc/hosts
-
-if grep -q "vault" /etc/hosts; then
-    echo " Hashicorp Vault exists in /etc/hosts, removing..."
-    sudo sed -i '/vault.tooling.provider.test/d' /etc/hosts
-fi
-echo " Add Hashicorp Vault to /etc/hosts"
-sudo echo "172.16.9.5   vault.internal.provider.test" >> /etc/hosts
-
-if grep -q "redis" /etc/hosts; then
-    echo " Redis exists in /etc/hosts, removing..."
-    sudo sed -i '/redis.tooling.provider.test/d' /etc/hosts
-fi
-echo " Add Redis to /etc/hosts"
-sudo echo "172.16.11.11   redis.tooling.provider.test" >> /etc/hosts
-
-if grep -q "netbox" /etc/hosts; then
-    echo " Netbox exists in /etc/hosts, removing..."
-    sudo sed -i '/netbox.tooling.provider.test/d' /etc/hosts
-fi
-echo " Add Netbox to /etc/hosts"
-sudo echo "172.16.11.12   netbox.tooling.provider.test" >> /etc/hosts
 
 if grep -q "cml" /etc/hosts; then
     echo " Cisco Modeling Labs exists in /etc/hosts, removing..."
@@ -309,6 +318,7 @@ cp vault/certs/ca.crt loki/ca.crt
 cp vault/certs/ca.crt promtail/ca.crt
 cp vault/certs/ca.crt grafana/ca.crt
 cp vault/certs/ca.crt jenkins_buildnode/ca.crt
+cp vault/certs/ca.crt backstage/ca.crt
 echo "****************************************************************************************************************"
 echo " Saving host certificates"
 echo "****************************************************************************************************************"
@@ -429,6 +439,9 @@ docker-compose up -d --build --no-deps build-dev.delivery.provider.test
 # docker-compose up -d --build --no-deps build-test.delivery.provider.test
 # docker-compose up -d --build --no-deps build-acc.delivery.provider.test
 # docker-compose up -d --build --no-deps build-prod.delivery.provider.test
+echo "****************************************************************************************************************"
+echo " Building Backstage (skipped)"
+echo "****************************************************************************************************************"
 
 echo "****************************************************************************************************************"
 echo " Validating install"
@@ -479,7 +492,7 @@ echo " "
 echo " Stop the environment with ./down, start with ./up"
 echo " "
 echo "****************************************************************************************************************"
-echo "NetCICD Toolkit install done "
+echo "CICD-toolbox install done "
 echo " "
 echo "You can read the install test report in install_tests/report.html"
 echo " "
@@ -495,6 +508,7 @@ echo " Nexus:       https://nexus.tooling.provider.test:8081"
 # echo " Grafana:     http://grafana.monitoring.provider.test:9000"
 echo " Vault:       http://vault.tooling.provider.test:8200"
 #echo " Netbox:      http://netbox.tooling.provider.test:8000"
+echo " Backstage:   https://backstage.tooling.provider.test"
 echo " "
 echo "****************************************************************************************************************"
 echo "Cleaning up"

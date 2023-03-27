@@ -88,7 +88,7 @@ services:
     stop_signal: SIGINT
     stop_grace_period: 15s
     environment:
-      - 'POSTGRES_MULTIPLE_DATABASES=gitea,keycloak,sonar,terraform,grafana,netbox'
+      - 'POSTGRES_MULTIPLE_DATABASES=gitea,keycloak,sonar,terraform,grafana,netbox,backstage'
       - POSTGRES_USER=netcicd
       - POSTGRES_PASSWORD=netcicd
     secrets:

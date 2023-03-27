@@ -118,6 +118,9 @@ echo "GITEA_token: ${GITEA_token}"
 ./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-appcicd-read' -s description='A read-only role on AppCICD'
 ./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-appcicd-write' -s description='A read-write role on AppCICD'
 ./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-appcicd-admin' -s description='A admin role on AppCICD'
+./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-templateapp-read' -s description='A read-only role on templateApp'
+./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-templateapp-write' -s description='A read-write role on templateApp'
+./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-templateapp-admin' -s description='A admin role on templateApp'
 
 
 # We need to add the gitea-admin claim and gitea-group claim to the token
@@ -173,6 +176,9 @@ echo "JENKINS_token: ${JENKINS_token}"
 ./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-appcicd-agent -s description='The role to be used for a user that needs to create agents in Jenkins'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-appcicd-run -s description='The role to be used for a user that needs to run the AppCICD pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-appcicd-dev -s description='The role to be used for a user that needs to configure the AppCICD pipeline'
+./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-templateapp-agent -s description='The role to be used for a user that needs to create agents in Jenkins'
+./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-templateapp-run -s description='The role to be used for a user that needs to run the templateapp pipeline'
+./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-templateapp-dev -s description='The role to be used for a user that needs to configure the templateapp pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-cicdtoolbox-run -s description='The role to be used for a user that needs to run the NetCICD-developer-toolbox pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-cicdtoolbox-dev -s description='The role to be used for a user that needs to configure the NetCICD-developer-toolbox pipeline'
 ./kcadm.sh create clients/$JENKINS_ID/roles -r cicdtoolbox -s name=jenkins-git -s description='A role for Jenkins to work with Git'
@@ -577,6 +583,49 @@ echo "Created role-group mapper in the Client Scope"
 echo "Grafana configuration finished"
 echo ""
 
+#add Backstage client
+./kcadm.sh create clients \
+    -r cicdtoolbox \
+    -s name="Backstage" \
+    -s description="Backstage server for the toolchain" \
+    -s clientId=Backstage \
+    -s enabled=true \
+    -s publicClient=false \
+    -s fullScopeAllowed=false \
+    -s directAccessGrantsEnabled=true \
+    -s rootUrl=${authBaseUrl} \
+    -s 'redirectUris=[ "http://backstage.tooling.provider.test/login/generic_oauth" ]' \
+    -o --fields id >cicdtoolbox_BACKSTAGE
+
+# output is Created new client with id, we now need to grep the ID out of it
+BACKSTAGE_ID=$(cat cicdtoolbox_BACKSTAGE | grep id | cut -d'"' -f 4)
+echo "Created Backstage client with ID: ${BACKSTAGE_ID}" 
+
+# Create Client secret
+./kcadm.sh create clients/$BACKSTAGE_ID/client-secret -r cicdtoolbox
+
+# We need to retrieve the token from keycloak for this client
+./kcadm.sh get clients/$BACKSTAGE_ID/client-secret -r cicdtoolbox >cicdtoolbox_backstage_secret
+BACKSTAGE_token=$(grep value cicdtoolbox_backstage_secret | cut -d '"' -f4)
+# Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source in Backstage for Keycloak
+echo "Backstage_token: ${BACKSTAGE_token}"
+
+# Now we can add client specific roles (Clientroles)
+./kcadm.sh create clients/$BACKSTAGE_ID/roles -r cicdtoolbox -s name=backstageAdmin -s description='The admin role for the Infra Automators organization'
+
+# We need to add the roles claim to the token
+./kcadm.sh create clients/$BACKSTAGE_ID/protocol-mappers/models \
+    -r cicdtoolbox \
+	-s name=group-mapper \
+    -s protocol=openid-connect \
+	-s protocolMapper=oidc-usermodel-client-role-mapper \
+    -s consentRequired=false \
+	-s config="{\"multivalued\" : \"true\",\"userinfo.token.claim\" : \"true\",\"id.token.claim\" : \"true\",\"access.token.claim\" : \"true\",\"claim.name\" : \"roles\",\"jsonType.label\" : \"String\",\"usermodel.clientRoleMapping.clientId\" : \"Backstage\"}"
+
+echo "Created role-group mapper in the Client Scope" 
+echo "Backstage configuration finished"
+echo ""
+
 ./kcadm.sh create groups -r cicdtoolbox -s name="campus_dev_lan" &>CAMPUS_DEV_LAN_DESIGNER
 campus_dev_lan_designer_id=$(cat CAMPUS_DEV_LAN_DESIGNER | grep id | cut -d"'" -f 2)
 echo "Created Campus LAN Designer group with ID: ${campus_dev_lan_designer_id}" 
@@ -706,7 +755,8 @@ echo "Created cicdtoolbox Agents with ID: ${cicd_agents_id}"
     --gid $cicd_agents_id \
     --cclientid Jenkins \
     --rolename jenkins-netcicd-agent \
-    --rolename jenkins-appcicd-agent 
+    --rolename jenkins-appcicd-agent \
+    --rolename jenkins-templateapp-agent 
 
 
 ./kcadm.sh create groups -r cicdtoolbox -s name="dc_dev_compute" &>DC_DEV_COMPUTE_DESIGNER
@@ -1045,14 +1095,16 @@ echo "Created Tooling Designer Group with ID: ${tool_dev_designer_id}"
     --gid $tool_dev_designer_id \
     --cclientid Gitea \
     --rolename gitea-netcicd-read \
-    --rolename gitea-cicdtoolbox-write
+    --rolename gitea-cicdtoolbox-write \
+    --rolename gitea-templateapp-write
 
 ./kcadm.sh add-roles \
     -r cicdtoolbox \
     --gid $tool_dev_designer_id \
     --cclientid Jenkins \
     --rolename jenkins-user \
-    --rolename jenkins-cicdtoolbox-dev 
+    --rolename jenkins-cicdtoolbox-dev \
+    --rolename jenkins-templateapp-dev
 
 ./kcadm.sh add-roles \
     -r cicdtoolbox \
@@ -1073,7 +1125,10 @@ echo "Created Tooling Operator group within the Tooling Operations Department wi
     -r cicdtoolbox \
     --gid $tool_ops_oper_id \
     --cclientid Gitea \
-    --rolename gitea-netcicd-read
+    --rolename gitea-netcicd-read \
+    --rolename gitea-cicdtoolbox-read \
+    --rolename gitea-templateapp-read \
+    --rolename gitea-appcicd-read
 
 ./kcadm.sh add-roles \
     -r cicdtoolbox \
@@ -1081,7 +1136,9 @@ echo "Created Tooling Operator group within the Tooling Operations Department wi
     --cclientid Jenkins \
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
-    --rolename jenkins-cicdtoolbox-run 
+    --rolename jenkins-appcicd-run \
+    --rolename jenkins-cicdtoolbox-run \
+    --rolename jenkins-templateapp-run
 
 ./kcadm.sh add-roles \
     -r cicdtoolbox \
@@ -1110,7 +1167,8 @@ echo "Created Tooling Specialist group within the Tooling Operations Department 
     --cclientid Jenkins \
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
-    --rolename jenkins-cicdtoolbox-run 
+    --rolename jenkins-cicdtoolbox-run \
+    --rolename jenkins-templateapp-run
 
 ./kcadm.sh add-roles \
     -r cicdtoolbox \
