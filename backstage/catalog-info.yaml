@@ -1,0 +1,22 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: unox-backstage
+  description: The place to be, for great developers
+  annotations:
+    github.com/project-slug: DevoteamNL/unox-backstage
+    github.com/team-slug: DevoteamNL/unox-maintainers
+    backstage.io/techdocs-ref: dir:.
+  tags:
+    - typescript
+    - react
+    - javascript
+  links:
+    - url: https://github.com/DevoteamNL/unox-backstage
+      title: Repository Homepage
+      icon: github
+spec:
+  type: website
+  lifecycle: sandbox
+  owner: unox-maintainers
+  system: platform-tools

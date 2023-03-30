@@ -594,7 +594,7 @@ echo ""
     -s fullScopeAllowed=false \
     -s directAccessGrantsEnabled=true \
     -s rootUrl=${authBaseUrl} \
-    -s 'redirectUris=[ "http://backstage.tooling.provider.test/login/generic_oauth" ]' \
+    -s 'redirectUris=[ "http://backstage.tooling.provider.test:3000/oauth2/callback" ]' \
     -o --fields id >cicdtoolbox_BACKSTAGE
 
 # output is Created new client with id, we now need to grep the ID out of it

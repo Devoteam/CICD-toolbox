@@ -442,7 +442,8 @@ docker-compose up -d --build --no-deps build-dev.delivery.provider.test
 echo "****************************************************************************************************************"
 echo " Building Backstage (skipped)"
 echo "****************************************************************************************************************"
-
+docker-compose up -d --build --no-deps oauth2-proxy.tooling.provider.test
+docker-compose up -d --build --no-deps backstage.tooling.provider.test
 echo "****************************************************************************************************************"
 echo " Validating install"
 echo "****************************************************************************************************************"
