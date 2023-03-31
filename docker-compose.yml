@@ -295,6 +295,7 @@ services:
     environment:
       BUILD_ENVIRONMENT: 'Dev'
       ANSIBLE_TF_DIR: 'AppCICD'
+      ARM_SKIP_PROVIDER_REGISTRATION: 'true'
     secrets:
       - source: dev_jenkins_secret
         target: /home/jenkins/secret-file.txt
@@ -341,11 +342,11 @@ services:
       - '--http-address=0.0.0.0:4180'
       - '--skip-provider-button'
     environment:
-      - OAUTH2_PROXY_CLIENT_ID='backstage'
-      - OAUTH2_PROXY_CLIENT_SECRET='UMOuUmWdzWwrVVtBpdRtDD0vQkyys5GO'
-      - OAUTH2_PROXY_COOKIE_SECRET='UMOuUmWdzWwrVVtBpdRtDD0vQkyys5GO'
-      - OAUTH2_PROXY_OIDC_ISSUER_URL='https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox'
-      - OAUTH2_PROXY_SSL_INSECURE_SKIP_VERIFY='true'
+      - OAUTH2_PROXY_CLIENT_ID=Backstage
+      - OAUTH2_PROXY_CLIENT_SECRET=client_secret
+      - OAUTH2_PROXY_COOKIE_SECRET=verysecret_cookie_secret
+      - OAUTH2_PROXY_OIDC_ISSUER_URL=https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox
+      - OAUTH2_PROXY_SSL_INSECURE_SKIP_VERIFY=true
     networks:
       internal:
         ipv4_address: 172.16.11.15

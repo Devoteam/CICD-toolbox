@@ -443,6 +443,10 @@ echo "**************************************************************************
 echo " Building Backstage (skipped)"
 echo "****************************************************************************************************************"
 docker-compose up -d --build --no-deps oauth2-proxy.tooling.provider.test
+backstage_client_id=$(grep Backstage_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
+docker exec -it oauth2-proxy.tooling.provider.test sh -c "OAUTH2_PROXY_CLIENT_SECRET=$backstage_client_id"
+ 
+docker restart oauth2-proxy.tooling.provider.test
 docker-compose up -d --build --no-deps backstage.tooling.provider.test
 echo "****************************************************************************************************************"
 echo " Validating install"
