@@ -62,3 +62,6 @@ jenkins_buildnode/cacerts
 vault/key.txt
 jtoken.txt
 nexus/*.kar
+jenkins_buildnode/act_runner-main-linux-amd64
+lldap/data/users.db
+jenkins_buildnode/*_runner_token

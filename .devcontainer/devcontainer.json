@@ -2,7 +2,7 @@
   "dockerFile": "Dockerfile",
   //"remoteUser": "developer",
   "shutdownAction": "stopContainer",
-  //"onCreateCommand": "runonce",
+  //"postCreateCommand": "runonce",
   "mounts": [
     "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/$USER/.ssh,type=bind,consistency=cached"
   ],
@@ -20,13 +20,7 @@
       ]
     }
   },
-  "features": {
-    "docker-in-docker": {
-        "version": "latest",
-        "moby": true,
-        "dockerDashComposeVersion": "v1"
-    }
-  },
+
   "runArgs": ["--init", "--privileged"],
   "overrideCommand": false
 }

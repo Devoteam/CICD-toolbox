@@ -22,6 +22,13 @@ endspin() {
    printf "\r%s\n" "$@"
 }
 
+create_runner_node() {
+    robot --variable environment:$1 --variable VALID_PASSWORD:$2 -d install_log jenkins_buildnode/runnertoken.robot
+    export RUNNER_TOKEN=$(cat jenkins_buildnode/${1}_runner_token)
+    echo $RUNNER_TOKEN
+    docker-compose up -d --build --no-deps build-$1.delivery.provider.test
+}
+
 echo "****************************************************************************************************************"
 echo " Start clean" 
 echo "****************************************************************************************************************"
@@ -70,6 +77,7 @@ rm -f jenkins/jenkins.tooling*
 rm -f jenkins_buildnode/*_secret.txt
 rm -f jenkins_buildnode/agent.jar
 rm -f jenkins_buildnode/jenkins-cli.jar
+rm -f jenkins_buildnode/*_token
 echo " " 
 echo "****************************************************************************************************************"
 echo " Cleaning Nexus" 
@@ -187,6 +195,13 @@ if grep -q "netbox" /etc/hosts; then
 fi
 echo " Add Netbox to /etc/hosts"
 sudo echo "172.16.11.12   netbox.tooling.provider.test" >> /etc/hosts
+
+if grep -q "nodered" /etc/hosts; then
+    echo " Node Red exists in /etc/hosts, removing..."
+    sudo sed -i '/nodered.tooling.provider.test/d' /etc/hosts
+fi
+echo " Add Node Red to /etc/hosts"
+sudo echo "172.16.11.13   nodered.tooling.provider.test" >> /etc/hosts
 
 if grep -q "backstage" /etc/hosts; then
     echo " Backstage exists in /etc/hosts, removing..."
@@ -433,12 +448,23 @@ curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" htt
 curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Test/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Test_secret.txt
 curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Prod/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Prod_secret.txt
 echo "****************************************************************************************************************"
-echo " Building Jenkins build nodes"
+echo " Start NodeRed"
 echo "****************************************************************************************************************"
-docker-compose up -d --build --no-deps build-dev.delivery.provider.test
-# docker-compose up -d --build --no-deps build-test.delivery.provider.test
-# docker-compose up -d --build --no-deps build-acc.delivery.provider.test
-# docker-compose up -d --build --no-deps build-prod.delivery.provider.test
+docker-compose up -d --build --no-deps nodered.tooling.provider.test
+echo "****************************************************************************************************************"
+echo " Building build nodes"
+echo "****************************************************************************************************************"
+if [ -f "jenkins_buildnode/act_runner-main-linux-amd64" ]; then
+    echo " Gitea runner software exists"
+else
+    echo " Get Gitea runner software"
+    wget --directory-prefix=jenkins_buildnode https://dl.gitea.com/act_runner/main/act_runner-main-linux-amd64
+fi
+chmod +x  jenkins_buildnode/act_runner-main-linux-amd64
+create_runner_node "dev" ${netcicd_pwd}
+#create_runner_node "test"
+#create_runner_node "acc"
+#create_runner_node "prod"
 echo "****************************************************************************************************************"
 echo " Building Backstage (skipped)"
 echo "****************************************************************************************************************"

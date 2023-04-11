@@ -75,4 +75,7 @@ CMD ["/usr/sbin/sshd", "-D"]
 COPY rc.local /etc/rc.local
 EXPOSE 22 
 
+COPY act_runner-main-linux-amd64 /home/jenkins/act_runner
+RUN chown jenkins:jenkins /home/jenkins/act_runner
+
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

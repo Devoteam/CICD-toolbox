@@ -19,7 +19,7 @@ Enable Jenkins to log into git
     Login to Gitea as Jenkins
     Create Jenkins token in Gitea
     Enter Jenkins token in Jenkins credentials
-
+    
 Close browsers
     Close Browser
 

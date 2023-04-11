@@ -296,6 +296,7 @@ services:
       BUILD_ENVIRONMENT: 'Dev'
       ANSIBLE_TF_DIR: 'AppCICD'
       ARM_SKIP_PROVIDER_REGISTRATION: 'true'
+      RUNNER_TOKEN: ${RUNNER_TOKEN}
     secrets:
       - source: dev_jenkins_secret
         target: /home/jenkins/secret-file.txt
@@ -318,6 +319,19 @@ services:
         target: /data
     ports:
       - '3001:3001'
+
+  nodered.tooling.provider.test:
+    container_name: nodered.tooling.provider.test
+    image: nodered/node-red:latest
+    environment:
+      - TZ=Europe/Amsterdam
+    volumes:
+      - ./nodered/data:/data
+    networks:
+      internal:
+        ipv4_address: 172.16.11.13
+    expose:
+      - "1880"     
 
   backstage.tooling.provider.test:
     container_name: backstage.tooling.provider.test
