@@ -48,7 +48,7 @@ After install, execute:
 
 ```sudo apt-get update && sudo apt-get upgrade -y```
 
-```sudo apt -y install openjdk-11-jre-headless maven git docker.io curl python3 python3-pip python-is-python3```
+```sudo apt -y install openjdk-11-jre-headless maven git docker.io curl python3 python3-pip python-is-python3 jq```
 
 ```sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose```
 
@@ -65,6 +65,20 @@ After install, execute:
 ```echo "export COMPOSE_DOCKER_CLI_BUILD=1" >> ~/.bashrc```
 
 Go to the [Trivy site](https://aquasecurity.github.io/trivy/v0.31.3/getting-started/installation/) to install trivy.
+
+Install [Docker Buildkit](https://docs.docker.com/build/buildkit/#getting-started)
+
+Install [Hashicorp Vault](https://www.hashicorp.com/official-packaging-guide):
+
+```sudo apt update && sudo apt install gpg```
+
+```wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg```
+
+```echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list```
+
+```sudo apt update```
+
+```sudo apt install vault```
 
 ```git clone https://github.com/Devoteam/CICD-toolbox.git```
 
