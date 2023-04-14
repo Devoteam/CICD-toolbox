@@ -92,6 +92,8 @@ Install [Hashicorp Vault](https://www.hashicorp.com/official-packaging-guide):
 
 ```sudo apt install vault```
 
+Install the [CICD-toolbox](https://github.com/Devoteam/CICD-toolbox):
+
 ```git clone https://github.com/Devoteam/CICD-toolbox.git```
 
 ```cd CICD-toolbox/```
