@@ -37,6 +37,8 @@ RUN apk --update add --virtual \
         .build-deps \
  && rm -rf /var/cache/apk/*
 
+RUN apk upgrade
+
 RUN echo -e """\
 \n\
 Host *\n\

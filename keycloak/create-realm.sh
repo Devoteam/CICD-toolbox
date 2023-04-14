@@ -109,9 +109,9 @@ echo "GITEA_token: ${GITEA_token}"
 # Now we can add client specific roles (Clientroles)
 ./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name=giteaAdmin -s description='The admin role for the Infra Automators organization'
 ./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='infraautomator' -s description='Organization owner role in the Infraautomator organization'
-./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-cicdtoolbox-read' -s description='A read-only role on the CICD toolbox'
-./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-cicdtoolbox-write' -s description='A read-write role on the CICD toolbox'
-./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-cicdtoolbox-admin' -s description='A read-write role on the CICD toolbox'
+./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-CICDtoolbox-read' -s description='A read-only role on the CICD toolbox'
+./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-CICDtoolbox-write' -s description='A read-write role on the CICD toolbox'
+./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-CICDtoolbox-admin' -s description='A read-write role on the CICD toolbox'
 ./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-netcicd-read' -s description='A read-only role on NetCICD'
 ./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-netcicd-write' -s description='A read-write role on NetCICD'
 ./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-netcicd-admin' -s description='A admin role on NetCICD'
@@ -196,8 +196,8 @@ echo "Created Jenkins roles."
     --rolename gitea-netcicd-write \
     --rolename gitea-appcicd-read \
     --rolename gitea-appcicd-write \
-    --rolename gitea-cicdtoolbox-read \
-    --rolename gitea-cicdtoolbox-write &>cicdtoolbox_JENKINS_SCOPE
+    --rolename gitea-CICDtoolbox-read \
+    --rolename gitea-CICDtoolbox-write &>cicdtoolbox_JENKINS_SCOPE
 
 echo "Created Jenkins Service Account" 
 
@@ -1095,7 +1095,7 @@ echo "Created Tooling Designer Group with ID: ${tool_dev_designer_id}"
     --gid $tool_dev_designer_id \
     --cclientid Gitea \
     --rolename gitea-netcicd-read \
-    --rolename gitea-cicdtoolbox-write \
+    --rolename gitea-CICDtoolbox-write \
     --rolename gitea-templateapp-write
 
 ./kcadm.sh add-roles \
@@ -1126,7 +1126,7 @@ echo "Created Tooling Operator group within the Tooling Operations Department wi
     --gid $tool_ops_oper_id \
     --cclientid Gitea \
     --rolename gitea-netcicd-read \
-    --rolename gitea-cicdtoolbox-read \
+    --rolename gitea-CICDtoolbox-read \
     --rolename gitea-templateapp-read \
     --rolename gitea-appcicd-read
 
@@ -1137,7 +1137,7 @@ echo "Created Tooling Operator group within the Tooling Operations Department wi
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-appcicd-run \
-    --rolename jenkins-cicdtoolbox-run \
+    --rolename jenkins-CICDtoolbox-run \
     --rolename jenkins-templateapp-run
 
 ./kcadm.sh add-roles \
