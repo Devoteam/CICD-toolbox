@@ -32,14 +32,15 @@ Even though we try to make this work as well as we can, it is being improved dai
 The local install is tested on a setup on an Ubuntu machine with VMWare Workstation installed. 
 
 ### Network settings
-A vmnet1 host-only network is defined with network 10.10.20.0/24. You should be using the local address 10.10.20.50 [on VMware WS](https://linuxhint.com/configure-dhcp-server-vmware-workstation-pro-16/#5) in order for the toobox to work and to be compatible with the sandbox.
+A vmnet1 host-only network is defined with network 10.10.20.0/24. You should be using the local address 10.10.20.50 [on VMware WS](https://linuxhint.com/configure-dhcp-server-vmware-workstation-pro-16/#5) in order for the toobox to work and to be compatible with the sandbox. Use 
+### sudo ip a replace 10.10.20.50 dev vmnet1 ###
+
+if it does not work
 
 The CML host should run on 10.10.20.161, just like on the Cisco Devnet Sandbox.
 
 ### Software configuration
-Be aware to use the correct java version. The nexus plugin fails if anything other than openjdk8 is used :(
-
-The setup has been developed and tested on a fully updated Ubuntu 20.04.1 minimal install, 25 GB disk, 2 CPU, 4 GB memory on KVM with Internet access. As the setup also uses local networking, using the Ubuntu Desktop version is easier. During install testing the minimal install is used. 
+The setup has been developed and tested on a fully updated Ubuntu 20.04.1 minimal install, 25 GB disk, 2 CPU, 16 GB memory on KVM with Internet access. As the setup also uses local networking, using the Ubuntu Desktop version is easier. During install testing the minimal install is used. 
 
 As the last part of the install uses Robotframework with Selenium, it requires a decent screen resolution. Make sure you have at least 1200 pixels in height, otherwise the finalize install script may fail.
 
@@ -47,7 +48,7 @@ After install, execute:
 
 ```sudo apt-get update && sudo apt-get upgrade -y```
 
-```sudo apt -y install openjdk-11-jre-headless maven git docker.io curl python3 python3-pip python-is-python3```
+```sudo apt -y install openjdk-11-jre-headless maven git docker.io curl python3 python3-pip python-is-python3 jq```
 
 ```sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose```
 
@@ -61,12 +62,50 @@ After install, execute:
 
 ```sudo python3 -m pip install robotframework-selenium2library```
 
+```echo "export COMPOSE_DOCKER_CLI_BUILD=1" >> ~/.bashrc```
+
+Go to the [Trivy site](https://aquasecurity.github.io/trivy/v0.31.3/getting-started/installation/) to install trivy.
+
+Install [Docker Buildkit](https://docs.docker.com/build/buildkit/#getting-started):
+
+```sudo vi /etc/docker/daemon.json``` and paste:
+
+```
+{
+  "features": {
+    "buildkit": true
+  }
+} 
+```
+
+Reboot to make sure all changes are activated.
+
+Install [Hashicorp Vault](https://www.hashicorp.com/official-packaging-guide):
+
+```sudo apt update && sudo apt install gpg```
+
+```wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg```
+
+```echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list```
+
+```sudo apt update```
+
+```sudo apt install vault```
+
+Install the [CICD-toolbox](https://github.com/Devoteam/CICD-toolbox):
+
 ```git clone https://github.com/Devoteam/CICD-toolbox.git```
 
 ```cd CICD-toolbox/```
 
+```sudo cp geckodriver /usr/local/bin/```
+
 ### As Docker has a pull rate limit, you need to authenticate first:
 ```docker login -u <yourusername> -p <yourpassword>```
+
+The minify branch uses [Hashcorp Vault](https://developer.hashicorp.com/vault/downloads), install it from the site.
+
+It also requires buildkit to be active to enable [see the docker site](https://docs.docker.com/build/buildkit/#getting-started)
 
 After this, you can run:
 
@@ -101,7 +140,7 @@ All steps should PASS!
 If you now log into Jenkins, you should see Jenkins scanning Gitea, finding two repositories, and starting a test on NetCICD. At the moment this lab fails. It is most probably due to having incorrect IP addresses in the NetCICD_agent. We are working on a fix.
 
 ## Users ##
-All users are configured in Keycloak. [The wiki](https://github.com/Devoteam/NetCICD-developer-toolbox/wiki/Users-and-passwords) has the complete list.
+All users are configured in Keycloak. [The wiki](https://github.com/Devoteam/CICD-toolbox/wiki/Users-and-passwords) has the complete list.
 
 ### Wat the Robot script does ###
 In order for Jenkins to be able to run the jenkinsfiles, jenkins needs the jenkins-jenkins user to have a token.
