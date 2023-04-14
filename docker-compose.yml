@@ -140,10 +140,10 @@ services:
     build:
       context: ./vault
       dockerfile: docker/Dockerfile-vault
-    depends_on:
-      consul.internal.provider.test:
-        condition: service_healthy
-        restart: true
+    # depends_on:
+    #   consul.internal.provider.test:
+    #     condition: service_healthy
+    #     restart: true
     restart: unless-stopped
     init: true
     stop_signal: SIGINT
@@ -169,13 +169,13 @@ services:
   keycloak.services.provider.test:
     container_name: keycloak.services.provider.test
     build: keycloak
-    depends_on:
-      cicdtoolbox-db.internal.provider.test:
-        condition: service_healthy
-        restart: unless-stopped
-      ldap.iam.provider.test:
-        condition: service_started
-        restart: unless-stopped
+    # depends_on:
+    #   cicdtoolbox-db.internal.provider.test:
+    #     condition: service_healthy
+    #     restart: unless-stopped
+    #   ldap.iam.provider.test:
+    #     condition: service_started
+    #     restart: unless-stopped
     restart: unless-stopped
     init: true
     stop_signal: SIGINT
@@ -207,11 +207,11 @@ services:
   gitea.tooling.provider.test:
     container_name: gitea.tooling.provider.test
     build: gitea
-    depends_on:
-      cicdtoolbox-db.internal.provider.test:
-        condition: service_healthy
-        restart: true
-        restart: unless-stopped
+    # depends_on:
+    #   cicdtoolbox-db.internal.provider.test:
+    #     condition: service_healthy
+    #     restart: true
+    #     restart: unless-stopped
     init: true
     stop_signal: SIGINT
     stop_grace_period: 15s
