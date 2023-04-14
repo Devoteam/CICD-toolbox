@@ -40,6 +40,7 @@ if it does not work
 The CML host should run on 10.10.20.161, just like on the Cisco Devnet Sandbox.
 
 ### Software configuration
+
 The setup has been developed and tested on a fully updated Ubuntu 20.04.1 minimal install, 25 GB disk, 2 CPU, 16 GB memory on KVM with Internet access. As the setup also uses local networking, using the Ubuntu Desktop version is easier. During install testing the minimal install is used. 
 
 As the last part of the install uses Robotframework with Selenium, it requires a decent screen resolution. Make sure you have at least 1200 pixels in height, otherwise the finalize install script may fail.
