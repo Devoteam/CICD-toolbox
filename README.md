@@ -66,7 +66,17 @@ After install, execute:
 
 Go to the [Trivy site](https://aquasecurity.github.io/trivy/v0.31.3/getting-started/installation/) to install trivy.
 
-Install [Docker Buildkit](https://docs.docker.com/build/buildkit/#getting-started)
+Install [Docker Buildkit](https://docs.docker.com/build/buildkit/#getting-started):
+
+```sudo vi /etc/docker/daemon.json``` and paste:
+
+```
+{
+  "features": {
+    "buildkit": true
+  }
+} 
+```
 
 Install [Hashicorp Vault](https://www.hashicorp.com/official-packaging-guide):
 
