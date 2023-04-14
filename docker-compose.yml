@@ -108,6 +108,11 @@ services:
       - 'cicdtoolbox_db_data:/var/lib/postgresql/data'
       - 'cicdtoolbox_db_conf:/etc/postgresql'
       - './cicdtoolbox-db/docker-entrypoint-initdb-resources:/docker-entrypoint-initdb-resources:ro'
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   consul.internal.provider.test:
     container_name: consul.internal.provider.test
@@ -123,12 +128,22 @@ services:
         ipv4_address: 172.16.9.4
     volumes:
       - consul-data:/consul/data
+    healthcheck:
+      # return information about the status of the Consul cluster https://www.consul.io/api/status.html
+      test: ["CMD", "curl", "-X", "GET", "172.16.9.4:8500/v1/status/leader"]
+      interval: 1s
+      timeout: 3s
+      retries: 60
 
   vault.internal.provider.test:
     container_name: vault.internal.provider.test
     build:
       context: ./vault
       dockerfile: docker/Dockerfile-vault
+    depends_on:
+      consul.internal.provider.test:
+        condition: service_healthy
+        restart: true
     restart: unless-stopped
     init: true
     stop_signal: SIGINT
@@ -154,6 +169,13 @@ services:
   keycloak.services.provider.test:
     container_name: keycloak.services.provider.test
     build: keycloak
+    depends_on:
+      cicdtoolbox-db.internal.provider.test:
+        condition: service_healthy
+        restart: unless-stopped
+      ldap.iam.provider.test:
+        condition: service_started
+        restart: unless-stopped
     restart: unless-stopped
     init: true
     stop_signal: SIGINT
@@ -185,7 +207,11 @@ services:
   gitea.tooling.provider.test:
     container_name: gitea.tooling.provider.test
     build: gitea
-    restart: unless-stopped
+    depends_on:
+      cicdtoolbox-db.internal.provider.test:
+        condition: service_healthy
+        restart: true
+        restart: unless-stopped
     init: true
     stop_signal: SIGINT
     stop_grace_period: 15s
@@ -315,7 +341,7 @@ services:
         ipv4_address: 172.16.10.2
     volumes:
       - type: bind
-        source: restportal/bis2.json
+        source: ./restportal/bis2.json
         target: /data
     ports:
       - '3001:3001'
