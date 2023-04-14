@@ -24,6 +24,7 @@ volumes:
   vault-data:
   vault-logs:
   backstage:
+  nodered:
 
 secrets:
   ca_crt:
@@ -352,7 +353,7 @@ services:
     environment:
       - TZ=Europe/Amsterdam
     volumes:
-      - ./nodered/data:/data
+      - nodered:/data
     networks:
       internal:
         ipv4_address: 172.16.11.13
