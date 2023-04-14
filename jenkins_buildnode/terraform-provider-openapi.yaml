@@ -1,0 +1,4 @@
+version: '1'
+services:
+    onprem:
+      swagger-url: /home/jenkins/onprem.yaml

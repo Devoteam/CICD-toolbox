@@ -1,0 +1,546 @@
+#!/bin/bash 
+
+local_admin_user="local-admin"
+nexus_keycloak_plugin="0.5.0"
+nexus_apk_plugin="0.0.26"
+netcicd_pwd="netcicd01"
+keycloak_pwd="Pa55w0rd"
+keycloak_storepass="password"
+jenkins_storepass="changeit"
+nexus_storepass="password"
+
+sp="/-\|"
+sc=0
+spin() {
+   printf -- "${sp:sc++:1}  ( ${t} sec.) \r"
+   ((sc==${#sp})) && sc=0
+   sleep 1
+   let t+=1
+}
+
+endspin() {
+   printf "\r%s\n" "$@"
+}
+
+create_runner_node() {
+    robot --variable environment:$1 --variable VALID_PASSWORD:$2 -d install_log jenkins_buildnode/runnertoken.robot
+    export RUNNER_TOKEN=$(cat jenkins_buildnode/${1}_runner_token)
+    echo $RUNNER_TOKEN
+    docker-compose up -d --build --no-deps build-$1.delivery.provider.test
+}
+
+echo "****************************************************************************************************************"
+echo " Start clean" 
+echo "****************************************************************************************************************"
+docker-compose down --remove-orphans
+docker-compose rm -f
+docker volume rm $(docker volume ls -q)
+rm -f *_token
+rm -f install_tests/log.html
+rm -f install_tests/output.xml
+rm -f install_tests/report.html
+rm -f install_tests/*.png
+rm -f install_tests/*.log
+rm -f install_log/*
+
+echo " " 
+echo "****************************************************************************************************************"
+echo " Cleaning Vault" 
+echo "****************************************************************************************************************"
+rm -f vault/certs/*.json
+rm -f vault/certs/*.pem
+rm -f vault/certs/*.crt
+rm -f vault/certs/*.csr
+rm -f vault/*.txt
+echo " " 
+echo "****************************************************************************************************************"
+echo " Cleaning Vault" 
+echo "****************************************************************************************************************"
+rm -f lldap/data/*.crt
+rm -rf lldap/data/*.pem
+echo " " 
+echo "****************************************************************************************************************"
+echo " Cleaning database" 
+echo "****************************************************************************************************************"
+rm -f cicdtoolbox-db/docker-entrypoint-initdb-resources/*
+echo " " 
+echo "****************************************************************************************************************"
+echo " Cleaning Gitea" 
+echo "****************************************************************************************************************"
+rm -f gitea/gitea.tooling.provider.test*
+sudo rm -rf gitea/data/*
+echo " " 
+echo "****************************************************************************************************************"
+echo " Cleaning Jenkins" 
+echo "****************************************************************************************************************"
+rm -f jenkins/jenkins.tooling*
+rm -f jenkins_buildnode/*_secret.txt
+rm -f jenkins_buildnode/agent.jar
+rm -f jenkins_buildnode/jenkins-cli.jar
+rm -f jenkins_buildnode/*_token
+echo " " 
+echo "****************************************************************************************************************"
+echo " Cleaning Nexus" 
+echo "****************************************************************************************************************"
+rm -f nexus/keystore.jks
+sudo rm -rf nexus/data/*
+sudo rm -rf nexus/*.kar
+echo " " 
+echo "****************************************************************************************************************"
+echo " Cleaning Argos" 
+echo "****************************************************************************************************************"
+if [ -f "argos/compose-application.yml" ]; then
+    cp -p argos/compose-application.yml argos/application.yml
+fi
+echo "****************************************************************************************************************"
+echo " Making sure all containers are reachable locally with the name in the"
+echo " hosts file."
+echo "****************************************************************************************************************"
+echo " " 
+sudo chmod o+w /etc/hosts
+if grep -q "ldap" /etc/hosts; then
+    echo " LLDAP exists in /etc/hosts, removing..."
+    sudo sed -i '/ldap.iam.provider.test/d' /etc/hosts
+fi
+echo " Add LLDAP to /etc/hosts"
+sudo echo "172.16.8.11   ldap.iam.provider.test" >> /etc/hosts
+
+if grep -q "ipa-ca" /etc/hosts; then
+    echo " ipa-ca exists in /etc/hosts, removing..."
+    sudo sed -i '/ipa-ca.tooling.provider.test/d' /etc/hosts
+fi
+echo " Add ipa-ca /etc/hosts"
+sudo echo "172.16.8.12   ipa-ca.tooling.provider.test" >> /etc/hosts
+
+if grep -q "cicdtoolbox-db" /etc/hosts; then
+    echo " CICDtoolbox-db exists in /etc/hosts, removing..."
+    sudo sed -i '/cicdtoolbox-db.internal.provider.test/d' /etc/hosts
+fi
+echo " Add CICDtoolbox-db to /etc/hosts"
+sudo echo "172.16.9.2   cicdtoolbox-db.internal.provider.test" >> /etc/hosts
+
+if grep -q "mongodb" /etc/hosts; then
+    echo " mongodb exists in /etc/hosts, removing..."
+    sudo sed -i '/mongodb.internal.provider.test/d' /etc/hosts
+fi
+echo " Add mongodb to /etc/hosts"
+sudo echo "172.16.9.3   mongodb.internal.provider.test" >> /etc/hosts
+
+if grep -q "vault" /etc/hosts; then
+    echo " Hashicorp Vault exists in /etc/hosts, removing..."
+    sudo sed -i '/vault.internal.provider.test/d' /etc/hosts
+fi
+echo " Add Hashicorp Vault to /etc/hosts"
+sudo echo "172.16.9.5   vault.internal.provider.test" >> /etc/hosts
+
+if grep -q "restportal" /etc/hosts; then
+    echo " Provider REST portal exists in /etc/hosts, removing..."
+    sudo sed -i '/restportal.services.provider.test/d' /etc/hosts
+fi
+echo " Add Provider REST portal to /etc/hosts"
+sudo echo "172.16.10.2   restportal.services.provider.test" >> /etc/hosts
+
+if grep -q "argos.services.provider.test" /etc/hosts; then
+    echo " Argos Notray Portal exists in /etc/hosts, removing..."
+    sudo sed -i '/argos.services.provider.test/d' /etc/hosts
+fi
+echo " Add Provider REST portal to /etc/hosts"
+sudo echo "172.16.10.4   argos.services.provider.test" >> /etc/hosts
+
+if grep -q "keycloak" /etc/hosts; then
+    echo " Keycloak exists in /etc/hosts, removing..."
+    sudo sed -i '/keycloak.services.provider.test/d' /etc/hosts
+fi
+echo " Add Keycloak to /etc/hosts"
+sudo echo "172.16.10.11   keycloak.services.provider.test" >> /etc/hosts
+
+if grep -q "gitea" /etc/hosts; then
+    echo " Gitea exists in /etc/hosts, removing..."
+    sudo sed -i '/gitea.tooling.provider.test/d' /etc/hosts
+fi
+echo " Add Gitea to /etc/hosts"
+sudo echo "172.16.11.3   gitea.tooling.provider.test" >> /etc/hosts
+
+if grep -q "argos-service.tooling.provider.test" /etc/hosts; then
+    echo " Argos Service exists in /etc/hosts, removing..."
+    sudo sed -i '/argos-service.tooling.provider.test/d' /etc/hosts
+fi
+echo " Add Gitea to /etc/hosts"
+sudo echo "172.16.11.4   argos-service.tooling.provider.test" >> /etc/hosts
+
+if grep -q "jenkins" /etc/hosts; then
+    echo " Jenkins exists in /etc/hosts, removing..."
+    sudo sed -i '/jenkins.tooling.provider.test/d' /etc/hosts
+fi
+echo " Add Jenkins to /etc/hosts"
+sudo echo "172.16.11.8   jenkins.tooling.provider.test" >> /etc/hosts
+
+if grep -q "nexus" /etc/hosts; then
+    echo " Nexus exists in /etc/hosts, removing..."
+    sudo sed -i '/nexus.tooling.provider.test/d' /etc/hosts
+fi
+echo " Add Nexus to /etc/hosts"
+sudo echo "172.16.11.9   nexus.tooling.provider.test" >> /etc/hosts
+
+if grep -q "redis" /etc/hosts; then
+    echo " Redis exists in /etc/hosts, removing..."
+    sudo sed -i '/redis.tooling.provider.test/d' /etc/hosts
+fi
+echo " Add Redis to /etc/hosts"
+sudo echo "172.16.11.11   redis.tooling.provider.test" >> /etc/hosts
+
+if grep -q "netbox" /etc/hosts; then
+    echo " Netbox exists in /etc/hosts, removing..."
+    sudo sed -i '/netbox.tooling.provider.test/d' /etc/hosts
+fi
+echo " Add Netbox to /etc/hosts"
+sudo echo "172.16.11.12   netbox.tooling.provider.test" >> /etc/hosts
+
+if grep -q "nodered" /etc/hosts; then
+    echo " Node Red exists in /etc/hosts, removing..."
+    sudo sed -i '/nodered.tooling.provider.test/d' /etc/hosts
+fi
+echo " Add Node Red to /etc/hosts"
+sudo echo "172.16.11.13   nodered.tooling.provider.test" >> /etc/hosts
+
+if grep -q "backstage" /etc/hosts; then
+    echo " Backstage exists in /etc/hosts, removing..."
+    sudo sed -i '/backstage.tooling.provider.test/d' /etc/hosts
+fi
+echo " Add Backstage to /etc/hosts"
+sudo echo "172.16.11.14   backstage.tooling.provider.test" >> /etc/hosts
+
+if grep -q "build-dev" /etc/hosts; then
+    echo " Jenkins build-dev node exists in /etc/hosts, removing..."
+    sudo sed -i '/build-dev.delivery.provider.test/d' /etc/hosts
+fi
+echo " Add Jenkins build-dev node to /etc/hosts"
+sudo echo "172.16.12.3   build-dev.delivery.provider.test" >> /etc/hosts
+
+if grep -q "build-test" /etc/hosts; then
+    echo " Jenkins build-test node exists in /etc/hosts, removing..."
+    sudo sed -i '/build-test.delivery.provider.test/d' /etc/hosts
+fi
+echo " Add Jenkins build-test node to /etc/hosts"
+sudo echo "172.16.12.4   build-test.delivery.provider.test" >> /etc/hosts
+
+if grep -q "build-acc" /etc/hosts; then
+    echo " Jenkins build-acc node exists in /etc/hosts, removing..."
+    sudo sed -i '/build-acc.delivery.provider.test/d' /etc/hosts
+fi
+echo " Add Jenkins build-acc node to /etc/hosts"
+sudo echo "172.16.12.5   build-acc.delivery.provider.test" >> /etc/hosts
+
+if grep -q "build-prod" /etc/hosts; then
+    echo " Jenkins build-prod node exists in /etc/hosts, removing..."
+    sudo sed -i '/build-prod.delivery.provider.test/d' /etc/hosts
+fi
+echo " Add Jenkins build-prod node to /etc/hosts"
+sudo echo "172.16.12.6   build-prod.delivery.provider.test" >> /etc/hosts
+
+if grep -q "portainer" /etc/hosts; then
+    echo " Portainer exists in /etc/hosts, removing..."
+    sudo sed -i '/portainer.monitoring.provider.test/d' /etc/hosts
+fi
+echo " Add Portainer to /etc/hosts"
+sudo echo "172.16.13.3   portainer.monitoring.provider.test" >> /etc/hosts
+
+if grep -q "loki" /etc/hosts; then
+    echo " Loki exists in /etc/hosts, removing..."
+    sudo sed -i '/loki.monitoring.provider.test/d' /etc/hosts
+fi
+echo " Add Loki to /etc/hosts"
+sudo echo "172.16.13.4   loki.monitoring.provider.test" >> /etc/hosts
+
+if grep -q "promtail" /etc/hosts; then
+    echo " Promtail exists in /etc/hosts, removing..."
+    sudo sed -i '/promtail.monitoring.provider.test/d' /etc/hosts
+fi
+echo " Add Promtail to /etc/hosts"
+sudo echo "172.16.13.5   promtail.monitoring.provider.test" >> /etc/hosts
+
+if grep -q "grafana" /etc/hosts; then
+    echo " Grafana exists in /etc/hosts, removing..."
+    sudo sed -i '/grafana.monitoring.provider.test/d' /etc/hosts
+fi
+echo " Add Grafana to /etc/hosts"
+sudo echo "172.16.13.6   grafana.monitoring.provider.test" >> /etc/hosts
+
+if grep -q "cml" /etc/hosts; then
+    echo " Cisco Modeling Labs exists in /etc/hosts, removing..."
+    sudo sed -i '/cml.tooling.provider.test/d' /etc/hosts
+fi
+echo " Add Cisco Modeling Labs to /etc/hosts"
+sudo echo "10.10.20.161   cml.tooling.provider.test" >> /etc/hosts
+
+sudo chmod o-w /etc/hosts
+
+echo "****************************************************************************************************************"
+echo " Setting up Vault" 
+echo "****************************************************************************************************************"
+vault/vault_install.sh | tee install_log/vault_create.log
+echo "****************************************************************************************************************"
+echo " Collecting Nexus Keycloak plugin" 
+echo "****************************************************************************************************************"
+if [ -f "nexus/nexus3-keycloak-plugin-$nexus_keycloak_plugin-bundle.kar" ]; then
+    echo " Nexus Keycloak plugin exists"
+else
+    echo " Get Nexus Keycloak plugin"
+    wget --directory-prefix=nexus https://github.com/flytreeleft/nexus3-keycloak-plugin/releases/download/v$nexus_keycloak_plugin/nexus3-keycloak-plugin-$nexus_keycloak_plugin-bundle.kar
+fi
+echo " " 
+echo "****************************************************************************************************************"
+echo " Collecting Nexus APK plugin and build .kar file"
+echo "****************************************************************************************************************"
+if [ -f "nexus/nexus-repository-apk-$nexus_apk_plugin-bundle.kar" ]; then
+    echo " Nexus apk plugin exists"
+else
+    echo " Get Nexus apk plugin"
+    wget -O nexus/nexus-repository-apk-$nexus_apk_plugin-bundle.kar https://search.maven.org/remotecontent?filepath=org/sonatype/nexus/plugins/nexus-repository-apk/$nexus_apk_plugin/nexus-repository-apk-$nexus_apk_plugin-bundle.kar
+fi
+echo " " 
+echo "****************************************************************************************************************"
+echo " git clone Nexus CasC plugin and build .kar file"
+echo "****************************************************************************************************************"
+if [ ! -f ./nexus/nexus-casc* ]; then
+    git clone https://github.com/AdaptiveConsulting/nexus-casc-plugin.git
+    cd nexus-casc-plugin
+    mvn package
+    cp target/*.kar ../nexus/
+    cd ..
+    rm -rf nexus-casc-plugin/
+else
+    echo "Casc plugin exists, no need to build"
+fi
+echo " " 
+echo "****************************************************************************************************************"
+echo " Creating LDAP server" 
+echo "****************************************************************************************************************"
+cp vault/certs/ldap.iam.provider.test.* lldap/data/
+docker-compose up -d --build --remove-orphans ldap.iam.provider.test
+echo " "
+echo "****************************************************************************************************************"
+echo " Saving CA self-signed certificate"
+echo "****************************************************************************************************************"
+cp vault/certs/ca.crt argos/ca.crt
+cp vault/certs/ca.crt jenkins/ca.crt
+cp vault/certs/ca.crt gitea/ca.crt
+cp vault/certs/ca.crt keycloak/ca.crt
+cp vault/certs/ca.crt restportal/ca.crt
+cp vault/certs/ca.crt nexus/ca.crt
+cp vault/certs/ca.crt cicdtoolbox-db/ca.crt
+cp vault/certs/ca.crt loki/ca.crt
+cp vault/certs/ca.crt promtail/ca.crt
+cp vault/certs/ca.crt grafana/ca.crt
+cp vault/certs/ca.crt jenkins_buildnode/ca.crt
+cp vault/certs/ca.crt backstage/ca.crt
+echo "****************************************************************************************************************"
+echo " Saving host certificates"
+echo "****************************************************************************************************************"
+cp vault/certs/cicdtoolbox-db.internal.provider.test.pem cicdtoolbox-db/docker-entrypoint-initdb-resources/server.key
+cp vault/certs/cicdtoolbox-db.internal.provider.test.crt cicdtoolbox-db/docker-entrypoint-initdb-resources/server.crt
+cp vault/certs/ca.crt cicdtoolbox-db/docker-entrypoint-initdb-resources/root.crt
+cp vault/certs/gitea* gitea/
+echo " "
+echo "****************************************************************************************************************"
+echo " Creating database"
+echo "****************************************************************************************************************"
+DOCKER_BUILDKIT=1 docker-compose up -d --build cicdtoolbox-db.internal.provider.test
+sleep 10
+echo " " 
+echo "****************************************************************************************************************"
+echo " Starting Keycloak "
+echo "****************************************************************************************************************"
+docker-compose up -d --build --no-deps keycloak.services.provider.test
+echo "****************************************************************************************************************"
+echo " Wait until keycloak is running (~45 sec.)"
+echo "****************************************************************************************************************"
+let t=0
+until $(curl --output /dev/null --insecure --silent --head --fail https://keycloak.services.provider.test:8443); do
+    spin
+done
+endspin
+echo " "
+echo "****************************************************************************************************************"
+echo " Creating keycloak setup. This will take time..."
+echo "****************************************************************************************************************"
+docker exec -it keycloak.services.provider.test sh -c "/opt/jboss/keycloak/bin/create-realm.sh ${keycloak_pwd} ${keycloak_storepass} ${keycloak_pwd} ${local_admin_user}" | tee install_log/keycloak_create.log
+echo " "
+docker restart keycloak.services.provider.test
+echo "****************************************************************************************************************"
+echo " Wait until keycloak is running (~5 sec.)"
+echo "****************************************************************************************************************"
+let t=0
+until $(curl --output /dev/null --insecure --silent --head --fail https://keycloak.services.provider.test:8443); do
+    spin
+done
+endspin
+echo " "
+echo "****************************************************************************************************************"
+echo " Creating keycloak-vault integration"
+echo "****************************************************************************************************************"
+vault/vault_install_post_keycloak.sh
+echo "****************************************************************************************************************"
+echo " Creating keycloak-nexus json"
+echo "****************************************************************************************************************"
+docker cp keycloak.services.provider.test:/opt/jboss/keycloak/bin/keycloak-nexus.json nexus/keycloak-nexus.json
+echo "****************************************************************************************************************"
+echo " Booting the remainder of the containers"
+echo "****************************************************************************************************************"
+DOCKER_BUILDKIT=1 docker-compose up -d --build --no-deps gitea.tooling.provider.test
+docker-compose up -d --build --no-deps restportal.services.provider.test
+docker-compose up -d --build --no-deps nexus.tooling.provider.test
+echo " "
+echo "****************************************************************************************************************"
+echo " Starting Jenkins"
+echo "****************************************************************************************************************"
+jenkins/jenkins-install.sh ${jenkins_storepass}
+echo " "
+echo "****************************************************************************************************************"
+echo " Creating gitea setup"
+echo "****************************************************************************************************************"
+gitea/gitea_install.sh ${netcicd_pwd} ${local_admin_user} | tee install_log/gitea_create.log
+gitea/gitea_users.sh ${netcicd_pwd} ${local_admin_user} | tee install_log/gitea_users.log
+echo " " 
+echo "****************************************************************************************************************"
+echo " Creating nexus setup (~ 115 sec.)"
+echo "****************************************************************************************************************"
+openssl pkcs12 -export -in ./vault/certs/nexus.tooling.provider.test.crt -inkey ./vault/certs/nexus.tooling.provider.test.pem -name nexus.tooling.provider.test -out ./nexus/nexus.p12 -password pass:${nexus_storepass}
+chmod 644 ./nexus/nexus.p12
+docker cp nexus/nexus.p12 nexus.tooling.provider.test:/nexus-data/etc/nexus.p12
+docker exec --user root -it nexus.tooling.provider.test sh -c "/usr/bin/keytool -importkeystore -deststorepass ${nexus_storepass} -destkeystore /nexus-data/etc/ssl/keystore.jks -srckeystore /nexus-data/etc/nexus.p12 -srcstoretype PKCS12 -srcstorepass ${nexus_storepass} -deststoretype pkcs12"
+echo "Reloading Nexus"
+docker restart nexus.tooling.provider.test
+let t=0
+until $(curl --output /dev/null --insecure --silent --head --fail https://nexus.tooling.provider.test:8443); do
+    spin
+done
+endspin
+echo " "
+
+echo "****************************************************************************************************************"
+echo " Preparing for finalizing install via ROBOT"
+echo "****************************************************************************************************************"
+sudo pip3 install robotframework robotframework-selenium2library
+sudo cp geckodriver /usr/local/bin/
+source ~/.bashrc
+robot --variable VALID_PASSWORD:${netcicd_pwd} -d install_log finalize_install.robot
+echo " " 
+echo "****************************************************************************************************************"
+echo " Copying Jenkins Keystore to Jenkins buildnodes"
+echo "****************************************************************************************************************"
+cp ./jenkins/keystore/cacerts ./jenkins_buildnode/cacerts
+echo " " 
+echo "****************************************************************************************************************"
+echo " Retrieving Jenkins CSRF"
+echo "****************************************************************************************************************"
+jtoken=`cat jtoken.txt`
+crumb=`curl -u "jenkins-jenkins:${jtoken}" --insecure 'https://jenkins.tooling.provider.test:8084/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)'`
+csrf=$( echo $crumb | awk -F',' '{print $(1)}' | awk -F':' '{print $2}' )
+echo $csrf
+#rm -f jtoken.txt
+echo " " 
+echo "****************************************************************************************************************"
+echo " Retrieving Jenkins Agent secrets"
+echo "****************************************************************************************************************"
+curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Dev/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Dev_secret.txt
+curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Acc/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Acc_secret.txt
+curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Test/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Test_secret.txt
+curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" https://jenkins.tooling.provider.test:8084/computer/Prod/jenkins-agent.jnlp -s | sed "s/.*<jnlp><application-desc><argument>\([a-z0-9]*\).*/\1/" > ./jenkins_buildnode/Prod_secret.txt
+echo "****************************************************************************************************************"
+echo " Start NodeRed"
+echo "****************************************************************************************************************"
+docker-compose up -d --build --no-deps nodered.tooling.provider.test
+echo "****************************************************************************************************************"
+echo " Building build nodes"
+echo "****************************************************************************************************************"
+if [ -f "jenkins_buildnode/act_runner-main-linux-amd64" ]; then
+    echo " Gitea runner software exists"
+else
+    echo " Get Gitea runner software"
+    wget --directory-prefix=jenkins_buildnode https://dl.gitea.com/act_runner/main/act_runner-main-linux-amd64
+fi
+chmod +x  jenkins_buildnode/act_runner-main-linux-amd64
+create_runner_node "dev" ${netcicd_pwd}
+#create_runner_node "test"
+#create_runner_node "acc"
+#create_runner_node "prod"
+echo "****************************************************************************************************************"
+echo " Building Backstage (skipped)"
+echo "****************************************************************************************************************"
+docker-compose up -d --build --no-deps oauth2-proxy.tooling.provider.test
+backstage_client_id=$(grep Backstage_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
+docker exec -it oauth2-proxy.tooling.provider.test sh -c "OAUTH2_PROXY_CLIENT_SECRET=$backstage_client_id"
+ 
+docker restart oauth2-proxy.tooling.provider.test
+docker-compose up -d --build --no-deps backstage.tooling.provider.test
+echo "****************************************************************************************************************"
+echo " Validating install"
+echo "****************************************************************************************************************"
+robot --variable VALID_PASSWORD:${netcicd_pwd} -d install_tests/ install_tests
+echo " " 
+echo "****************************************************************************************************************"
+echo " Running trivy vulnerability scanner (https://github.com/aquasecurity/trivy)" 
+echo "****************************************************************************************************************"
+if command -v trivy &> /dev/null
+then
+echo "****************************************************************************************************************"
+echo " Toolbox files" 
+echo "****************************************************************************************************************"
+    trivy fs --security-checks vuln,config . | tee install_log/trivy_create.log
+
+echo "****************************************************************************************************************"
+echo " Gitea" 
+echo "****************************************************************************************************************"
+#    trivy image gitea/gitea:rootless | tee -a install_log/trivy_create.log
+echo "****************************************************************************************************************"
+echo " Jenkins" 
+echo "****************************************************************************************************************"
+#    trivy image jenkins/jenkins:lts | tee -a install_log/trivy_create.log
+echo "****************************************************************************************************************"
+echo " Keycloak" 
+echo "****************************************************************************************************************"
+#    trivy image jboss/keycloak:latest | tee -a install_log/trivy_create.log
+echo "****************************************************************************************************************"
+echo " PostgreSQL" 
+echo "****************************************************************************************************************"
+#    trivy image postgres:latest | tee -a install_log/trivy_create.log
+echo "****************************************************************************************************************"
+echo " Nexus" 
+echo "****************************************************************************************************************"
+#    trivy image sonatype/nexus3:latest | tee -a install_log/trivy_create.log
+else
+    echo "trivy is not installed"
+fi
+echo "****************************************************************************************************************"
+echo " The pipeline uses the default Cisco DevNet CML Sandbox credentials developer/C1sco12345 to log in to CML."
+echo " You may change this to your own credentials in:"
+echo " "
+echo " http://jenkins.tooling.provider.test:8084/credentials/store/system/domain/_/credential/CML-SIM-CRED/update"
+echo " "
+echo " Due to limitations in Keycloak, do **not** use docker-compose down. Keycloak will no longer function after this."
+echo " "
+echo " Stop the environment with ./down, start with ./up"
+echo " "
+echo "****************************************************************************************************************"
+echo "CICD-toolbox install done "
+echo " "
+echo "You can read the install test report in install_tests/report.html"
+echo " "
+echo "You can reach the servers on:"
+echo " "
+echo " LLDAP:     http://ldap.iam.provider.test:17170"
+echo " Keycloak:    https://keycloak.services.provider.test:8443"
+echo " Gitea:       https://gitea.tooling.provider.test:3000"
+echo " Jenkins:     https://jenkins.tooling.provider.test:8084"
+echo " Nexus:       https://nexus.tooling.provider.test:8443"
+# echo " Portainer:   http://portainer.monitoring.provider.test:9000"
+# echo " Loki:        http://loki.monitoring.provider.test:9000"
+# echo " Grafana:     http://grafana.monitoring.provider.test:9000"
+echo " Vault:       http://vault.internal.provider.test:8200"
+#echo " Netbox:      http://netbox.tooling.provider.test:8000"
+#echo " Backstage:   https://backstage.tooling.provider.test"
+echo " "
+echo "****************************************************************************************************************"
+echo "Cleaning up"
+echo "****************************************************************************************************************"

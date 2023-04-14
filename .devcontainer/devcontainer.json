@@ -1,0 +1,26 @@
+{
+  "dockerFile": "Dockerfile",
+  //"remoteUser": "developer",
+  "shutdownAction": "stopContainer",
+  //"postCreateCommand": "runonce",
+  "mounts": [
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/$USER/.ssh,type=bind,consistency=cached"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "mhutchie.git-graph",
+        "eamodio.gitlens",
+        "VisualStudioExptTeam.vscodeintellicode",
+        "GitHub.copilot-nightly",
+        "redhat.ansible",
+        "bierner.markdown-mermaid",
+        "docsmsft.docs-markdown",
+        "robocorp.robotframework-lsp"
+      ]
+    }
+  },
+
+  "runArgs": ["--init", "--privileged"],
+  "overrideCommand": false
+}

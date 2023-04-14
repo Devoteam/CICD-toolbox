@@ -11,23 +11,21 @@ credentials:
       - usernamePassword:
           description: "Credentials to be used to log into Gitea from Jenkins to retrieve\
             \ the NetCICD repo."
-          id: "git-jenkins"
-          password: "netcicd"
+          id: "jenkins-nexus"
+          password: ${JENKINS_NEXUS_PASSWORD}
           scope: GLOBAL
-          username: "git-jenkins"
+          username: "Jenkins"
       - usernamePassword:
-          description: "Credentials to be used to log into Gitea from Jenkins to retrieve\
-            \ the NetCICD repo."
+          description: "Credentials to be used to log into Jenkins from Jenkins to configure\
+            \ the NetCICD agent."
           id: "jenkins-jenkins"
-          password: "netcicd"
           scope: GLOBAL
           username: "jenkins-jenkins"
       - usernamePassword:
-          description: "Credentials to be used to log into Nexus from Jenkins."
-          id: "jenkins-nexus"
-          password: "netcicd"
+          description: "Credentials to be used to get an access token from Keycloak."
+          id: "jenkins-git"
           scope: GLOBAL
-          username: "netcicd"
+          username: "Jenkins"
 jenkins:
   authorizationStrategy:
     roleBased:
@@ -40,7 +38,8 @@ jenkins:
           permissions:
           - "Overall/Read"
           - "Agent/Create"
-          - "Agent/Delete"        
+          - "Agent/Delete"
+          - "Agent/Connect"        
         - assignments:
           - "jenkins-readonly"
           - "jenkins-git"
@@ -49,6 +48,7 @@ jenkins:
           permissions:
           - "Overall/Read"
           - "Credentials/View"
+          - "Credentials/Update"
           - "Job/Read"
           - "Job/ViewStatus"
           - "View/Read"
@@ -72,7 +72,6 @@ jenkins:
           - "Job/Delete"
           - "Agent/Build"
           - "View/Configure"
-          - "Lockable Resources/Reserve"
           - "Agent/Provision"
           - "SCM/Tag"
           - "Job/Create"
@@ -131,105 +130,135 @@ jenkins:
         items:
         - assignments:
           - "jenkins-netcicd-dev"
-          name: "localNetcicdDev"
-          pattern: "^NetCICD$"
+          name: "NetCICD-dev"
+          pattern: "^jenkins-*cicd-dev$"
           permissions:
-          - "Job/Move"
-          - "Lockable Resources/View"
-          - "Job/Build"
-          - "SCM/Tag"
+          - "Credentials/Create"
           - "Credentials/Delete"
-          - "Job/Create"
-          - "Credentials/ManageDomains"
-          - "Lockable Resources/Unlock"
-          - "Job/Discover"
-          - "Job/Read"
           - "Credentials/View"
           - "Credentials/Update"
-          - "Run/Replay"
-          - "Run/Delete"
+          - "Job/Build"
           - "Job/Cancel"
-          - "Run/Update"
-          - "Job/Delete"
-          - "Credentials/Create"
           - "Job/Configure"
-          - "Job/Workspace"
-          - "Lockable Resources/Reserve"
+          - "Job/Create"
+          - "Job/Delete"
+          - "Job/Read"
           - "Job/ViewStatus"
+          - "Job/Workspace"
+          - "Run/Delete"
+          - "Run/Replay"
+          - "Run/Update"
+          - "SCM/Tag"
         - assignments:
-          - "jenkins-netcicd-toolbox-dev"
-          name: "localNetcicdToolboxDev"
-          pattern: "^NetCICD-developer-toolbox$"
+          - "jenkins-cicdtoolbox-dev"
+          name: "CICD-toolbox-dev"
+          pattern: "^jenkins-cicdtoolbox-dev$"
           permissions:
-          - "Job/Move"
-          - "Lockable Resources/View"
-          - "Job/Build"
-          - "SCM/Tag"
+          - "Credentials/Create"
           - "Credentials/Delete"
-          - "Job/Create"
-          - "Credentials/ManageDomains"
-          - "Lockable Resources/Unlock"
-          - "Job/Discover"
-          - "Job/Read"
           - "Credentials/View"
           - "Credentials/Update"
-          - "Run/Replay"
-          - "Run/Delete"
+          - "Job/Build"
           - "Job/Cancel"
-          - "Run/Update"
-          - "Job/Delete"
-          - "Credentials/Create"
           - "Job/Configure"
-          - "Job/Workspace"
-          - "Lockable Resources/Reserve"
+          - "Job/Create"
+          - "Job/Delete"
+          - "Job/Read"
           - "Job/ViewStatus"
+          - "Job/Workspace"
+          - "Run/Delete"
+          - "Run/Replay"
+          - "Run/Update"
+          - "SCM/Tag"
         - assignments:
           - "jenkins-netcicd-run"
-          name: "localNetcicdRun"
-          pattern: "^NetCICD$"
+          name: "NetCICD-run"
+          pattern: "^jenkins-*cicd-run$"
           permissions:
-          - "Lockable Resources/View"
-          - "Job/Build"
-          - "SCM/Tag"
-          - "Lockable Resources/Unlock"
           - "Credentials/View"
-          - "Run/Replay"
-          - "Job/Cancel"
-          - "Run/Delete"
+          - "Job/Build"
           - "Run/Update"
-          - "Job/Workspace"
-          - "Lockable Resources/Reserve"
-          - "Job/ViewStatus"
+          - "SCM/Tag"
         - assignments:
-          - "jenkins-netcicd-toolbox-run"
-          name: "localNetcicdToolboxRun"
-          pattern: "^NetCICD-developer-toolbox$"
+          - "jenkins-cicdtoolbox-run"
+          name: "CICD-toolbox-run"
+          pattern: "^jenkins-cicdtoolbox-run$"
           permissions:
-          - "Lockable Resources/View"
-          - "Job/Build"
-          - "SCM/Tag"
-          - "Lockable Resources/Unlock"
           - "Credentials/View"
-          - "Run/Replay"
-          - "Job/Cancel"
-          - "Run/Delete"
+          - "Job/Build"
           - "Run/Update"
-          - "Job/Workspace"
-          - "Lockable Resources/Reserve"
-          - "Job/ViewStatus"
+          - "SCM/Tag"
   labelAtoms:
-  - name: "master"
-  numExecutors: 1
-  remotingSecurity:
-    enabled: true
+  - name: "Acc"
+  - name: "Dev"
+  - name: "Prod"
+  - name: "Test"
+  nodes:
+  - permanent:
+      labelString: "Dev"
+      launcher:
+        inbound:
+          workDirSettings:
+            disabled: false
+            failIfWorkDirIsMissing: false
+            internalDir: "remoting"
+            workDirPath: "/home/jenkins"
+      name: "Dev"
+      nodeDescription: "Build node for Dev jobs"
+      numExecutors: 4
+      remoteFS: "/home/jenkins"
+      retentionStrategy: "always"
+  - permanent:
+      labelString: "Test"
+      launcher:
+        inbound:
+          workDirSettings:
+            disabled: false
+            failIfWorkDirIsMissing: false
+            internalDir: "remoting"
+            workDirPath: "/home/jenkins"
+      name: "Test"
+      nodeDescription: "Build node for Dev jobs"
+      numExecutors: 4
+      remoteFS: "/home/jenkins"
+      retentionStrategy: "always"
+  - permanent:
+      labelString: "Acc"
+      launcher:
+        inbound:
+          workDirSettings:
+            disabled: false
+            failIfWorkDirIsMissing: false
+            internalDir: "remoting"
+            workDirPath: "/home/jenkins"
+      name: "Acc"
+      nodeDescription: "Build node for Dev jobs"
+      numExecutors: 4
+      remoteFS: "/home/jenkins"
+      retentionStrategy: "always"
+  - permanent:
+      labelString: "Prod"
+      launcher:
+        inbound:
+          workDirSettings:
+            disabled: false
+            failIfWorkDirIsMissing: false
+            internalDir: "remoting"
+            workDirPath: "/home/jenkins"
+      name: "Prod"
+      nodeDescription: "Build node for Dev jobs"
+      numExecutors: 4
+      remoteFS: "/home/jenkins"
+      retentionStrategy: "always"
+  numExecutors: 0
   securityRealm:
     oic:
       clientId: "Jenkins"
       clientSecret: oic_secret
-      wellKnownOpenIDConfigurationUrl: "http://keycloak:8080/auth/realms/netcicd/.well-known/openid-configuration"
-      tokenServerUrl: "http://keycloak:8080/auth/realms/netcicd/protocol/openid-connect/token"
-      authorizationServerUrl: "http://keycloak:8080/auth/realms/netcicd/protocol/openid-connect/auth"
-      userInfoServerUrl: "http://keycloak:8080/auth/realms/netcicd/protocol/openid-connect/userinfo"
+      wellKnownOpenIDConfigurationUrl: "https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/.well-known/openid-configuration"
+      tokenServerUrl: "https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/token"
+      authorizationServerUrl: "https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/auth"
+      userInfoServerUrl: "https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/userinfo"
       userNameField: "preferred_username"
       fullNameFieldName: "name"
       emailFieldName: "email"
@@ -237,13 +266,12 @@ jenkins:
       scopes: "web-origins address phone openid offline_access profile roles microprofile-jwt email"
       disableSslVerification: false
       logoutFromOpenidProvider: true
-      endSessionEndpoint: "http://keycloak:8080/auth/realms/netcicd/protocol/openid-connect/logout"
-      postLogoutRedirectUrl: "http://jenkins:8084"
+      endSessionEndpoint: "https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/logout"
+      postLogoutRedirectUrl: "https://jenkins.tooling.provider.test:8084"
       escapeHatchEnabled: true
       escapeHatchGroup: "local-admin"
       escapeHatchSecret: ${JENKINS_ADMIN_PASSWORD}
       escapeHatchUsername: ${JENKINS_ADMIN_ID}
-      scopes: "web-origins address phone openid offline_access profile roles microprofile-jwt email"
   globalNodeProperties:
     - envVars:
         env:
@@ -263,12 +291,12 @@ security:
     - "staticMethod jenkins.model.Jenkins getInstance"
 unclassified:
   location:
-    url: http://jenkins:8084/
+    url: https://jenkins.tooling.provider.test:8084/
   giteaServers:
     servers:
     - displayName: "Gitea"
       manageHooks: false
-      serverUrl: "http://gitea:3000"
+      serverUrl: "https://gitea.tooling.provider.test:3000"
   timestamper:
     allPipelines: true
     elapsedTimeFormat: "'<b>'HH:mm:ss.S'</b> '"

@@ -1,0 +1,38 @@
+\{
+    \"gitea-CICDtoolbox-read\": {
+        \"infraautomator\": [\"gitea-CICDtoolbox-read\"]
+    }\,
+    \"gitea-CICDtoolbox-write\": {
+        \"infraautomator\": [\"gitea-CICDtoolbox-write\"]
+    }\,
+    \"gitea-CICDtoolbox-admin\": {
+        \"infraautomator\": [\"gitea-CICDtoolbox-admin\"]
+    }\,
+    \"gitea-netcicd-read\": {
+        \"infraautomator\": [\"gitea-netcicd-read\"]
+    }\,
+    \"gitea-netcicd-write\": {
+        \"infraautomator\": [\"gitea-netcicd-write\"]
+    }\,
+    \"gitea-netcicd-admin\": {
+        \"infraautomator\": [\"gitea-netcicd-admin\"]
+    }\,
+    \"gitea-appcicd-read\": {
+        \"infraautomator\": [\"gitea-appcicd-read\"]
+    }\,
+    \"gitea-appcicd-write\": {
+        \"infraautomator\": [\"gitea-appcicd-write\"]
+    }\,
+    \"gitea-appcicd-admin\": {
+        \"infraautomator\": [\"gitea-appcicd-admin\"]
+    }\,
+    \"gitea-templateapp-read\": {
+        \"infraautomator\": [\"gitea-templateapp-read\"]
+    }\,
+    \"gitea-templateapp-write\": {
+        \"infraautomator\": [\"gitea-templateapp-write\"]
+    }\,
+    \"gitea-templateapp-admin\": {
+        \"infraautomator\": [\"gitea-templateapp-admin\"]
+    }
+\}

@@ -1,4 +1,3 @@
-ace-editor:latest
 ansible:latest
 ant:latest
 antisamy-markup-formatter:latest
@@ -21,6 +20,8 @@ credentials:latest
 credentials-binding:latest
 dashboard-view:latest
 display-url-api:latest
+docker-commons:latest
+docker-workflow:latest
 durable-task:latest
 echarts-api:latest
 email-ext:latest
@@ -34,16 +35,13 @@ git-client:latest
 git-parameter:latest
 git-server:latest
 gitea:latest
-handlebars:latest
 handy-uri-templates-2-api:latest
 htmlpublisher:latest
 jackson2-api:latest
 javadoc:latest
 jdk-tool:latest
-jenkins-multijob-plugin:latest
 job-dsl:latest
 jquery:latest
-jquery-detached:latest
 jquery3-api:latest
 jsch:latest
 junit:latest
@@ -53,7 +51,6 @@ mailer:latest
 matrix-auth:latest
 matrix-project:latest
 maven-plugin:latest
-momentjs:latest
 nexus-artifact-uploader:latest
 nexus-jenkins-plugin:latest
 nexus-task-runner:latest
@@ -62,6 +59,7 @@ pam-auth:latest
 parameterized-trigger:latest
 pipeline-build-step:latest
 pipeline-github-lib:latest
+pipeline-groovy-lib:latest
 pipeline-global-lib-nexus:latest
 pipeline-graph-analysis:latest
 pipeline-input-step:latest
@@ -97,7 +95,6 @@ workflow-aggregator:latest
 workflow-api:latest
 workflow-basic-steps:latest
 workflow-cps:latest
-workflow-cps-global-lib:latest
 workflow-durable-task-step:latest
 workflow-job:latest
 workflow-multibranch:latest

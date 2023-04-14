@@ -1,9 +1,22 @@
 #!/bin/bash
 
-docker-compose start netcicd-db keycloak
-echo "Waiting for Keycloak to come online"
-until $(curl --output /dev/null --silent --head --fail http://keycloak:8080); do
+docker-compose start consul.internal.provider.test vault.internal.provider.test
+echo "Waiting for Vault to come online"
+until $(curl --output /dev/null --silent --head --fail http://vault.internal.provider.test:8200); do
     printf '.'
     sleep 5
 done
+
+docker-compose start cicdtoolbox-db.internal.provider.test keycloak.services.provider.test
+echo "Waiting for Keycloak to come online"
+until $(curl --output /dev/null --silent --head --fail http://keycloak.services.provider.test:8080); do
+    printf '.'
+    sleep 5
+done
+echo "****************************************************************************************************************"
+echo " Creating Grafana Keycloak Client secret"
+echo "****************************************************************************************************************"
+export Grafana_CLIENT_SECRET=$(grep Grafana_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r')
+echo $Grafana_CLIENT_SECRET
+
 docker-compose start 

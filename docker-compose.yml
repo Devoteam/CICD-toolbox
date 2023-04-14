@@ -1,37 +1,217 @@
-version: '3.7'
+version: '3.9'
 networks:
-  tooling:
+  internal:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.16.11.0/24
+        - subnet: 172.16.8.0/20
+
 volumes:
-  netcicd_db:
-  portainer_data:
+  cicdtoolbox_db_data: null
+  cicdtoolbox_db_conf: null
+  gitea:
+    driver: local
+  jenkins_certs: null
+  jenkins_data: null
+  jenkins_conf: null
+  ldap_data: null
+  nexus-work: null
+  nexus-data: null
+  consul-config:
+  consul-data:
+  vault-config:
+  vault-policies:
+  vault-data:
+  vault-logs:
+  backstage:
+  nodered:
+
+secrets:
+  ca_crt:
+    file: ./vault/certs/ca.crt
+  build-dev_key:
+    file: ./vault/certs/build-dev.delivery.provider.test.pem
+  build-dev_crt:
+    file: ./vault/certs/build-dev.delivery.provider.test.crt
+  cicdtoolbox-db_key:
+    file: ./vault/certs/cicdtoolbox-db.internal.provider.test.pem
+  cicdtoolbox-db_crt:
+    file: ./vault/certs/cicdtoolbox-db.internal.provider.test.crt
+  gitea_key:
+    file: ./vault/certs/gitea.tooling.provider.test.pem
+  gitea_crt:
+    file: ./vault/certs/gitea.tooling.provider.test.crt
+  jenkins_key:
+    file: ./vault/certs/jenkins.tooling.provider.test.pem
+  jenkins_crt:
+    file: ./vault/certs/jenkins.tooling.provider.test.crt
+  dev_jenkins_secret:
+    file: ./jenkins_buildnode/Dev_secret.txt
+  keycloak_key:
+    file: ./vault/certs/keycloak.services.provider.test.pem
+  keycloak_crt:
+    file: ./vault/certs/keycloak.services.provider.test.crt
+  ldap_key:
+    file: ./vault/certs/ldap.iam.provider.test.pem
+  ldap_crt:
+    file: ./vault/certs/ldap.iam.provider.test.crt
+  nexus_key:
+    file: ./vault/certs/nexus.tooling.provider.test.pem
+  nexus_crt:
+    file: ./vault/certs/nexus.tooling.provider.test.crt
 
 services:
-  netcicd-db:
-    container_name: netcicd-db
-    build: netcicd-db
+
+  ldap.iam.provider.test:
+    container_name: ldap.iam.provider.test
+    build: lldap
+    restart: unless-stopped
+    hostname: ldap
+    expose:
+      - '3890'
+    secrets:
+      - source: ldap_key
+        target: /data/key.pem
+      - source: ldap_crt
+        target: /data/cert.crt
+    volumes:
+      - "./lldap/data:/data"
+    networks:
+      internal:
+        ipv4_address: 172.16.8.11
+
+  cicdtoolbox-db.internal.provider.test:
+    container_name: cicdtoolbox-db.internal.provider.test
+    build: cicdtoolbox-db
+    command: |
+      -c ssl=on  -c ssl_cert_file=/var/lib/postgresql/server.crt -c ssl_key_file=/var/lib/postgresql/server.key
     restart: unless-stopped
     init: true
     stop_signal: SIGINT
     stop_grace_period: 15s
     environment:
-      - 'POSTGRES_MULTIPLE_DATABASES=gitea,keycloak'
+      - 'POSTGRES_MULTIPLE_DATABASES=gitea,keycloak,sonar,terraform,grafana,netbox,backstage'
       - POSTGRES_USER=netcicd
       - POSTGRES_PASSWORD=netcicd
+    secrets:
+      - source: cicdtoolbox-db_key
+        target: /var/lib/postgresql/server1.key
+      - source: cicdtoolbox-db_crt
+        target: /var/lib/postgresql/server.crt
+      - source: ca_crt
+        target: /var/lib/postgresql/root.crt
     networks:
-      tooling:
-        ipv4_address: 172.16.11.2
+      internal:
+        ipv4_address: 172.16.9.2
     expose:
       - '5432'
     volumes:
-      - netcicd_db:/var/lib/postgresql/data
+      - 'cicdtoolbox_db_data:/var/lib/postgresql/data'
+      - 'cicdtoolbox_db_conf:/etc/postgresql'
+      - './cicdtoolbox-db/docker-entrypoint-initdb-resources:/docker-entrypoint-initdb-resources:ro'
+    # healthcheck:
+    #   test: ["CMD-SHELL", "pg_isready -U postgres"]
+    #   interval: 5s
+    #   timeout: 5s
+    #   retries: 5
 
-  gitea:
-    container_name: gitea
+  consul.internal.provider.test:
+    container_name: consul.internal.provider.test
+    build:
+      context: ./vault
+      dockerfile: docker/Dockerfile-consul
+    restart: unless-stopped
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
+    networks:
+      internal:
+        ipv4_address: 172.16.9.4
+    volumes:
+      - consul-data:/consul/data
+    healthcheck:
+      # return information about the status of the Consul cluster https://www.consul.io/api/status.html
+      test: ["CMD", "curl", "-X", "GET", "172.16.9.4:8500/v1/status/leader"]
+      interval: 1s
+      timeout: 3s
+      retries: 60
+
+  vault.internal.provider.test:
+    container_name: vault.internal.provider.test
+    build:
+      context: ./vault
+      dockerfile: docker/Dockerfile-vault
+    # depends_on:
+    #   consul.internal.provider.test:
+    #     condition: service_healthy
+    #     restart: true
+    restart: unless-stopped
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
+    networks:
+      internal:
+        ipv4_address: 172.16.9.5
+    expose:
+      - '8200'
+    volumes:
+      - vault-config:/vault/config
+      - vault-policies:/vault/policies
+      - vault-data:/vault/data
+      - vault-logs:/vault/logs
+    environment:
+      - VAULT_ADDR=http://vault.internal.provider.test:8200
+      - VAULT_API_ADDR=http://vault.internal.provider.test:8200
+    cap_add:
+      - IPC_LOCK
+    depends_on:
+      - consul.internal.provider.test
+
+  keycloak.services.provider.test:
+    container_name: keycloak.services.provider.test
+    build: keycloak
+    # depends_on:
+    #   cicdtoolbox-db.internal.provider.test:
+    #     condition: service_healthy
+    #     restart: unless-stopped
+    #   ldap.iam.provider.test:
+    #     condition: service_started
+    #     restart: unless-stopped
+    restart: unless-stopped
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: cicdtoolbox-db.internal.provider.test
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: keycloak
+      KEYCLOAK_USER: local-admin
+      KEYCLOAK_PASSWORD: Pa55w0rd
+      JDBC_PARAMS: ssl=true&sslmode=verify-ca&sslrootcert=/etc/pki/ca-trust/source/anchors/ca.crt
+    secrets:
+      - source: keycloak_key
+        target: /etc/x509/https/tls.key
+      - source: keycloak_crt
+        target: /etc/x509/https/tls.crt
+    networks:
+      internal:
+        ipv4_address: 172.16.10.11
+    ports:
+      - '8080:8080'
+      - '8443:8443'
+    depends_on:
+      - cicdtoolbox-db.internal.provider.test
+
+  gitea.tooling.provider.test:
+    container_name: gitea.tooling.provider.test
     build: gitea
+    # depends_on:
+    #   cicdtoolbox-db.internal.provider.test:
+    #     condition: service_healthy
+    #     restart: true
     restart: unless-stopped
     init: true
     stop_signal: SIGINT
@@ -39,122 +219,179 @@ services:
     environment:
       - USER_UID=1000
       - USER_GID=1000
-      - DOMAIN=gitea
-      - SSH_DOMAIN=gitea
-      - DB_TYPE=postgres
-      - 'DB_HOST=netcicd-db:5432'
-      - DB_NAME=gitea
-      - DB_USER=gitea
-      - DB_PASSWD=gitea
-      - INSTALL_LOCK=true
-      - SECRET_KEY=z5sRR3DQ4ZxJ5EcFSM8amg9eEfyLffxssDcO14bs2JlZRLwPl3E3PQ24xDMGB56j
-      - REQUIRE_SIGNIN_VIEW=true
+      - GITEA__server__DOMAIN=gitea.tooling.provider.test
+      - GITEA__database__USER=gitea
+      - GITEA__database__PASSWD=gitea
+    secrets:
+      - source: ca_crt
+        target: /usr/local/share/ca-certificates/CICD-toolbox-ca.crt
+      # - source: gitea_key
+      #   target: /data/gitea/gitea.tooling.provider.test.key
     networks:
-      tooling:
+      internal:
         ipv4_address: 172.16.11.3
     volumes:
-      - './gitea/data:/data'
+      - 'gitea:/data'
       - '/etc/timezone:/etc/timezone:ro'
       - '/etc/localtime:/etc/localtime:ro'
-    ports:
-      - '3000:3000'
+    expose:
+      - '3000'
     depends_on:
-      - netcicd-db
-      - keycloak
+      - cicdtoolbox-db.internal.provider.test
+      - keycloak.services.provider.test
 
-  jenkins:
-    container_name: jenkins
+  jenkins.tooling.provider.test:
+    container_name: jenkins.tooling.provider.test
     build: ./jenkins
     restart: unless-stopped
     privileged: true
     user: root
     networks:
-      tooling:
+      internal:
         ipv4_address: 172.16.11.8
     environment:
-      - JENKINS_ADMIN_ID=jenkins_admin
+      - JENKINS_ADMIN_ID=local-admin
       - JENKINS_ADMIN_PASSWORD=netcicd
       - NETCICD_PASSWORD=netcicd
       - CML_USER=developer
       - CML_PASSWORD=C1sco12345
-      - 'CML_URL=https://10.10.20.161'
-      - GITEA_IP=10.10.20.50
-      - JENKINS_IP=10.10.20.50
-      - NEXUS_IP=10.10.20.50
-      - GIT_JENKINS_PASSWORD=netcicd
-      - NEXUS_JENKINS_PASSWORD=netcicd
-      - ARGOS_JENKINS_PASSWORD=netcicd
-      - JENKINS_AGENT_CREATOR=netcicd
-      - JENKINS_AGENT_CREATOR_KEY=somekey
+      - 'CML_URL=https://192.168.32.161'
+      - GITEA_IP=172.16.11.3
+      - JENKINS_IP=172.16.11.8
+      - NEXUS_IP=172.16.11.9
+      - JENKINS_NEXUS_PASSWORD=netcicd
+      - JENKINS_ARGOS_PASSWORD=netcicd
+    secrets:
+      - source: jenkins_key
+        target: /var/jenkins_home/jenkins.tooling.provider.test.pem
+      - source: jenkins_crt
+        target: /var/jenkins_home/jenkins.tooling.provider.test.crt
     volumes:
-      - './jenkins/keystore:/var/jenkins_home/keystore'
+      - 'jenkins_certs:/certs/client'
+      - 'jenkins_data:/var/jenkins_home'
+      - 'jenkins_conf:/var/jenkins_conf'
     ports:
       - '8084:8084'
       - '50000:50000'
     depends_on:
-      - keycloak
+      - keycloak.services.provider.test
 
-  nexus:
-    container_name: nexus
-    build: ./nexus
+
+  nexus.tooling.provider.test:
+    container_name: nexus.tooling.provider.test
+    build: nexus
     restart: unless-stopped
     init: true
     stop_signal: SIGINT
     stop_grace_period: 15s
     user: nexus
     environment:
-      BASE_URL: 'http://nexus:8081'
-      NEXUS_SECURITY_RANDOMPASSWORD: 'false'
+      BASE_URL: 'https://nexus.tooling.provider.test:8443'
+      NEXUS_SECURITY_RANDOMPASSWORD: 'true'
       NEXUS_CASC_CONFIG: /opt/nexus.yaml
+    secrets:
+      - source: ca_crt
+        target: /nexus-data/etc/ssl/ca.crt
     volumes:
-      - './nexus/data:/sonatype-work'
+      - nexus-work:/sonatype-work
+      - nexus-data:/nexus-data
     ulimits:
       nofile:
         soft: 65536
         hard: 65536
     networks:
-      tooling:
+      internal:
         ipv4_address: 172.16.11.9
     ports:
       - '8081:8081'
-
-  keycloak:
-    container_name: keycloak
-    build: keycloak
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    environment:
-      DB_VENDOR: POSTGRES
-      DB_ADDR: netcicd-db
-      DB_DATABASE: keycloak
-      DB_USER: keycloak
-      DB_SCHEMA: public
-      DB_PASSWORD: keycloak
-      KEYCLOAK_USER: admin
-      KEYCLOAK_PASSWORD: Pa55w0rd
-    networks:
-      tooling:
-        ipv4_address: 172.16.11.11
-    ports:
-      - '8080:8080'
-      - '8443:8443'
     depends_on:
-      - netcicd-db
+      - keycloak.services.provider.test
 
-  portainer:
-    container_name: portainer
-    image: portainer/portainer-ce
+  build-dev.delivery.provider.test:
+    container_name: build-dev.delivery.provider.test
+    build:
+      context: ./jenkins_buildnode
+      dockerfile: Dockerfile
     restart: unless-stopped
     init: true
     stop_signal: SIGINT
     stop_grace_period: 15s
-    volumes:
-      - portainer_data:/data
-      - '/var/run/docker.sock:/var/run/docker.sock'
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      BUILD_ENVIRONMENT: 'Dev'
+      ANSIBLE_TF_DIR: 'AppCICD'
+      ARM_SKIP_PROVIDER_REGISTRATION: 'true'
+      RUNNER_TOKEN: ${RUNNER_TOKEN}
+    secrets:
+      - source: dev_jenkins_secret
+        target: /home/jenkins/secret-file.txt
+    expose:
+      - '50000'
     networks:
-      tooling:
-        ipv4_address: 172.16.11.15
+      internal:
+        ipv4_address: 172.16.12.2
+
+  restportal.services.provider.test:
+    container_name: restportal.services.provider.test
+    image: mockoon/cli:latest
+    command: --data data
+    networks:
+      internal:
+        ipv4_address: 172.16.10.2
+    volumes:
+      - type: bind
+        source: ./restportal/bis2.json
+        target: /data
     ports:
-      - '9000:9000'
+      - '3001:3001'
+
+  # nodered.tooling.provider.test:
+  #   container_name: nodered.tooling.provider.test
+  #   image: nodered/node-red:latest
+  #   environment:
+  #     - TZ=Europe/Amsterdam
+  #   volumes:
+  #     - nodered:/data
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.11.13
+  #   expose:
+  #     - "1880"     
+
+  # backstage.tooling.provider.test:
+  #   container_name: backstage.tooling.provider.test
+  #   build:
+  #     context: ./backstage
+  #     dockerfile: Dockerfile
+  #   #environment:
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.11.14
+  #   ports:
+  #     - '3000:3000'
+  #     - '7000:7000'
+
+  # oauth2-proxy.tooling.provider.test:
+  #   container_name: oauth2-proxy.tooling.provider.test
+  #   image: quay.io/oauth2-proxy/oauth2-proxy:latest
+  #   command:
+  #     - '--provider=oidc'
+  #     - '--email-domain=*'
+  #     - '--upstream=http://backstage.tooling.provider.test:7007'
+  #     - '--http-address=0.0.0.0:4180'
+  #     - '--skip-provider-button'
+  #   environment:
+  #     - OAUTH2_PROXY_CLIENT_ID=Backstage
+  #     - OAUTH2_PROXY_CLIENT_SECRET=client_secret
+  #     - OAUTH2_PROXY_COOKIE_SECRET=verysecret_cookie_secret
+  #     - OAUTH2_PROXY_OIDC_ISSUER_URL=https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox
+  #     - OAUTH2_PROXY_SSL_INSECURE_SKIP_VERIFY=true
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.11.15
+  #   ports:
+  #     - '4180:4180'
+
+
