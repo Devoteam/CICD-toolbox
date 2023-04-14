@@ -347,51 +347,51 @@ services:
     ports:
       - '3001:3001'
 
-  nodered.tooling.provider.test:
-    container_name: nodered.tooling.provider.test
-    image: nodered/node-red:latest
-    environment:
-      - TZ=Europe/Amsterdam
-    volumes:
-      - nodered:/data
-    networks:
-      internal:
-        ipv4_address: 172.16.11.13
-    expose:
-      - "1880"     
+  # nodered.tooling.provider.test:
+  #   container_name: nodered.tooling.provider.test
+  #   image: nodered/node-red:latest
+  #   environment:
+  #     - TZ=Europe/Amsterdam
+  #   volumes:
+  #     - nodered:/data
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.11.13
+  #   expose:
+  #     - "1880"     
 
-  backstage.tooling.provider.test:
-    container_name: backstage.tooling.provider.test
-    build:
-      context: ./backstage
-      dockerfile: Dockerfile
-    #environment:
-    networks:
-      internal:
-        ipv4_address: 172.16.11.14
-    ports:
-      - '3000:3000'
-      - '7000:7000'
+  # backstage.tooling.provider.test:
+  #   container_name: backstage.tooling.provider.test
+  #   build:
+  #     context: ./backstage
+  #     dockerfile: Dockerfile
+  #   #environment:
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.11.14
+  #   ports:
+  #     - '3000:3000'
+  #     - '7000:7000'
 
-  oauth2-proxy.tooling.provider.test:
-    container_name: oauth2-proxy.tooling.provider.test
-    image: quay.io/oauth2-proxy/oauth2-proxy:latest
-    command:
-      - '--provider=oidc'
-      - '--email-domain=*'
-      - '--upstream=http://backstage.tooling.provider.test:7007'
-      - '--http-address=0.0.0.0:4180'
-      - '--skip-provider-button'
-    environment:
-      - OAUTH2_PROXY_CLIENT_ID=Backstage
-      - OAUTH2_PROXY_CLIENT_SECRET=client_secret
-      - OAUTH2_PROXY_COOKIE_SECRET=verysecret_cookie_secret
-      - OAUTH2_PROXY_OIDC_ISSUER_URL=https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox
-      - OAUTH2_PROXY_SSL_INSECURE_SKIP_VERIFY=true
-    networks:
-      internal:
-        ipv4_address: 172.16.11.15
-    ports:
-      - '4180:4180'
+  # oauth2-proxy.tooling.provider.test:
+  #   container_name: oauth2-proxy.tooling.provider.test
+  #   image: quay.io/oauth2-proxy/oauth2-proxy:latest
+  #   command:
+  #     - '--provider=oidc'
+  #     - '--email-domain=*'
+  #     - '--upstream=http://backstage.tooling.provider.test:7007'
+  #     - '--http-address=0.0.0.0:4180'
+  #     - '--skip-provider-button'
+  #   environment:
+  #     - OAUTH2_PROXY_CLIENT_ID=Backstage
+  #     - OAUTH2_PROXY_CLIENT_SECRET=client_secret
+  #     - OAUTH2_PROXY_COOKIE_SECRET=verysecret_cookie_secret
+  #     - OAUTH2_PROXY_OIDC_ISSUER_URL=https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox
+  #     - OAUTH2_PROXY_SSL_INSECURE_SKIP_VERIFY=true
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.11.15
+  #   ports:
+  #     - '4180:4180'
 
 
