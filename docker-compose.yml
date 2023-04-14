@@ -108,11 +108,11 @@ services:
       - 'cicdtoolbox_db_data:/var/lib/postgresql/data'
       - 'cicdtoolbox_db_conf:/etc/postgresql'
       - './cicdtoolbox-db/docker-entrypoint-initdb-resources:/docker-entrypoint-initdb-resources:ro'
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+    # healthcheck:
+    #   test: ["CMD-SHELL", "pg_isready -U postgres"]
+    #   interval: 5s
+    #   timeout: 5s
+    #   retries: 5
 
   consul.internal.provider.test:
     container_name: consul.internal.provider.test
@@ -211,7 +211,7 @@ services:
     #   cicdtoolbox-db.internal.provider.test:
     #     condition: service_healthy
     #     restart: true
-    #     restart: unless-stopped
+    restart: unless-stopped
     init: true
     stop_signal: SIGINT
     stop_grace_period: 15s
