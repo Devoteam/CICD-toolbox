@@ -78,6 +78,8 @@ Install [Docker Buildkit](https://docs.docker.com/build/buildkit/#getting-starte
 } 
 ```
 
+Reboot to make sure all changes are activated.
+
 Install [Hashicorp Vault](https://www.hashicorp.com/official-packaging-guide):
 
 ```sudo apt update && sudo apt install gpg```
