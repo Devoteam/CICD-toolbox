@@ -1,0 +1,3794 @@
+swagger: "2.0"
+info:
+  description: "This is the Swagger API voor an imaginary SP."
+  version: "0.0.1"
+  title: "Prov Portal"
+  termsOfService: "https://restportal.services.provider.test/terms"
+  contact:
+    email: "automation@provider.test"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "restportal.services.provider.test:3001"
+basePath: "/v001"
+externalDocs:
+  description: 'For information on the services, see the portal'
+  url: 'https://restportal.services.provider.test/portfolio'
+schemes:
+- "http"
+consumes:
+- application/json
+produces:
+- application/json
+responses:
+  InternalServerError:
+    description: Internal Server Error
+  NotFound:
+    description: Not Found
+securityDefinitions:
+  bisportal_auth:
+    type: oauth2
+    description: Oauth2         
+    authorizationUrl: 'http://oauth.provider.test/oauth/dialog'
+    flow: implicit
+    scopes:
+      write:tenant: Change Tenants
+      read:tenant: Retrieve data about Tenants
+      write:az: Change AZ
+      read:az: Retrieve data about an AZ
+      write:computecluster: Change Compute Cluster
+      read:computecluster: Retrieve data about Compute Cluster
+      write:storagecontroller: Change Storage Controller
+      read:storagecontroller: Retrieve data about Storage Controller
+      write:storagecluster: Change Storage Cluster
+      read:storagecluster: Retrieve data about Storage Cluster
+      write:application: Change Application
+      read:application: Retrieve data about an Application
+      write:environment: Change an environment
+      read:environment: Retrieve data about an environment
+      write:compartment: Change a compartiment
+      read:compartment: Retrieve data about a compartiment
+      write:server: Change a Server
+      read:server: Retrieve data about a Server
+      write:image: Change an image
+      read:image: Retrieve data about an image
+      write:conduit: Change a conduit
+      read:conduit: Retrieve data about a conduit
+      write:database: Change a database
+      read:database: Retrieve data about a database
+      write:domein: Change a domain
+      read:domein: Retrieve data about a domain
+  api_key:
+    type: "apiKey"
+    name: "api_key"
+    description: key
+    in: "header"
+tags:
+- name: tenant
+  description: The tenant owning applications.
+  externalDocs:
+    description: TS
+    url: 'https://provportal.provider.test/portfolio'
+- name: application
+  description: Attachment point for environments.
+  externalDocs:
+    description: TS
+    url: 'https://provportal.provider.test/portfolio'
+- name: environment
+  description: Environment.
+  externalDocs:
+    description: TS
+    url: 'https://provportal.provider.test/portfolio'
+- name: compartment
+  description: Tier of an application/subnet.
+  externalDocs:
+    description: TS
+    url: 'https://provportal.provider.test/portfolio'
+- name: server
+  description: Compute machine, (virtual) hardware.
+  externalDocs:
+    description: TS
+    url: 'https://provportal.provider.test/portfolio'
+- name: image
+  description: Operating system and system software.
+  externalDocs:
+    description: TS
+    url: 'https://provportal.provider.test/portfolio'
+- name: conduit
+  description: Traffic path to or from an environment.
+  externalDocs:
+    description: TS
+    url: 'https://provportal.provider.test/portfolio'
+paths:
+  /tenants:
+    post:
+      tags:
+      - tenant
+      summary: Add a tenant
+      description: Approval required.
+      operationId: addTenant
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: Tenant to be enabled in the DC.
+        required: true
+        schema:
+          $ref: '#/definitions/tenant'
+      responses:
+        "201":
+          description: Created
+          headers:
+            Location:
+              type: string
+              format: url
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/tenant'
+        "400":
+          description: Bad Request
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+
+  /tenants/{tenant_id}:
+    get:
+      tags:
+      - tenant
+      summary: Find tenant on ID.
+      description: Return a single tenant
+      operationId: getTenantById
+      produces:
+      - application/json
+      parameters:
+      - name: tenant_id
+        description: Find tenant on ID.
+        in: path
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "private, max-age=43200, must-revalidate"
+              type: string
+          schema:
+            $ref: '#/definitions/tenant'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string  
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string              
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string         
+          schema:
+            $ref: '#/definitions/error'
+
+    put:
+      tags:
+      - tenant
+      summary: Edit tenant
+      description: Edit tenant
+      operationId: updateTenant
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: tenant_id
+        description: Edit existing tenant
+        in: path
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/tenant'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+
+    delete:
+      tags:
+      - tenant
+      summary: Remove a tenant.
+      description: Remove a tenant.
+      operationId: deleteTenant
+      produces:
+      - application/json
+      parameters:
+      - name: tenant_id
+        description: delete existing tenant
+        in: path
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/tenant'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+  /applications:
+    post:
+      tags:
+      - application
+      summary: Add an application 
+      description: Permission required.
+      operationId: addApplication
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - description: Add an application 
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/application'
+      responses:
+        "201":
+          description: Created
+          headers:
+            Location:
+              type: string
+              format: url
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/application'
+        "400":
+          description: Bad Request
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+
+  /applications/{id}:
+    get:
+      tags:
+      - application
+      summary: Find application on ID.
+      description: Find application on ID.
+      operationId: getApplicationById
+      produces:
+      - application/json
+      parameters:
+      - description: Find application on ID.
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "private, max-age=43200, must-revalidate"
+              type: string
+          schema:
+            $ref: '#/definitions/application'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string  
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string              
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string         
+          schema:
+            $ref: '#/definitions/error'
+
+    put:
+      tags:
+      - application
+      summary: Edit an  application.
+      description: Edit an  application.
+      operationId: updateApplication
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - description: Find application on ID.
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/application'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+
+    delete:
+      tags:
+      - application
+      summary: Verwijderen of een application.
+      description: Verwijderen of een application.
+      operationId: deleteApplication
+      produces:
+      - application/json
+      parameters:
+      - name: "api_key"
+        description: somekey
+        in: "header"
+        required: false
+        type: "string"
+      - name: id
+        description: ID of the application die moet worden verwijderd.
+        in: path
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/application'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+
+  /environments:
+    post:
+      tags:
+      - environment
+      summary: Add an environment 
+      description: Add an environment
+      operationId: addEnvironment
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - description: Add an environment
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/environment'
+      responses:
+        "201":
+          description: Created
+          headers:
+            Location:
+              type: string
+              format: url
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/environment'
+        "400":
+          description: Bad Request
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+
+  /environments/{id}:
+    get:
+      tags:
+      - environment
+      summary: Find environment on ID.
+      description: Returns environment.
+      operationId: getEnvironmentById
+      produces:
+      - application/json
+      parameters:
+      - description: Environment to be found.
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "private, max-age=43200, must-revalidate"
+              type: string
+          schema:
+            $ref: '#/definitions/environment'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string  
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string              
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string         
+          schema:
+            $ref: '#/definitions/error'
+
+    put:
+      tags:
+      - environment
+      summary: Edit environment
+      description: Edit environment
+      operationId: updateEnvironment
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - description: Environment to be found.
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/environment'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+
+    delete:
+      tags:
+      - environment
+      summary: Delete an environment.
+      description: Delete an environment.
+      operationId: deleteEnvironment
+      produces:
+      - application/json
+      parameters:
+      - name: "api_key"
+        description: somekey
+        in: "header"
+        required: false
+        type: "string"
+      - name: id
+        description: ID of the environment to be deleted
+        in: path
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/environment'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+
+  /compartments:
+    post:
+      tags:
+      - compartment
+      summary: Add an compartment 
+      description: Add an compartment
+      operationId: addCompartment
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - description: Add an compartment
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/compartment'
+      responses:
+        "201":
+          description: Created
+          headers:
+            Location:
+              type: string
+              format: url
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/compartment'
+        "400":
+          description: Bad Request
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+
+  /compartments/{id}:
+    get:
+      tags:
+      - compartment
+      summary: Find compartment on ID.
+      description: Returns compartment.
+      operationId: getCompartmentById
+      produces:
+      - application/json
+      parameters:
+      - description: Compartment to be found.
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "private, max-age=43200, must-revalidate"
+              type: string
+          schema:
+            $ref: '#/definitions/compartment'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string  
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string              
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string         
+          schema:
+            $ref: '#/definitions/error'
+
+    put:
+      tags:
+      - compartment
+      summary: Edit compartment
+      description: Edit compartment
+      operationId: updateCompartment
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - description: Compartment to be found.
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/compartment'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+
+    delete:
+      tags:
+      - compartment
+      summary: Delete an compartment.
+      description: Delete an compartment.
+      operationId: deleteCompartment
+      produces:
+      - application/json
+      parameters:
+      - name: "api_key"
+        description: somekey
+        in: "header"
+        required: false
+        type: "string"
+      - name: id
+        description: ID of the compartment to be deleted
+        in: path
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/compartment'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+
+  /servers:
+    post:
+      tags:
+      - server
+      summary: Add server
+      description: Add server
+      operationId: addServer
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: Add server
+        required: true
+        schema:
+          $ref: '#/definitions/server'
+      responses:
+        "201":
+          description: Created
+          headers:
+            Location:
+              type: string
+              format: url
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/server'
+        "400":
+          description: Bad Request
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+
+  /servers/{id}:
+    get:
+      tags:
+      - server
+      summary: Find server on ID.
+      description: Returns single Server
+      operationId: getServerById
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        description: Server to be found.
+        in: path
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "private, max-age=43200, must-revalidate"
+              type: string
+          schema:
+            $ref: '#/definitions/server'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string  
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string              
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string         
+          schema:
+            $ref: '#/definitions/error'
+
+    put:
+      tags:
+      - server
+      summary: Edit server
+      description: Edit server
+      operationId: updateServer
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        description: Server to be found.
+        in: path
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/server'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+
+    delete:
+      tags:
+      - server
+      summary: Verwijderen of een server.
+      description: Verwijderen of een server.
+      operationId: deleteServer
+      produces:
+      - application/json
+      parameters:
+      - name: "api_key"
+        description: somekey
+        in: "header"
+        required: false
+        type: "string"
+      - name: id
+        description: ID of the server die moet worden verwijderd.
+        in: path
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/server'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+
+  /images:
+    post:
+      tags:
+      - image
+      summary: Een nieuw image toevoegen
+      description: Image moet zijn goedgekeurd
+      operationId: addImage
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - description: Image wat beschikbaar wordt gesteld in the datacenter.
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/image'
+      responses:
+        "201":
+          description: Created
+          headers:
+            Location:
+              type: string
+              format: url
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/image'
+        "400":
+          description: Bad Request
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+
+  /images/{id}:
+    get:
+      tags:
+      - image
+      summary: Find image on ID.
+      description: Returns single image
+      operationId: getImageById
+      produces:
+      - application/json
+      parameters:
+      - description: Image to be found
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "private, max-age=43200, must-revalidate"
+              type: string
+          schema:
+            $ref: '#/definitions/image'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string  
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string              
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string         
+          schema:
+            $ref: '#/definitions/error'
+
+    put:
+      tags:
+      - image
+      summary: Bestaand image bijwerken.
+      description: Bijwerken of the wijzigbare gegevens of een image.
+      operationId: updateImage
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - description: Image to be found
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/image'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+
+    delete:
+      tags:
+      - image
+      summary: Verwijderen of een image.
+      description: Verwijderen of een image.
+      operationId: deleteImage
+      produces:
+      - application/json
+      parameters:
+      - name: "api_key"
+        description: somekey
+        in: "header"
+        required: false
+        type: "string"
+      - name: id
+        description: ID of the image dat moet worden verwijderd.
+        in: path
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/image'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+
+  /conduits:
+    post:
+      tags:
+      - conduit
+      summary: Add a conduit
+      description: Add a conduit
+      operationId: addConduit
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - description: "Unidirectional data path"
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/conduit'
+      responses:
+        "201":
+          description: Created
+          headers:
+            Location:
+              type: string
+              format: url
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/conduit'
+        "400":
+          description: Bad Request
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+
+  /conduits/{id}:
+    get:
+      tags:
+      - conduit
+      summary: Find conduit on ID.
+      description: Returns single conduit
+      operationId: getConduitById
+      produces:
+      - application/json
+      parameters:
+      - description: Conduit to be found
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "private, max-age=43200, must-revalidate"
+              type: string
+          schema:
+            $ref: '#/definitions/conduit'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string  
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string              
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string         
+          schema:
+            $ref: '#/definitions/error'
+
+    put:
+      tags:
+      - conduit
+      summary: Change a conduit.
+      description: Change a conduit.
+      operationId: updateConduit
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - description: Conduit to be found
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/conduit'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+
+    delete:
+      tags:
+      - conduit
+      summary: Delete a conduit.
+      description: Delete a conduit.
+      operationId: deleteConduit
+      produces:
+      - application/json
+      parameters:
+      - name: "api_key"
+        description: somekey
+        in: "header"
+        required: false
+        type: "string"
+      - name: id
+        description: ID of the conduit to be deleted.
+        in: path
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/conduit'
+        "401":
+          description: Unauthorized
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "403":
+          description: Forbidden
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          headers:
+            Date: 
+              type: string
+              format: date
+            TrackingId: 
+              type: string
+              format: uuid
+            Cache-Control:
+              default:  "max-age=0, no-cache, no-store"
+              type: string
+          schema:
+            $ref: '#/definitions/error'
+
+definitions:
+  error:
+    required:
+      - status
+      - code
+      - message
+    description: Error response media type (default view)
+    example:
+      code: invalid_value
+      detail: Value of ID must be an integer
+      id: 000000001
+      meta:
+        timestamp: 1.458609e+09
+      status: "400"
+    properties:
+      code:
+        description: an application-specific error code, expressed as a string value.
+        example: invalid_value
+        type: string
+      detail:
+        description: a human-readable explanation specific to this occurrence of the
+          problem.
+        example: Value of ID must be an integer
+        type: string
+      id:
+        description: a unique identifier for this particular occurrence of the problem.
+        example: 3F1FKVRR
+        type: string
+      meta:
+        additionalProperties: true
+        description: a meta object containing non-standard meta-information about
+          the error.
+        example:
+          timestamp: 1.458609e+09
+        type: object
+      status:
+        description: the HTTP status code applicable to this problem, expressed as
+          a string value.
+        example: "400"
+        type: string
+      message:
+        description: a human-readable explanation specific to this occurrence of the
+          problem.
+        example: Value of ID must be an integer
+        type: string
+      moreInfo:
+        description: a human-readable explanation specific to this occurrence of the
+          problem.
+        example: Value of ID must be an integer
+        type: string
+    title: 'Error'
+    type: object
+  contract:
+    title: contract
+    type: object
+    description: Contract in the datacenter
+    example:
+      id: 1
+      name: Richie
+      description: The paying party
+      costcenter: 123456789
+      version: 1
+      status: Operational
+      created: 2018-10-02T10:00:00.00Z
+      updated: 2018-10-02T10:00:00.00Z
+      lastchange: "Someuser"
+      centercode: "0123456789"
+      change: MyChangeteam
+      view: MyViewers
+      responsible: TheOperators
+      accountable: TheKlos
+      inform: InTheDarkteam
+      developer:   TheInventors
+    properties:
+      id:
+        description: Unique contract ID
+        example: 1
+        readOnly: true
+        type: integer
+      name:
+        description: Name of contract
+        example: krt
+        minLength: 1
+        type: string
+      description:
+        description: Description of contract
+        example: x
+        minLength: 1
+        type: string
+      costcenter:
+        description: Costcenter of contract
+        example: 123456789
+        type: string
+      status:
+        description: Status of contract
+        example: Actief
+        type: string
+        enum:
+        - Actief
+        - Inactief
+    required:
+    - name
+    - costcenter
+    - status
+    xml:
+      name: contract
+  tenant:
+    title: tenant
+    type: object
+    description: Tenant in the datacenter
+    example:
+      id: 1
+      name: hushhush
+      description: The secret tenant
+      costcenter: 123456789
+      version: 1
+      status: Operational
+      created: 2018-10-02T10:00:00.00Z
+      updated: 2018-10-02T10:00:00.00Z
+      lastchange: "Someuser"
+      centercode: "0123456789"
+      change: MyChangeteam
+      view: MyViewers
+      responsible: TheOperators
+      accountable: TheKlos
+      inform: InTheDarkteam
+      developer:   TheInventors
+    properties:
+      id:
+        description: Value generated by the back-end to uniquely identify a tenant
+        example: 1
+        readOnly: true
+        type: integer
+      name:
+        description: Name of the tenant
+        example: krt
+        minLength: 1
+        type: string
+      description:
+        description: Description of the tenant
+        example: x
+        minLength: 1
+        type: string
+      party:
+        description: Paying party (contract) for the tenant
+        example: "Betaler" 
+        minLength: 1
+        type: string
+      status:
+        description: Status of the tenant
+        example: Operational
+        type: string
+        enum:
+        - Radar
+        - Planned
+        - High Level Design
+        - Detailed Design
+        - Build
+        - Test
+        - Accept
+        - RFS
+        - Operational
+        - End-of-life
+        - Retired
+        - Removed
+      created:
+        description: Value generated by the back-end on create time (read-only) 
+        example: "2018-10-02T10:00:00.00Z"
+        type: string
+        format: date-time
+      updated:
+        description: Value generated by the back-end on update time (read-only) 
+        example: "2018-10-02T10:00:00.00Z"
+        type: string
+        format: date-time
+      lastchange:
+        description: Value generated by the back-end to indicate the user that last changed anything (read-only)
+        example: someuser@prov.test
+        type: string
+      centercode:
+        description: Accounting ID
+        example: 0123456789
+        type: string
+      change:
+        description: Group name of system role permitted to Change/Update/Delete
+        example: MyChangeTeam
+        type: string
+      view:
+        description: Group name of system role permitted to Read
+        example: MyViewers
+        type: string
+      responsible:
+        description: Group name of system role linked in IAM to operations team (responsible)
+        example: TheOperators
+        type: string
+      accountable:
+        description: Group name of system role linked in IAM to tactical operations team (accountable)
+        example: TheKlos
+        type: string
+      inform:
+        description: Group name of system role linked in IAM to owner (inform)
+        example: InTheDarkteam
+        type: string
+      developer:
+        description: Group name of system role linked in IAM to development team (Management-Supporting)
+        example: TheInventors
+        type: string
+    required:
+    - name
+    - party
+    - status
+    - centercode
+    xml:
+      name: tenant
+  az:
+    title: az
+    type: object
+    description: AZ in the datacenter
+    example:
+      id: 1
+      name: shared
+      description: The shared az
+      region: ODC
+      az: 1
+      party: TheProv
+      version: 1
+      status: Operational
+      created: 2018-10-02T10:00:00.00Z
+      updated: 2018-10-02T10:00:00.00Z
+      lastchange: "Someuser"
+      centercode: "0123456789"
+      change: MyChangeteam
+      view: MyViewers
+      responsible: TheOperators
+      accountable: TheKlos
+      inform: InTheDarkteam
+      developer:   TheInventors
+    properties:
+      id:
+        description: Unique az ID
+        example: 1
+        readOnly: true
+        type: integer
+      name:
+        description: Name of az
+        example: AP1
+        minLength: 1
+        type: string
+      description:
+        description: Description of AZ
+        example: Some AZ somewhere
+        minLength: 1
+        type: string
+      region:
+        description: Region/cloud where the AZ is built
+        example: ODC
+        type: string
+        enum:
+        - ODC
+        - BD
+        - ODC Noord
+        - ODC West
+        - Azure
+      az:
+        description: Availability Zone where the AZ is built in the region
+        example: ODC
+        type: string
+        enum:
+        - Onprem
+        - GCP
+        - Azure
+      party:
+        description: Name of the contract
+        example: "IWillPay" 
+        minLength: 1
+        type: string
+      status:
+        description: Status of az
+        example: Operational
+        type: string
+        enum:
+        - Radar
+        - Planned
+        - High Level Design
+        - Detailed Design
+        - Build
+        - Test
+        - Accept
+        - RFS
+        - Operational
+        - End-of-life
+        - Retired
+        - Removed
+      created:
+        description: Creation 
+        example: "2018-10-02T10:00:00.00Z"
+        type: string
+        format: date-time
+      updated:
+        description: Update 
+        example: "2018-10-02T10:00:00.00Z"
+        type: string
+        format: date-time
+      lastchange:
+        description: Username of updater
+        example: someuser@prov.test
+        type: string
+      centercode:
+        description: Accounting ID
+        example: 0123456789
+        type: string
+      change:
+        description: group name of system role permitted to Change/Update/Delete
+        example: MyChangeTeam
+        type: string
+      view:
+        description: group name of system role permitted to Read
+        example: MyViewers
+        type: string
+      responsible:
+        description: group name of system role linked in IAM to operations team (responsibleesponsible)
+        example: TheOperators
+        type: string
+      accountable:
+        description: group name of system role linked in IAM to tactical operations team (accountableccountable)
+        example: TheKlos
+        type: string
+      inform:
+        description: group name of system role linked in IAM to owner (informnform)
+        example: InTheDarkteam
+        type: string
+      developer:
+        description: group name of system role linked in IAM to development team (Management-Supporting)
+        example: TheInventors
+        type: string
+    required:
+    - name
+    xml:
+      name: az
+  application:
+    title: application
+    type: object
+    description: Application in the datacenter
+    example:
+      id: 1
+      name: MyApp
+      description: MySuperduperApp
+      tenant: TheProv
+      version: 1
+      status: Operational
+      created: 2018-10-02T10:00:00.00Z
+      updated: 2018-10-02T10:00:00.00Z
+      lastchange: "Someuser"
+      centercode: "0123456789"
+      change: MyChangeteam
+      view: MyViewers
+      responsible: TheOperators
+      accountable: TheKlos
+      inform: InTheDarkteam
+      developer:   TheInventors
+    properties:
+      id:
+        description: Unique application ID
+        example: 1
+        readOnly: true
+        type: integer
+      name:
+        description: Name of application
+        example: MyApp
+        minLength: 1
+        type: string
+      description:
+        description: Description of Application
+        example: Some Application somewhere
+        minLength: 1
+        type: string
+      tenant:
+        description: Name of the contract
+        example: "IWillPay" 
+        minLength: 1
+        type: string  
+      status:
+        description: Status of application
+        example: Operational
+        type: string
+        enum:
+        - Radar
+        - Planned
+        - High Level Design
+        - Detailed Design
+        - Build
+        - Test
+        - Accept
+        - RFS
+        - Operational
+        - End-of-life
+        - Retired
+        - Removed
+      created:
+        description: Creation 
+        example: "2018-10-02T10:00:00.00Z"
+        type: string
+        format: date-time
+      updated:
+        description: Update 
+        example: "2018-10-02T10:00:00.00Z"
+        type: string
+        format: date-time
+      lastchange:
+        description: Username of updater
+        example: someuser@prov.test
+        type: string
+      centercode:
+        description: Accounting ID
+        example: 0123456789
+        type: string
+      change:
+        description: group name of system role permitted to Change/Update/Delete
+        example: MyChangeTeam
+        type: string
+      view:
+        description: group name of system role permitted to Read
+        example: MyViewers
+        type: string
+      responsible:
+        description: group name of system role linked in IAM to operations team (responsibleesponsible)
+        example: TheOperators
+        type: string
+      accountable:
+        description: group name of system role linked in IAM to tactical operations team (accountableccountable)
+        example: TheKlos
+        type: string
+      inform:
+        description: group name of system role linked in IAM to owner (informnform)
+        example: InTheDarkteam
+        type: string
+      developer:
+        description: group name of system role linked in IAM to development team (Management-Supporting)
+        example: TheInventors
+        type: string
+    required:
+    - name
+    - tenant
+    - status
+    xml:
+      name: application
+  environment:
+    title: environment
+    type: object
+    description: Environment in the datacenter
+    example:
+      id: 1
+      name: Development
+      description: Development environment MyApp
+      e-type: DEV
+      cloudprovider: OnPrem
+      region: Primary
+      availabilityzone: Pod1
+      version: 1
+      status: Operational
+      created: 2018-10-02T10:00:00.00Z
+      updated: 2018-10-02T10:00:00.00Z
+      lastchange: "Someuser"
+      centercode: "0123456789"
+      change: MyChangeteam
+      view: MyViewers
+      responsible: TheOperators
+      accountable: TheKlos
+      inform: InTheDarkteam
+      developer:   TheInventors
+    properties:
+      id:
+        description: Unique environment ID
+        example: 1
+        readOnly: true
+        type: integer
+      name:
+        description: Name of environment
+        example: MyApp
+        minLength: 1
+        type: string
+      description:
+        description: Description of Environment
+        example: Some Environment somewhere
+        minLength: 1
+        type: string
+      etype:
+        description: Purpose of the environment
+        type: string
+        example: "DEV" 
+        enum:
+          - DEV
+          - TST
+          - ACC
+          - PRD
+          - EDU
+      cloudprovider:
+        description: Name of the cloud provider
+        example: "OnPrem" 
+        enum:
+          - OnPrem
+          - Azure
+          - AWS
+          - GCP
+        type: string
+      region:
+        description: Description of cloud region of the cloudprovider
+        example: EU-West
+        minLength: 1
+        type: string
+      application:
+        description: Application name
+        minLength: 1
+        type: string
+      availabilityzone:
+        description: Description of az of the cloudprovider
+        minLength: 1
+        type: string
+      eversion:
+        description: Description of the version of this environment
+        minLength: 1
+        type: string
+      estatus:
+        description: Status of environment
+        example: Operational
+        type: string
+        enum:
+        - Radar
+        - Planned
+        - High Level Design
+        - Detailed Design
+        - Build
+        - Test
+        - Accept
+        - RFS
+        - Operational
+        - End-of-life
+        - Retired
+        - Removed
+      created:
+        description: Creation 
+        example: "2018-10-02T10:00:00.00Z"
+        type: string
+        format: date-time
+      updated:
+        description: Update 
+        example: "2018-10-02T10:00:00.00Z"
+        type: string
+        format: date-time
+      lastchange:
+        description: Username of updater
+        example: someuser@prov.test
+        type: string
+      centercode:
+        description: Accounting ID
+        example: 0123456789
+        type: string
+      change:
+        description: group name of system role permitted to Change/Update/Delete
+        example: MyChangeTeam
+        type: string
+      view:
+        description: group name of system role permitted to Read
+        example: MyViewers
+        type: string
+      responsible:
+        description: group name of system role linked in IAM to operations team (responsibleesponsible)
+        example: TheOperators
+        type: string
+      accountable:
+        description: group name of system role linked in IAM to tactical operations team (accountableccountable)
+        example: TheKlos
+        type: string
+      inform:
+        description: group name of system role linked in IAM to owner (informnform)
+        example: InTheDarkteam
+        type: string
+      developer:
+        description: group name of system role linked in IAM to development team (Management-Supporting)
+        example: TheInventors
+        type: string
+    required:
+    - name
+    - description
+    - etype
+    - cloudprovider
+    - region
+    - availabilityzone
+    - application
+    - eversion
+    - estatus
+    - change
+    - view
+    - responsible
+    - accountable
+    - inform
+    - developer
+    xml:
+      name: environment
+  compartment:
+    title: compartment
+    type: object
+    description: Compartment in the datacenter
+    example:
+      id: 1
+      name: Development
+      description: Development compartment MyApp
+      environment: AP01
+      ctype: ACustomer
+      addressing: IPv4
+      numofservers: 24
+      cversion: 1
+      cstatus: Operational
+      created: 2018-10-02T10:00:00.00Z
+      updated: 2018-10-02T10:00:00.00Z
+      lastchange: "Someuser"
+      centercode: "0123456789"
+      change: MyChangeteam
+      view: MyViewers
+      responsible: TheOperators
+      accountable: TheKlos
+      inform: InTheDarkteam
+      developer:   TheInventors
+    properties:
+      id:
+        description: Unique compartment ID
+        example: 1
+        readOnly: true
+        type: integer
+      name:
+        description: Name of compartment
+        example: MyApp
+        minLength: 1
+        type: string
+      description:
+        description: Description of Compartment
+        example: Some Compartment somewhere
+        minLength: 1
+        type: string
+      cversion:
+        description: Description of the version of this environment
+        minLength: 1
+        type: string
+      environment:
+        description: environment
+        example: 1.2.3.4
+        readOnly: true
+        type: string
+      addressing:
+        description: subnet in bits
+        example: 24
+        readOnly: true
+        type: string
+      numofservers:
+        description: Number of Servers
+        example: 1-4 
+        minLength: 1
+        type: integer
+        enum:
+        - 10
+        - 24
+        - 60
+      ctype:
+        description: Purpose of the environment
+        type: string
+        example: "DEV" 
+        enum:
+          - P
+          - PA
+          - PAD
+          - AD
+          - D
+      cstatus:
+        description: Status of compartment
+        example: Operational
+        type: string
+        enum:
+        - Radar
+        - Planned
+        - High Level Design
+        - Detailed Design
+        - Build
+        - Test
+        - Accept
+        - RFS
+        - Operational
+        - End-of-life
+        - Retired
+        - Removed
+      created:
+        description: Creation timestamp
+        example: "2018-10-02T10:00:00.00Z"
+        type: string
+        format: date-time
+      updated:
+        description: Update timestamp
+        example: "2018-10-02T10:00:00.00Z"
+        type: string
+        format: date-time
+      lastchange:
+        description: Username of updater
+        example: someuser@prov.test
+        type: string
+      centercode:
+        description: Accounting ID
+        example: 0123456789
+        type: string
+      change:
+        description: group name of system role permitted to Change/Update/Delete
+        example: MyChangeTeam
+        type: string
+      view:
+        description: group name of system role permitted to Read
+        example: MyViewers
+        type: string
+      responsible:
+        description: group name of system role linked in IAM to operations team (responsibleesponsible)
+        example: TheOperators
+        type: string
+      accountable:
+        description: group name of system role linked in IAM to tactical operations team (accountableccountable)
+        example: TheKlos
+        type: string
+      inform:
+        description: group name of system role linked in IAM to owner (informnform)
+        example: InTheDarkteam
+        type: string
+      developer:
+        description: group name of system role linked in IAM to development team (Management-Supporting)
+        example: TheInventors
+        type: string
+    required:
+    - name
+    - status
+    - change
+    - view
+    - responsible
+    - accountable
+    - inform
+    - developer
+    xml:
+      name: compartment
+  server:
+    title: server
+    type: object
+    description: Server in the datacenter
+    example:
+      id: 1
+      name: Frontend
+      inventory_hostname: Frontend
+      description: Frontend server MyApp
+      party: ACustomer
+      env: Development
+      size: XL
+      version: 1
+      status: Operational
+      created: 2018-10-02T10:00:00.00Z
+      updated: 2018-10-02T10:00:00.00Z
+      lastchange: "Someuser"
+      centercode: "0123456789"
+      change: MyChangeteam
+      view: MyViewers
+      responsible: TheOperators
+      accountable: TheKlos
+      inform: InTheDarkteam
+      developer:   TheInventors
+    properties:
+      id:
+        description: Unique server ID
+        example: 1
+        readOnly: true
+        type: integer
+      name:
+        description: Name of server
+        example: MyApp
+        minLength: 1
+        type: string
+      inventory_hostname:
+        description: Name of server
+        example: MyApp
+        minLength: 1
+        type: string
+      description:
+        description: Description of Server
+        example: Some Server somewhere
+        minLength: 1
+        type: string
+      party:
+        description: Name of the contract
+        example: "Betaler" 
+        minLength: 1
+        type: string
+      compartment:
+        description: Name of the Compartment
+        example: "AP01" 
+        minLength: 1
+        type: string
+      serverrole:
+        description: Role of the server
+        example: "Webserver"
+        type: string
+      inventory_group_name:
+        description: Role of the server
+        example: ["Webserver"]
+        type: string
+      size:
+        description: Size of the server
+        example: "XL"
+        type: string
+      image:
+        description: The type of the image
+        example: 1
+        type: string
+      sversion:
+        description: Description of the version of this server
+        minLength: 1
+        type: string
+      sstatus:
+        description: Status of server
+        example: Operational
+        type: string
+        enum:
+        - Radar
+        - Planned
+        - High Level Design
+        - Detailed Design
+        - Build
+        - Test
+        - Accept
+        - RFS
+        - Operational
+        - End-of-life
+        - Retired
+        - Removed
+      created:
+        description: Creation timestamp
+        example: "2018-10-02T10:00:00.00Z"
+        type: string
+        format: date-time
+      updated:
+        description: Update timestamp
+        example: "2018-10-02T10:00:00.00Z"
+        type: string
+        format: date-time
+      lastchange:
+        description: Username of updater
+        example: someuser@prov.test
+        type: string
+      centercode:
+        description: Accounting ID
+        example: 0123456789
+        type: string
+      change:
+        description: group name of system role permitted to Change/Update/Delete
+        example: MyChangeTeam
+        type: string
+      view:
+        description: group name of system role permitted to Read
+        example: MyViewers
+        type: string
+      responsible:
+        description: group name of system role linked in IAM to operations team (responsibleesponsible)
+        example: TheOperators
+        type: string
+      accountable:
+        description: group name of system role linked in IAM to tactical operations team (accountableccountable)
+        example: TheKlos
+        type: string
+      inform:
+        description: group name of system role linked in IAM to owner (informnform)
+        example: InTheDarkteam
+        type: string
+      developer:
+        description: group name of system role linked in IAM to development team (Management-Supporting)
+        example: TheInventors
+        type: string
+    required:
+    - name
+    - sstatus
+    - change
+    - view
+    - responsible
+    - accountable
+    - inform
+    - developer
+    xml:
+      name: server
+  image:
+    title: image
+    type: object
+    description: Available image
+    example:
+      id: 1
+      name: Windows_Core_2022
+      description: OS type
+      party: TheProv
+      env: Development
+      size: XL
+      version: 1
+      status: Operational
+      created: 2018-10-02T10:00:00.00Z
+      updated: 2018-10-02T10:00:00.00Z
+      lastchange: "Someuser"
+      centercode: "0123456789"
+      change: MyChangeteam
+      view: MyViewers
+      responsible: TheOperators
+      accountable: TheKlos
+      inform: InTheDarkteam
+      developer:   TheInventors
+    properties:
+      id:
+        description: Unique image ID
+        example: 1
+        readOnly: true
+        type: integer
+      name:
+        description: Name of image
+        example: MyApp
+        minLength: 1
+        type: string
+      description:
+        description: Description of Image
+        example: My awesome OS image
+        minLength: 1
+        type: string
+      type:
+        description: Image type
+        example: Container
+        type: string
+        enum:
+        - VM
+        - Container
+      os:
+        description: Image OS
+        example: Alpine
+        type: string
+        enum:
+        - Windows_server_2019
+        - Windows_core_2019
+        - Windows_server_2022
+        - Windows_core_2022
+        - RHEL8
+      status:
+        description: Status of image
+        example: Operational
+        type: string
+        enum:
+        - Radar
+        - Planned
+        - High Level Design
+        - Detailed Design
+        - Build
+        - Test
+        - Accept
+        - RFS
+        - Operational
+        - End-of-life
+        - Retired
+        - Removed
+      created:
+        description: Creation timestamp
+        example: "2018-10-02T10:00:00.00Z"
+        type: string
+        format: date-time
+      updated:
+        description: Update timestamp
+        example: "2018-10-02T10:00:00.00Z"
+        type: string
+        format: date-time
+      lastchange:
+        description: Username of updater
+        example: someuser@prov.test
+        type: string
+      centercode:
+        description: Accounting ID
+        example: 0123456789
+        type: string
+      change:
+        description: group name of system role permitted to Change/Update/Delete
+        example: MyChangeTeam
+        type: string
+      view:
+        description: group name of system role permitted to Read
+        example: MyViewers
+        type: string
+      responsible:
+        description: group name of system role linked in IAM to operations team (responsibleesponsible)
+        example: TheOperators
+        type: string
+      accountable:
+        description: group name of system role linked in IAM to tactical operations team (accountableccountable)
+        example: TheKlos
+        type: string
+      inform:
+        description: group name of system role linked in IAM to owner (informnform)
+        example: InTheDarkteam
+        type: string
+      developer:
+        description: group name of system role linked in IAM to development team (Management-Supporting)
+        example: TheInventors
+        type: string
+    required:
+    - name
+    - status
+    - change
+    - view
+    - responsible
+    - accountable
+    - inform
+    - developer
+    xml:
+      name: image
+  conduit:
+    title: conduit
+    type: object
+    description: Data path
+    example:
+      id: 1
+      name: To Internet
+      description: data path
+      compartment: PA1
+      ftype: toInternet
+      fsource: []
+      fdestination: []
+      fversion: 1
+      fstatus: Operational
+      created: 2018-10-02T10:00:00.00Z
+      updated: 2018-10-02T10:00:00.00Z
+      lastchange: "Someuser"
+      centercode: "0123456789"
+      change: MyChangeteam
+      view: MyViewers
+      responsible: TheOperators
+      accountable: TheKlos
+      inform: InTheDarkteam
+      developer:   TheInventors
+    properties:
+      id:
+        description: Unique conduit ID
+        example: 1
+        readOnly: true
+        type: integer
+      name:
+        description: Name of conduit
+        example: MyApp
+        minLength: 1
+        type: string
+      description:
+        description: Description of use of Conduit
+        example: Expose this service
+        minLength: 1
+        type: string
+      ftype:
+        description: Conduit type
+        example: Container
+        type: string
+        enum:
+        - toInternet
+        - fromInternet
+        - toUsers
+        - fromUsers
+        - toTenant
+        - fromTenant
+        - toApplication
+        - fromApplication
+        - toEnvironment
+        - fromEnvironment
+        - toCampus
+        - fromCampus
+      fsource:
+        description: Source of the traffic, originator of the session
+        type: object
+        properties:
+          cloudprovider:
+            type: string
+          region:
+            type: string         
+          availability_zone:
+            type: string 
+          application:
+            type: string      
+          environment:
+            type: string       
+          compartment:
+            type: string 
+      fdestination:
+        description: Destination of the traffic, originator of the session
+        type: object
+        properties:
+          cloudprovider:
+            type: string
+          region:
+            type: string         
+          availability_zone:
+            type: string 
+          application:
+            type: string      
+          environment:
+            type: string       
+          compartment:
+            type: string 
+      fversion:
+        description: Description of the version of this conduit
+        minLength: 1
+        type: string
+      fstatus:
+        description: Status of conduit
+        example: Operational
+        type: string
+        enum:
+        - Radar
+        - Planned
+        - High Level Design
+        - Detailed Design
+        - Build
+        - Test
+        - Accept
+        - RFS
+        - Operational
+        - End-of-life
+        - Retired
+        - Removed
+      created:
+        description: Creation timestamp
+        example: "2018-10-02T10:00:00.00Z"
+        type: string
+        format: date-time
+      updated:
+        description: Update timestamp
+        example: "2018-10-02T10:00:00.00Z"
+        type: string
+        format: date-time
+      lastchange:
+        description: Username of updater
+        example: someuser@prov.test
+        type: string
+      centercode:
+        description: Accounting ID
+        example: 0123456789
+        type: string
+      change:
+        description: group name of system role permitted to Change/Update/Delete
+        example: MyChangeTeam
+        type: string
+      view:
+        description: group name of system role permitted to Read
+        example: MyViewers
+        type: string
+      responsible:
+        description: group name of system role linked in IAM to operations team (responsibleesponsible)
+        example: TheOperators
+        type: string
+      accountable:
+        description: group name of system role linked in IAM to tactical operations team (accountableccountable)
+        example: TheKlos
+        type: string
+      inform:
+        description: group name of system role linked in IAM to owner (informnform)
+        example: InTheDarkteam
+        type: string
+      developer:
+        description: group name of system role linked in IAM to development team (Management-Supporting)
+        example: TheInventors
+        type: string
+    required:
+    - name
+    - status
+    - change
+    - view
+    - responsible
+    - accountable
+    - inform
+    - developer
+    xml:
+      name: conduit
+  ApiResponse:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+      type:
+        type: "string"
+      message:
+        type: "string"

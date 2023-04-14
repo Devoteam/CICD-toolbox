@@ -1,0 +1,86 @@
+# Backstage override configuration for your local development environment
+app:
+  title: Devoteam Backstage
+  baseUrl: http://backstage.tooling.provider.test:3000
+
+organization:
+  name: Devoteam
+
+backend:
+  # Used for enabling authentication, secret is shared by all backend plugins
+  # See https://backstage.io/docs/tutorials/backend-to-backend-auth for
+  # information on the format
+  # auth:
+  #   keys:
+  #     - secret: ${BACKEND_SECRET}
+  baseUrl: http://backstage.tooling.provider.test:7007
+  listen:
+    port: 7007
+    # Uncomment the following host directive to bind to specific interfaces
+    # host: 127.0.0.1
+  csp:
+    connect-src: ["'self'", 'http:', 'https:']
+    # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
+    # Default Helmet Content-Security-Policy values can be removed by setting the key to false
+  cors:
+    origin: 'http://*'
+    methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+    credentials: true
+  # This is for local development only, it is not recommended to use this in production
+  # The production database configuration is stored in app-config.production.yaml
+  database:
+    client: pg
+    connection:
+      host: cicdtoolbox-db.internal.provider.test
+      port: 5432
+      user: backstage
+      password: backstage
+  # workingDirectory: /tmp # Use this to configure a working directory for the scaffolder, defaults to the OS temp-dir
+
+integrations:
+  gitea:
+    - host: gitea.tooling.provider.test
+      baseurl: https://gitea.token.provider.test:3000
+#      password: ${GITEA_TOKEN}
+      username: local-admin
+      password: netcicd01
+#proxy:
+  ### Example for how to add a proxy endpoint for the frontend.
+  ### A typical reason to do this is to handle HTTPS and CORS for internal services.
+  # '/test':
+  #   target: 'https://example.com'
+  #   changeOrigin: true
+
+# Reference documentation http://backstage.io/docs/features/techdocs/configuration
+# Note: After experimenting with basic setup, use CI/CD to generate docs
+# and an external cloud storage when deploying TechDocs for production use-case.
+# https://backstage.io/docs/features/techdocs/how-to-guides#how-to-migrate-from-techdocs-basic-to-recommended-deployment-approach
+techdocs:
+  builder: 'local' # Alternatives - 'external'
+  generator:
+    runIn: 'local' # Alternatives - 'local'
+  publisher:
+    type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
+
+auth:
+  environment: development
+  providers:
+    oauth2proxy:
+    {}
+      # development:
+      #   metadataUrl: https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/.well-known/openid-configuration
+      #   clientId: Backstage
+      #   clientSecret: backstage_secret
+
+scaffolder:
+  # see https://backstage.io/docs/features/software-templates/configuration for software template options
+
+catalog:
+  providers:
+
+
+  locations:
+    - type: file
+      target: ../../packages/backend/scaffolder-templates/create-react-app/template.yaml
+      rules:
+        - allow: [Template]

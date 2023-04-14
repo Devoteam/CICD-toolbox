@@ -9,7 +9,7 @@ capabilities:
   - type: OutreachManagementCapability
     enabled: false
 security:
-  anonymousAccess: false
+  anonymousAccess: true
   pruneUsers: true
   realms:
     - name: "org.github.flytreeleft.nexus3.keycloak.plugin.KeycloakAuthenticatingRealm"
@@ -379,6 +379,8 @@ repository:
       attributes:
         docker:
           forceBasicAuth: false  # Each repo uses its own setting
+          httpPort: 8181
+          httpsPort: 8182
         storage:
           blobStoreName: docker
           strictContentTypeValidation: true

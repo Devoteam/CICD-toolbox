@@ -119,6 +119,7 @@ echo " "
 CreateRepo "Infraautomator" "CICD-toolbox" "https://github.com/Devoteam/CICD-toolbox.git" "The CICD-toolbox"
 CreateRepo "Infraautomator" "NetCICD" "https://github.com/Devoteam/NetCICD.git" "The NetCICD pipeline"
 CreateRepo "Infraautomator" "AppCICD" "https://github.com/DevoteamNL/AppCICD.git" "The AppCICD pipeline"
+CreateRepo "Infraautomator" "templateApp" "https://github.com/DevoteamNL/templateApp.git" "Some Application"
 
 CreateTeam infraautomator "gitea-CICDtoolbox-read" "The CICDtoolbox repo read role" "read" "CICD-toolbox"
 CreateTeam infraautomator "gitea-CICDtoolbox-write" "The CICDtoolbox repo read-write role" "write" "CICD-toolbox"
@@ -129,13 +130,17 @@ CreateTeam infraautomator "gitea-netcicd-admin" "The NetCICD repo admin role" "a
 CreateTeam infraautomator "gitea-appcicd-read" "The AppCICD repo read role" "read" "AppCICD"
 CreateTeam infraautomator "gitea-appcicd-write" "The AppCICD repo read-write role" "write" "AppCICD"
 CreateTeam infraautomator "gitea-appcicd-admin" "The AppCICD repo admin role" "admin" "AppCICD"
+CreateTeam infraautomator "gitea-templateapp-read" "The AppCICD repo read role" "read" "templateapp"
+CreateTeam infraautomator "gitea-templateapp-write" "The AppCICD repo read-write role" "write" "templateapp"
+CreateTeam infraautomator "gitea-templateapp-admin" "The AppCICD repo admin role" "admin" "templateapp"
 echo "****************************************************************************************************************"
 echo " Adding keycloak client key to Gitea"
 echo "****************************************************************************************************************"
 gitea_client_id=$(grep GITEA_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
 docker exec -it gitea.tooling.provider.test sh -c "su git -c '/usr/local/bin/gitea admin auth add-oauth --name keycloak --provider openidConnect --key Gitea --secret $gitea_client_id --auto-discover-url https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/.well-known/openid-configuration --config=/data/gitea/conf/app.ini'"
 # required claim name contains the claim name required to be able to use the claim, admin-group is the claim value for admin.
-docker exec -it gitea.tooling.provider.test sh -c "su git -c '/usr/local/bin/gitea admin auth update-oauth --id 1 --required-claim-name giteaGroups --admin-group giteaAdmin --group-claim-name giteaGroups --skip-local-2fa'"
+gitea_group_mapping=$(cat gitea/groupmapping.json | tr -d ' ' | tr -d '\n')
+docker exec -it gitea.tooling.provider.test sh -c "su git -c '/usr/local/bin/gitea admin auth update-oauth --id 1 --required-claim-name giteaGroups --admin-group giteaAdmin --group-claim-name giteaGroups --group-team-map $gitea_group_mapping --group-team-map-removal --skip-local-2fa'"
 echo "****************************************************************************************************************"
 echo " Restarting Gitea"
 echo "****************************************************************************************************************"

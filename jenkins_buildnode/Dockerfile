@@ -1,8 +1,7 @@
 FROM ciscotestautomation/pyats:latest-alpine
 
 ENV JAVA_HOME "/usr"
-ARG BUILD_ENVIRONMENT
-RUN apk add --update \
+RUN apk add --update --no-cache \
     openjdk11 \
     git \
     openssh \
@@ -13,6 +12,9 @@ RUN apk add --update \
     sshpass \
     curl \
     bash \
+    docker \
+    docker-compose \
+    firefox \
     terraform
 RUN pip3 install --upgrade pip
 RUN apk --update add --virtual \
@@ -27,11 +29,15 @@ RUN apk --update add --virtual \
         behave\
         virlutils\
         robotframework \
+        robotframework-selenium2library \
+        azure-cli \
  && pip3 install \
         ansible \
  && apk del \
         .build-deps \
  && rm -rf /var/cache/apk/*
+
+RUN apk upgrade
 
 RUN echo -e """\
 \n\
@@ -48,6 +54,7 @@ RUN echo "[defaults]" > /home/jenkins/.ansible.cfg
 RUN echo "host_key_checking = False" >> /home/jenkins/.ansible.cfg
 RUN chown jenkins:jenkins /home/jenkins/.ansible.cfg
 RUN chown -R jenkins:jenkins /home/jenkins
+RUN addgroup jenkins docker
 
 COPY docker-entrypoint.sh /usr/local/bin
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
@@ -56,18 +63,21 @@ COPY agent.jar /home/jenkins/
 COPY ca.crt /usr/local/share/ca-certificates/ca.crt
 RUN update-ca-certificates
 COPY cacerts /etc/ssl/certs/java/cacerts
-COPY ${BUILD_ENVIRONMENT}_secret /home/jenkins/secret-file
-RUN echo ${BUILD_ENVIRONMENT} > /home/jenkins/buildenv
-COPY rc.local /etc/rc.local
-EXPOSE 22 
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+COPY geckodriver /usr/local/bin/geckodriver
 
 USER jenkins
 WORKDIR /home/jenkins
-RUN curl -fsSL https://raw.githubusercontent.com/dikhan/terraform-provider-openapi/master/scripts/install.sh | bash -s -- --provider-name "prov" --provider-source-address "prov.tooling.test/tooling"
-RUN export OTF_VAR_bis_PLUGIN_CONFIGURATION_FILE="~/.terraform.d/plugins/terraform-provider-openapi.yaml"
+RUN curl -fsSL https://raw.githubusercontent.com/dikhan/terraform-provider-openapi/master/scripts/install.sh | bash -s -- --provider-name "onprem" --provider-source-address "restportal.services.provider.test/datacenter"
 COPY terraform-provider-openapi.yaml /home/jenkins/.terraform.d/plugins/terraform-provider-openapi.yaml
-COPY prov.yaml /home/jenkins/prov.yaml
+COPY onprem.yaml /home/jenkins/onprem.yaml
+
 
 USER root
 CMD ["/usr/sbin/sshd", "-D"]
+COPY rc.local /etc/rc.local
+EXPOSE 22 
+
+COPY act_runner-main-linux-amd64 /home/jenkins/act_runner
+RUN chown jenkins:jenkins /home/jenkins/act_runner
+
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
