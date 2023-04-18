@@ -30,6 +30,8 @@ RUN apk --update add --virtual \
         virlutils\
         robotframework \
         robotframework-selenium2library \
+        robotframework-requests \
+        RESTinstance \
         azure-cli \
  && pip3 install \
         ansible \
