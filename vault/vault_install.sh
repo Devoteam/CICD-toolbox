@@ -111,26 +111,43 @@ echo "**************************************************************************
 echo " Creating leaf certificates" 
 echo "****************************************************************************************************************"
 echo " " 
+create_leaf argos services 
+create_leaf argos-service tooling 
+create_leaf mongodb internal
+
+create_leaf backstage tooling 
+
+create_leaf cicdtoolbox-db internal 
+
+create_leaf gitea tooling 
+
+create_leaf loki monitoring
+create_leaf promtail monitoring
+create_leaf grafana monitoring
+
+create_leaf jenkins tooling 
 create_leaf build-dev delivery 
 create_leaf build-test delivery 
 create_leaf build-acc delivery 
 create_leaf build-prod delivery 
-create_leaf ldap iam 
-create_leaf cicdtoolbox-db internal 
-create_leaf mongodb internal
-create_leaf redis internal 
-create_leaf loki monitoring
-create_leaf promtail monitoring
-create_leaf grafana monitoring
-create_leaf restportal services 
-create_leaf argos services 
+
 create_leaf keycloak services 
-create_leaf gitea tooling 
-create_leaf argos-service tooling 
-create_leaf jenkins tooling 
-create_leaf nexus tooling 
+
+create_leaf ldap iam 
+
+create_leaf redis internal 
 create_leaf netbox tooling 
-create_leaf backstage tooling 
+
+create_leaf nexus tooling 
+
+create_leaf nodered tooling 
+
+create_leaf portainer monitoring 
+
+create_leaf restportal services 
+
+create_leaf vault tooling 
+
 echo " " 
 echo "****************************************************************************************************************"
 echo " Preparing PostgreSQL database use" 

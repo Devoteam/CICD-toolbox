@@ -456,7 +456,11 @@ echo ""
     -s description="System to manage containers in the toolchain" \
     -s clientId=Portainer \
     -s enabled=true \
-    -s publicClient=true \
+    -s publicClient=false \
+    -s serviceAccountsEnabled=true \
+    -s fullScopeAllowed=false \
+    -s standardFlowEnabled=true \
+    -s frontchannelLogout=true \
     -s directAccessGrantsEnabled=true \
     -s rootUrl=http://portainer.monitoring.provider.test:9000 \
     -s adminUrl=http://portainer.monitoring.provider.test:9000/ \
@@ -1137,7 +1141,7 @@ echo "Created Tooling Operator group within the Tooling Operations Department wi
     --rolename jenkins-user \
     --rolename jenkins-netcicd-run \
     --rolename jenkins-appcicd-run \
-    --rolename jenkins-CICDtoolbox-run \
+    --rolename jenkins-cicdtoolbox-run \
     --rolename jenkins-templateapp-run
 
 ./kcadm.sh add-roles \

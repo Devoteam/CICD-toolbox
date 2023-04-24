@@ -81,7 +81,8 @@ function CreateTeam () {
     team=$team_id
 }
 
-#script asssumes gitea is running
+DOCKER_BUILDKIT=1 docker-compose up -d --build --no-deps gitea.tooling.provider.test
+echo " "
 echo "****************************************************************************************************************"
 echo " Installing CA certificate"
 echo "****************************************************************************************************************"
