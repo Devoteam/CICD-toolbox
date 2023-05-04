@@ -110,7 +110,7 @@ It also requires buildkit to be active to enable [see the docker site](https://d
 
 After this, you can run:
 
-```./runonce.sh ```
+```./runonce ```
 
 You need to be able to run docker as non-root. See [here](https://docs.docker.com/engine/install/linux-postinstall/) for details.
 
