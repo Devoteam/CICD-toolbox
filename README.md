@@ -104,7 +104,7 @@ Install the [CICD-toolbox](https://github.com/Devoteam/CICD-toolbox):
 ### As Docker has a pull rate limit, you need to authenticate first:
 ```docker login -u <yourusername> -p <yourpassword>```
 
-It seems there are issues with robotframework and selenium 4.10+ which make the vault install fails. use 
+It seems there are issues with robotframework and selenium 4.10+ which make the vault install fail. use 
 
 ```pip install selenium==4.9.1``` to fix this
 
