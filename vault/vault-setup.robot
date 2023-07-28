@@ -36,6 +36,7 @@ ${URL}              http://vault.internal.provider.test:8200
 *** Keywords ***
 Open vault site
     Open Browser              ${URL}                  ${BROWSER1}
+    Set Window Size             2560                 1920 
     Maximize Browser Window
     Sleep                     2
 
