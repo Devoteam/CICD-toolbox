@@ -31,8 +31,8 @@ jenkins:
     roleBased:
       roles:
         global:
-        - assignments:
-          - "jenkins-jenkins"
+        - entries:
+          - user: "jenkins-jenkins"
           name: "localAgentManager"
           pattern: ".*"
           permissions:
@@ -40,9 +40,9 @@ jenkins:
           - "Agent/Create"
           - "Agent/Delete"
           - "Agent/Connect"        
-        - assignments:
-          - "jenkins-readonly"
-          - "jenkins-git"
+        - entries:
+          - user: "jenkins-readonly"
+          - user: "jenkins-git"
           name: "localReadonly"
           pattern: ".*"
           permissions:
@@ -53,8 +53,8 @@ jenkins:
           - "Job/ViewStatus"
           - "View/Read"
           - "Lockable Resources/View"
-        - assignments:
-          - "jenkins-admin"
+        - entries:
+          - group: "jenkins-admin"
           name: "localAdmin"
           pattern: ".*"
           permissions:
@@ -92,8 +92,8 @@ jenkins:
           - "Job/Workspace"
           - "View/Read"
           - "Job/ViewStatus"
-        - assignments:
-          - "jenkins-user"
+        - entries:
+          - group: "jenkins-user"
           name: "localUser"
           pattern: ".*"
           permissions:
@@ -128,8 +128,8 @@ jenkins:
           - "View/Read"
           - "Job/ViewStatus"
         items:
-        - assignments:
-          - "jenkins-netcicd-dev"
+        - entries:
+          - group: "jenkins-netcicd-dev"
           name: "NetCICD-dev"
           pattern: "^jenkins-*cicd-dev$"
           permissions:
@@ -149,8 +149,8 @@ jenkins:
           - "Run/Replay"
           - "Run/Update"
           - "SCM/Tag"
-        - assignments:
-          - "jenkins-cicdtoolbox-dev"
+        - entries:
+          - group: "jenkins-cicdtoolbox-dev"
           name: "CICD-toolbox-dev"
           pattern: "^jenkins-cicdtoolbox-dev$"
           permissions:
@@ -170,8 +170,8 @@ jenkins:
           - "Run/Replay"
           - "Run/Update"
           - "SCM/Tag"
-        - assignments:
-          - "jenkins-netcicd-run"
+        - entries:
+          - group:  "jenkins-netcicd-run"
           name: "NetCICD-run"
           pattern: "^jenkins-*cicd-run$"
           permissions:
@@ -179,8 +179,8 @@ jenkins:
           - "Job/Build"
           - "Run/Update"
           - "SCM/Tag"
-        - assignments:
-          - "jenkins-cicdtoolbox-run"
+        - entries:
+          - group: "jenkins-cicdtoolbox-run"
           name: "CICD-toolbox-run"
           pattern: "^jenkins-cicdtoolbox-run$"
           permissions:
