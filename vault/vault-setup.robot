@@ -46,7 +46,8 @@ Initialize vault
     Input Text                 key-threshold           1
     Click Button               Initialize
 
-Get keys                                                    
+Get keys
+    Wait Until Element Is Visible    /html/body/div[1]/div/div[2]/div[1]/div/div/div/div[3]/div[1]/div[2]/div/div/div/button[1]    timeout=30s
     ${token}                   SeleniumLibrary.Get Element Attribute    xpath:/html/body/div[1]/div/div[2]/div[1]/div/div/div/div[3]/div[1]/div[2]/div/div/div/button[1]    data-clipboard-text                                  
     Set Global Variable        ${token}
     Create File                ${EXECDIR}/vault/token.txt   ${token}
