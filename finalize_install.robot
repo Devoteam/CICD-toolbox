@@ -104,11 +104,11 @@ Enter Jenkins token in Jenkins credentials
     Log to Console              jenkins-git changed credentials to login to Gitea
 
 Keycloak Page Should Be Open
-    Sleep                       1
+    Sleep                       5
     Title Should Be    Sign in to Welcome to your Development Toolkit
 
 Jenkins Page Should Be Open
-    Sleep                       1
+    Sleep                       5
     Location Should Contain     ${JENKINS URL}
     Title Should Be             Dashboard [Jenkins]
 

@@ -41,7 +41,7 @@ The CML host should run on 10.10.20.161, just like on the Cisco Devnet Sandbox.
 
 ### Software configuration
 
-The setup has been developed and tested on a fully updated Ubuntu 20.04.1 minimal install, 25 GB disk, 2 CPU, 16 GB memory on KVM with Internet access. As the setup also uses local networking, using the Ubuntu Desktop version is easier. During install testing the minimal install is used. 
+The setup has been developed and tested on a fully updated Ubuntu 20.04.1 minimal install, 30 GB disk, 2 CPU, 16 GB memory on KVM with Internet access. As the setup also uses local networking, using the Ubuntu Desktop version is easier. During install testing the minimal install is used. 
 
 As the last part of the install uses Robotframework with Selenium, it requires a decent screen resolution. Make sure you have at least 1200 pixels in height, otherwise the finalize install script may fail.
 
@@ -49,7 +49,7 @@ After install, execute:
 
 ```sudo apt-get update && sudo apt-get upgrade -y```
 
-```sudo apt -y install openjdk-11-jre-headless maven git docker.io curl python3 python3-pip python-is-python3 jq```
+```sudo apt -y install openjdk-11-jre-headless maven git docker.io curl python3 python3-pip python-is-python3 jq vim firefox xauth libgl1-mesa-glx libcanberra-gtk-module libcanberra-gtk3-module libegl1 iputils-ping```
 
 ```sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose```
 
@@ -104,13 +104,15 @@ Install the [CICD-toolbox](https://github.com/Devoteam/CICD-toolbox):
 ### As Docker has a pull rate limit, you need to authenticate first:
 ```docker login -u <yourusername> -p <yourpassword>```
 
-The minify branch uses [Hashcorp Vault](https://developer.hashicorp.com/vault/downloads), install it from the site.
+It seems there are issues with robotframework and selenium 4.10+ which make the vault install fail. use 
+
+```pip install selenium==4.9.1``` to fix this
 
 It also requires buildkit to be active to enable [see the docker site](https://docs.docker.com/build/buildkit/#getting-started)
 
 After this, you can run:
 
-```./runonce.sh ```
+```./runonce ```
 
 You need to be able to run docker as non-root. See [here](https://docs.docker.com/engine/install/linux-postinstall/) for details.
 
