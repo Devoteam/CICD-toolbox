@@ -43,13 +43,17 @@ The CML host should run on 10.10.20.161, just like on the Cisco Devnet Sandbox.
 
 The setup has been developed and tested on a fully updated Ubuntu 20.04.1 minimal install, 30 GB disk, 2 CPU, 16 GB memory on KVM with Internet access. As the setup also uses local networking, using the Ubuntu Desktop version is easier. During install testing the minimal install is used. 
 
-As the last part of the install uses Robotframework with Selenium, it requires a decent screen resolution. Make sure you have at least 1200 pixels in height, otherwise the finalize install script may fail.
+As the last part of the install uses Robotframework with Selenium, it requires a decent screen resolution. Make sure you have at least 1200 pixels in height, otherwise the finalize install script may fail. I am switching to Terraform to install the systems.
 
 After install, execute:
 
+```sudo wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg```
+
+```echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list```
+
 ```sudo apt-get update && sudo apt-get upgrade -y```
 
-```sudo apt -y install openjdk-11-jre-headless maven git docker.io curl python3 python3-pip python-is-python3 jq vim firefox xauth libgl1-mesa-glx libcanberra-gtk-module libcanberra-gtk3-module libegl1 iputils-ping make build-essential wget```
+```sudo apt -y install openjdk-11-jre-headless maven git docker.io curl python3 python3-pip python-is-python3 jq vim firefox xauth libgl1-mesa-glx libcanberra-gtk-module libcanberra-gtk3-module libegl1 iputils-ping make build-essential wget terraform vault```
 
 ```sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose```
 
