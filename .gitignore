@@ -65,3 +65,9 @@ nexus/*.kar
 jenkins_buildnode/act_runner-main-linux-amd64
 lldap/data/users.db
 jenkins_buildnode/*_runner_token
+install_tests/
+terraform/vault/.terraform*
+terraform/vault/terraform*
+runonce_log.html
+runonce_report.html
+runonce.xml

@@ -10,6 +10,9 @@ Documentation       Validating login for each LDAP group
 ...                 - Are explicitly disallowed roles not secretly present
 ...                 - Are any other roles not secretly present
 
+Test Setup       Open Browser   ${GITEA URL}      ${BROWSER1}       remote_url=http://seleniumgchost.internal.provider.test:4444    options=add_argument("--ignore-certificate-errors")
+Test Teardown    Close Browser
+
 Test Template    Login with correct role provides correct authorization
 
 *** Test Cases ***                                      USERNAME            PASSWORD                ROLES                                                                               NOT_ROLES
@@ -77,7 +80,6 @@ Login with correct role provides correct authorization
 
 Are assigned roles present
     [Arguments]  ${USERNAME}  ${PASSWORD}  ${OK_ROLES}  ${FAIL_ROLES}
-    Open Browser                ${GITEA URL}            ${BROWSER1}
     Set Window Size             2560                    1920
     Log in as user              ${USERNAME}             ${PASSWORD}
     Test given roles            ${USERNAME}             ${PASSWORD}             ${OK_ROLES}                 ${FAIL_ROLES}

@@ -68,7 +68,7 @@ auth:
     oauth2proxy:
     {}
       # development:
-      #   metadataUrl: https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/.well-known/openid-configuration
+      #   metadataUrl: https://keycloak.services.provider.test:8443/realms/cicdtoolbox/.well-known/openid-configuration
       #   clientId: Backstage
       #   clientSecret: backstage_secret
 

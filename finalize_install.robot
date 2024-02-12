@@ -1,10 +1,15 @@
 *** Settings ***
 Library           SeleniumLibrary
 Library           OperatingSystem
+Library           DebugLibrary
 Documentation     Creating jenkins-jenkins token
 ...               Enabling gitea login from Jenkins
 
+Suite Setup       Open Browser   ${JENKINS URL}      ${BROWSER1}       remote_url=http://seleniumgchost.internal.provider.test:4444    options=add_argument("--ignore-certificate-errors")
+Suite Teardown    Close Browser
+
 *** Test cases ***
+
 Create Jenkins token
     Log into Jenkins as jenkins-jenkins
     Create jenkins-jenkins token
@@ -25,7 +30,8 @@ Close browsers
 
 *** Variables ***
 
-${BROWSER1}         headlessfirefox
+${BROWSER1}         chrome
+
 ${DELAY}            0
 ${JENKINS URL}      https://jenkins.tooling.provider.test:8084/
 ${JENKINS LOGOUT}   https://jenkins.tooling.provider.test:8084/logout 
@@ -34,7 +40,6 @@ ${GITEA LOGIN}      https://gitea.tooling.provider.test:3000/user/login?redirect
 
 *** Keywords ***   
 Log into Jenkins as jenkins-jenkins
-    Open Browser                ${JENKINS URL}       ${BROWSER1}
     Set Window Size             2560                 1920 
     Go To                       ${JENKINS URL}
     Set Selenium Speed          ${DELAY}
@@ -49,9 +54,11 @@ Create jenkins-jenkins token
     Go To                       https://jenkins.tooling.provider.test:8084/user/jenkins-jenkins/configure
     Click Button                Add new Token
     Click Button                Generate
+    Wait Until Page Contains Element                 class:new-token-value.visible
     ${TOKEN}                    Get Text             class:new-token-value.visible
     Set Suite Variable          ${TOKEN}
-    Click Button                Save
+    Wait Until Page Contains Element                 class:jenkins-button.jenkins-button--primary
+    Click Button                class:jenkins-button.jenkins-button--primary
     Log to Console              Token created
     Create File                 ${EXECDIR}/jtoken.txt   ${TOKEN}
 
@@ -82,13 +89,21 @@ Login to Gitea as Jenkins
 Create Jenkins token in Gitea
     Go To                       https://gitea.tooling.provider.test:3000/user/settings/applications
     Input Text                  name                    Jenkins
-    Click Button                Generate Token
-    ${SA_TOKEN_text}            Get Text                xpath:/html/body/div/div[2]/div[2]/div[2]/p
+    
+    Click Element               xpath://summary[contains(., "Select permissions")]
+
+    Select From List By Label   access-token-scope-organization    Read
+    Select From List By Label   access-token-scope-repository      Read
+
+    Click Button                Generate Token     
+
+    Wait Until Element Is Visible                       xpath:/html/body/div/div/div/div[2]/div[2]/p       
+    ${SA_TOKEN_text}            Get Text                xpath:/html/body/div/div/div/div[2]/div[2]/p
     Set Global Variable         ${SA_TOKEN_text}
     Log to Console              Jenkins token created in Gitea
 
     Go To                       https://gitea.tooling.provider.test:3000/user/settings/account
-    Input Text                  old_password            netcicd
+    Input Text                  old_password            ${VALID_PASSWORD}
     Input Text                  password                ${SA_TOKEN_text}
     Input Text                  retype                  ${SA_TOKEN_text}
     Click Button                Update Password
@@ -104,11 +119,11 @@ Enter Jenkins token in Jenkins credentials
     Log to Console              jenkins-git changed credentials to login to Gitea
 
 Keycloak Page Should Be Open
-    Sleep                       5
-    Title Should Be    Sign in to Welcome to your Development Toolkit
+    Wait Until Page Contains    Sign in to
+    Title Should Be             Sign in to Welcome to your Development Toolkit
 
 Jenkins Page Should Be Open
-    Sleep                       5
+    Wait Until Page Contains    Dashboard
     Location Should Contain     ${JENKINS URL}
     Title Should Be             Dashboard [Jenkins]
 

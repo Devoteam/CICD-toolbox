@@ -1,4 +1,17 @@
 #!/bin/bash
+netcicd_pwd="netcicd01"
+sp="/-\|"
+sc=0
+spin() {
+   printf -- "${sp:sc++:1}  ( ${t} sec.) \r"
+   ((sc==${#sp})) && sc=0
+   sleep 1
+   let t+=1
+}
+
+endspin() {
+   printf "\r%s\n" "$@"
+}
 
 docker-compose start consul.internal.provider.test vault.internal.provider.test
 echo "Waiting for Vault to come online"
@@ -6,6 +19,9 @@ until $(curl --output /dev/null --silent --head --fail http://vault.internal.pro
     printf '.'
     sleep 5
 done
+echo " "
+unseal_key=`cat ./vault/key.txt`
+robot --variable key:${unseal_key} -d install_log ./vault/unseal.robot
 
 docker-compose start cicdtoolbox-db.internal.provider.test keycloak.services.provider.test
 echo "Waiting for Keycloak to come online"
@@ -13,10 +29,39 @@ until $(curl --output /dev/null --silent --head --fail http://keycloak.services.
     printf '.'
     sleep 5
 done
-echo "****************************************************************************************************************"
-echo " Creating Grafana Keycloak Client secret"
-echo "****************************************************************************************************************"
-export Grafana_CLIENT_SECRET=$(grep Grafana_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r')
-echo $Grafana_CLIENT_SECRET
+echo " "
+# echo "****************************************************************************************************************"
+# echo " Creating Grafana Keycloak Client secret"
+# echo "****************************************************************************************************************"
+# export Grafana_CLIENT_SECRET=$(grep Grafana_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r')
+# echo $Grafana_CLIENT_SECRET
 
 docker-compose start 
+echo "****************************************************************************************************************"
+echo " Waiting for the containers to come up"
+echo "****************************************************************************************************************"
+echo " Gitea"
+let t=0
+until $(curl --output /dev/null --silent --head --insecure --fail https://gitea.tooling.provider.test:3000); do
+    spin
+done
+endspin
+
+echo "Nexus"
+let t=0
+until $(curl --output /dev/null --insecure --silent --head --fail https://nexus.tooling.provider.test:8443); do
+    spin
+done
+endspin
+
+echo "Jenkins"
+let t=0
+until $(curl --output /dev/null --insecure --silent --head --fail https://jenkins.tooling.provider.test:8084/whoAmI); do
+    spin
+done
+endspin
+echo "****************************************************************************************************************"
+echo " Validating install"
+echo "****************************************************************************************************************"
+robot --variable VALID_PASSWORD:${netcicd_pwd} -d install_tests/ install_tests
+robot --variable VALID_PASSWORD:${netcicd_pwd} -d install_tests/ -o ./install_log/runner.xml -l ./install_log/runner_log.html -r ./install_log/runner_report.html ./jenkins_buildnode/runner_validate.robot

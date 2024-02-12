@@ -12,6 +12,7 @@ RUN apk add --update --no-cache \
     sshpass \
     curl \
     bash \
+    openrc \
     docker \
     docker-compose \
     firefox \
@@ -32,6 +33,7 @@ RUN apk --update add --virtual \
         robotframework-selenium2library \
         robotframework-requests \
         RESTinstance \
+        pywinrm \
         azure-cli \
  && pip3 install \
         ansible \
@@ -65,7 +67,8 @@ COPY agent.jar /home/jenkins/
 COPY ca.crt /usr/local/share/ca-certificates/ca.crt
 RUN update-ca-certificates
 COPY cacerts /etc/ssl/certs/java/cacerts
-COPY geckodriver /usr/local/bin/geckodriver
+#RUN touch /run/openrc/softlevel
+RUN rc-update add docker boot
 
 USER jenkins
 WORKDIR /home/jenkins
@@ -78,6 +81,7 @@ USER root
 CMD ["/usr/sbin/sshd", "-D"]
 COPY rc.local /etc/rc.local
 EXPOSE 22 
+RUN rc-update add docker boot
 
 COPY act_runner-main-linux-amd64 /home/jenkins/act_runner
 RUN chown jenkins:jenkins /home/jenkins/act_runner

@@ -1,1 +1,1 @@
-FROM mockoon/cli
+FROM mockoon/cli:latest

@@ -36,6 +36,7 @@ function create_leaf() {
     cat ./vault/certs/$1.$2.provider.test.json | jq -r '.data.certificate' > ./vault/certs/$1.$2.provider.test.crt
     cat ./vault/certs/$1.$2.provider.test.json | jq -r '.data.ca_chain[]' >> ./vault/certs/$1.$2.provider.test.crt
     rm ./vault/certs/$1.$2.provider.test.json
+    echo "Created leaf for ${1}.${2}.provider.test"
 }
 
 function create_database() {
@@ -59,7 +60,7 @@ function create_database() {
 echo "****************************************************************************************************************"
 echo " Creating Vault with a Consul backend" 
 echo "****************************************************************************************************************"
-docker-compose pull 
+#Sdocker-compose pull 
 docker-compose up -d --build --remove-orphans consul.internal.provider.test
 docker-compose up -d --build --remove-orphans vault.internal.provider.test
 echo "****************************************************************************************************************"
@@ -74,7 +75,7 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Initialize Vault, unseal and create secrets engines."
 echo "****************************************************************************************************************"
-robot -o ./install_log/vault.xml -l ./install_log/vault_log.html -r ./install_log/vault_report.html ./vault/vault-setup.robot
+robot -d ./install_log -o 00_vault.xml -l 00_vault_log.html -r 00_vault_report.html ./vault/vault-setup.robot
 echo "****************************************************************************************************************"
 echo " " 
 echo "****************************************************************************************************************"
@@ -84,13 +85,21 @@ echo " "
 echo "****************************************************************************************************************"
 echo " CLI Login to Vault" 
 echo "****************************************************************************************************************"
-cat ./vault/token.txt | vault login -address="http://vault.internal.provider.test:8200" -
+export VAULT_TOKEN=$(cat vault/token.txt)
+vault login -address="http://vault.internal.provider.test:8200" $(cat vault/token.txt)
 echo "****************************************************************************************************************"
 echo " Preparing Root CA in Vault" 
 echo "****************************************************************************************************************"
 vault secrets tune -address="http://vault.internal.provider.test:8200" -max-lease-ttl=87600h pki
 vault write -address="http://vault.internal.provider.test:8200" -field=certificate pki/root/generate/internal common_name="provider.test" ttl=87600h > ./vault/certs/ca.crt
 vault write -address="http://vault.internal.provider.test:8200" pki/config/urls issuing_certificates="http://vault.internal.provider.test:8200/v1/pki/ca" crl_distribution_points="http://vault.internal.provider.test:8200/v1/pki/crl"
+echo " " 
+echo "****************************************************************************************************************"
+echo " Permitting this host to use the new CA" 
+echo "****************************************************************************************************************"
+echo " " 
+sudo cp vault/certs/ca.crt /usr/local/share/ca-certificates
+sudo update-ca-certificates
 echo " " 
 echo "****************************************************************************************************************"
 echo " Creating intermediates" 
@@ -146,44 +155,58 @@ create_leaf portainer monitoring
 
 create_leaf restportal services 
 
-create_leaf vault tooling 
+create_leaf opennebula tooling 
 
+create_leaf vault internal 
+echo " " 
+echo "****************************************************************************************************************"
+echo " Now give Vault it's certificates" 
+echo "****************************************************************************************************************"
+echo " " 
+docker cp vault/certs/vault.internal.provider.test.crt vault.internal.provider.test:/vault/config/vault.internal.provider.test.crt
+docker cp vault/certs/vault.internal.provider.test.pem vault.internal.provider.test:/vault/config/vault.internal.provider.test.pem
+docker cp vault/certs/ca.crt vault.internal.provider.test:/vault/config/ca.crt
+echo " " 
+echo "****************************************************************************************************************"
+echo " Make sure the owner is correct and it has the correct permissions" 
+echo "****************************************************************************************************************"
+echo " " 
+docker exec -it vault.internal.provider.test sh -c "chown root:root /vault/config/vault.internal.provider.test.crt"
+docker exec -it vault.internal.provider.test sh -c "chmod 644 /vault/config/vault.internal.provider.test.crt"
+docker exec -it vault.internal.provider.test sh -c "chown root:root /vault/config/ca.crt"
+docker exec -it vault.internal.provider.test sh -c "chmod 644 /vault/config/ca.crt"
+docker exec -it vault.internal.provider.test sh -c "chown root:root /vault/config/vault.internal.provider.test.pem"
+docker exec -it vault.internal.provider.test sh -c "chmod 600 /vault/config/vault.internal.provider.test.pem"
+echo " " 
+echo "****************************************************************************************************************"
+echo " Copy SSL config to vault" 
+echo "****************************************************************************************************************"
+echo " " 
+docker cp vault/conf/vault/vault-config-ssl.json vault.internal.provider.test:/vault/config/vault-config.json
+docker exec -it vault.internal.provider.test sh -c "chmod 644 /vault/config/vault-config.json"
+echo " " 
+echo "****************************************************************************************************************"
+echo " Restarting vault" 
+echo "****************************************************************************************************************"
+echo " " 
+docker restart vault.internal.provider.test
+echo "****************************************************************************************************************"
+echo " Wait until Vault is running (~5 sec.)"
+echo "****************************************************************************************************************"
+let t=0
+until $(curl --output /dev/null --silent --head --fail https://vault.internal.provider.test:8200); do
+    spin
+done
+endspin
+echo " " 
+echo "****************************************************************************************************************"
+echo " Unsealing vault" 
+echo "****************************************************************************************************************"
+echo " " 
+vault operator unseal -address="https://vault.internal.provider.test:8200" $(cat ./vault/key.txt)
 echo " " 
 echo "****************************************************************************************************************"
 echo " Preparing PostgreSQL database use" 
 echo "****************************************************************************************************************"
 echo " " 
-vault secrets enable -address="http://vault.internal.provider.test:8200" database
-# vault policy write dev-policy -<< EOF
-# > path "keycloak/creds/dev-role" {
-# >   capabilities = ["read"]
-# > }
-# > EOF
-# vault auth enable keycloak
-# vault write auth/keycloak/config organization=prov ttl=86400s
-# vault write auth/keycloak/map/teams/vault value=dev-policy
-# vault secrets enable prov
-# vault write prov/config/root \
-# > access_key=$prov_access_key_id \
-# > secret_key=$prov_secret \
-# > region="home"
-# vault write prov/config/lease lease=5m lease_max=5m
-# vault write prov/roles/dev-role \
-# > credential_type=iam_user \
-# > policy_document=-<<EOF
-# > {
-# >   "Version": "2022-01-01",
-# >   "Statement": [
-# >     {
-# >        "Effect": "Allow",
-# >        "Action": "ec2:*",
-# >        "Resource": "*"
-# >     }
-# >   ]
-# > }
-# > EOF
-
-# developer action (can be in .bashrc?): get token via 
-# vault login -address="http://vault.internal.provider.test:8200" -method=keycloak token=$KEYCLOAK_TOKEN
-# export VAULT_TOKEN=<token>
-# Like azure shell, redirect to browser screen....get login through FIDO2, get token from vault.
+vault secrets enable -address="https://vault.internal.provider.test:8200" database
