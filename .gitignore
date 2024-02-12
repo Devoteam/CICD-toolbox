@@ -71,3 +71,4 @@ terraform/vault/terraform*
 runonce_log.html
 runonce_report.html
 runonce.xml
+jenkins_buildnode/act_runner-0.2.6-linux-amd64

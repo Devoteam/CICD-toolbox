@@ -18,8 +18,9 @@ cd /home/jenkins
 
 /usr/bin/dockerd &
 /home/jenkins/act_runner register --instance https://gitea.tooling.provider.test:3000 --name $BUILD_ENVIRONMENT --token $RUNNER_TOKEN --no-interactive
+sleep 1
 /home/jenkins/act_runner daemon >/dev/null 2>&1 &
-
+sleep 1
 su jenkins -c 'java -jar agent.jar -jnlpUrl "https://jenkins.tooling.provider.test:8084/computer/'$BUILD_ENVIRONMENT'/jenkins-agent.jnlp" -secret @secret-file.txt -workDir "/home/jenkins" &'
 
 exec "$@"
