@@ -83,7 +83,7 @@ COPY rc.local /etc/rc.local
 EXPOSE 22 
 RUN rc-update add docker boot
 
-COPY act_runner-main-linux-amd64 /home/jenkins/act_runner
+COPY act_runner-0.2.6-linux-amd64 /home/jenkins/act_runner
 RUN chown jenkins:jenkins /home/jenkins/act_runner
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
