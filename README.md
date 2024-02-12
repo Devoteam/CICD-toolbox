@@ -41,29 +41,29 @@ The CML host should run on 10.10.20.161, just like on the Cisco Devnet Sandbox.
 
 ### Software configuration
 
-The setup has been developed and tested on a fully updated Ubuntu 20.04.1 minimal install, 30 GB disk, 2 CPU, 16 GB memory on KVM with Internet access. As the setup also uses local networking, using the Ubuntu Desktop version is easier. During install testing the minimal install is used. 
+The setup has been developed and tested on a fully updated Ubuntu 22.04.3 minimal install, 50 GB disk, 4 CPU, 32 GB memory on KVM with Internet access. As the setup also uses local networking, using the Ubuntu Desktop version is easier. During install testing the minimal install is used. 
 
-As the last part of the install uses Robotframework with Selenium, it requires a decent screen resolution. Make sure you have at least 1200 pixels in height, otherwise the finalize install script may fail.
+As the last part of the install uses Robotframework with Selenium, it requires a decent screen resolution. Make sure you have at least 1200 pixels in height, otherwise the finalize install script may fail. I am switching to Terraform to install the systems.
 
 After install, execute:
 
+```sudo wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg```
+
+```echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list```
+
 ```sudo apt-get update && sudo apt-get upgrade -y```
 
-```sudo apt -y install openjdk-11-jre-headless maven git docker.io curl python3 python3-pip python-is-python3 jq vim firefox xauth libgl1-mesa-glx libcanberra-gtk-module libcanberra-gtk3-module libegl1 iputils-ping```
-
-```sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose```
+```sudo apt -y install openjdk-11-jre-headless maven git docker.io docker-compose docker-buildx curl python3 python3-pip python-is-python3 jq vim firefox xauth libgl1-mesa-glx libcanberra-gtk-module libcanberra-gtk3-module libegl1 iputils-ping make build-essential wget terraform vault direnv```
 
 ```sudo usermod -aG docker ${USER}```
 
 ```sudo su - ${USER}```
 
-```sudo chmod +x /usr/local/bin/docker-compose```
-
-```sudo python3 -m pip install robotframework```
-
-```sudo python3 -m pip install robotframework-selenium2library```
+```sudo python3 -m pip install robotframework robotframework-selenium2library```
 
 ```echo "export COMPOSE_DOCKER_CLI_BUILD=1" >> ~/.bashrc```
+
+``` echo 'eval "$(direnv hook bash)"' >> ~/.bashrc ```
 
 Go to the [Trivy site](https://aquasecurity.github.io/trivy/v0.31.3/getting-started/installation/) to install trivy.
 
@@ -79,19 +79,7 @@ Install [Docker Buildkit](https://docs.docker.com/build/buildkit/#getting-starte
 } 
 ```
 
-Reboot to make sure all changes are activated.
-
-Install [Hashicorp Vault](https://www.hashicorp.com/official-packaging-guide):
-
-```sudo apt update && sudo apt install gpg```
-
-```wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg```
-
-```echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list```
-
-```sudo apt update```
-
-```sudo apt install vault```
+Reboot to make sure all changes are activated. You will probably get a popup to do that through the software updater anyway.
 
 Install the [CICD-toolbox](https://github.com/Devoteam/CICD-toolbox):
 
@@ -99,16 +87,7 @@ Install the [CICD-toolbox](https://github.com/Devoteam/CICD-toolbox):
 
 ```cd CICD-toolbox/```
 
-```sudo cp geckodriver /usr/local/bin/```
-
-### As Docker has a pull rate limit, you need to authenticate first:
-```docker login -u <yourusername> -p <yourpassword>```
-
-It seems there are issues with robotframework and selenium 4.10+ which make the vault install fail. use 
-
-```pip install selenium==4.9.1``` to fix this
-
-It also requires buildkit to be active to enable [see the docker site](https://docs.docker.com/build/buildkit/#getting-started)
+```direnv allow```
 
 After this, you can run:
 
