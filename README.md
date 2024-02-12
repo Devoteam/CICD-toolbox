@@ -41,7 +41,7 @@ The CML host should run on 10.10.20.161, just like on the Cisco Devnet Sandbox.
 
 ### Software configuration
 
-The setup has been developed and tested on a fully updated Ubuntu 20.04.1 minimal install, 30 GB disk, 2 CPU, 16 GB memory on KVM with Internet access. As the setup also uses local networking, using the Ubuntu Desktop version is easier. During install testing the minimal install is used. 
+The setup has been developed and tested on a fully updated Ubuntu 22.04.3 minimal install, 50 GB disk, 4 CPU, 32 GB memory on KVM with Internet access. As the setup also uses local networking, using the Ubuntu Desktop version is easier. During install testing the minimal install is used. 
 
 As the last part of the install uses Robotframework with Selenium, it requires a decent screen resolution. Make sure you have at least 1200 pixels in height, otherwise the finalize install script may fail. I am switching to Terraform to install the systems.
 
@@ -59,11 +59,11 @@ After install, execute:
 
 ```sudo su - ${USER}```
 
-```sudo python3 -m pip install robotframework```
-
-```sudo python3 -m pip install robotframework-selenium2library```
+```sudo python3 -m pip install robotframework robotframework-selenium2library```
 
 ```echo "export COMPOSE_DOCKER_CLI_BUILD=1" >> ~/.bashrc```
+
+``` echo 'eval "$(direnv hook bash)"' >> ~/.bashrc ```
 
 Go to the [Trivy site](https://aquasecurity.github.io/trivy/v0.31.3/getting-started/installation/) to install trivy.
 
@@ -79,13 +79,15 @@ Install [Docker Buildkit](https://docs.docker.com/build/buildkit/#getting-starte
 } 
 ```
 
-Reboot to make sure all changes are activated.
+Reboot to make sure all changes are activated. You will probably get a popup to do that through the software updater anyway.
 
 Install the [CICD-toolbox](https://github.com/Devoteam/CICD-toolbox):
 
 ```git clone https://github.com/Devoteam/CICD-toolbox.git```
 
 ```cd CICD-toolbox/```
+
+```direnv allow```
 
 After this, you can run:
 
