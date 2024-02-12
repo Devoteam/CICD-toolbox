@@ -17,13 +17,13 @@ create_runner_node() {
     robot --variable ENVIRONMENT:$1 --variable VALID_PASSWORD:$2 --variable SEQ_NR:$3 --variable NAME:$4 -d install_log/ -o 31_build-$1_runner_test.xml -l 31_build-$1_runner_test_log.html -r 31_build-$1_runner_test_report.html ./jenkins_buildnode/runner_validate.robot
 }
 
-if [ -f "jenkins_buildnode/act_runner-main-linux-amd64" ]; then
+if [ -f "jenkins_buildnode/act_runner-0.2.6-linux-amd64" ]; then
     echo " Gitea runner software exists"
 else
     echo " Get Gitea runner software"
-    wget --directory-prefix=jenkins_buildnode https://dl.gitea.com/act_runner/main/act_runner-main-linux-amd64
+    wget --directory-prefix=jenkins_buildnode https://dl.gitea.com/act_runner/0.2.6/act_runner-0.2.6-linux-amd64
 fi
-chmod +x  jenkins_buildnode/act_runner-main-linux-amd64
+chmod +x  jenkins_buildnode/act_runner-0.2.6-linux-amd64
 create_runner_node "dev" $1 1 "Dev"
 create_runner_node "test" $1 2 "Test"
 create_runner_node "acc" $1 3 "Acc"
