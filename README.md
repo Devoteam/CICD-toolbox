@@ -83,18 +83,6 @@ Install [Docker Buildkit](https://docs.docker.com/build/buildkit/#getting-starte
 
 Reboot to make sure all changes are activated.
 
-Install [Hashicorp Vault](https://www.hashicorp.com/official-packaging-guide):
-
-```sudo apt update && sudo apt install gpg```
-
-```wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg```
-
-```echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list```
-
-```sudo apt update```
-
-```sudo apt install vault```
-
 Install the [CICD-toolbox](https://github.com/Devoteam/CICD-toolbox):
 
 ```git clone https://github.com/Devoteam/CICD-toolbox.git```
