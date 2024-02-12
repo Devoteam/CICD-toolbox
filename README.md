@@ -53,7 +53,7 @@ After install, execute:
 
 ```sudo apt-get update && sudo apt-get upgrade -y```
 
-```sudo apt -y install openjdk-11-jre-headless maven git docker.io docker-compose docker-buildx curl python3 python3-pip python-is-python3 jq vim firefox xauth libgl1-mesa-glx libcanberra-gtk-module libcanberra-gtk3-module libegl1 iputils-ping make build-essential wget terraform vault```
+```sudo apt -y install openjdk-11-jre-headless maven git docker.io docker-compose docker-buildx curl python3 python3-pip python-is-python3 jq vim firefox xauth libgl1-mesa-glx libcanberra-gtk-module libcanberra-gtk3-module libegl1 iputils-ping make build-essential wget terraform vault direnv```
 
 ```sudo usermod -aG docker ${USER}```
 
