@@ -255,10 +255,10 @@ jenkins:
     oic:
       clientId: "Jenkins"
       clientSecret: oic_secret
-      wellKnownOpenIDConfigurationUrl: "https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/.well-known/openid-configuration"
-      tokenServerUrl: "https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/token"
-      authorizationServerUrl: "https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/auth"
-      userInfoServerUrl: "https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/userinfo"
+      wellKnownOpenIDConfigurationUrl: "https://keycloak.services.provider.test:8443/realms/cicdtoolbox/.well-known/openid-configuration"
+      tokenServerUrl: "https://keycloak.services.provider.test:8443/realms/cicdtoolbox/protocol/openid-connect/token"
+      authorizationServerUrl: "https://keycloak.services.provider.test:8443/realms/cicdtoolbox/protocol/openid-connect/auth"
+      userInfoServerUrl: "https://keycloak.services.provider.test:8443/realms/cicdtoolbox/protocol/openid-connect/userinfo"
       userNameField: "preferred_username"
       fullNameFieldName: "name"
       emailFieldName: "email"
@@ -266,7 +266,7 @@ jenkins:
       scopes: "web-origins address phone openid offline_access profile roles microprofile-jwt email"
       disableSslVerification: false
       logoutFromOpenidProvider: true
-      endSessionEndpoint: "https://keycloak.services.provider.test:8443/auth/realms/cicdtoolbox/protocol/openid-connect/logout"
+      endSessionEndpoint: "https://keycloak.services.provider.test:8443/realms/cicdtoolbox/protocol/openid-connect/logout"
       postLogoutRedirectUrl: "https://jenkins.tooling.provider.test:8084"
       escapeHatchEnabled: true
       escapeHatchGroup: "local-admin"

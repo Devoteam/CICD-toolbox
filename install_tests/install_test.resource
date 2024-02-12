@@ -5,7 +5,7 @@ Library           String
 Library           Collections
 
 *** Variables ***
-${BROWSER1}         headlessfirefox
+${BROWSER1}         chrome
 ${DELAY}            0
 
 *** Keywords ***

@@ -22,12 +22,6 @@ endspin() {
    printf "\r%s\n" "$@"
 }
 
-create_runner_node() {
-    robot --variable environment:$1 --variable VALID_PASSWORD:$2 -d install_log -o ./install_log/$1.xml -l ./install_log/$1_log.html -r ./install_log/$1_report.html jenkins_buildnode/runnertoken.robot
-    export RUNNER_TOKEN=$(cat jenkins_buildnode/${1}_runner_token)
-    echo $RUNNER_TOKEN
-    docker-compose up -d --build --no-deps build-$1.delivery.provider.test
-}
 
 echo "****************************************************************************************************************"
 echo " Start clean" 
@@ -41,8 +35,10 @@ rm -f install_tests/output.xml
 rm -f install_tests/report.html
 rm -f install_tests/*.png
 rm -f install_tests/*.log
-rm -f install_log/*
-
+rm -rf install_log/*
+rm *_log.html
+rm *_report.html
+rm *.xml
 echo " " 
 echo "****************************************************************************************************************"
 echo " Cleaning Vault" 
@@ -52,6 +48,7 @@ rm -f vault/certs/*.pem
 rm -f vault/certs/*.crt
 rm -f vault/certs/*.csr
 rm -f vault/*.txt
+#terraform -chdir=terraform/vault state rm $(terraform -chdir=terraform/vault state list) 
 echo " " 
 echo "****************************************************************************************************************"
 echo " Cleaning LLDAP" 
@@ -280,7 +277,27 @@ fi
 echo " Add Netbox to /etc/hosts"
 sudo echo "172.16.11.12   netbox.tooling.provider.test" >> /etc/hosts
 
-````````
+if grep -q "seleniumffhost" /etc/hosts; then
+    echo "Selenium Firefox testhost exists in /etc/hosts, removing..."
+    sudo sed -i '/seleniumffhost.internal.provider.test/d' /etc/hosts
+fi
+echo " Add Selenium Firefox testhost to /etc/hosts"
+sudo echo "172.16.10.100 seleniumffhost.internal.provider.test" >> /etc/hosts
+
+if grep -q "seleniumgchost" /etc/hosts; then
+    echo "Selenium Google Chrome testhost exists in /etc/hosts, removing..."
+    sudo sed -i '/seleniumgchost.internal.provider.test/d' /etc/hosts
+fi
+echo " Add Selenium Google Chrome testhost to /etc/hosts"
+sudo echo "172.16.10.101 seleniumgchost.internal.provider.test" >> /etc/hosts
+
+if grep -q "opennebula" /etc/hosts; then
+    echo "Opennebula Controller exists in /etc/hosts, removing..."
+    sudo sed -i '/opennebula.tooling.provider.test/d' /etc/hosts
+fi
+echo " Add Opennebula Controller to /etc/hosts"
+sudo echo "172.16.10.30 opennebula.tooling.provider.test" >> /etc/hosts
+
 if grep -q "cml" /etc/hosts; then
     echo " Cisco Modeling Labs exists in /etc/hosts, removing..."
     sudo sed -i '/cml.tooling.provider.test/d' /etc/hosts
@@ -290,6 +307,14 @@ sudo echo "10.10.20.161   cml.tooling.provider.test" >> /etc/hosts
 
 sudo chmod o-w /etc/hosts
 
+echo "****************************************************************************************************************"
+echo " Setting up Chrome host for Selenium" 
+echo "****************************************************************************************************************"
+docker-compose up -d --build --no-deps seleniumgchost.internal.provider.test
+echo "****************************************************************************************************************"
+echo " Setting up Firefox host for Selenium" 
+echo "****************************************************************************************************************"
+docker-compose up -d --build --no-deps seleniumffhost.internal.provider.test
 echo "****************************************************************************************************************"
 echo " Setting up Vault" 
 echo "****************************************************************************************************************"
@@ -353,6 +378,7 @@ cp vault/certs/ca.crt nodered/ca.crt
 cp vault/certs/ca.crt portainer/ca.crt
 cp vault/certs/ca.crt promtail/ca.crt
 cp vault/certs/ca.crt restportal/ca.crt
+cp vault/certs/ca.crt opennebula/ca.crt
 echo "****************************************************************************************************************"
 echo " Saving database certificates"
 echo "****************************************************************************************************************"
@@ -374,7 +400,7 @@ echo "**************************************************************************
 echo " Wait until keycloak is running (~45 sec.)"
 echo "****************************************************************************************************************"
 let t=0
-until $(curl --output /dev/null --insecure --silent --head --fail https://keycloak.services.provider.test:8443); do
+until $(curl --output /dev/null --silent --head --fail https://keycloak.services.provider.test:8443); do
     spin
 done
 endspin
@@ -382,14 +408,14 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating keycloak setup. This will take time..."
 echo "****************************************************************************************************************"
-docker exec -it keycloak.services.provider.test sh -c "/opt/jboss/keycloak/bin/create-realm.sh ${keycloak_pwd} ${keycloak_storepass} ${keycloak_pwd} ${local_admin_user}" | tee install_log/keycloak_create.log
+docker exec -it keycloak.services.provider.test sh -c "/opt/keycloak/bin/create-realm.sh ${keycloak_pwd} ${keycloak_storepass} ${keycloak_pwd} ${local_admin_user}" | tee install_log/keycloak_create.log
 echo " "
 docker restart keycloak.services.provider.test
 echo "****************************************************************************************************************"
 echo " Wait until keycloak is running (~5 sec.)"
 echo "****************************************************************************************************************"
 let t=0
-until $(curl --output /dev/null --insecure --silent --head --fail https://keycloak.services.provider.test:8443); do
+until $(curl --output /dev/null --silent --head --fail https://keycloak.services.provider.test:8443); do
     spin
 done
 endspin
@@ -401,7 +427,7 @@ vault/vault_install_post_keycloak.sh
 echo "****************************************************************************************************************"
 echo " Creating keycloak-nexus json"
 echo "****************************************************************************************************************"
-docker cp keycloak.services.provider.test:/opt/jboss/keycloak/bin/keycloak-nexus.json nexus/keycloak-nexus.json
+docker cp keycloak.services.provider.test:/opt/keycloak/bin/keycloak-nexus.json nexus/keycloak-nexus.json
 echo " "
 echo "****************************************************************************************************************"
 echo " Starting Jenkins"
@@ -440,7 +466,7 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Finalizing install via ROBOT"
 echo "****************************************************************************************************************"
-robot --variable VALID_PASSWORD:${netcicd_pwd} -d install_log finalize_install.robot
+robot --variable VALID_PASSWORD:${netcicd_pwd} -d install_log -o 20_finalize.xml -l 20_finalize_log.html -r 20_finalize_report.html finalize_install.robot
 echo " " 
 echo "****************************************************************************************************************"
 echo " Copying Jenkins Keystore to Jenkins buildnodes"
@@ -454,7 +480,7 @@ jtoken=`cat jtoken.txt`
 crumb=`curl -u "jenkins-jenkins:${jtoken}" --insecure 'https://jenkins.tooling.provider.test:8084/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)'`
 csrf=$( echo $crumb | awk -F',' '{print $(1)}' | awk -F':' '{print $2}' )
 echo $csrf
-#rm -f jtoken.txt
+rm -f jtoken.txt
 echo " " 
 echo "****************************************************************************************************************"
 echo " Retrieving Jenkins Agent secrets"
@@ -466,21 +492,15 @@ curl -L --insecure -u "jenkins-jenkins:${jtoken}" -H "Jenkins-Crumb:${csrf}" htt
 echo "****************************************************************************************************************"
 echo " Building build nodes"
 echo "****************************************************************************************************************"
-if [ -f "jenkins_buildnode/act_runner-main-linux-amd64" ]; then
-    echo " Gitea runner software exists"
-else
-    echo " Get Gitea runner software"
-    wget --directory-prefix=jenkins_buildnode https://dl.gitea.com/act_runner/main/act_runner-main-linux-amd64
-fi
-chmod +x  jenkins_buildnode/act_runner-main-linux-amd64
-create_runner_node "dev" ${netcicd_pwd}
-create_runner_node "test" ${netcicd_pwd}
-create_runner_node "acc" ${netcicd_pwd}
-create_runner_node "prod" ${netcicd_pwd}
+jenkins_buildnode/create_runner.sh ${netcicd_pwd} | tee install_log/vault_create.log
 echo "****************************************************************************************************************"
 echo " Starting Restportal"
 echo "****************************************************************************************************************"
 docker-compose up -d --build --no-deps restportal.services.provider.test
+echo "****************************************************************************************************************"
+echo " Starting Opennebula Frontend"
+echo "****************************************************************************************************************"
+docker-compose up -d --build --no-deps opennebula.tooling.provider.test
 # echo "****************************************************************************************************************"
 # echo " Copying Jenkins Keystore to Argos node"
 # echo "****************************************************************************************************************"
@@ -512,15 +532,15 @@ docker-compose up -d --build --no-deps restportal.services.provider.test
 # echo "****************************************************************************************************************"
 # docker-compose up -d --build --no-deps nodered.tooling.provider.test
 # echo "****************************************************************************************************************"
-# echo " Start Portainer"
-# echo "****************************************************************************************************************"
-# docker-compose up -d --build --no-deps portainer.monitoring.provider.test
-# echo "****************************************************************************************************************"
-# echo " Starting Netbox"
-# echo "****************************************************************************************************************"
-# docker-compose up -d --build --no-deps redis.tooling.provider.test
-# docker-compose up -d --build --no-deps netbox.tooling.provider.test
-# echo " " 
+echo " Start Portainer"
+echo "****************************************************************************************************************"
+docker-compose up -d --build --no-deps portainer.monitoring.provider.test
+echo "****************************************************************************************************************"
+echo " Starting Netbox"
+echo "****************************************************************************************************************"
+docker-compose up -d --build --no-deps redis.tooling.provider.test
+docker-compose up -d --build --no-deps netbox.tooling.provider.test
+echo " " 
 # echo "****************************************************************************************************************"
 # echo " Starting Loki, Promtail and Grafana..."
 # echo "****************************************************************************************************************"
@@ -531,7 +551,7 @@ docker-compose up -d --build --no-deps restportal.services.provider.test
 echo "****************************************************************************************************************"
 echo " Validating install"
 echo "****************************************************************************************************************"
-robot --variable VALID_PASSWORD:${netcicd_pwd} -d install_tests/ install_tests
+robot --variable VALID_PASSWORD:${netcicd_pwd} -d install_log -o 100_install_test.xml -l 100_install_test_log.html -r 100_install_test_report.html install_tests
 echo " " 
 echo "****************************************************************************************************************"
 echo " Running trivy vulnerability scanner (https://github.com/aquasecurity/trivy)" 
@@ -567,6 +587,10 @@ else
     echo "trivy is not installed"
 fi
 echo "****************************************************************************************************************"
+echo " Consolidating all robot test reports into one"
+echo "****************************************************************************************************************"
+rebot --norpa --output runonce.xml --log runonce_log.html --report runonce_report.html  ./install_log/*.xml
+echo "****************************************************************************************************************"
 echo " The pipeline uses the default Cisco DevNet CML Sandbox credentials developer/C1sco12345 to log in to CML."
 echo " You may change this to your own credentials in:"
 echo " "
@@ -595,7 +619,7 @@ echo " Netbox:      http://netbox.tooling.provider.test:8000"
 echo " Backstage:   https://backstage.tooling.provider.test"
 echo " restportal:  http://restportal.services.provider.test:8200"
 echo " Vault:       http://vault.internal.provider.test:8200"
-echo " NodeRed:     http://http://nodered.tooling.provider.test:1880/"
+echo " OpenNebula:  http://opennebula.tooling.provider.test:1880/"
 echo " "
 echo "****************************************************************************************************************"
 echo "Cleaning up"

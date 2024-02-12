@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# shell script to be copied into /opt/jboss/keycloak/bin
-cd /opt/jboss/keycloak/bin
+# shell script to be copied into $KEYCLOAK_HOME/bin
+cd $HOME/bin
 
 #Create credentials
-./kcadm.sh config credentials --server https://keycloak.services.provider.test:8443/auth --realm master --user $4 --password $1
+./kcadm.sh config credentials --server https://keycloak.services.provider.test:8443 --realm master --user $4 --password $1
 echo "Credentials created"
 
 #add realm
@@ -46,7 +46,7 @@ VAULT_token=$(grep value cicdtoolbox_vault_secret | cut -d '"' -f4)
 echo "VAULT_token: ${VAULT_token}"
 
 # Now we can add client specific roles (Clientroles)
-./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name=vaultAdmin -s description='The admin role for the Infra Automators organization'
+./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-admin' -s description='The admin role for the Infra Automators organization'
 ./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='infraautomator' -s description='Organization owner role in the Infraautomator organization'
 ./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-cicdtoolbox-read' -s description='A read-only role on the CICD toolbox'
 ./kcadm.sh create clients/$VAULT_ID/roles -r cicdtoolbox -s name='vault-cicdtoolbox-write' -s description='A read-write role on the CICD toolbox'
@@ -71,6 +71,22 @@ echo "VAULT_token: ${VAULT_token}"
 	-s config="{\"multivalued\" : \"true\",\"userinfo.token.claim\" : \"true\",\"id.token.claim\" : \"true\",\"access.token.claim\" : \"true\",\"claim.name\" : \"vaultGroups\",\"jsonType.label\" : \"String\",\"usermodel.clientRoleMapping.clientId\" : \"Vault\"}"
 
 echo "Created role-group mapper in the Client Scope" 
+
+# # We need to add a client scope on the realm for Vault in order to include the audience in the access token
+# ./kcadm.sh create -x "client-scopes" -r cicdtoolbox -s name=vault-audience -s protocol=openid-connect &>cicdtoolbox_VAULT_SCOPE
+# VAULT_SCOPE_ID=$(cat cicdtoolbox_VAULT_SCOPE | grep id | cut -d"'" -f 2)
+# echo "Created Client scope for Vault with id: ${VAULT_SCOPE_ID}" 
+
+# Create a mapper for the audience
+./kcadm.sh create clients/$VAULT_ID/protocol-mappers/models \
+    -r cicdtoolbox \
+	-s name=vault-audience-mapper \
+    -s protocol=openid-connect \
+	-s protocolMapper=oidc-audience-mapper \
+    -s consentRequired=false \
+	-s config="{\"included.client.audience\" : \"https://keycloak.services.provider.test:8443/realms/cicdtoolbox\",\"id.token.claim\" : \"false\",\"access.token.claim\" : \"true\"}"
+
+# echo "Created audience mapper in the Client Scope" 
 
 #download Vault OIDC file
 ./kcadm.sh get clients/$VAULT_ID/installation/providers/keycloak-oidc-keycloak-json -r cicdtoolbox > keycloak-vault.json
@@ -121,7 +137,6 @@ echo "GITEA_token: ${GITEA_token}"
 ./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-templateapp-read' -s description='A read-only role on templateApp'
 ./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-templateapp-write' -s description='A read-write role on templateApp'
 ./kcadm.sh create clients/$GITEA_ID/roles -r cicdtoolbox -s name='gitea-templateapp-admin' -s description='A admin role on templateApp'
-
 
 # We need to add the gitea-admin claim and gitea-group claim to the token
 ./kcadm.sh create clients/$GITEA_ID/protocol-mappers/models \
@@ -271,7 +286,7 @@ echo "Created Nexus client with ID: ${NEXUS_ID}"
 echo "Created Nexus roles." 
 
 # Now add the scope mappings for Nexus
-RM_ID=$( ./kcadm.sh get -r cicdtoolbox clients | grep realm-management -B1 | grep id | awk -F',' '{print $(1)}' | cut -d ' ' -f5 | cut -d '"' -f2 )
+RM_ID=$(./kcadm.sh get -r cicdtoolbox clients | grep realm-management -B1 | grep id | cut -d ":" -f 2 | cut -d '"' -f2)
 
 ./kcadm.sh create -r cicdtoolbox clients/$NEXUS_ID/scope-mappings/clients/$RM_ID  --body "[{\"name\": \"view-realm\"}]"
 ./kcadm.sh create -r cicdtoolbox clients/$NEXUS_ID/scope-mappings/clients/$RM_ID  --body "[{\"name\": \"view-users\"}]"
@@ -628,6 +643,49 @@ echo "Backstage_token: ${BACKSTAGE_token}"
 
 echo "Created role-group mapper in the Client Scope" 
 echo "Backstage configuration finished"
+echo ""
+
+# Add Netbox client 
+./kcadm.sh create clients \
+    -r cicdtoolbox \
+    -s name="Netbox" \
+    -s description="Administrative system server for the toolchain" \
+    -s clientId=Netbox \
+    -s enabled=true \
+    -s publicClient=false \
+    -s fullScopeAllowed=false \
+    -s directAccessGrantsEnabled=true \
+    -s rootUrl=${authBaseUrl} \
+    -s 'redirectUris=[ "https://netbox.tooling.provider.test:3000/oauth2/callback" ]' \
+    -o --fields id >cicdtoolbox_NETBOX
+
+# output is Created new client with id, we now need to grep the ID out of it
+NETBOX_ID=$(cat cicdtoolbox_NETBOX | grep id | cut -d'"' -f 4)
+echo "Created Netbox client with ID: ${NETBOX_ID}" 
+
+# Create Client secret
+./kcadm.sh create clients/$NETBOX_ID/client-secret -r cicdtoolbox
+
+# We need to retrieve the token from keycloak for this client
+./kcadm.sh get clients/$NETBOX_ID/client-secret -r cicdtoolbox >cicdtoolbox_netbox_secret
+NETBOX_token=$(grep value cicdtoolbox_netbox_secret | cut -d '"' -f4)
+# Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source in Netbox for Keycloak
+echo "Netbox token: ${NETBOX_token}"
+
+# Now we can add client specific roles (Clientroles)
+./kcadm.sh create clients/$NETBOX_ID/roles -r cicdtoolbox -s name=netboxAdmin -s description='The admin role for the Infra Automators organization'
+
+# We need to add the roles claim to the token
+./kcadm.sh create clients/$NETBOX_ID/protocol-mappers/models \
+    -r cicdtoolbox \
+	-s name=group-mapper \
+    -s protocol=openid-connect \
+	-s protocolMapper=oidc-usermodel-client-role-mapper \
+    -s consentRequired=false \
+	-s config="{\"multivalued\" : \"true\",\"userinfo.token.claim\" : \"true\",\"id.token.claim\" : \"true\",\"access.token.claim\" : \"true\",\"claim.name\" : \"roles\",\"jsonType.label\" : \"String\",\"usermodel.clientRoleMapping.clientId\" : \"Netbox\"}"
+
+echo "Created role-group mapper in the Client Scope" 
+echo "Netbox configuration finished"
 echo ""
 
 ./kcadm.sh create groups -r cicdtoolbox -s name="campus_dev_lan" &>CAMPUS_DEV_LAN_DESIGNER
@@ -1088,6 +1146,12 @@ echo "Created Toolbox Admins group with ID: ${toolbox_admin_id}"
     --cclientid Argos \
     --rolename administrator
 
+./kcadm.sh add-roles \
+    -r cicdtoolbox \
+    --gid $toolbox_admin_id \
+    --cclientid Vault \
+    --rolename vault-admin
+
 ./kcadm.sh create groups -r cicdtoolbox -s name="tooling_dev_design" &>TOOL_DEV_DESIGNER
 tool_dev_designer_id=$(cat TOOL_DEV_DESIGNER | grep id | cut -d"'" -f 2)
 
@@ -1299,11 +1363,7 @@ echo "Added roles to Operations WAN Specialists."
     -s 'config.batchSizeForSync=["1000"]' \
     -s 'config.fullSyncPeriod=["10"]' &>LLDAP_LDAP
 
-echo "LLDAP 1 configured"
-
 lldap_ldap_id=$(cat LLDAP_LDAP | grep id | cut -d"'" -f 2)
-
-echo "LLDAP 2 configured"
 
 ./kcadm.sh create components -r cicdtoolbox \
     -s name=groups \
@@ -1315,6 +1375,6 @@ echo "LLDAP 2 configured"
     -s 'config."group.object.classes"=["groupOfUniqueNames"]' \
     -s 'config.mode=["READ_ONLY"]'
 
-echo "LLDAP 3 configured"
+echo "LLDAP configured"
 #Now delete tokens and secrets
 rm cicdtoolbox_*

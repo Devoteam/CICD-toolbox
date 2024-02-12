@@ -1,0 +1,20 @@
+{
+  "backend": {
+    "consul": {
+      "address": "consul.internal.provider.test:8500",
+      "path": "vault/"
+    }
+  },
+  "listener": {
+    "tcp":{
+      "address": "0.0.0.0:8200",
+      "tls_disable": 0,
+      "tls_cert_file": "/vault/config/vault.internal.provider.test.crt",
+      "tls_key_file": "/vault/config/vault.internal.provider.test.pem",
+      "tls_client_ca_file": "/vault/config/ca.crt",
+      "tls_disable_client_certs": "true"  
+    }
+  },
+  "ui": true,
+  "api_addr": "https://vault.internal.provider.test:8200"
+}

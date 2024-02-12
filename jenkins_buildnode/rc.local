@@ -1,15 +1,16 @@
 #!/bin/sh
-if wget -q --method=HEAD http://gitea.tooling.test:3000/infraautomator/ ; then
+if $(wget --spider https://gitea.tooling.provider.test:3000/infraautomator/); then
     echo "Setting git to Gitea." >>/home/jenkins/install-log.txt
-    export GIT_URL=http://gitea.tooling.test:3000/infraautomator/ >> /etc/profile
+    export GIT_URL=https://gitea.tooling.provider.test:3000/infraautomator/ >> /etc/profile
 else
     echo "Setting git to Github." >>/home/jenkins/install-log.txt
     export GIT_URL=https://github.com/Devoteam/ >> /etc/profile
 fi
 # Setting jenkins repo to proxy host to enable curated packages
-if $(wget http://nexus.tooling.test:8081); then
+if $(wget --spider https://nexus.tooling.provider.test:8443); then
     echo "NetCICD Toolbox installed. Setting deb repositories to Nexus." >>/home/jenkins/install-log.txt
     echo "To be done"  >>/home/jenkins/install-log.txt
 else
     echo "NetCICD Toolbox not installed. Fetching repositories from jenkins." >>/home/jenkins/install-log.txt
 fi
+/usr/bin/dockerd &

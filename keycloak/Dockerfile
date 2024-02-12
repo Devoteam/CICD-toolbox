@@ -1,16 +1,12 @@
-FROM jboss/keycloak:latest
-
-USER root
-RUN mkdir /etc/x509
-RUN mkdir /etc/x509/https
-RUN chmod 777 /etc/x509/https
-COPY ca.crt /etc/pki/ca-trust/source/anchors/ca.crt
+FROM registry.access.redhat.com/ubi9 AS ubi-micro-build
+COPY ca.crt /etc/pki/ca-trust/source/anchors/mycertificate.crt
 RUN update-ca-trust
-USER 1000
 
-COPY create-realm.sh /opt/jboss/keycloak/bin/create-realm.sh
-COPY img/keycloak-bg.png /opt/jboss/keycloak/themes/keycloak/login/resources/img/keycloak-bg.png
-COPY img/bg.png /opt/jboss/keycloak/themes/keycloak/welcome/resources/bg.png
+FROM quay.io/keycloak/keycloak:latest
+COPY --from=ubi-micro-build /etc/pki /etc/pki
+COPY create-realm.sh /opt/keycloak/bin/create-realm.sh
+#COPY img/keycloak-bg.png /opt/keycloak/themes/keycloak/login/resources/img/keycloak-bg.png
+#COPY img/bg.png /opt/keycloak/themes/keycloak/welcome/resources/bg.png
 
 EXPOSE 8080
 EXPOSE 8443

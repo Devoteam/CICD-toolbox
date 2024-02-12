@@ -3,6 +3,9 @@ Resource          ../install_test.resource
 
 Documentation       Making sure that Jenkins has access to the NetCICD repository on gitea
 
+Suite Setup       Open Browser   ${JENKINS URL}      ${BROWSER1}       remote_url=http://seleniumgchost.internal.provider.test:4444    options=add_argument("--ignore-certificate-errors")
+Suite Teardown    Close Browser
+
 *** Variables ***
 ${JENKINS URL}      https://jenkins.tooling.provider.test:8084/
 ${JENKINS NetCICD}  https://jenkins.tooling.provider.test:8084/job/Infraautomator/computation/console
@@ -15,12 +18,9 @@ Log into Jenkins
 Open infraautomator organization
     Get infraautomator repositories
 
-Close browsers
-    Close Browser
 
 *** Keywords ***
 Log into Jenkins as netcicd
-    Open Browser                ${JENKINS URL}       ${BROWSER1}
     Set Window Size             2560                 1920
     Go To                       ${JENKINS URL}
     Set Selenium Speed          ${DELAY}

@@ -14,10 +14,9 @@ if [ ! -d "/var/run/sshd" ]; then
   mkdir -p /var/run/sshd
 fi
 
-dockerd &
-
 cd /home/jenkins
 
+/usr/bin/dockerd &
 /home/jenkins/act_runner register --instance https://gitea.tooling.provider.test:3000 --name $BUILD_ENVIRONMENT --token $RUNNER_TOKEN --no-interactive
 /home/jenkins/act_runner daemon >/dev/null 2>&1 &
 
