@@ -37,6 +37,8 @@ volumes:
   opennebula_etcd: null
   opennebula_etcd_secrets: null
   opennebula_logs: null
+  minio_data: null
+
 secrets:
   ca_crt:
     file: ./vault/certs/ca.crt
@@ -132,6 +134,7 @@ secrets:
     file: ./vault/certs/redis.internal.provider.test.pem
   redis_crt:
     file: ./vault/certs/redis.internal.provider.test.crt
+
 services:
   argos-service.tooling.provider.test:
     container_name: argos-service.tooling.provider.test
@@ -177,6 +180,28 @@ services:
         ipv4_address: 172.16.9.3
     expose:
       - '27017'
+
+  minio.internal.provider.test:
+    container_name: minio.internal.provider.test
+    image: quay.io/minio/minio
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
+    init: true
+    stop_signal: SIGINT
+    stop_grace_period: 15s
+    environment:
+      - MINIO_ROOT_USER=${minio_user}
+      - MINIO_ROOT_PASSWORD=${minio_password}
+    networks:
+      internal:
+        ipv4_address: 172.16.9.6
+    expose:
+      - 9000
+      - 9001
+    volumes:
+      - 'minio_data:/data'
+
+
   backstage.tooling.provider.test:
     container_name: backstage.tooling.provider.test
     build:
@@ -536,6 +561,7 @@ services:
   nodered.tooling.provider.test:
     container_name: nodered.tooling.provider.test
     image: 'nodered/node-red:latest'
+    restart: unless-stopped
     environment:
       - TZ=Europe/Amsterdam
     secrets:
@@ -579,6 +605,7 @@ services:
   restportal.services.provider.test:
     container_name: restportal.services.provider.test
     image: 'mockoon/cli:latest'
+    restart: unless-stopped
     command: '--data data'
     networks:
       internal:
@@ -652,20 +679,23 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Amsterdam
-      - 'SUPERUSER_EMAIL="${netbox_admin}"'
-      - 'SUPERUSER_PASSWORD="${netbox_admin_password}"'
+      - 'SUPERUSER_EMAIL=${netbox_admin}'
+      - 'SUPERUSER_PASSWORD=${netbox_admin_password}'
       - ALLOWED_HOST=netbox.tooling.provider.test
       - DB_NAME=netbox
-      - 'DB_USER="${netbox_db_user}"'
-      - 'DB_PASSWORD="${netbox_db_password}"'
+      - DB_USER=netbox
+#      - 'DB_USER=${netbox_db_user}'
+      - 'DB_PASSWORD=${netbox_db_password}'
       - DB_HOST=cicdtoolbox-db.internal.provider.test
       - DB_PORT=5432
       - REDIS_HOST=redis.tooling.provider.test
       - REDIS_PORT=6379
-      - 'REDIS_PASSWORD="${netbox_db_password}"'
+      - 'REDIS_PASSWORD=${netbox_db_password}'
     secrets:
       - source: ca_crt
         target: /opt/netbox/venv/lib/python3.9/site-packages/certifi/cacert.pem
+      - source: cicdtoolbox-db_crt
+        target: /root/.postgresql/postgresql.crt
     volumes:
       - 'netbox:/config'
     ports:
@@ -678,6 +708,7 @@ services:
   seleniumffhost.internal.provider.test:
     container_name: seleniumffhost.internal.provider.test
     image: 'selenium/standalone-firefox:latest'
+    restart: unless-stopped
     expose:
       - 4444
       - 7900
@@ -689,6 +720,7 @@ services:
   seleniumgchost.internal.provider.test:
     container_name: seleniumgchost.internal.provider.test
     image: 'selenium/standalone-chrome:latest'
+    restart: unless-stopped
     expose:
       - 4444
       - 7900
@@ -703,7 +735,7 @@ services:
     environment:
       - OPENNEBULA_HOST=one.tooling.provider.test
       - OPENNEBULA_SSH_HOST=one.tooling.provider.test
-      - ONEADMIN_PASSWORD='${opennebula_oneadmin_password}'
+      - 'ONEADMIN_PASSWORD=${opennebula_oneadmin_password}'
       - DIND_ENABLED=yes
       - SUNSTONE_HTTPS_ENABLED=no
     networks:
@@ -740,4 +772,3 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-
