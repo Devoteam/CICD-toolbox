@@ -163,8 +163,8 @@ services:
     networks:
       internal:
         ipv4_address: 172.16.10.4
-    ports:
-      - '8082:8082'
+    expose:
+      - '8082'
     depends_on:
       - argos-service.tooling.provider.test
 
@@ -196,8 +196,8 @@ services:
       internal:
         ipv4_address: 172.16.9.6
     expose:
-      - 9000
-      - 9001
+      - '9000'
+      - '9001'
     volumes:
       - 'minio_data:/data'
 
@@ -210,9 +210,9 @@ services:
     networks:
       internal:
         ipv4_address: 172.16.11.14
-    ports:
-      - '3000:3002'
-      - '7000:7002'
+    expose:
+      - '3000'
+      - '7000'
 
   cicdtoolbox-db.internal.provider.test:
     container_name: cicdtoolbox-db.internal.provider.test
@@ -277,8 +277,8 @@ services:
       - 'gitea:/data'
       - '/etc/timezone:/etc/timezone:ro'
       - '/etc/localtime:/etc/localtime:ro'
-    ports:
-      - '3000:3000'
+    expose:
+      - '3000'
     healthcheck:
       test: 'curl --insecure -fSs https://172.16.11.3:3000/api/healthz'
       start_period: 60s
@@ -323,8 +323,8 @@ services:
     stop_grace_period: 15s
     environment:
       - 'GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=${Grafana_CLIENT_SECRET}'
-    ports:
-      - '3000:3003'
+    expose:
+      - '3000'
     networks:
       internal:
         ipv4_address: 172.16.13.6
@@ -359,9 +359,9 @@ services:
       - 'jenkins_certs:/certs/client'
       - 'jenkins_data:/var/jenkins_home'
       - 'jenkins_conf:/var/jenkins_conf'
-    ports:
-      - '8084:8084'
-      - '50000:50000'
+    expose:
+      - '8084'
+      - '50000'
     depends_on:
       - keycloak.services.provider.test
 
@@ -502,9 +502,9 @@ services:
     networks:
       internal:
         ipv4_address: 172.16.10.11
-    ports:
-      - '8080:8080'
-      - '8443:8443'
+    expose:
+      - '8080'
+      - '8443'
     depends_on:
       - cicdtoolbox-db.internal.provider.test
 
@@ -515,8 +515,7 @@ services:
     hostname: ldap
     expose:
       - '3890'
-    ports:
-      - '8083:17170'
+      - '17170'
     secrets:
       - source: ldap_key
         target: /data/key.pem
@@ -553,8 +552,8 @@ services:
     networks:
       internal:
         ipv4_address: 172.16.11.9
-    ports:
-      - '8081:8443'
+    expose:
+      - '8443'
     depends_on:
       - keycloak.services.provider.test
 
@@ -576,8 +575,8 @@ services:
     networks:
       internal:
         ipv4_address: 172.16.11.13
-    ports:
-      - '1880:1880'
+    expose:
+      - '1880'
 
   portainer.monitoring.provider.test:
     container_name: portainer.monitoring.provider.test
@@ -599,8 +598,8 @@ services:
     networks:
       internal:
         ipv4_address: 172.16.13.3
-    ports:
-      - '9000:9000'
+    expose:
+      - '9000'
 
   restportal.services.provider.test:
     container_name: restportal.services.provider.test
@@ -614,8 +613,8 @@ services:
       - type: bind
         source: ./restportal/bis2.json
         target: /data
-    ports:
-      - '3001:3001'
+    expose:
+      - '3001'
 
   consul.internal.provider.test:
     container_name: consul.internal.provider.test
@@ -646,8 +645,8 @@ services:
     networks:
       internal:
         ipv4_address: 172.16.9.5
-    ports:
-      - '8200:8200'
+    expose:
+      - '8200'
     volumes:
       - 'vault-config:/vault/config'
       - 'vault-policies:/vault/policies'
@@ -662,8 +661,8 @@ services:
   redis.tooling.provider.test:
     container_name: redis.tooling.provider.test
     image: 'redis:6.2-alpine'
-    ports:
-      - '6379:6379'
+    expose:
+      - '6379'
     command: redis-server --save 60 1 --requirepass netbox --loglevel warning
     restart: unless-stopped
     volumes:
@@ -698,8 +697,8 @@ services:
         target: /root/.postgresql/postgresql.crt
     volumes:
       - 'netbox:/config'
-    ports:
-      - '8000:8000'
+    expose:
+      - '8000'
     restart: unless-stopped
     networks:
       internal:
@@ -750,14 +749,14 @@ services:
       - 'opennebula_etcd:/srv/one/etcd'
       - 'opennebula_etcd_secrets:/srv/one/etcd-secrets'
       - 'opennebula_logs:/var/log'
-    ports:
-      - '3022:22'
-      - '3080:80'
-      - '2474:2474'
-      - '2633:2633'
-      - '4124:4124'
-      - '5030:5030'
-      - '29876:29876'
+    expose:
+      - '22'
+      - '80'
+      - '2474'
+      - '2633'
+      - '4124'
+      - '5030'
+      - '29876'
     restart: unless-stopped
     privileged: true
     cap_add:

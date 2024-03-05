@@ -26,8 +26,8 @@ endspin() {
 echo "****************************************************************************************************************"
 echo " Start clean" 
 echo "****************************************************************************************************************"
-docker-compose down --remove-orphans
-docker-compose rm -f
+docker compose --project-name cicd-toolbox down --remove-orphans
+docker compose --project-name cicd-toolbox rm -f
 docker volume rm $(docker volume ls -q)
 rm -f *_token
 rm -f install_tests/log.html
@@ -317,11 +317,11 @@ sudo chmod o-w /etc/hosts
 echo "****************************************************************************************************************"
 echo " Setting up Chrome host for Selenium" 
 echo "****************************************************************************************************************"
-docker-compose up -d --build --no-deps seleniumgchost.internal.provider.test
+docker compose --project-name cicd-toolbox up -d --build --no-deps seleniumgchost.internal.provider.test
 echo "****************************************************************************************************************"
 echo " Setting up Firefox host for Selenium" 
 echo "****************************************************************************************************************"
-docker-compose up -d --build --no-deps seleniumffhost.internal.provider.test
+docker compose --project-name cicd-toolbox up -d --build --no-deps seleniumffhost.internal.provider.test
 echo "****************************************************************************************************************"
 echo " Setting up Vault" 
 echo "****************************************************************************************************************"
@@ -364,7 +364,7 @@ echo "**************************************************************************
 echo " Creating LDAP server" 
 echo "****************************************************************************************************************"
 cp vault/certs/ldap.iam.provider.test.* lldap/data/
-docker-compose up -d --build --remove-orphans ldap.iam.provider.test
+docker compose --project-name cicd-toolbox up -d --build --remove-orphans ldap.iam.provider.test
 echo " "
 echo "****************************************************************************************************************"
 echo " Saving CA self-signed certificate"
@@ -396,13 +396,13 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Creating database"
 echo "****************************************************************************************************************"
-DOCKER_BUILDKIT=1 docker-compose up -d --build cicdtoolbox-db.internal.provider.test
+DOCKER_BUILDKIT=1 docker compose --project-name cicd-toolbox up -d --build cicdtoolbox-db.internal.provider.test
 sleep 10
 echo " " 
 echo "****************************************************************************************************************"
 echo " Starting Keycloak "
 echo "****************************************************************************************************************"
-docker-compose up -d --build --no-deps keycloak.services.provider.test
+docker compose --project-name cicd-toolbox up -d --build --no-deps keycloak.services.provider.test
 echo "****************************************************************************************************************"
 echo " Wait until keycloak is running (~45 sec.)"
 echo "****************************************************************************************************************"
@@ -454,7 +454,7 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Booting Nexus"
 echo "****************************************************************************************************************"
-docker-compose up -d --build --no-deps nexus.tooling.provider.test
+docker compose --project-name cicd-toolbox up -d --build --no-deps nexus.tooling.provider.test
 echo "****************************************************************************************************************"
 echo " Creating nexus setup (~ 115 sec.)"
 echo "****************************************************************************************************************"
@@ -503,61 +503,61 @@ jenkins_buildnode/create_runner.sh ${netcicd_pwd} | tee install_log/vault_create
 echo "****************************************************************************************************************"
 echo " Starting Restportal"
 echo "****************************************************************************************************************"
-docker-compose up -d --build --no-deps restportal.services.provider.test
+docker compose --project-name cicd-toolbox up -d --build --no-deps restportal.services.provider.test
 echo "****************************************************************************************************************"
 echo " Starting Opennebula Frontend"
 echo "****************************************************************************************************************"
-docker-compose up -d --build --no-deps opennebula.tooling.provider.test
+docker compose --project-name cicd-toolbox up -d --build --no-deps opennebula.tooling.provider.test
 echo "****************************************************************************************************************"
 echo " Starting minio"
 echo "****************************************************************************************************************"
-docker-compose up -d --build --no-deps minio.internal.provider.test
-# echo "****************************************************************************************************************"
-# echo " Copying Jenkins Keystore to Argos node"
-# echo "****************************************************************************************************************"
-# cp ./jenkins/keystore/cacerts ./argos/cacerts
-# cp ./jenkins/keystore/cacerts ./argos-service/cacerts
-# echo " "
-# echo "****************************************************************************************************************"
-# echo " Creating Argos setup"
-# echo "****************************************************************************************************************"
-# argos_client_id=$(grep ARGOS_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
-# sed -i -e "s/argos_secret/$argos_client_id/" argos/application.yml
-# echo "****************************************************************************************************************"
-# echo " Starting Argos"
-# echo "****************************************************************************************************************"
-# docker-compose up -d --build --no-deps mongodb.internal.provider.test
-# docker-compose up -d --build --no-deps argos-service.tooling.provider.test
-# docker-compose up -d --build --no-deps argos.services.provider.test
+docker compose --project-name cicd-toolbox up -d --build --no-deps minio.internal.provider.test
+echo "****************************************************************************************************************"
+echo " Copying Jenkins Keystore to Argos node"
+echo "****************************************************************************************************************"
+cp ./jenkins/keystore/cacerts ./argos/cacerts
+cp ./jenkins/keystore/cacerts ./argos-service/cacerts
+echo " "
+echo "****************************************************************************************************************"
+echo " Creating Argos setup"
+echo "****************************************************************************************************************"
+argos_client_id=$(grep ARGOS_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
+sed -i -e "s/argos_secret/$argos_client_id/" argos/application.yml
+echo "****************************************************************************************************************"
+echo " Starting Argos"
+echo "****************************************************************************************************************"
+docker compose --project-name cicd-toolbox up -d --build --no-deps mongodb.internal.provider.test
+docker compose --project-name cicd-toolbox up -d --build --no-deps argos-service.tooling.provider.test
+docker compose --project-name cicd-toolbox up -d --build --no-deps argos.services.provider.test
 # echo "****************************************************************************************************************"
 # echo " Building Backstage"
 # echo "****************************************************************************************************************"
-# docker-compose up -d --build --no-deps oauth2-proxy.tooling.provider.test
+# docker compose --project-name cicd-toolbox up -d --build --no-deps oauth2-proxy.tooling.provider.test
 # backstage_client_id=$(grep Backstage_token install_log/keycloak_create.log | cut -d' ' -f2 | tr -d '\r' )
 # docker exec -it oauth2-proxy.tooling.provider.test sh -c "OAUTH2_PROXY_CLIENT_SECRET=$backstage_client_id"
  
 # docker restart oauth2-proxy.tooling.provider.test
-# docker-compose up -d --build --no-deps backstage.tooling.provider.test
+# docker compose --project-name cicd-toolbox up -d --build --no-deps backstage.tooling.provider.test
 echo "****************************************************************************************************************"
 echo " Start NodeRed"
 echo "****************************************************************************************************************"
-docker-compose up -d --build --no-deps nodered.tooling.provider.test
+docker compose --project-name cicd-toolbox up -d --build --no-deps nodered.tooling.provider.test
 echo "****************************************************************************************************************"
 echo " Start Portainer"
 echo "****************************************************************************************************************"
-docker-compose up -d --build --no-deps portainer.monitoring.provider.test
+docker compose --project-name cicd-toolbox up -d --build --no-deps portainer.monitoring.provider.test
 echo "****************************************************************************************************************"
 echo " Starting Netbox"
 echo "****************************************************************************************************************"
-docker-compose up -d --build --no-deps redis.tooling.provider.test
-docker-compose up -d --build --no-deps netbox.tooling.provider.test
+docker compose --project-name cicd-toolbox up -d --build --no-deps redis.tooling.provider.test
+docker compose --project-name cicd-toolbox up -d --build --no-deps netbox.tooling.provider.test
 echo " " 
 echo "****************************************************************************************************************"
 echo " Starting Loki, Promtail and Grafana..."
 echo "****************************************************************************************************************"
-docker-compose up -d --build --no-deps loki.monitoring.provider.test
-docker-compose up -d --build --no-deps promtail.monitoring.provider.test
-docker-compose up -d --build --no-deps grafana.monitoring.provider.test
+docker compose --project-name cicd-toolbox up -d --build --no-deps loki.monitoring.provider.test
+docker compose --project-name cicd-toolbox up -d --build --no-deps promtail.monitoring.provider.test
+docker compose --project-name cicd-toolbox up -d --build --no-deps grafana.monitoring.provider.test
 echo " "
 echo "****************************************************************************************************************"
 echo " Validating install"
@@ -607,7 +607,7 @@ echo " You may change this to your own credentials in:"
 echo " "
 echo " http://jenkins.tooling.provider.test:8084/credentials/store/system/domain/_/credential/CML-SIM-CRED/update"
 echo " "
-echo " Due to limitations in Keycloak, do **not** use docker-compose down. Keycloak will no longer function after this."
+echo " Due to limitations in Keycloak, do **not** use docker compose --project-name cicd-toolbox down. Keycloak will no longer function after this."
 echo " "
 echo " Stop the environment with ./down, start with ./up"
 echo " "
@@ -624,8 +624,7 @@ echo " Gitea:       https://gitea.tooling.provider.test:3000"
 echo " Jenkins:     https://jenkins.tooling.provider.test:8084"
 echo " Nexus:       https://nexus.tooling.provider.test:8443"
 echo " Portainer:   http://portainer.monitoring.provider.test:9000"
-echo " Loki:        http://loki.monitoring.provider.test:9000"
-echo " Grafana:     http://grafana.monitoring.provider.test:9000"
+echo " Grafana:     http://grafana.monitoring.provider.test:3000"
 echo " Netbox:      http://netbox.tooling.provider.test:8000"
 #echo " Backstage:   https://backstage.tooling.provider.test"
 echo " restportal:  http://restportal.services.provider.test:8200"
