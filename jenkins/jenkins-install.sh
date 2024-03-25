@@ -31,7 +31,7 @@ echo "**************************************************************************
 echo " Starting jenkins"
 echo "****************************************************************************************************************"
 echo " " 
-docker-compose up -d --build --no-deps jenkins.tooling.provider.test
+docker compose --project-name cicd-toolbox up -d --build --no-deps jenkins.tooling.provider.test
 echo "****************************************************************************************************************"
 echo " We need a hack to get the CA into Jenkins"
 echo "****************************************************************************************************************"

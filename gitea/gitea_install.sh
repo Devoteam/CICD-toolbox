@@ -81,7 +81,7 @@ function CreateTeam () {
     team=$team_id
 }
 
-DOCKER_BUILDKIT=1 docker-compose up -d --build --no-deps gitea.tooling.provider.test
+DOCKER_BUILDKIT=1 docker compose --project-name cicd-toolbox up -d --build --no-deps gitea.tooling.provider.test
 echo " "
 echo "****************************************************************************************************************"
 echo " Installing CA certificate"

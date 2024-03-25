@@ -55,6 +55,10 @@ After install, execute:
 
 ```sudo apt -y install openjdk-11-jre-headless maven git docker.io docker-compose docker-buildx curl python3 python3-pip python-is-python3 jq vim firefox xauth libgl1-mesa-glx libcanberra-gtk-module libcanberra-gtk3-module libegl1 iputils-ping make build-essential wget terraform vault direnv```
 
+```mkdir -p ~/.docker/cli-plugins/```
+```curl -SL https://github.com/docker/compose/releases/download/v2.3.3/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose```
+```chmod +x ~/.docker/cli-plugins/docker-compose```
+
 ```sudo usermod -aG docker ${USER}```
 
 ```sudo su - ${USER}```

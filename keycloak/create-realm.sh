@@ -342,6 +342,76 @@ echo "ARGOS_token: ${ARGOS_token}"
 ./kcadm.sh create clients/$ARGOS_ID/roles -r cicdtoolbox -s name=argos-user -s description='The user role for Argos'
 ./kcadm.sh create clients/$ARGOS_ID/roles -r cicdtoolbox -s name=argos-jenkins -s description='The jenkins user role for Argos'
 
+# Add Minio
+./kcadm.sh create clients \
+    -r cicdtoolbox \
+    -s name="Minio" \
+    -s description="The Minio storage solution in the toolchain" \
+    -s clientId=Minio \
+    -s enabled=true \
+    -s publicClient=false \
+    -s directAccessGrantsEnabled=true \
+    -s fullScopeAllowed=false \
+    -s rootUrl=http://minio.services.provider.test \
+    -s adminUrl=http://minio.services.provider.test/ \
+    -s 'redirectUris=[ "http://minio.services.provider.test/*" ]' \
+    -s 'webOrigins=[ "http://minio.services.provider.test/" ]' \
+    -o --fields id >cicdtoolbox_MINIO
+
+# output is Created new client with id, we now need to grep the ID out of it
+MINIO_ID=$(cat cicdtoolbox_MINIO | grep id | cut -d'"' -f 4)
+echo "Created Minio client with ID: ${MINIO_ID}"
+
+# Create Client secret
+./kcadm.sh create clients/$MINIO_ID/client-secret -r cicdtoolbox
+
+# We need to retrieve the token from keycloak for this client
+./kcadm.sh get clients/$MINIO_ID/client-secret -r cicdtoolbox >cicdtoolbox_minio_secret
+MINIO_token=$(grep value cicdtoolbox_minio_secret | cut -d '"' -f4)
+
+# Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source 
+echo "MINIO_token: ${MINIO_token}"
+
+# Now we can add client specific roles (Clientroles)
+./kcadm.sh create clients/$MINIO_ID/roles -r cicdtoolbox -s name=administrator -s description='The admin role for Minio'
+./kcadm.sh create clients/$MINIO_ID/roles -r cicdtoolbox -s name=minio-user -s description='The user role for Minio'
+./kcadm.sh create clients/$MINIO_ID/roles -r cicdtoolbox -s name=minio-jenkins -s description='The jenkins user role for Minio'
+
+# Add OpenNebula
+./kcadm.sh create clients \
+    -r cicdtoolbox \
+    -s name="Opennebula" \
+    -s description="The Opennebula platform manager" \
+    -s clientId=Opennebula \
+    -s enabled=true \
+    -s publicClient=false \
+    -s directAccessGrantsEnabled=true \
+    -s fullScopeAllowed=false \
+    -s rootUrl=http://opennebula.services.provider.test \
+    -s adminUrl=http://opennebula.services.provider.test/ \
+    -s 'redirectUris=[ "http://opennebula.services.provider.test/*" ]' \
+    -s 'webOrigins=[ "http://opennebula.services.provider.test/" ]' \
+    -o --fields id >cicdtoolbox_OPENNEBULA
+
+# output is Created new client with id, we now need to grep the ID out of it
+OPENNEBULA_ID=$(cat cicdtoolbox_OPENNEBULA | grep id | cut -d'"' -f 4)
+echo "Created Opennebula client with ID: ${OPENNEBULA_ID}"
+
+# Create Client secret
+./kcadm.sh create clients/$OPENNEBULA_ID/client-secret -r cicdtoolbox
+
+# We need to retrieve the token from keycloak for this client
+./kcadm.sh get clients/$OPENNEBULA_ID/client-secret -r cicdtoolbox >cicdtoolbox_opennebula_secret
+OPENNEBULA_token=$(grep value cicdtoolbox_opennebula_secret | cut -d '"' -f4)
+
+# Make sure we can grep the clienttoken easily from the keycloak_create.log to create an authentication source 
+echo "OPENNEBULA_token: ${OPENNEBULA_token}"
+
+# Now we can add client specific roles (Clientroles)
+./kcadm.sh create clients/$OPENNEBULA_ID/roles -r cicdtoolbox -s name=administrator -s description='The admin role for Opennebula'
+./kcadm.sh create clients/$OPENNEBULA_ID/roles -r cicdtoolbox -s name=opennebula-user -s description='The user role for Opennebula'
+./kcadm.sh create clients/$OPENNEBULA_ID/roles -r cicdtoolbox -s name=opennebula-jenkins -s description='The jenkins user role for Opennebula'
+
 #Add Build_dev node
 ./kcadm.sh create clients \
     -r cicdtoolbox \
