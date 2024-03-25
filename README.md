@@ -65,7 +65,7 @@ After install, execute:
 
 ```sudo su - ${USER}```
 
-```sudo python3 -m pip install robotframework robotframework-selenium2library```
+```sudo python3 -m pip install robotframework robotframework-selenium2library robotframework-debuglibrary```
 
 ```echo "export COMPOSE_DOCKER_CLI_BUILD=1" >> ~/.bashrc```
 
