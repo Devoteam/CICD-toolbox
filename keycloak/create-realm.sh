@@ -243,7 +243,7 @@ echo "Included Jenkins Audience in token"
     -s protocol=openid-connect \
 	-s protocolMapper=oidc-usermodel-client-role-mapper \
     -s consentRequired=false \
-	-s config="{\"multivalued\" : \"true\",\"userinfo.token.claim\" : \"true\",\"id.token.claim\" : \"false\",\"access.token.claim\" : \"false\",\"claim.name\" : \"group-membership\",\"jsonType.label\" : \"String\",\"usermodel.clientRoleMapping.clientId\" : \"Jenkins\"}"
+	-s config="{\"multivalued\" : \"true\",\"userinfo.token.claim\" : \"true\",\"id.token.claim\" : \"false\",\"access.token.claim\" : \"false\",\"claim.name\" : \"groupmembership\",\"jsonType.label\" : \"String\",\"usermodel.clientRoleMapping.clientId\" : \"Jenkins\"}"
 
 echo "Created role-group mapper in the Client Scope for Jenkins" 
 echo "Jenkins configuration finished"

@@ -262,7 +262,7 @@ jenkins:
       userNameField: "preferred_username"
       fullNameFieldName: "name"
       emailFieldName: "email"
-      groupsFieldName: "group-membership"
+      groupsFieldName: "groupmembership"
       scopes: "web-origins address phone openid offline_access profile roles microprofile-jwt email"
       disableSslVerification: false
       logoutFromOpenidProvider: true
