@@ -7,7 +7,6 @@ authorize-project:latest
 bootstrap4-api:latest
 bouncycastle-api:latest
 branch-api:latest
-build-name-setter:latest
 build-timeout:latest
 built-on-column:latest
 cloudbees-folder:latest
@@ -45,14 +44,12 @@ jquery:latest
 jquery3-api:latest
 jsch:latest
 junit:latest
-ldap:latest
 lockable-resources:latest
 mailer:latest
 matrix-auth:latest
 matrix-project:latest
 maven-plugin:latest
 nexus-artifact-uploader:latest
-nexus-jenkins-plugin:latest
 nexus-task-runner:latest
 oic-auth:latest
 pam-auth:latest
@@ -65,12 +62,10 @@ pipeline-graph-analysis:latest
 pipeline-input-step:latest
 pipeline-milestone-step:latest
 pipeline-model-api:latest
-pipeline-model-definition:latest
 pipeline-model-extensions:latest
 pipeline-rest-api:latest
 pipeline-stage-step:latest
 pipeline-stage-tags-metadata:latest
-pipeline-stage-view:latest
 pipeline-utility-steps:latest
 plain-credentials:latest
 plugin-util-api:latest
@@ -94,7 +89,6 @@ trilead-api:latest
 workflow-aggregator:latest
 workflow-api:latest
 workflow-basic-steps:latest
-workflow-cps:latest
 workflow-durable-task-step:latest
 workflow-job:latest
 workflow-multibranch:latest

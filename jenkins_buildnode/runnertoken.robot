@@ -40,8 +40,8 @@ Create runner token
     [Arguments]                 ${env}
     Go To                       https://gitea.tooling.provider.test:3000/admin/actions/runners
     Wait Until Page Contains    Create new Runner
-    Click Button                Create new Runner
-    Wait Until Element Is Visible                                        xpath:/html/body/div/div/div[2]/div[2]/div/div/h4/div/div/div/div[4]/input
-    ${token}                    SeleniumLibrary.Get Element Attribute    xpath:/html/body/div/div/div[2]/div[2]/div/div/h4/div/div/div/div[4]/input    value
+    Click Button                Create new Runner                        
+    Wait Until Element Is Visible                                        xpath:/html/body/div[2]/div/div/div[2]/div/div/h4/div/div/div/div[4]/input
+    ${token}                    SeleniumLibrary.Get Element Attribute    xpath:/html/body/div[2]/div/div/div[2]/div/div/h4/div/div/div/div[4]/input    value
     Log to Console              ${env} token created
     Create File                 ${EXECDIR}/jenkins_buildnode/${env}_runner_token   ${token}

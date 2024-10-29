@@ -192,6 +192,10 @@ services:
     environment:
       - MINIO_ROOT_USER=${minio_user}
       - MINIO_ROOT_PASSWORD=${minio_password}
+      - MINIO_IDENTITY_OPENID_CONFIG_URL="https://keycloak.services.provider.test:8443/realms/cicdtoolbox/.well-known/openid-configuration"
+      - MINIO_IDENTITY_OPENID_CLIENT_ID="Minio"
+      - MINIO_IDENTITY_OPENID_CLIENT_SECRET="<string>"
+      - MINIO_IDENTITY_OPENID_SCOPES="Minio"
     networks:
       internal:
         ipv4_address: 172.16.9.6
@@ -505,6 +509,12 @@ services:
     expose:
       - '8080'
       - '8443'
+    healthcheck:
+      test: 'curl --insecure -fSs https://172.16.10.11:8443'
+      start_period: 60s
+      interval: 5s
+      timeout: 5s
+      retries: 5
     depends_on:
       - cicdtoolbox-db.internal.provider.test
 
@@ -526,6 +536,12 @@ services:
     networks:
       internal:
         ipv4_address: 172.16.8.11
+    healthcheck:
+      test: 'curl --insecure -fSs http://172.16.8.11:17170/login'
+      start_period: 60s
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   nexus.tooling.provider.test:
     container_name: nexus.tooling.provider.test
