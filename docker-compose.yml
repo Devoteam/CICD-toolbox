@@ -136,87 +136,87 @@ secrets:
     file: ./vault/certs/redis.internal.provider.test.crt
 
 services:
-  argos-service.tooling.provider.test:
-    container_name: argos-service.tooling.provider.test
-    build: ./argos-service
-    environment:
-      spring.config.location: /application.yml
-      jwt.token.secret: '${argos_service_jwt}'
-      spring.profiles.active: integration-test
-      JAVA_OPTS: '-Xmx1g'
-    networks:
-      internal:
-        ipv4_address: 172.16.11.4
-    expose:
-      - '8080'
-    depends_on:
-      - mongodb.internal.provider.test
-      - keycloak.services.provider.test
-    volumes:
-      - './argos/application.yml:/application.yml'
+  # argos-service.tooling.provider.test:
+  #   container_name: argos-service.tooling.provider.test
+  #   build: ./argos-service
+  #   environment:
+  #     spring.config.location: /application.yml
+  #     jwt.token.secret: '${argos_service_jwt}'
+  #     spring.profiles.active: integration-test
+  #     JAVA_OPTS: '-Xmx1g'
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.11.4
+  #   expose:
+  #     - '8080'
+  #   depends_on:
+  #     - mongodb.internal.provider.test
+  #     - keycloak.services.provider.test
+  #   volumes:
+  #     - './argos/application.yml:/application.yml'
 
-  argos.services.provider.test:
-    container_name: argos.services.provider.test
-    image: 'argosnotary/argos-frontend:1.0.2'
-    environment:
-      - 'BACKEND_URL=http://argos-service.tooling.provider.test:8080'
-    networks:
-      internal:
-        ipv4_address: 172.16.10.4
-    expose:
-      - '8082'
-    depends_on:
-      - argos-service.tooling.provider.test
+  # argos.services.provider.test:
+  #   container_name: argos.services.provider.test
+  #   image: 'argosnotary/argos-frontend:1.0.2'
+  #   environment:
+  #     - 'BACKEND_URL=http://argos-service.tooling.provider.test:8080'
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.10.4
+  #   expose:
+  #     - '8082'
+  #   depends_on:
+  #     - argos-service.tooling.provider.test
 
-  mongodb.internal.provider.test:
-    container_name: mongodb.internal.provider.test
-    image: 'argosnotary/mongo:4.2.8'
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    networks:
-      internal:
-        ipv4_address: 172.16.9.3
-    expose:
-      - '27017'
+  # mongodb.internal.provider.test:
+  #   container_name: mongodb.internal.provider.test
+  #   image: 'argosnotary/mongo:4.2.8'
+  #   restart: unless-stopped
+  #   init: true
+  #   stop_signal: SIGINT
+  #   stop_grace_period: 15s
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.9.3
+  #   expose:
+  #     - '27017'
 
-  minio.internal.provider.test:
-    container_name: minio.internal.provider.test
-    image: quay.io/minio/minio
-    command: server /data --console-address ":9001"
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    environment:
-      - MINIO_ROOT_USER=${minio_user}
-      - MINIO_ROOT_PASSWORD=${minio_password}
-      - MINIO_IDENTITY_OPENID_CONFIG_URL="https://keycloak.services.provider.test:8443/realms/cicdtoolbox/.well-known/openid-configuration"
-      - MINIO_IDENTITY_OPENID_CLIENT_ID="Minio"
-      - MINIO_IDENTITY_OPENID_CLIENT_SECRET="<string>"
-      - MINIO_IDENTITY_OPENID_SCOPES="Minio"
-    networks:
-      internal:
-        ipv4_address: 172.16.9.6
-    expose:
-      - '9000'
-      - '9001'
-    volumes:
-      - 'minio_data:/data'
+  # minio.internal.provider.test:
+  #   container_name: minio.internal.provider.test
+  #   image: quay.io/minio/minio
+  #   command: server /data --console-address ":9001"
+  #   restart: unless-stopped
+  #   init: true
+  #   stop_signal: SIGINT
+  #   stop_grace_period: 15s
+  #   environment:
+  #     - MINIO_ROOT_USER=${minio_user}
+  #     - MINIO_ROOT_PASSWORD=${minio_password}
+  #     - MINIO_IDENTITY_OPENID_CONFIG_URL="https://keycloak.services.provider.test:8443/realms/cicdtoolbox/.well-known/openid-configuration"
+  #     - MINIO_IDENTITY_OPENID_CLIENT_ID="Minio"
+  #     - MINIO_IDENTITY_OPENID_CLIENT_SECRET="<string>"
+  #     - MINIO_IDENTITY_OPENID_SCOPES="Minio"
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.9.6
+  #   expose:
+  #     - '9000'
+  #     - '9001'
+  #   volumes:
+  #     - 'minio_data:/data'
 
 
-  backstage.tooling.provider.test:
-    container_name: backstage.tooling.provider.test
-    build:
-      context: ./backstage
-      dockerfile: Dockerfile
-    networks:
-      internal:
-        ipv4_address: 172.16.11.14
-    expose:
-      - '3000'
-      - '7000'
+  # backstage.tooling.provider.test:
+  #   container_name: backstage.tooling.provider.test
+  #   build:
+  #     context: ./backstage
+  #     dockerfile: Dockerfile
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.11.14
+  #   expose:
+  #     - '3000'
+  #     - '7000'
 
   cicdtoolbox-db.internal.provider.test:
     container_name: cicdtoolbox-db.internal.provider.test
@@ -290,48 +290,48 @@ services:
       timeout: 5s
       retries: 5
 
-  loki.monitoring.provider.test:
-    container_name: loki.monitoring.provider.test
-    build: loki
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    expose:
-      - '3100'
-    command: '-config.file=/etc/loki/local-config.yaml'
-    networks:
-      internal:
-        ipv4_address: 172.16.13.4
+  # loki.monitoring.provider.test:
+  #   container_name: loki.monitoring.provider.test
+  #   build: loki
+  #   restart: unless-stopped
+  #   init: true
+  #   stop_signal: SIGINT
+  #   stop_grace_period: 15s
+  #   expose:
+  #     - '3100'
+  #   command: '-config.file=/etc/loki/local-config.yaml'
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.13.4
 
-  promtail.monitoring.provider.test:
-    container_name: promtail.monitoring.provider.test
-    build: promtail
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    volumes:
-      - 'promtail:/var/log'
-    command: '-config.file=/etc/promtail/config.yml'
-    networks:
-      internal:
-        ipv4_address: 172.16.13.5
+  # promtail.monitoring.provider.test:
+  #   container_name: promtail.monitoring.provider.test
+  #   build: promtail
+  #   restart: unless-stopped
+  #   init: true
+  #   stop_signal: SIGINT
+  #   stop_grace_period: 15s
+  #   volumes:
+  #     - 'promtail:/var/log'
+  #   command: '-config.file=/etc/promtail/config.yml'
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.13.5
 
-  grafana.monitoring.provider.test:
-    container_name: grafana.monitoring.provider.test
-    build: grafana
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    environment:
-      - 'GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=${Grafana_CLIENT_SECRET}'
-    expose:
-      - '3000'
-    networks:
-      internal:
-        ipv4_address: 172.16.13.6
+  # grafana.monitoring.provider.test:
+  #   container_name: grafana.monitoring.provider.test
+  #   build: grafana
+  #   restart: unless-stopped
+  #   init: true
+  #   stop_signal: SIGINT
+  #   stop_grace_period: 15s
+  #   environment:
+  #     - 'GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=${Grafana_CLIENT_SECRET}'
+  #   expose:
+  #     - '3000'
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.13.6
 
   jenkins.tooling.provider.test:
     container_name: jenkins.tooling.provider.test
@@ -573,64 +573,64 @@ services:
     depends_on:
       - keycloak.services.provider.test
 
-  nodered.tooling.provider.test:
-    container_name: nodered.tooling.provider.test
-    image: 'nodered/node-red:latest'
-    restart: unless-stopped
-    environment:
-      - TZ=Europe/Amsterdam
-    secrets:
-      - source: ca_crt
-        target: /etc/ssl/ca.crt
-      - source: jenkins_key
-        target: /etc/ssl/jenkins.tooling.provider.test.pem
-      - source: jenkins_crt
-        target: /etc/ssl/jenkins.tooling.provider.test.crt
-    volumes:
-      - 'nodered:/data'
-    networks:
-      internal:
-        ipv4_address: 172.16.11.13
-    expose:
-      - '1880'
+  # nodered.tooling.provider.test:
+  #   container_name: nodered.tooling.provider.test
+  #   image: 'nodered/node-red:latest'
+  #   restart: unless-stopped
+  #   environment:
+  #     - TZ=Europe/Amsterdam
+  #   secrets:
+  #     - source: ca_crt
+  #       target: /etc/ssl/ca.crt
+  #     - source: jenkins_key
+  #       target: /etc/ssl/jenkins.tooling.provider.test.pem
+  #     - source: jenkins_crt
+  #       target: /etc/ssl/jenkins.tooling.provider.test.crt
+  #   volumes:
+  #     - 'nodered:/data'
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.11.13
+  #   expose:
+  #     - '1880'
 
-  portainer.monitoring.provider.test:
-    container_name: portainer.monitoring.provider.test
-    image: portainer/portainer-ce
-    restart: unless-stopped
-    init: true
-    stop_signal: SIGINT
-    stop_grace_period: 15s
-    secrets:
-      - source: ca_crt
-        target: /etc/ssl/certs/cacert.pem
-      - source: portainer_key
-        target: /etc/ssl/portainer.monitoring.provider.test.pem
-      - source: portainer_crt
-        target: /etc/ssl/portainer.monitoring.provider.test.crt
-    volumes:
-      - 'portainer_data:/data'
-      - '/var/run/docker.sock:/var/run/docker.sock'
-    networks:
-      internal:
-        ipv4_address: 172.16.13.3
-    expose:
-      - '9000'
+  # portainer.monitoring.provider.test:
+  #   container_name: portainer.monitoring.provider.test
+  #   image: portainer/portainer-ce
+  #   restart: unless-stopped
+  #   init: true
+  #   stop_signal: SIGINT
+  #   stop_grace_period: 15s
+  #   secrets:
+  #     - source: ca_crt
+  #       target: /etc/ssl/certs/cacert.pem
+  #     - source: portainer_key
+  #       target: /etc/ssl/portainer.monitoring.provider.test.pem
+  #     - source: portainer_crt
+  #       target: /etc/ssl/portainer.monitoring.provider.test.crt
+  #   volumes:
+  #     - 'portainer_data:/data'
+  #     - '/var/run/docker.sock:/var/run/docker.sock'
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.13.3
+  #   expose:
+  #     - '9000'
 
-  restportal.services.provider.test:
-    container_name: restportal.services.provider.test
-    image: 'mockoon/cli:latest'
-    restart: unless-stopped
-    command: '--data data'
-    networks:
-      internal:
-        ipv4_address: 172.16.10.2
-    volumes:
-      - type: bind
-        source: ./restportal/bis2.json
-        target: /data
-    expose:
-      - '3001'
+  # restportal.services.provider.test:
+  #   container_name: restportal.services.provider.test
+  #   image: 'mockoon/cli:latest'
+  #   restart: unless-stopped
+  #   command: '--data data'
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.10.2
+  #   volumes:
+  #     - type: bind
+  #       source: ./restportal/bis2.json
+  #       target: /data
+  #   expose:
+  #     - '3001'
 
   consul.internal.provider.test:
     container_name: consul.internal.provider.test
@@ -674,51 +674,51 @@ services:
     cap_add:
       - IPC_LOCK
 
-  redis.tooling.provider.test:
-    container_name: redis.tooling.provider.test
-    image: 'redis:6.2-alpine'
-    expose:
-      - '6379'
-    command: redis-server --save 60 1 --requirepass netbox --loglevel warning
-    restart: unless-stopped
-    volumes:
-      - 'redis:/data'
-    networks:
-      internal:
-        ipv4_address: 172.16.11.11
+#   redis.tooling.provider.test:
+#     container_name: redis.tooling.provider.test
+#     image: 'redis:6.2-alpine'
+#     expose:
+#       - '6379'
+#     command: redis-server --save 60 1 --requirepass netbox --loglevel warning
+#     restart: unless-stopped
+#     volumes:
+#       - 'redis:/data'
+#     networks:
+#       internal:
+#         ipv4_address: 172.16.11.11
 
-  netbox.tooling.provider.test:
-    container_name: netbox.tooling.provider.test
-    image: 'lscr.io/linuxserver/netbox:latest'
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Amsterdam
-      - 'SUPERUSER_EMAIL=${netbox_admin}'
-      - 'SUPERUSER_PASSWORD=${netbox_admin_password}'
-      - ALLOWED_HOST=netbox.tooling.provider.test
-      - DB_NAME=netbox
-      - DB_USER=netbox
-#      - 'DB_USER=${netbox_db_user}'
-      - 'DB_PASSWORD=${netbox_db_password}'
-      - DB_HOST=cicdtoolbox-db.internal.provider.test
-      - DB_PORT=5432
-      - REDIS_HOST=redis.tooling.provider.test
-      - REDIS_PORT=6379
-      - 'REDIS_PASSWORD=${netbox_db_password}'
-    secrets:
-      - source: ca_crt
-        target: /opt/netbox/venv/lib/python3.9/site-packages/certifi/cacert.pem
-      - source: cicdtoolbox-db_crt
-        target: /root/.postgresql/postgresql.crt
-    volumes:
-      - 'netbox:/config'
-    expose:
-      - '8000'
-    restart: unless-stopped
-    networks:
-      internal:
-        ipv4_address: 172.16.11.12
+#   netbox.tooling.provider.test:
+#     container_name: netbox.tooling.provider.test
+#     image: 'lscr.io/linuxserver/netbox:latest'
+#     environment:
+#       - PUID=1000
+#       - PGID=1000
+#       - TZ=Europe/Amsterdam
+#       - 'SUPERUSER_EMAIL=${netbox_admin}'
+#       - 'SUPERUSER_PASSWORD=${netbox_admin_password}'
+#       - ALLOWED_HOST=netbox.tooling.provider.test
+#       - DB_NAME=netbox
+#       - DB_USER=netbox
+# #      - 'DB_USER=${netbox_db_user}'
+#       - 'DB_PASSWORD=${netbox_db_password}'
+#       - DB_HOST=cicdtoolbox-db.internal.provider.test
+#       - DB_PORT=5432
+#       - REDIS_HOST=redis.tooling.provider.test
+#       - REDIS_PORT=6379
+#       - 'REDIS_PASSWORD=${netbox_db_password}'
+#     secrets:
+#       - source: ca_crt
+#         target: /opt/netbox/venv/lib/python3.9/site-packages/certifi/cacert.pem
+#       - source: cicdtoolbox-db_crt
+#         target: /root/.postgresql/postgresql.crt
+#     volumes:
+#       - 'netbox:/config'
+#     expose:
+#       - '8000'
+#     restart: unless-stopped
+#     networks:
+#       internal:
+#         ipv4_address: 172.16.11.12
 
   seleniumffhost.internal.provider.test:
     container_name: seleniumffhost.internal.provider.test
@@ -744,46 +744,46 @@ services:
       internal:
         ipv4_address: 172.16.10.101
   
-  opennebula.tooling.provider.test:
-    container_name: opennebula.tooling.provider.test
-    image: 'opennebula/opennebula:latest'
-    environment:
-      - OPENNEBULA_HOST=one.tooling.provider.test
-      - OPENNEBULA_SSH_HOST=one.tooling.provider.test
-      - 'ONEADMIN_PASSWORD=${opennebula_oneadmin_password}'
-      - DIND_ENABLED=yes
-      - SUNSTONE_HTTPS_ENABLED=no
-    networks:
-      internal:
-        ipv4_address: 172.16.10.30
-    volumes:
-      - 'opennebula_db:/var/lib/mysql'
-      - 'opennebula_datastores:/var/lib/one/datastores'
-      - 'opennebula_srv:/srv/one'
-      - 'opennebula_oneadmin_auth:/var/lib/one/.one'
-      - 'opennebula_oneadmin_ssh:/var/lib/one/.ssh'
-      - 'opennebula_etcd:/srv/one/etcd'
-      - 'opennebula_etcd_secrets:/srv/one/etcd-secrets'
-      - 'opennebula_logs:/var/log'
-    expose:
-      - '22'
-      - '80'
-      - '2474'
-      - '2633'
-      - '4124'
-      - '5030'
-      - '29876'
-    restart: unless-stopped
-    privileged: true
-    cap_add:
-      - NET_ADMIN
-      - NET_RAW
-    ulimits:
-      nofile:
-        soft: 65536
-        hard: 65536
-    healthcheck:  
-      test: ["CMD", "curl", "-f", "http://localhost:2633"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+  # opennebula.tooling.provider.test:
+  #   container_name: opennebula.tooling.provider.test
+  #   image: 'opennebula/opennebula:latest'
+  #   environment:
+  #     - OPENNEBULA_HOST=one.tooling.provider.test
+  #     - OPENNEBULA_SSH_HOST=one.tooling.provider.test
+  #     - 'ONEADMIN_PASSWORD=${opennebula_oneadmin_password}'
+  #     - DIND_ENABLED=yes
+  #     - SUNSTONE_HTTPS_ENABLED=no
+  #   networks:
+  #     internal:
+  #       ipv4_address: 172.16.10.30
+  #   volumes:
+  #     - 'opennebula_db:/var/lib/mysql'
+  #     - 'opennebula_datastores:/var/lib/one/datastores'
+  #     - 'opennebula_srv:/srv/one'
+  #     - 'opennebula_oneadmin_auth:/var/lib/one/.one'
+  #     - 'opennebula_oneadmin_ssh:/var/lib/one/.ssh'
+  #     - 'opennebula_etcd:/srv/one/etcd'
+  #     - 'opennebula_etcd_secrets:/srv/one/etcd-secrets'
+  #     - 'opennebula_logs:/var/log'
+  #   expose:
+  #     - '22'
+  #     - '80'
+  #     - '2474'
+  #     - '2633'
+  #     - '4124'
+  #     - '5030'
+  #     - '29876'
+  #   restart: unless-stopped
+  #   privileged: true
+  #   cap_add:
+  #     - NET_ADMIN
+  #     - NET_RAW
+  #   ulimits:
+  #     nofile:
+  #       soft: 65536
+  #       hard: 65536
+  #   healthcheck:  
+  #     test: ["CMD", "curl", "-f", "http://localhost:2633"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
