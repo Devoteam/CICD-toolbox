@@ -145,6 +145,11 @@ create_leaf keycloak services
 create_leaf ldap iam 
 create_leaf nexus tooling 
 create_leaf vault internal 
+echo "****************************************************************************************************************"
+echo " Preparing PostgreSQL database use" 
+echo "****************************************************************************************************************"
+echo " " 
+vault secrets enable -address="http://vault.internal.provider.test:8200" database
 echo " " 
 echo "****************************************************************************************************************"
 echo " Now give Vault it's certificates" 
@@ -178,7 +183,7 @@ echo "**************************************************************************
 echo " " 
 docker restart vault.internal.provider.test
 echo "****************************************************************************************************************"
-echo " Wait until Vault is running (~5 sec.)"
+echo " Wait until Vault is running (~10 sec.)"
 echo "****************************************************************************************************************"
 let t=0
 until $(curl --output /dev/null --silent --head --fail https://vault.internal.provider.test:8200); do
@@ -190,10 +195,7 @@ echo "**************************************************************************
 echo " Unsealing vault" 
 echo "****************************************************************************************************************"
 echo " " 
+echo pwd
+echo " "
 vault operator unseal -address="https://vault.internal.provider.test:8200" $(cat ./vault/key.txt)
 echo " " 
-echo "****************************************************************************************************************"
-echo " Preparing PostgreSQL database use" 
-echo "****************************************************************************************************************"
-echo " " 
-vault secrets enable -address="https://vault.internal.provider.test:8200" database
