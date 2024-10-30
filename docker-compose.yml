@@ -533,6 +533,9 @@ services:
         target: /data/cert.crt
     volumes:
       - './lldap/data:/data'
+    environment:
+      - UID=1000
+      - GID=1000
     networks:
       internal:
         ipv4_address: 172.16.8.11

@@ -61,8 +61,8 @@ echo "**************************************************************************
 echo " Creating Vault with a Consul backend" 
 echo "****************************************************************************************************************"
 #Sdocker-compose pull 
-docker-compose up -d --build --remove-orphans consul.internal.provider.test
-docker-compose up -d --build --remove-orphans vault.internal.provider.test
+docker compose up -d --build --remove-orphans consul.internal.provider.test
+docker compose up -d --build --remove-orphans vault.internal.provider.test
 echo "****************************************************************************************************************"
 echo " Wait until vault is running (~5 sec.)"
 echo "****************************************************************************************************************"
