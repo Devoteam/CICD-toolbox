@@ -20,7 +20,7 @@ until $(curl --output /dev/null --silent --head --fail http://vault.internal.pro
     sleep 5
 done
 echo " "
-unseal_key=`cat ./vault/key.txt`
+unseal_key=(cat ./vault/key.txt)
 robot --variable key:${unseal_key} -d install_log ./vault/unseal.robot
 
 docker-compose start cicdtoolbox-db.internal.provider.test keycloak.services.provider.test

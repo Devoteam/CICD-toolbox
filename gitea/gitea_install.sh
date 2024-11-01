@@ -69,7 +69,7 @@ function CreateTeam () {
             "repo.ext_wiki" 
             ] 
         }'
-    local team_data=`curl -s --insecure --user $user:$pwd -X POST "https://gitea.tooling.provider.test:3000/api/v1/orgs/${1}/teams" -H "accept: application/json" -H "Content-Type: application/json" -d "${team_payload}"`
+    local team_data=$(curl -s --insecure --user $user:$pwd -X POST "https://gitea.tooling.provider.test:3000/api/v1/orgs/${1}/teams" -H "accept: application/json" -H "Content-Type: application/json" -d "${team_payload}")
     local team_id=$( echo $team_data | awk -F',' '{print $(1)}' | awk -F':' '{print $2}' )
     echo " "
     echo "****************************************************************************************************************"
@@ -114,7 +114,7 @@ ORG_PAYLOAD='{
     "visibility": "public", 
     "website": ""
     }'
-org_data=`curl -s --insecure --user $user:$pwd -X POST "https://gitea.tooling.provider.test:3000/api/v1/orgs" -H "accept: application/json" -H "Content-Type: application/json" --data "${ORG_PAYLOAD}"`
+org_data=$(curl -s --insecure --user $user:$pwd -X POST "https://gitea.tooling.provider.test:3000/api/v1/orgs" -H "accept: application/json" -H "Content-Type: application/json" --data "${ORG_PAYLOAD}")
 echo " "
 
 CreateRepo "Infraautomator" "CICD-toolbox" "https://github.com/Devoteam/CICD-toolbox.git" "The CICD-toolbox"

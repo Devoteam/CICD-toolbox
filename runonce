@@ -483,8 +483,8 @@ echo " "
 echo "****************************************************************************************************************"
 echo " Retrieving Jenkins CSRF"
 echo "****************************************************************************************************************"
-jtoken=`cat jtoken.txt`
-crumb=`curl -u "jenkins-jenkins:${jtoken}" --insecure 'https://jenkins.tooling.provider.test:8084/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)'`
+jtoken=$(cat jtoken.txt)
+crumb=$(curl -u "jenkins-jenkins:${jtoken}" --insecure 'https://jenkins.tooling.provider.test:8084/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)')
 csrf=$( echo $crumb | awk -F',' '{print $(1)}' | awk -F':' '{print $2}' )
 echo $csrf
 rm -f jtoken.txt
